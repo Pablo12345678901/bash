@@ -1,0 +1,1 @@
+bash: cd: /Users/alejandramt/Developpement/bash_test/ch02_sortie_standard/sortie_ls_en_ligne.txt: Not a directory
