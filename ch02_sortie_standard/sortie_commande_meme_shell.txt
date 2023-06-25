@@ -1,0 +1,5 @@
+]633;C]633;E;{ echo 'Je suis charlemagne'\x3b ls \x3b } >> ch02_sortie_standard/sortie_commande_meme_shell.txt\x3b;93009acf-97ef-4263-92c6-242a1e56bf1aJe suis charlemagne
+0_test
+bashcookbook-examples-master
+ch02_sortie_standard
+zzz_test_git.txt
