@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+read -p "Quel est votre prénom ? " REPONSE
+echo "Bonjour $REPONSE."

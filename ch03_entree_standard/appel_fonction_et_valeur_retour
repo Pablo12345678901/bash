@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+source '/Users/pablo/Desktop/Developpement/bash/bashcookbook-examples-master/ch03/func_choice.1'
+QUESTION="Souhaiteriez-vous continuer ? "
+choice "$QUESTION"
+echo "Vous avez répondu \"$CHOICE\" à la question \"$QUESTION\"."
