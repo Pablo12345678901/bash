@@ -17,7 +17,7 @@ until [ "$directory" == "Finished" ]; do
             echo "You chose number $REPLY, processing $directory..."
             # Do something here
             break
-        else
+        else # select est particulier car si une mauvaise entrée (une entrée ne correspondant pas au nb proposé) est saisie, la valeur est fixé à "null"
             echo "Invalid selection!"
         fi # end of handle user's selection
 

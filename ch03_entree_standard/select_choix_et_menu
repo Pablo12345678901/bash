@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# liste de choix
+listedechoix="$(for choix in $(cat <<-EOF # avec un heredocument pour inclure les choix au script
+    ananas
+    bananes
+    e-test
+    fraises
+    i-test
+    kiwis
+    mangues
+    oranges
+    pamplemousses
+    ursulades
+    ygrek
+EOF
+); do echo $choix; done)"
+
+accord="de " # pour l'accord avec la voyelle de début du mot
+
+until [ -n "$votrechoix" ] ; do
+    printf "%b" "\nQuel jus de fruits souhaiteriez-vous ?\n\n"
+    select votrechoix in $listedechoix ;
+    do
+        if [ -n "$votrechoix" ]; then
+            #DEBUG echo "Première lettre = ${votrechoix:0:1}"
+            #if [[ "${votrechoix:0:1}" =~ ['a'|'e'|'i'|'o'|'u'|'y'] ]] ; then
+            if [[ "${votrechoix:0:1}" =~ [aeiouy] ]] ; then
+                accord="d'"
+            else
+                accord="de "
+            fi
+            printf "%b" "\nVous avez choisi de boire un jus $accord$votrechoix.\n\n"
+            #break;
+        else
+            printf "%b" "\nERREUR : le choix \"$REPLY\" ne fait pas partie des propositions de fruits.\n\n"
+            #break;
+        fi
+    done
+done
+printf "%b" "Fin du programme\n"
+

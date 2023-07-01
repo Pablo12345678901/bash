@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+function main() {
+    while (true)
+        do
+            choisir_ou_mourrir
+            affichage_choix
+            if [ "$CHOIX" = 'o' ] || [ "$CHOIX" = 'n' ] # condition de boucle (et programme)
+            then
+                break 
+            fi
+        done
+    echo "Fin du programme."
+}
+
+function choisir_ou_mourrir {
+    CHOIX=''
+    local question="Que choisissez-vous ? "
+    local reponse
+    echo ""
+    read -p "$question" reponse
+    case "$reponse" in
+        oui ) CHOIX='o';;
+        non ) CHOIX='n';;
+        *     ) CHOIX="$reponse";;
+    esac
+}
+
+
+function affichage_choix() {
+    if [ -z "$CHOIX" ]; then
+        echo "ERREUR : Votre choix est vide."
+    elif [ "$CHOIX" = 'o' ] || [ "$CHOIX" = 'n' ]; then
+        if [ "$CHOIX" = 'o' ]; then
+            echo -e "Vous avez choisi \"oui\".\n"
+        else
+            echo -e "Vous avez choisi \"non\".\n"
+        fi
+    else 
+        echo -e "ERREUR : Le choix a été fait mais est incorrect\nEn effet, il vaut \"$CHOIX\"."
+    fi
+}
+
+main # fonction main appelée en fin de fichier - elle gère les appels des autres fonctions
+
+
