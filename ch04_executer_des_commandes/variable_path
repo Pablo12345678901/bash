@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Ce script affiche la valeur des paths de la variable PATH de manière esthétique
+
+temp_IFS=$IFS # Conservation de la valeur par défaut = <space><tab><newline>
+#DEBUG echo "1. IFS vaut \"$IFS\""
+
+IFS=: # Modification du séparateur de base des mots
+#DEBUG echo "2. IFS vaut \"$IFS\""
+
+echo "" # retour à la ligne esthétique
+read -ra tableau <<< "$PATH" # stoque la valeur de chaque élément de path dans un tableau
+for path in "${tableau[@]}" ; do
+    echo "$path"
+    #open "$path" # Pour ouvrir les répertoires afin de les voir physiquement
+done
+echo "" # retour à la ligne esthétique
+
+IFS=$temp_IFS # remise en place de la valeur par défaut
+#DEBUG echo "3. IFS vaut \"$IFS\""

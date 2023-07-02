@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+set -o history # pour activer les options : historique et expansion de l'historique (désactivé par défaut)
+set -o histexpand
+
+cd "/Users/" >&2 # path correct
+
+return_value=$? # conserver la valeur de la dernière commande
+
+if [ $return_value -eq 0 ]; then
+    echo "OUI : La dernière commande a fonctionné !"
+else
+    echo "NON : La dernière commande n'a pas fonctionné..."
+fi
+
+#############################################
+
+cd "/Uss" >&2 # path erroné (fait exprès) et envoi message d'erreur vers STDERR
+
+return_value=$? # conserver la valeur de la dernière commande
+
+if [ $return_value -eq 0 ]; then
+    echo "OUI : La dernière commande a fonctionné !"
+else
+    echo "NON : La dernière commande n'a pas fonctionné..."
+fi

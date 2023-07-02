@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+a=0
+echo ""
+echo "AVANT a vaut 0 : $a."
+echo ""
+
+################################## 
+
+echo "if ((++a)) -> ++a est incrémenté puis évalué à 1."
+if ((++a)); then
+    echo -e "TRUE\nrésultat est différent de 0.\na : $a"
+else 
+    echo -e "FALSE\nrésultat vaut 0\na : $a"
+fi
+echo ""
+
+##################################
+
+echo "if ((--a)) -> --a est décrémenté puis évalué à 0."
+if ((--a)); then
+    echo -e "TRUE\nrésultat est différent de 0.\na : $a"
+else 
+    echo -e "FALSE\nrésultat vaut 0\na : $a"
+fi
+echo ""
+
+#################################
+
+echo "AU MILIEU : a vaut à nouveau 0 : $a."
+echo ""
+
+#################################
+
+echo "if ((a++)) -> a++ est évalué à 0 puis est incrémenté."
+if ((a++)); then
+    echo -e "TRUE\nrésultat est différent de 0.\na : $a"
+else 
+    echo -e "FALSE\nrésultat vaut 0\na : $a"
+fi
+echo ""
+
+##################################
+
+echo "if ((a--)) -> a-- est évalué à 1 puis est décrémenté."
+if ((a--)); then
+    echo -e "TRUE\nrésultat est différent de 0.\na : $a"
+else 
+    echo -e "FALSE\nrésultat vaut 0\na : $a"
+fi
+echo ""

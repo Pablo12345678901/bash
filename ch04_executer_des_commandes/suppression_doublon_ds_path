@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+# Fonction pour éviter un ajout de path à double dans $PATH
+################################
+# _remove $1 from PATH
+_path_del() {
+    local _l=":$PATH:"
+    while [[ $_l =~ :$1: ]]; do
+          _l=${_l//:$1:/:}
+    done
+    _l=${_l%:}
+    _l=${_l#:}
+    PATH="$_l"
+}
+
+# _prepend : prepend $1 to PATH.
+_path_prepend() {
+    _path_del "$1"
+    PATH="$1:$PATH"
+}
+
+# _append : append $1 to PATH.
+_path_append() {
+    _path_del "$1"
+    PATH="$PATH:$1"
+}
+
+# _ajout_element_tableau
+_ajout_au_tableau_des_paths() {
+    liste_path[$index_tableau]="$1"
+    ((index_tableau++)) # incrémentation de l'index du tableau à chaque ajout
+}
+
+################################
+declare -a liste_path # tableau des paths à ajouter manuellement
+index_tableau=0 # var nécessaire pour le tableau des path - NE PAS SUPPRIMER
+_ajout_au_tableau_des_paths "/usr/local/opt/llvm/bin"
+_ajout_au_tableau_des_paths "/usr/local/opt/openjdk/bin"
+
+# Ajouter chaque élément du tableau au path
+for path_a_ajoute in "${liste_path[@]}"; do
+    _path_del $path_a_ajoute # supprime les doublons
+    _path_append $path_a_ajoute # ajoute en fin
+done
+
+export PATH
