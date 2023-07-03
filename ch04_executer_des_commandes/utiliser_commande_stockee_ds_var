@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+COMMANDE=echo
+PARAM="Ceci est le paramètre"
+$COMMANDE $PARAM
+# le shell remplace les var par leur valeur puis exécute

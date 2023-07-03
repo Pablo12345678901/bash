@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+# set -v # DEBUG affiche les lignes du script au fil de la lecture par le shell
+# set -x #DEBUG # affiche les commandes du script au fil de leur exécution
+# echo $- # affiche les options du set
+
+temp_direct="temp_directory"
+cd_temp_direct="${temp_direct}" # fonctionne car ok
+#cd_temp_direct="${temp_direct}a" # ne fonctionne pas car pas ok
+under_direct="new_dir"
+
+
+#echo "AVANT Affichage contenu répertoire."
+#ls
+#mkdir "$temp_direct" && cd "$cd_temp_direct" && { mkdir "new_dir" ; ls ; } && cd .. && rm -i -r $cd_temp_direct
+
+echo "AGAIN"
+echo "AVANT Affichage contenu répertoire."
+ls
+
+### ci-dessous : identique à && (cf ci-dessus)
+echo "$(pwd)"
+mkdir "$temp_direct"
+if (($?)); then # contrôler avant de run
+    echo "La création de \"$temp_direct\" n'a pas fonctionné."
+    echo "Affichage final - réussite 0"
+    ls
+else
+    pwd
+    cd "$cd_temp_direct"
+    if (($?)); then
+        echo "Cd dans \"$cd_temp_direct\" n'a pas fonctionné".
+        echo "Affichage final - réussite 1/4"
+        ls
+    else
+        pwd
+        { mkdir "$under_direct" ; ls ; }
+        if (($?)); then
+            echo "Les commandes mkdir et ls n'ont pas fonctionné."
+            echo "Affichage final - réussite 2/4"
+            ls
+        else
+            pwd
+            cd ..
+            if (($?)); then
+                echo "Le retour au répertoire parent n'a pas fonctionné."
+                echo "Affichage final - réussite 3/4"
+                ls  
+            else
+                pwd
+                rm -i -r $cd_temp_direct # -i apporte de la sécurité car demande avant chaque suppression
+                echo "Affichage final - réussite 4/4"
+                ls
+            fi
+        fi
+    fi
+fi
