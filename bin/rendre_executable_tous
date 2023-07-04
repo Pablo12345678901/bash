@@ -1,0 +1,76 @@
+#!/usr/bin/env bash
+
+path_des_script_perso='/Users/pablo/Desktop/Developpement/bash/bin' # à adapter si changement ordinateur
+
+# conservation des tableaux pour lister les fichiers selon leur état (déjà exécutables / devenu exécutable / pas pu devenir exécutables )
+declare -a liste_fichier_deja_executable
+index_liste_fichier_deja_executable=0
+declare -a liste_fichier_executable
+index_liste_fichier_executable=0
+declare -a liste_fichier_non_executable
+index_liste_fichier_non_executable=0
+
+# Définition de l'état et essai de rendre exécutable
+for SCRIPT in  $path_des_script_perso/*
+do
+    if [ -x $SCRIPT ]
+    then
+        SCRIPT=${SCRIPT#$path_des_script_perso}
+        SCRIPT=${SCRIPT:1} # suppression du premier char slash ou anti-slash selon environnement
+        liste_fichier_deja_executable[((index_liste_fichier_deja_executable++))]=$SCRIPT
+    else
+        chmod a+x $SCRIPT >&2
+        if (($?))
+        then
+            SCRIPT=${SCRIPT#$path_des_script_perso}
+            SCRIPT=${SCRIPT:1} # suppression du premier char slash ou anti-slash selon environnement
+            liste_fichier_non_executable[((index_liste_fichier_non_executable++))]=$SCRIPT
+        else
+            SCRIPT=${SCRIPT#$path_des_script_perso}
+            SCRIPT=${SCRIPT:1} # suppression du premier char slash ou anti-slash selon environnement
+            liste_fichier_executable[((index_liste_fichier_executable++))]=$SCRIPT
+        fi
+    fi
+done
+
+#### Affichage des fichiers selon leur état (déjà exécutables / devenu exécutable / pas pu devenir exécutables )
+
+# Déjà exécutable
+if (( ${#liste_fichier_deja_executable[@]} ))
+then
+    echo ""
+    echo "Les fichiers suivants étaient déjà exécutables : "
+    for SCRIPT_DEJA_EXECUTABLE in "${liste_fichier_deja_executable[@]}"
+    do
+        echo "$SCRIPT_DEJA_EXECUTABLE"
+    done
+    echo ""
+else
+    :
+fi
+
+# Devenu exécutable
+if (( ${#liste_fichier_executable[@]} ))
+then
+    echo "Les fichiers suivants ont été rendus exécutables : "
+    for SCRIPT_EXECUTABLE in "${liste_fichier_executable[@]}"
+    do
+        echo "$SCRIPT_EXECUTABLE"
+    done
+    echo "" 
+else
+    :
+fi
+
+# Pas pu devenir exécutable
+if (( ${#liste_fichier_non_executable[@]} ))
+then
+    echo "Les fichiers suivants n'ont pas pu être rendus exécutables : "
+    for SCRIPT_NON_EXECUTABLE in "${liste_fichier_non_executable[@]}"
+    do
+        echo "$SCRIPT_NON_EXECUTABLE"
+    done
+    echo ""
+else
+    :
+fi

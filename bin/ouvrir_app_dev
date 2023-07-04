@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+open -a "Microsoft Excel" >&2 &
+open -a "Microsoft Word" >&2 &
+open -a "Google Chrome" >&2 &
+code >&2 &
+

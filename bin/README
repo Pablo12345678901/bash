@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -v # tous les commentaires ci-dessous seront affichés
+
+# Ce répertoire contiendra les commandes que je souhaite utiliser au quotidien.
+# J'appelle ces commandes depuis le terminal avec :
+# nom_du_fichier
+# Pour adapter l'accès des fichiers, run le fichier :
+# rendre_executable-tous
