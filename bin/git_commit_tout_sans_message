@@ -19,7 +19,6 @@ fi
 
 cd $REPERTOIRE_GIT_A_PUSH
 #DEBUG pwd # DEBUG
-echo $PWD
 
 #spécificité du répertoire Bash avec Git qui ne push pas le script car il le run.
 if [ $PWD == ${REPERTOIRE_DES_COMMANDES_PERSO%bin} ] # Uniquement pour mon répertoire Git Bash
@@ -33,4 +32,5 @@ fi
 # Push du git
 { git add . && git status && git commit -m "-" && git push  && echo -e "\nCommit du répertoire BASH = OK\n" ; } || echo "Le commit du répertoire BASH n'a pas pu être correctement fait."
 
+echo $PWD
 cd $OLDPWD
