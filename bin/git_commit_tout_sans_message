@@ -28,7 +28,7 @@ echo $2
 # Push du git
 {   git add . &&
     git status &&
-    if [ -z = "$2" ]
+    if [ -z $2 ]
     then
         git commit -m "-"
     else
@@ -36,4 +36,5 @@ echo $2
     fi &&
     git push  && echo -e "\nCommit du répertoire $1 = OK\n" ; } || echo "Le commit du répertoire $1 n'a pas pu être correctement fait OU il n'y avait rien à push."
 
+pwd
 cd $OLDPWD
