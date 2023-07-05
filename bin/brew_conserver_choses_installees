@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+FICHIER_LISTE_CHOSES_INSTALLES_BREW="brew_liste_choses_installees.txt"
+which brew > /dev/null
+if (($?))
+then
+    echo "Brew n'existe pas, et il faut l'installer."
+    exit 1
+else
+    :
+fi
+
+cd $REPERTOIRE_DES_COMMANDES_PERSO &&
+LISTE_FORMULAES_ET_CASKS=$(brew list)
+LISTE_CASKS="$(brew list --cask)"
+LISTE_FORMULAES=${LISTE_FORMULAES_ET_CASKS%$LISTE_CASKS}
+{   echo -e "FORMULAES\n\n$LISTE_FORMULAES" | tee $FICHIER_LISTE_CHOSES_INSTALLES_BREW && # écraser l'ancien fichier et le réécrire
+    echo -e "CASKS\n\n$LISTE_CASKS" | tee -a $FICHIER_LISTE_CHOSES_INSTALLES_BREW && # "tee -a" pour append et pas overwrite
+    echo -e "\nSauvegarde des formulaes et casks réussie.\n" ; } || echo "Échec de l'écriture du fichier des formulaes et casks installés par brew."
+
+cd $OLDPWD # retour au répertoire d'origine
+
+

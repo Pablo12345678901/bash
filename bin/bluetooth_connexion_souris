@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+# Comme l'utilitaire de blueutil n'est pas intégré d'office, je teste s'il l'est et sinon l'installe
+which blueutil > /dev/null # test de la commande si existe
+if (($?))
+then
+  echo "Installation de blueutil"
+  brew install blueutil >&2
+else
+  :
+fi
+
+blueutil --power 1 || echo "Le bluetooth n'a pas pu être allumé."
+
+HARDWARE_BLUETOOTH="$(system_profiler SPBluetoothDataType)"
+NOMSOURIS='Souriz' # à adapter selon le nom de la souris à connecter
+SEPARATEUR=$NOMSOURIS
+
+case $HARDWARE_BLUETOOTH in
+  (*"$SEPARATEUR"*)
+    APRES_SOURIS=${HARDWARE_BLUETOOTH#*"$SEPARATEUR"} # supprime tous avant la souris y.c le nom de la souris
+    ;;
+  (*)
+    echo "Le nom de la souris n'a pas été trouvé"
+    exit 1
+    ;;
+esac &&
+
+SEPARATEUR="Address:" # va couper après la balise de l'adresse Bluetooth de la souris 
+case $APRES_SOURIS in
+  (*"$SEPARATEUR"*)
+    ADRESSE_ET_LE_RESTE=${APRES_SOURIS#*"$SEPARATEUR"} # conserve l'adresse en première position
+    ;;
+  (*)
+    echo "L'adresse n'a pas été trouvée"
+    exit 1
+    ;;
+esac &&
+
+ADRESSE_SOURIS=$(echo $ADRESSE_ET_LE_RESTE | awk '{print $1 ; }') # awk
+
+blueutil --power 1 || echo "Le bluetooth n'a pas pu être allumé."
+
+{ blueutil --connect $ADRESSE_SOURIS && echo "La souris avec l'adresse $ADRESSE_SOURIS est désormais connectée par bluetooth." ; } || echo "La connexion avec la souris à l'adresse $ADRESSE_SOURIS a échoué."

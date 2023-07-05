@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+function modifie_array {
+    local -n tableau=$1 # tableau fourni en paramètre
+    # -n transforme la variable en une référence à la variable globale
+    index=0
+    for element in "${tableau[@]}"
+    do
+        tableau[$index]=$((++element))
+        ((index++))
+    done
+    ## Affichage modification au sein du tableau
+    echo "Dans fonction :"
+    for element in "${tableau[@]}"
+        do
+            echo $element
+        done
+}
+
+TABLEAU=(1 2 3)
+echo "AVANT fonction :"
+for element in ${TABLEAU[@]}
+    do
+        echo $element
+    done
+
+modifie_array TABLEAU
+
+echo "APRES fonction :"
+for element in ${TABLEAU[@]}
+    do
+        echo $element
+    done

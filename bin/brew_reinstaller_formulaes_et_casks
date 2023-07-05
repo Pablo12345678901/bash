@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+
+brew uninstall blueutil
+
+FICHIER_LISTE_CHOSES_INSTALLES_BREW="brew_liste_choses_installees.txt"
+
+# Test si brew est installé et sinon exit du programme avec message d'erreur
+which brew > /dev/null
+if (($?))
+then
+    echo "Brew n'existe pas, et il faut l'installer."
+    exit 1
+else
+    :
+fi
+
+cd $REPERTOIRE_DES_COMMANDES_PERSO 
+#echo -e "\n\nHola"
+#cat $FICHIER_LISTE_CHOSES_INSTALLES_BREW
+LISTE_FORMULAES_ET_CASKS="$(cat $FICHIER_LISTE_CHOSES_INSTALLES_BREW)"
+LISTE_FORMULAES=${LISTE_FORMULAES_ET_CASKS%CASKS*}
+LISTE_FORMULAES=${LISTE_FORMULAES#FORMULAES} # suppression du mot FORMULAES
+LISTE_FORMULAES=$(echo $LISTE_FORMULAES | sed -e 's/^[[:space:]]*//' | sed -e 's/[[:space:]]*$//' ) # suppression espace avant et après
+#DEBUG echo "Formulaes :"
+#DEBUG echo $LISTE_FORMULAES
+#DEBUG echo ""
+LISTE_CASKS=${LISTE_FORMULAES_ET_CASKS%*LISTE_FORMULAES}
+LISTE_CASKS=${LISTE_CASKS#*CASKS}  # suppression du mot CASKS
+LISTE_CASKS=$(echo $LISTE_CASKS | sed -e 's/^[[:space:]]*//' | sed -e 's/[[:space:]]*$//' ) # suppression espace avant et après
+#DEBUG echo "Casks :"
+#DEBUG echo $LISTE_CASKS
+#DEBUG echo ""
+
+# Récupération de la configuration actuelle
+LISTE_FORMULAES_ET_CASKS_ACTUELLEMENT_INSTALLES="$(brew list)"
+
+# Tableaux de résumé des installations de formulaes
+declare -a TABLEAU_FORMULAES_INSTALLEES
+declare -a TABLEAU_FORMULAES_INSTALLATION_ECHOUEES
+
+# Installation des Formulaes
+TABLEAU_FORMULAES=($LISTE_FORMULAES)
+for FORMULAE in ${TABLEAU_FORMULAES[@]}
+do
+    if [[ $LISTE_FORMULAES_ET_CASKS_ACTUELLEMENT_INSTALLES == *"$FORMULAE"* ]]
+    then
+        : # Déjà installé
+    else # pas installé
+        echo "Installation de $FORMULAE"
+        { brew install $FORMULAE  && TABLEAU_FORMULAES_INSTALLEES+=($FORMULAE) && echo "" ; } ||
+        { echo -e "L'installation de $FORMULAE a échouée.\n" ; TABLEAU_FORMULAES_INSTALLATION_ECHOUEES+=($FORMULAE) ; } 
+    fi
+done
+
+# Tableaux de résumé des installations de casks
+declare -a TABLEAU_CASKS_INSTALLEES
+declare -a TABLEAU_CASKS_INSTALLATION_ECHOUEES
+
+# Installation des Casks
+TABLEAU_CASKS=($LISTE_CASKS)
+for CASKS in ${TABLEAU_CASKS[@]}
+do
+    if [[ $LISTE_FORMULAES_ET_CASKS_ACTUELLEMENT_INSTALLES == *"$CASKS"* ]]
+    then
+        : # Déjà installé
+    else # pas installé
+        echo "Installation de $CASKS"
+        { brew install $CASKS  && TABLEAU_CASKS_INSTALLEES+=($CASKS) && echo "" ; } ||
+        { echo -e "L'installation de $CASKS a échouée.\n" ; TABLEAU_CASKS_INSTALLATION_ECHOUEES+=($CASKS) ; } 
+    fi
+done
+
+# FORMULAES
+# Affichage des valeurs des formulaes installées
+if [ ${#TABLEAU_FORMULAES_INSTALLEES[@]} -ne 0 ] # si longueur non nulle
+then
+    echo "Formulaes installées :"
+    for FORMULAE in ${TABLEAU_FORMULAES_INSTALLEES[@]}
+    do
+        echo $FORMULAE
+    done
+    echo ""
+else
+    :
+fi
+
+# Affichage des valeurs des formulaes qui n'ont pas pu être installées
+if [ ${#TABLEAU_FORMULAES_INSTALLATION_ECHOUEES[@]} -ne 0 ] # si longueur non nulle
+then
+    echo "ERREUR : Formulaes qui n'ont pas pu être installées :"
+    for FORMULAE in ${TABLEAU_FORMULAES_INSTALLATION_ECHOUEES[@]}
+    do
+        echo $FORMULAE
+    done
+    echo ""
+else
+    :
+fi
+
+# CASKS
+# Affichage des valeurs des casks installées
+if [ ${#TABLEAU_CASKS_INSTALLEES[@]} -ne 0 ] # si longueur non nulle
+then
+    echo "Casks installées :"
+    for CASK in ${TABLEAU_CASKS_INSTALLEES[@]}
+    do
+        echo $CASK
+    done
+    echo ""
+else
+    :
+fi
+
+# Affichage des valeurs des formulaes qui n'ont pas pu être installées
+if [ ${#TABLEAU_CASKS_INSTALLATION_ECHOUEES[@]} -ne 0 ] # si longueur non nulle
+then
+    echo "ERREUR : Casks qui n'ont pas pu être installées :"
+    for CASK in ${TABLEAU_CASKS_INSTALLATION_ECHOUEES[@]}
+    do
+        echo $CASK
+    done
+    echo ""
+else
+    :
+fi
+
+
+echo "Résumé final"
+if [ ${#TABLEAU_FORMULAES_INSTALLEES[@]} -eq 0 ] && [ ${#TABLEAU_FORMULAES_INSTALLATION_ECHOUEES[@]} -eq 0 ] && [ ${#TABLEAU_CASKS_INSTALLEES[@]} -eq 0 ] && [ ${#TABLEAU_CASKS_INSTALLATION_ECHOUEES[@]} -eq 0 ]
+then
+    echo -e "L'environnement est déjà à jour.\n"
+elif [[ ${#TABLEAU_FORMULAES_INSTALLEES[@]} -ne 0 || ${#TABLEAU_CASKS_INSTALLEES[@]} -ne 0 ]] && [[ ${#TABLEAU_FORMULAES_INSTALLATION_ECHOUEES[@]} -eq 0 && ${#TABLEAU_CASKS_INSTALLATION_ECHOUEES[@]} -eq 0 ]]
+then
+    echo -e "L'environnement a été mis à jour.\n"
+else
+    echo -e "ERREUR : l'environnement n'est pas à jour.\n"
+fi
+cd $OLDPWD # retour au répertoire d'origine

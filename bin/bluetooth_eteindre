@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Comme l'utilitaire de blueutil n'est pas intégré d'office, je teste s'il l'est et sinon l'installe
+which blueutil > /dev/null # test de la commande si existe
+if (($?))
+then
+  echo "Installation de blueutil"
+  brew install blueutil >&2
+else
+  :
+fi
+
+blueutil --power 0 || echo "Le bluetooth n'a pas pu être éteint."

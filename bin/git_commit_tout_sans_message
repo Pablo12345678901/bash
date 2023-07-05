@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+cd ../$REPERTOIRE_DES_COMMANDES_PERSO
+pwd
+git status
+{ git add . && git commit -m "-" && git push  && echo -e "\nCommit ok\n" ; } || echo "Le commit n'a pas pu être correctement fait."
+
+cd $OLDPWD
+pwd
