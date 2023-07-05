@@ -1,1 +1,3 @@
 #!/usr/bin/env bash
+
+# apprendre comment rendre mes script portables VS les slashs / anti-slash des paths selon l'environnement

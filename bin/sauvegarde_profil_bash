@@ -32,8 +32,11 @@ _ajout_au_tableau_des_paths() {
 }
 
 ################################
-REPERTOIRE_DES_COMMANDES_PERSO='/Users/pablo/Desktop/Developpement/bash/bin' # path du répertoire des commandes perso - à adapter si changement d'environnement
+REPERTOIRE_DEVELOPPEMENT="/Users/pablo/Desktop/Developpement"
+export REPERTOIRE_DEVELOPPEMENT # pour utilisation (notamment) durant les push de Git
+REPERTOIRE_DES_COMMANDES_PERSO="$REPERTOIRE_DEVELOPPEMENT/bash/bin" # path du répertoire des commandes perso - à adapter si changement d'environnement
 export REPERTOIRE_DES_COMMANDES_PERSO # pour utilisation dans le script qui sauvegarde ce profil
+
 
 declare -a liste_path # tableau des paths à ajouter manuellement
 index_tableau=0 # var nécessaire pour le tableau des path - NE PAS SUPPRIMER
