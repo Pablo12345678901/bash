@@ -21,9 +21,10 @@ cd $REPERTOIRE_GIT_A_PUSH
 #DEBUG pwd # DEBUG
 
 #spécificité du répertoire Bash avec Git qui ne push pas le script car il le run.
-if [ $PWD == "${REPERTOIRE_DES_COMMANDES_PERSO%bin}" ] # Uniquement pour mon répertoire Git Bash
+if [ $PWD == ${REPERTOIRE_DES_COMMANDES_PERSO%bin} ] # Uniquement pour mon répertoire Git Bash
 then
     git add  $REPERTOIRE_DES_COMMANDES_PERSO/git_commit_tout_sans_message # comme je run ce fichier il semblerait que Git ne le prenne pas d'office.
+    echo "Rép bash" # DEBUG
 else
     echo "Pas rép Bash"
 fi
