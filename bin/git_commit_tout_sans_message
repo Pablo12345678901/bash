@@ -29,6 +29,7 @@ echo "AVANT"
 # Push du git
 {   git add . &&
     git status &&
+    message="$2"
     if [ -z $2 ]
     then
         echo "ICI"
