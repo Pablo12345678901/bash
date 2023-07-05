@@ -12,7 +12,7 @@ else
         echo -e "\nDébugguer avec pwd dans le script et/ou relire la saisie.\n"
         exit 1 ; }
 fi
-
+echo "ICI"
 pwd # DEBUG
 
 # Spécificité du répertoire Bash avec Git qui ne push pas le script car il le run.
