@@ -6,19 +6,17 @@ then
     echo -e "\nErreur : vous n'avez pas saisi de nom pour le répertoire à push (ex : commande bash pour push le répertoire bash)\n"
     exit 1
 else
-    echo $REPERTOIRE_DEVELOPPEMENT
    REPERTOIRE_GIT_A_PUSH="$REPERTOIRE_DEVELOPPEMENT/$1"
-   echo $REPERTOIRE_GIT_A_PUSH
    cd $REPERTOIRE_GIT_A_PUSH ||
    {    echo -e "\nErreur : le répertoire fournit en ligne de commande ne fait pas partie du répertoire \"developpement\" personnel."
         echo -e "\nDébugguer avec pwd dans le script et/ou relire la saisie.\n"
         exit 1 ; }
 fi
 
-pwd
+pwd # DEBUG
 
 # Spécificité du répertoire Bash avec Git qui ne push pas le script car il le run.
-if [ $PWD == ${REPERTOIRE_DES_COMMANDES_PERSO%\/bin} ] # Uniquement pour mon répertoire Git Bash
+if [ $PWD == "$REPERTOIRE_DEVELOPPEMENT/bash" ] # Uniquement pour mon répertoire Git Bash
 then
     git add  $REPERTOIRE_DES_COMMANDES_PERSO/git_commit_tout_sans_message # comme je run ce fichier il semblerait que Git ne le prenne pas d'office.
     echo "Rép bash" # DEBUG
