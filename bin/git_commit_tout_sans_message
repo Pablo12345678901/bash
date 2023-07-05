@@ -28,7 +28,7 @@ echo $2
 # Push du git
 {   git add . &&
     git status &&
-    if [ -z $2 ]
+    if [ -z = "$2" ]
     then
         git commit -m "-"
     else
