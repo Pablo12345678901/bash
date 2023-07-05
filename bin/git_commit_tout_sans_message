@@ -13,18 +13,27 @@ else
         exit 1 ; }
 fi
 
-#DEBUG pwd # DEBUG #
+#DEBUG pwd # DEBUG
+#DEBUG open $PWD
 
-# Spécificité du répertoire Bash avec Git qui ne push pas le script car il le run.
+# Spécificité avec le répertoire Bash avec Git qui ne push pas le script car il le run.
 if [ $PWD == "$REPERTOIRE_DEVELOPPEMENT/bash" ] # Uniquement pour mon répertoire Git Bash
 then
     git add  $REPERTOIRE_DES_COMMANDES_PERSO/git_commit_tout_sans_message # comme je run ce fichier il semblerait que Git ne le prenne pas d'office.
     #DEBUG echo "Rép bash" # DEBUG
 else
-    echo "ERREUR : Pas rép Bash"
+    :
 fi
-
+echo $2
 # Push du git
-{ git add . && git status && git commit -m "-" && git push  && echo -e "\nCommit du répertoire $1 = OK\n" ; } || echo "Le commit du répertoire $1 n'a pas pu être correctement fait."
+{   git add . &&
+    git status &&
+    if [ -z $2 ]
+    then
+        git commit -m "-"
+    else
+        git commit -m "$2"
+    fi &&
+    git push  && echo -e "\nCommit du répertoire $1 = OK\n" ; } || echo "Le commit du répertoire $1 n'a pas pu être correctement fait OU il n'y avait rien à push."
 
 cd $OLDPWD
