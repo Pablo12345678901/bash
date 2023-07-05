@@ -1,8 +1,34 @@
 #!/usr/bin/env bash
 
-cd ../$REPERTOIRE_DES_COMMANDES_PERSO
+# Liste des répertoires Git à adapter ici :
+if [ -z $1 ]
+then
+    echo -e "\nErreur : vous n'avez pas saisi de nom pour le répertoire à push (ex : commande bash pour push le répertoire bash)\n"
+    exit 1
+else
+    :
+fi
 
-git status
-{ git add . && git commit -m "-" && git push  && echo -e "\nCommit ok\n" ; } || echo "Le commit n'a pas pu être correctement fait."
+# Adaptation du path du répertoire à push en fonction du paramètre fourni
+if [ $1 == "bash" ]
+then 
+    REPERTOIRE_GIT_A_PUSH="../$REPERTOIRE_DES_COMMANDES_PERSO"
+else
+    : # rajouter les autres répertoires au fur et à mesure ici et adapter à chaque fois le répertoire git à push avec le path complet selon le répertoire
+fi
+
+cd $REPERTOIRE_GIT_A_PUSH
+pwd # DEBUG
+
+#spécificité du répertoire Bash avec Git qui ne push pas le script car il le run.
+if [ $PWD -eq "../$REPERTOIRE_DES_COMMANDES_PERSO" ] # Uniquement pour mon répertoire Git Bash
+then
+    git add  $REPERTOIRE_DES_COMMANDES_PERSO/git_commit_tout_sans_message # comme je run ce fichier il semblerait que Git ne le prenne pas d'office.
+else
+    echo "Pas rép Bash"
+fi
+
+# Push du git
+{ git add . && git status && git commit -m "-" && git push  && echo -e "\nCommit du répertoire BASH = OK\n" ; } || echo "Le commit du répertoire BASH n'a pas pu être correctement fait."
 
 cd $OLDPWD
