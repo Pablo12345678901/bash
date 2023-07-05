@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+#
 echo "Si le mot de passe est saisi, l'ordinateur s'éteindra IMMEDIATEMENT."
 echo "Annulez avec CTRL+C"
 sudo shutdown -h now
