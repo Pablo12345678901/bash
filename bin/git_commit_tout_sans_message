@@ -39,5 +39,5 @@ fi
     fi &&
     git push  && echo -e "\nCommit du répertoire $1 = OK\n" ; } || echo "Le commit du répertoire $1 n'a pas pu être correctement fait OU il n'y avait rien à push."
 
-echo "Yo"
+echo "Yo YEP"
 cd $OLDPWD
