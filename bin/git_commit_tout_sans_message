@@ -24,8 +24,7 @@ then
 else
     :
 fi
-echo $2
-echo "AVANT"
+
 # Push du git
 {   git add . &&
     git status &&
@@ -39,6 +38,6 @@ echo "AVANT"
         git commit -m "$2"
     fi &&
     git push  && echo -e "\nCommit du répertoire $1 = OK\n" ; } || echo "Le commit du répertoire $1 n'a pas pu être correctement fait OU il n'y avait rien à push."
-echo "APRES"
 
+echo "Yo"
 cd $OLDPWD
