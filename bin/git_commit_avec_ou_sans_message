@@ -19,8 +19,7 @@ fi
 # Spécificité avec le répertoire Bash avec Git qui ne push pas le script car il le run.
 if [ $PWD == "$REPERTOIRE_DEVELOPPEMENT/bash" ] # Uniquement pour mon répertoire Git Bash
 then
-    echo "DEBUG $0"
-    git add  $0 # comme je run ce fichier il semblerait que Git ne le prenne pas d'office.
+    git add $0 # comme je run ce fichier "$0" il semblerait que Git ne le prenne pas d'office.
     #DEBUG echo "Rép bash" # DEBUG
 else
     :
