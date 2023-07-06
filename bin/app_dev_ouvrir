@@ -1,7 +1,41 @@
 #!/usr/bin/env bash
 
+function question_mettre_a_jour {
+    local -n reponse=$1
+    local QUESTION="Mettre à jour ? (Oo/Nn) "
+    echo "" # esthétique
+    read -p "$QUESTION" CHOIX
+    case "$CHOIX" in
+        [OoYy]  )   CHOIX='o';;
+        [Nn]    )   CHOIX='n';;
+        *       )   echo -e "\nERREUR : veuillez saisir une réponse parmi :\n\"OoYy\" pour \"Oui\"\n\"Nn\" pour \"Non\"\n" ;;
+    esac
+    reponse=$CHOIX
+}
+
+REPONSE='x'
+while [[ $REPONSE != 'o' && $REPONSE != 'n' ]] # boucle tant que la réponse n'est pas oui ou non 
+do
+    question_mettre_a_jour REPONSE
+done
+
+if [ $REPONSE == 'o' ]
+then
+    echo -e "\nMise à jour des apps..."
+    echo -e "\nBrew :\n"
+    brew update &&
+    brew upgrade  &&
+    echo -e "\nBrew est à jour." || echo -e "\nLa mise à jour de brew n'a pas fonctionné.\n"
+    echo -e "\nSoftwares :\n"
+    softwareupdate -i -a && echo -e "\nLes softwares sont à jour.\n" || echo -e "\nLa mise à jour des softwares n'a pas fonctionné.\n"
+else
+    echo -e "\nVous avez refusé de mettre à jour les apps.\n"
+fi
+
+echo -e "Ouverture des app...\n"
 open -a "Microsoft Excel" >&2 &
 open -a "Microsoft Word" >&2 &
 open -a "Google Chrome" >&2 &
 code >&2 &
+
 

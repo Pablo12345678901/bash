@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+function modif_modif_modif {
+    local -n VAR_LOCALE_A_VAR_GLOBALE=$1
+    # "local -n" lie la référence de la var locale à la var globale 
+    # $1 = le premier paramètre transmis en argument
+    echo -e "Dans fonction : Début : \"$VAR_LOCALE_A_VAR_GLOBALE\"\n"
+    VAR_LOCALE_A_VAR_GLOBALE="Ceci est le string modifié".
+    echo -e "Dans fonction : Fin : \"$VAR_LOCALE_A_VAR_GLOBALE\"\n"
+}
+
+VAR_GLOBALE="Ceci est le string initial."
+echo "" # esthétique
+echo -e "Hors fonction : Avant : \"$VAR_GLOBALE\"\n"
+modif_modif_modif VAR_GLOBALE # transmission du nom "en string" PAS de sa valeur à la fonction
+echo -e "Hors fonction : Après : \"$VAR_GLOBALE\"\n"

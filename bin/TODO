@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 
+# La liste ci-dessous n'est pas triée par ordre de priorité
+
+# A.
 # apprendre comment rendre mes script portables VS les slashs / anti-slash des paths selon l'environnement
 
+# B.
 # Créer un script qui affiche la liste de mes var personnelles du fichier .profile
 # 1. créer un tableau contenant ces var dans le fichier .profile
 # 2. faire appel à ce tableau dans le script pour liste les var
+
+# C.
+# Adapter le script d'éteindre l'ordi pour clore les apps (Word, Excel, VS Code, Chrome, Firefox)
