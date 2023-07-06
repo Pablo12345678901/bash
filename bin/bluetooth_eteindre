@@ -10,4 +10,4 @@ else
   :
 fi
 
-blueutil --power 0 || echo "Le bluetooth n'a pas pu être éteint."
+blueutil --power 0 && echo -e "\nLe bluetooth est désormais éteint.\n" || echo "Le bluetooth n'a pas pu être éteint."

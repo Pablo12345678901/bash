@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+echo -e "\nListe des commandes du dossiers personnel (créées par moi) :\n"
+for command in $REPERTOIRE_DES_COMMANDES_PERSO/*
+do
+    command=${command#$REPERTOIRE_DES_COMMANDES_PERSO}
+    command=${command#\/}
+    echo  "$command"
+done
+echo "" # esthétique

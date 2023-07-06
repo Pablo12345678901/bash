@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+#Remarque : la variable d'environnement $LISTE_VARIABLES_PERSO = La liste de mes variables perso provenant du fichier .profile de bash
+
+STRING_LISTE_VARIABLES_PERSO=$( tr ':' ' ' <<<"${LISTE_VARIABLES_PERSO[*]}") # remplacement des ":" par des espaces
+TABLEAU_VARIABLES_PERSO=($STRING_LISTE_VARIABLES_PERSO) # string transformé sous forme de tableau pour boucler
+
+# Affichage des variables et de leur valeur
+echo -e "\nListe des variables personnelles créées par moi :\n"
+for variable_perso in "${TABLEAU_VARIABLES_PERSO[@]}"
+do
+    echo "$variable_perso=${!variable_perso}"
+done
+echo "" # esthétique

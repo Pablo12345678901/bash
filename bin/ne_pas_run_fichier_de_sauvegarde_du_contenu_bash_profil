@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
-#if [ $0 != ".profile" ]
-echo "\"$0\""
-if [ $0 != "-bash" ]
+
+# Contrôle pour ne pas run ce script par moi-même via mes commandes personnelles.
+if [[ $0 =~ (-)?bash$ ]] # "-bash" est run au lancement et "bash" est run avec "exec bash -l" qui relance bash
 then
-    echo "Erreur"
+    :
 else
-    echo "ok"
+    CE_FICHIER="$0"
+    COMMANDE_APPELEE=$(basename $CE_FICHIER) # Obtention du nom du fichier en supprimant le reste du path
+    echo -e "\nErreur : vous ne devez pas run la commande (script) \"$COMMANDE_APPELEE\" car ce script est une copie du profil de Bash sauvegardée dans le fichier .profile et sert uniquement à la sauvegarde pour être réutilisée en cas de changement d'environnement.\n"
+    exit 1 # exit du fichier si ce n'est pas le shell qui le run à l'ouverture
+    # c'est-à-dire : exit du fichier si je le run sous le nom donné ci-dessous en tant que commande du dossier personnel.
 fi
 
 # Fonction pour éviter un ajout de path à double dans $PATH
@@ -74,7 +78,8 @@ done
 
 export PATH
 
+TITRE_FICHIER_SAUVEGARDE_PROFIL_BASH="ne_pas_run_fichier_de_sauvegarde_du_contenu_bash_profil"
 # Sauvegarde du profil dans le répertoire des commandes personnelles
 { cd $REPERTOIRE_DES_COMMANDES_PERSO &&
-cp ~/.profile sauvegarde_profil_bash && # sauvegarde du profile utilisé dans le répertoire perso
+cp ~/.profile $TITRE_FICHIER_SAUVEGARDE_PROFIL_BASH && # sauvegarde du profile utilisé dans le répertoire perso
 cd $OLDPWD ; } || echo -e "Le fichier .profile n'a pas pu être copié dans le répertoire perso.\nDébugger le fichier .profile.\n" >&2 # cd $OLDPWD revient ou j'étais
