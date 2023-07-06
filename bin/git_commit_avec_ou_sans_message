@@ -20,7 +20,7 @@ fi
 if [ $PWD == "$REPERTOIRE_DEVELOPPEMENT/bash" ] # Uniquement pour mon répertoire Git Bash
 then
     echo "DEBUG $0"
-    git add  $REPERTOIRE_DES_COMMANDES_PERSO/$0 # comme je run ce fichier il semblerait que Git ne le prenne pas d'office.
+    git add  $0 # comme je run ce fichier il semblerait que Git ne le prenne pas d'office.
     #DEBUG echo "Rép bash" # DEBUG
 else
     :
