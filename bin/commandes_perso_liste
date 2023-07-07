@@ -1,27 +1,24 @@
 #!/usr/bin/env bash
 
+# Récupération de la liste de commandes possibles
 declare -a LISTE_COMMANDE
 OPTION_SORTIE="Quitter"
-echo -e "\nListe des commandes du dossiers personnel (créées par moi) :\n"
 for command in $REPERTOIRE_DES_COMMANDES_PERSO/*
 do
     command=${command#$REPERTOIRE_DES_COMMANDES_PERSO}
     command=${command#\/}
     LISTE_COMMANDE+=("$command")
-    echo  "$command"
 done
 LISTE_COMMANDE+=("$OPTION_SORTIE") # ajout de l'option pour quitter
 DERNIERE_OPTION=${#LISTE_COMMANDE[@]}
-echo "" # esthétique
 
+# Sélection de la commande à exécuter avec possibilité de quitter
 CHOIX=""
-accord="de " # pour l'accord avec la voyelle de début du mot
 until [ -n "$CHOIX" ] # Boucler tant que le choix n'est pas correct = tant que choix n'est pas un string > 1char
 do
     echo -e "\nChoisissez une commande pour l'exécuter ou tapez \"$DERNIERE_OPTION\" pour \"$OPTION_SORTIE\"\n"
     select CHOIX in "${LISTE_COMMANDE[@]}"
     do
-        echo "$CHOIX"
         break 
     done
     if [ -n "$CHOIX" ] # si le choix est correct

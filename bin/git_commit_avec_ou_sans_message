@@ -1,12 +1,45 @@
 #!/usr/bin/env bash
 
 # L'adaptation du path du répertoire Git à push se fait en fonction du paramètre fourni en ligne de commande.
-if [ -z $1 ]
+if [ -z $1 ] # si aucun argument n'est fourni avec la commande, je demande le nom du dossier à push.
 then
-    read -p "Quel est le nom du dossier git à push (sans le path) ? " DOSSIER_GIT
-    REPERTOIRE_GIT_A_PUSH="$REPERTOIRE_DEVELOPPEMENT/$DOSSIER_GIT"
+    # Obtention de la liste des répertoires git potentiellement pushables
+    declare -a LISTE_REPERTOIRES_GIT
+    OPTION_SORTIE="Annuler le git push"
+    for repertoire in $REPERTOIRE_DEVELOPPEMENT/*
+    do
+        repertoire=${repertoire##*/} # suppression de tout le path sauf la dernière partie
+        LISTE_REPERTOIRES_GIT+=("$repertoire")
+    done
+    LISTE_REPERTOIRES_GIT+=("$OPTION_SORTIE") # ajout de l'option de sortie en fin de liste
+    DERNIERE_OPTION=${#LISTE_REPERTOIRES_GIT[@]}
+
+    # Sélection du répertoire à push au sein du répertoire de développement
+    CHOIX=""
+    until [ -n "$CHOIX" ] # Boucler tant que le choix n'est pas correct = tant que choix n'est pas un string > 1char
+    do
+        echo -e "\nChoisissez le répertoire git à push :\n"
+        select CHOIX in "${LISTE_REPERTOIRES_GIT[@]}"
+        do
+            echo "$CHOIX"
+            break 
+        done
+        if [ -n "$CHOIX" ]
+        then
+            if [ "$CHOIX" != "$OPTION_SORTIE" ]
+            then
+                echo -e "\nVous avez choisi de push le répertoire git \"$CHOIX\".\n"
+                REPERTOIRE_GIT_A_PUSH="$REPERTOIRE_DEVELOPPEMENT/$DOSSIER_GIT"
+            else
+                echo -e "\nVous avez choisi d'annuler le git push.\n"
+                exit 1
+            fi
+        else
+            echo -e "ERREUR : votre saisie ne fait pas partie de la liste de choix.\nTapez \"$DERNIERE_OPTION\" pour \"$OPTION_SORTIE\""
+        fi
+    done
 else
-   REPERTOIRE_GIT_A_PUSH="$REPERTOIRE_DEVELOPPEMENT/$1"
+    REPERTOIRE_GIT_A_PUSH="$REPERTOIRE_DEVELOPPEMENT/$1"
 fi
 
 # Essai d'aller dans le répertoire fourni
