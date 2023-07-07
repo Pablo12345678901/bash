@@ -36,6 +36,7 @@ echo -e "Ouverture des app...\n"
 open -a "Microsoft Excel" >&2 &
 open -a "Microsoft Word" >&2 &
 open -a "Google Chrome" >&2 &
+open -a "Activity Monitor" >&2 &
 code >&2 &
 
 

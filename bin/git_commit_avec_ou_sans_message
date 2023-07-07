@@ -3,15 +3,17 @@
 # L'adaptation du path du répertoire Git à push se fait en fonction du paramètre fourni en ligne de commande.
 if [ -z $1 ]
 then
-    echo -e "\nErreur : vous n'avez pas saisi de nom pour le répertoire à push (ex : commande bash pour push le répertoire bash)\n"
-    exit 1
+    read -p "Quel est le nom du dossier git à push (sans le path) ? " DOSSIER_GIT
+    REPERTOIRE_GIT_A_PUSH="$REPERTOIRE_DEVELOPPEMENT/$DOSSIER_GIT"
 else
    REPERTOIRE_GIT_A_PUSH="$REPERTOIRE_DEVELOPPEMENT/$1"
-   cd $REPERTOIRE_GIT_A_PUSH ||
-   {    echo -e "\nErreur : le répertoire fournit en ligne de commande ne fait pas partie du répertoire \"developpement\" personnel."
-        echo -e "\nDébugguer avec pwd dans le script et/ou relire la saisie.\n"
-        exit 1 ; }
 fi
+
+# Essai d'aller dans le répertoire fourni
+cd $REPERTOIRE_GIT_A_PUSH ||
+{    echo -e "\nErreur : le répertoire fournit en ligne de commande ne fait pas partie du répertoire \"developpement\" personnel."
+    echo -e "\nDébugguer avec pwd dans le script et/ou relire la saisie.\n"
+    exit 1 ; }
 
 #DEBUG pwd # DEBUG
 #DEBUG open $PWD

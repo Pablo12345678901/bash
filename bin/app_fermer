@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+
+function remplissage_tableau_app_ouverte {
+local -n tableau=$1 # variable liée à la variable globale du tableau des app ouvertes
+
+# Osacript fonctionne sur Mac uniquement (non portable)
+LISTE_STRING_APP_OUVERTES=$(osascript -e 'set text item delimiters to ":"' -e 'tell application "System Events" to (name of every application process whose background only is false) as string' | sort )
+
+# Séparation des éléments par des ":" pour futur split avec ":"
+SPECIAL_CHAR_SEPARATOR=':'
+LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Terminal/} # Tout fermer sauf Terminal - retiré Terminal de la liste des apps à fermer
+# Pour développer sur VS CODE, décommenter la ligne ci-dessous, sinon l'app se fermera.
+#LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Electron/} # et Vs Code pour coder
+LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES//$SPECIAL_CHAR_SEPARATOR$SPECIAL_CHAR_SEPARATOR/$SPECIAL_CHAR_SEPARATOR} # remplacement du délimiteur double par un simple suite à la suppression de l'app Terminal de la liste des apps à fermer
+
+# Formatage du string à spliter : suppression des leading and trailing space, suppression des éventuels doubles points avant et après
+LISTE_STRING_APP_OUVERTES=$(sed -e 's/[[:space:]]*$//' <<< $LISTE_STRING_APP_OUVERTES)
+LISTE_STRING_APP_OUVERTES=$(sed -e 's/^[[:space:]]*//' <<< $LISTE_STRING_APP_OUVERTES)
+LISTE_STRING_APP_OUVERTES=$(sed -e 's/^://' <<< $LISTE_STRING_APP_OUVERTES)
+
+# Splitter le string en tableau selon un séparateur spécial
+OLDIFS=$IFS # conservation de la valeur d'origine du séparateur IFS
+IFS=: # le séparateur est désormais ":""
+TABLEAU_APP_OUVERTES=($LISTE_STRING_APP_OUVERTES) # split du string en tableau selon le nouveau séparateur
+IFS=$OLDIFS # remise de IFS à son ancienne valeur
+
+# Adaptation du message affiché selon que c'est la première vague de fermeture ou la deuxième
+MESSAGE=''
+if [ -z "$2" ]
+then
+     :  
+else
+    MESSAGE="$2"
+fi
+
+# Affichage des apps ouvertes que s'il y en a
+if [ 0 -lt ${#TABLEAU_APP_OUVERTES[@]} ]
+then
+    echo -e "Liste des apps avant fermeture $MESSAGE:"
+    for app in "${tableau[@]}"
+    do
+        echo "$app"
+    done
+    echo ""
+else
+    :
+fi
+
+} # Fin de fonction
+
+function question_oui_non {
+    local -n reponse=$1
+    local QUESTION="$2"
+    echo "" # esthétique
+    read -p "$QUESTION" CHOIX
+    case "$CHOIX" in
+        [OoYy]  )   CHOIX='o';;
+        [Nn]    )   CHOIX='n';;
+        *       )   echo -e "\nERREUR : veuillez saisir une réponse parmi :\n\"OoYy\" pour \"Oui\"\n\"Nn\" pour \"Non\""
+                    question_oui_non $1 "$2" # appel récursif de la fonction tant que la réponse n'est pas oui ou non - similaire à une boucle
+        ;;
+    esac
+    reponse=$CHOIX
+}
+# Fin des fonction
+
+# Début du vrai script
+QUESTION="Avez-vous sauvegardé les fichiers importants avant de lancer la fermeture des apps ? (Oo/Nn) "
+REPONSE=''
+question_oui_non REPONSE "$QUESTION"
+
+if [ $REPONSE == 'o' ]
+then
+    echo -e "\nFermeture des applications...\n"
+    declare -a TABLEAU_APP_OUVERTES
+    remplissage_tableau_app_ouverte TABLEAU_APP_OUVERTES # cf fonction ci-dessus
+
+    for app in "${TABLEAU_APP_OUVERTES[@]}"
+    do
+        osascript -e "quit app \"$app\"" && # osascript est spécial et pour Apple - besoin de protéger le nom de l'app entre guillemets
+        echo "$app fermée..." || echo -e "\nERREUR : l'application $app n'a pas pu être fermée.\n"
+    done
+    echo ""
+
+    # Fermeture forcée si app toujours ouvertes après 3 secondes d'attente
+    sleep 3 # met en pause pour X secondes le script pour éviter de trop rapidement obtenir le nom de apps ouvertes qui ne seraient pas encore fermées mais en cours de fermeture
+    remplissage_tableau_app_ouverte TABLEAU_APP_OUVERTES "forcée " # le deuxième paramètre sert à adapter le message affiché - optionnel
+    if [ 0 -lt ${#TABLEAU_APP_OUVERTES[@]} ]
+    then
+        for app in "${TABLEAU_APP_OUVERTES[@]}"
+        do
+            pkill -x $app && echo "$app fermée de manière forcée..." || echo -e "\nERREUR : l'application $app n'a pas pu être fermée de manière forcée.\n"
+        done
+        echo ""
+    else
+        :
+    fi
+else
+    echo -e "\nAlors faites le maintenant !\n"
+    exit 1
+fi

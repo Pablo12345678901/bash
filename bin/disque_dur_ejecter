@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+
+PATH_DES_DISQUES_DONT_APPAREILS_UBS="/Volumes" # à adapter si changement d'environnement
+
+# Tableaux de conservations des résultats avec les noms des appareils UBS / disques durs
+declare -a LISTE_APPAREILS
+declare -a LISTE_APPAREILS_EJECTE
+declare -a LISTE_APPAREILS_PAS_EJECTES
+
+echo -e "\nÉjection des appareils USB et disques durs.\n"
+
+# Gestion du IFS pour le split des tableau dont les éléments sont séparés par des ":"
+OLDIFS=$IFS # NE PAS SUPPRIMER
+IFS=: # NE PAS SUPPRIMER
+
+for APPAREIL_USB in $PATH_DES_DISQUES_DONT_APPAREILS_UBS/*
+do
+    # Une distinction est faite entre la variable du path "$APPAREIL_USB" et la variable du nom "$NOM_SIMPLE_APPAREIL" (sans le reste du path)
+    NOM_SIMPLE_APPAREIL="${APPAREIL_USB##*/}" # séparateur ":" volontairement appliquer car certains noms de disque sont en plusieurs mots séparés d'un espace
+    LISTE_APPAREILS+=("$NOM_SIMPLE_APPAREIL") # ajout à la liste des appareils
+
+    # éjection des appareils et conservation des résultats dans les tableaux
+    if [[ $APPAREIL_USB != *"Macintosh HD" && $APPAREIL_USB != *"com.apple.TimeMachine"* ]] # pour ne pas éjecter le disque d'origine d'Apple ni sa sauvegarde
+    then
+        echo "Éjection de \"$NOM_SIMPLE_APPAREIL\"..."
+        diskutil eject "$APPAREIL_USB" # regarder le man pour cette commande
+        if [ $? -eq 0 ]
+        then
+            LISTE_APPAREILS_EJECTES+=("$NOM_SIMPLE_APPAREIL")
+        else
+            echo -e "\nERREUR : l'éjection de \"$NOM_SIMPLE_APPAREIL\" a échouée\n"
+            LISTE_APPAREILS_PAS_EJECTES+=("$NOM_SIMPLE_APPAREIL")
+        fi
+    else
+        :
+    fi
+done
+
+# Affichage des résultats
+if [ ${#LISTE_APPAREILS[@]} -eq 0 ]
+then
+    echo "Aucun appareil à éjecter."
+else
+    # Affichage appareils initiaux
+    echo -e "Liste des appareils initiaux :"
+    for APPAREIL in "${LISTE_APPAREILS[@]}"
+        do
+            echo "$APPAREIL"
+        done
+        echo ""
+    
+    echo -e "Résultats de l'éjection :\n"
+    # Affichage appareils éjectés
+    if [ ${#LISTE_APPAREILS_EJECTES[@]} -eq 0 ]
+    then
+        :
+    else
+        echo -e "Liste des appareils éjectés :"
+        for APPAREIL in "${LISTE_APPAREILS_EJECTES[@]}"
+        do
+            echo "$APPAREIL"
+        done
+        echo ""
+    fi
+
+    # Affichage appareils non éjectés
+    if [ ${#LISTE_APPAREILS_PAS_EJECTES[@]} -eq 0 ]
+    then
+        echo -e "Tout est en ordre.\n"
+    else
+        echo -e "Liste des appareils dont l'éjection a échouée :"
+        for APPAREIL in "${LISTE_APPAREILS_PAS_EJECTES[@]}"
+        do
+            echo "$APPAREIL"
+        done
+        echo ""
+        echo -e "ERREUR : certains appareils n'ont pas pu être correctement éjectés.\nVeuilez contrôler le script correspondant ou le faire manuellement.\n"
+        # Remise à la normale du caractères IFS
+        IFS=$OLDIFS # NE PAS SUPPRIMER
+        exit 1
+    fi
+fi
+
+# Remise à la normale du caractères IFS
+# utilisé pour la gestion des noms (séparés par des espaces) dans les tableaux
+IFS=$OLDIFS # NE PAS SUPPRIMER

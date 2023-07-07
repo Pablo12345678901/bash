@@ -7,3 +7,21 @@
 
 # B.
 # Créer un script pour supprimer l'historique / cache / tout des navigateur Chrome / Firefox / Safari
+
+# C.
+# créer un bout de code pour maintenir l'app Terminal disponible = focus dessus en premier plan pendant des tâches qui ouvrent les apps ou gèrent les apps
+# l'intégrer dans les scripts qui utilisent les apps
+# si possible, en faire un script distinct (ex : qui run en arrière plan)
+
+# D.
+# Supprimer du dock automatiquement les apps à droite de la barre
+
+# E. Rassembler les fonctions des fichiers (copier/coller) dans un fichier à part
+# puis appeler les fonctions depuis les différents fichiers
+# transformer les bouts de code en fonctions génériques pour réutilisation
+
+# F. créer un menu de sélection pour des commandes
+# et pouvoir passer des argument éventuels à ces commandes
+
+# G. Apprendre à faire une proposition de string à l'utilisateur
+# proposition qu'il peut modifier (effacer partiellement / tout) puis valider

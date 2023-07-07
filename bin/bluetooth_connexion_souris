@@ -5,12 +5,13 @@ which blueutil > /dev/null # test de la commande si existe
 if (($?))
 then
   echo "Installation de blueutil"
-  brew install blueutil >&2
+  brew install blueutil >&2 || { echo -e "\nERREUR : l'installation de blueutil a échouée.\n" ; exit 1 ; }
 else
   :
 fi
 
-blueutil --power 1 || echo "Le bluetooth n'a pas pu être allumé."
+blueutil --power 1 ||
+{ echo -e "\nERREUR : Le bluetooth n'a pas pu être allumé.\n" ; exit 1 ; }
 
 HARDWARE_BLUETOOTH="$(system_profiler SPBluetoothDataType)"
 NOMSOURIS='Souriz' # à adapter selon le nom de la souris à connecter
@@ -21,7 +22,7 @@ case $HARDWARE_BLUETOOTH in
     APRES_SOURIS=${HARDWARE_BLUETOOTH#*"$SEPARATEUR"} # supprime tous avant la souris y.c le nom de la souris
     ;;
   (*)
-    echo "Le nom de la souris n'a pas été trouvé"
+    echo -e "\nERREUR : Le nom de la souris n'a pas été trouvé.\n"
     exit 1
     ;;
 esac &&
@@ -32,13 +33,16 @@ case $APRES_SOURIS in
     ADRESSE_ET_LE_RESTE=${APRES_SOURIS#*"$SEPARATEUR"} # conserve l'adresse en première position
     ;;
   (*)
-    echo "L'adresse n'a pas été trouvée"
+    echo -e "\nERREUR : L'adresse n'a pas été trouvée\n"
     exit 1
     ;;
 esac &&
 
 ADRESSE_SOURIS=$(echo $ADRESSE_ET_LE_RESTE | awk '{print $1 ; }') # awk
 
-blueutil --power 1 || echo "Le bluetooth n'a pas pu être allumé."
+blueutil --power 1 ||
+{ echo -e "\nERREUR : Le bluetooth n'a pas pu être allumé.\n" ; exit 1 ; }
 
-{ blueutil --connect $ADRESSE_SOURIS && echo "La souris avec l'adresse $ADRESSE_SOURIS est désormais connectée par bluetooth." ; } || echo "La connexion avec la souris à l'adresse $ADRESSE_SOURIS a échoué."
+{ blueutil --connect $ADRESSE_SOURIS &&
+echo -e "\nSouris adresse MAC $ADRESSE_SOURIS connectée par bluetooth.\n" ; } ||
+{ echo -e "\nERREUR : La connexion avec la souris à l'adresse $ADRESSE_SOURIS a échoué.\n" ; exit 1 ; }
