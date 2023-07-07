@@ -29,7 +29,7 @@ then
             if [ "$CHOIX" != "$OPTION_SORTIE" ]
             then
                 echo -e "\nVous avez choisi de push le répertoire git \"$CHOIX\".\n"
-                REPERTOIRE_GIT_A_PUSH="$REPERTOIRE_DEVELOPPEMENT/$DOSSIER_GIT"
+                REPERTOIRE_GIT_A_PUSH="$REPERTOIRE_DEVELOPPEMENT/$CHOIX"
             else
                 echo -e "\nVous avez choisi d'annuler le git push.\n"
                 exit 1
@@ -66,10 +66,8 @@ fi
     message="$2"
     if [ -z $2 ]
     then
-        echo "ICI"
         git commit -m "-"
     else
-        echo "LA"
         git commit -m "$2"
     fi &&
     git push  && echo -e "\nCommit du répertoire $1 = OK\n" ; } || echo "Le commit du répertoire $1 n'a pas pu être correctement fait OU il n'y avait rien à push."
