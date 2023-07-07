@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+#hihihi
 # Contrôle pour ne pas run ce script par moi-même via mes commandes personnelles.
 if [[ $0 =~ (-)?bash$ ]] # "-bash" est run au lancement et "bash" est run avec "exec bash -l" qui relance bash
 then
