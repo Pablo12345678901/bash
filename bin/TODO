@@ -2,26 +2,29 @@
 
 # La liste ci-dessous n'est pas triée par ordre de priorité
 
-# A.
+# 1.
 # apprendre comment rendre mes script portables VS les slashs / anti-slash des paths selon l'environnement
 
-# B.
+# 2.
 # Créer un script pour supprimer l'historique / cache / tout des navigateur Chrome / Firefox / Safari
 
-# C.
+# 3.
 # créer un bout de code pour maintenir l'app Terminal disponible = focus dessus en premier plan pendant des tâches qui ouvrent les apps ou gèrent les apps
 # l'intégrer dans les scripts qui utilisent les apps
 # si possible, en faire un script distinct (ex : qui run en arrière plan)
 
-# D.
+# 4.
 # Supprimer du dock automatiquement les apps à droite de la barre
 
-# E. Rassembler les fonctions des fichiers (copier/coller) dans un fichier à part
+# 5. Rassembler les fonctions des fichiers (copier/coller) dans un fichier à part
 # puis appeler les fonctions depuis les différents fichiers
 # transformer les bouts de code en fonctions génériques pour réutilisation
 
-# F. créer un menu de sélection pour des commandes
+# 6. créer un menu de sélection pour des commandes
 # et pouvoir passer des argument éventuels à ces commandes
 
-# G. Apprendre à faire une proposition de string à l'utilisateur
+# 7. Apprendre à faire une proposition de string à l'utilisateur
 # proposition qu'il peut modifier (effacer partiellement / tout) puis valider
+
+# 8. Apprendre à ne pas sauvegarder l'historique des commandes de bash.
+# cf ce site : https://stackoverflow.com/questions/6475524/how-do-i-prevent-commands-from-showing-up-in-bash-history

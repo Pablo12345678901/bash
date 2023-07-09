@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 #
-{ rm -rf ~/.Trash/* && echo "La corbeille a été vidée" ; } || echo "ERREUR : La corbeille n'a pas pu être vidée."
+{ rm -rf ~/.Trash/* && echo -e "\nLa corbeille a été vidée.\n" ; } || echo -e "\nERREUR : La corbeille n'a pas pu être vidée.\n"
