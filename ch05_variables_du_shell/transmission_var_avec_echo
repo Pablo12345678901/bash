@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+ANCIEN_NOM=$NOM_ET_PRENOM
+NOUVEAU_NOM=${ANCIEN_NOM/Paul/Depetit}
+echo "$NOUVEAU_NOM" # transmission dans l'autre sens après avoir modifié la valeur

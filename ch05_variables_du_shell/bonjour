@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# Script simple auquel je passe la valeur nom et prénom par export depuis un autre script.
+# Il reste runnable sans ça.
+
+echo "Depuis script 2"
+#echo "$(env)" # pour voir les var d'environnement
+
+if [ -z "$NOM_ET_PRENOM" ]
+then
+    echo "Bonjour inconnu."
+else
+    echo "Bonjour $NOM_ET_PRENOM"
+fi

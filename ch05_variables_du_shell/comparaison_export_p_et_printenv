@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+
+declare -a TABLEAU_PRINTENV
+declare -a TABLEAU_VAR_EXPORT
+declare -a TABLEAU_MATCH
+declare -a TABLEAU_PAS_MATCH_PRINTENV
+declare -a TABLEAU_PAS_MATCH_EXPORT_P
+LISTE_PRINTENV_STR=""
+LISTE_EXPORT_STR=""
+indicateur=1
+
+# Résultat commande "printenv"
+LISTE_PRINTENV_STR=$(printenv)
+LISTE_PRINTENV_STR=$(sed -e 's/=.*$//' <<<$LISTE_PRINTENV_STR ) # manipulation des éléments pour enlever le "=valeur"
+TABLEAU_PRINTENV=($LISTE_PRINTENV_STR)
+for element in "${TABLEAU_PRINTENV[@]}"
+do
+    :
+    #echo $element
+done
+
+# Résultat commande "export -p"
+LISTE_EXPORT_STR=$(export -p) # format string car besoin modifier les éléments avant stockage dans tableau
+LISTE_EXPORT_STR=$(sed -e 's/declare[[:space:]]-x[[:space:]]//' -e 's/=.*$//' <<<$LISTE_EXPORT_STR ) # manipulation des éléments pour enlever le "declare -x" et le "=valeur"
+TABLEAU_VAR_EXPORT=($LISTE_EXPORT_STR)
+for element in "${TABLEAU_VAR_EXPORT[@]}"
+do
+    :
+    #echo $element
+done
+
+
+
+# Contrôle de la réciprocité du contenu des listes de variables
+# Sur la base des var de printenv
+for element_printenv in "${TABLEAU_PRINTENV[@]}"
+do
+    indicateur=1
+    for element_export_p in "${TABLEAU_VAR_EXPORT[@]}"
+    do
+        if [ "$element_printenv" = "$element_export_p" ] # si l'élément est dans les 2 listes alors ajout à la liste match
+        then
+            TABLEAU_MATCH+=("$element_printenv")
+            indicateur=0
+            break
+        else
+            :
+        fi
+    done
+    #echo -e "\n\n\n"
+    if [ $indicateur == 1 ]
+    then
+        TABLEAU_PAS_MATCH_PRINTENV+=("$element_printenv") # sinon ajout à la liste pas match printenv
+    else
+        :
+    fi
+done
+# Sur la base des var de export -p
+for element_export_p in "${TABLEAU_VAR_EXPORT[@]}"
+do
+    indicateur=1
+    for element_printenv in "${TABLEAU_PRINTENV[@]}"
+    do
+        if [ "$element_printenv" = "$element_export_p" ] # si l'élément est dans les 2 listes alors ajout à la liste match
+        then
+            # Pas besoin d'ajout à la liste des match car déjà contrôlé les match avant
+            indicateur=0
+            break
+        else
+            :
+        fi
+    done
+    #echo -e "\n\n\n"
+    if [ $indicateur == 1 ]
+    then
+        TABLEAU_PAS_MATCH_EXPORT_P+=("$element_export_p") # sinon ajout à la liste pas match export -p
+    else
+        :
+    fi
+done
+
+# DEBUG Affichage optionnel de la taille des tableaux
+: <<EOF
+echo -e "Taille : ${#TABLEAU_PRINTENV[@]} - TABLEAU_PRINTENV"
+echo -e "Taille : ${#TABLEAU_VAR_EXPORT[@]} - TABLEAU_VAR_EXPORT"
+echo -e "Taille : ${#TABLEAU_MATCH[@]} - TABLEAU_MATCH"
+echo -e "Taille : ${#TABLEAU_PAS_MATCH_PRINTENV[@]} - TABLEAU_PAS_MATCH_PRINTENV"
+echo -e "Taille : ${#TABLEAU_PAS_MATCH_EXPORT_P[@]} - TABLEAU_PAS_MATCH_PRINTENV"
+EOF
+
+# Liste des éléments contenus à la fois dans printenv et dans export -p
+if [ ${#TABLEAU_MATCH[@]} != 0 ]
+then
+    echo -e "\nListe des éléments contenus à la fois dans printenv et dans export -p."
+    for element in "${TABLEAU_MATCH[@]}"
+    do
+        echo "\"$element\""
+    done
+else
+    echo -e "\nAucun élément n'est commun à printenv et export -p.\n"
+fi
+
+# Liste des éléments contenus uniquement dans printenv et pas dans export -p
+if [ ${#TABLEAU_PAS_MATCH_PRINTENV[@]} != 0 ]
+then
+    echo -e "\nListe des éléments contenus uniquement dans printenv et pas dans export -p."
+    for element in "${TABLEAU_PAS_MATCH_PRINTENV[@]}"
+    do
+        echo "\"$element\""
+    done
+else
+    echo -e "\nTous les éléments de printenv sont communs à printenv.\n"
+fi
+
+# Liste des éléments contenus uniquement dans export -p et pas dans printenv
+if [ ${#TABLEAU_PAS_MATCH_EXPORT_P[@]} != 0 ]
+then
+    echo -e "\nListe des éléments contenus uniquement dans export -p et pas dans printenv."
+    for element in "${TABLEAU_PAS_MATCH_EXPORT_P[@]}"
+    do
+        echo "\"$element\""
+    done
+else
+    echo -e "\nTous les éléments de export -p sont communs à printenv.\n"
+fi

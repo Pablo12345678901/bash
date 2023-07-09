@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+if [ -n $1 ] # si au moins un argument
+then
+    for element in $*
+    do
+        echo "$element"
+    done
+    echo ""
+else
+    echo -e "\nPas d'argument passé au script.\n"
+fi

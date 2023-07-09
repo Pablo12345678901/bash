@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+NOM_ET_PRENOM="Jean Paul"
+export NOM_ET_PRENOM
+
+cd '/Users/pablo/Desktop/Developpement/bash/ch05_variables_du_shell'
+
+echo -e "\nScript 1"
+bash bonjour
+echo "Retour dans le script 1."
+
+echo -e "\nScript 1"
+NOM_ET_PRENOM=$(bash transmission_var_avec_echo)
+echo "Retour dans le script 1."
+echo "Le nom modifié depuis le second script est : $NOM_ET_PRENOM."
+
+cd $OLDPWD
+
+
