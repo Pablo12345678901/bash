@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+
+function remplissage_tableau_app_ouverte {
+local -n tableau=$1 # variable liée à la variable globale du tableau des app ouvertes
+
+# Osacript fonctionne sur Mac uniquement (non portable)
+LISTE_STRING_APP_OUVERTES=$(osascript -e 'set text item delimiters to ":"' -e 'tell application "System Events" to (name of every application process whose background only is false) as string' | sort )
+
+# Séparation des éléments par des ":" pour futur split avec ":"
+SPECIAL_CHAR_SEPARATOR=':'
+LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Terminal/} # Tout fermer sauf Terminal - retiré Terminal de la liste des apps à fermer
+# Pour développer sur VS CODE, décommenter la ligne ci-dessous, sinon l'app se fermera.
+#LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Electron/} # et Vs Code pour coder
+LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES//$SPECIAL_CHAR_SEPARATOR$SPECIAL_CHAR_SEPARATOR/$SPECIAL_CHAR_SEPARATOR} # remplacement du délimiteur double par un simple suite à la suppression de l'app Terminal de la liste des apps à fermer
+
+# Formatage du string à spliter : suppression des leading and trailing space, suppression des éventuels doubles points avant et après
+LISTE_STRING_APP_OUVERTES=$(sed -e 's/[[:space:]]*$//' <<< $LISTE_STRING_APP_OUVERTES)
+LISTE_STRING_APP_OUVERTES=$(sed -e 's/^[[:space:]]*//' <<< $LISTE_STRING_APP_OUVERTES)
+LISTE_STRING_APP_OUVERTES=$(sed -e 's/^://' <<< $LISTE_STRING_APP_OUVERTES)
+
+# Splitter le string en tableau selon un séparateur spécial
+OLDIFS=$IFS # conservation de la valeur d'origine du séparateur IFS
+IFS=: # le séparateur est désormais ":""
+TABLEAU_APP_OUVERTES=($LISTE_STRING_APP_OUVERTES) # split du string en tableau selon le nouveau séparateur
+IFS=$OLDIFS # remise de IFS à son ancienne valeur
+
+} # Fin de fonction
+
+declare -a TABLEAU_APP_OUVERTES
+remplissage_tableau_app_ouverte TABLEAU_APP_OUVERTES # cf fonction ci-dessus
+OPTION_SORTIE="Quitter"
+TABLEAU_APP_OUVERTES+=("$OPTION_SORTIE") # ajout option pour quitter
+DERNIERE_OPTION=${#TABLEAU_APP_OUVERTES[@]} # Obtention du nombre d'option pour les messages
+
+# Sélection avec possibilité de quitter
+CHOIX=""
+
+# Gestion d'un éventuel argument (index+1 passé en argument)
+if [ -z "$1" ]
+then
+    :
+else
+    if [[ $1 -gt 0 && $1 -le $DERNIERE_OPTION ]] # si choix compris dans la liste // -gt = greater than // -le = less than or equal to
+    then
+        index=$(($1-1)) # car les choix sélect débute à 1 et l'index à 0
+        CHOIX="${TABLEAU_APP_OUVERTES[$index]}"
+    else
+        if [ "$1" == "all" ]
+        then
+            app_fermer || { echo -e "Arrêt du redémarrage des apps sur votre demande.\n" ; exit 1 ; } # cf script
+            GESTION_ERREUR=0
+            for app in "${TABLEAU_APP_OUVERTES[@]}"
+            do
+                if [ "$app" != "$OPTION_SORTIE" ]
+                then
+                    echo "Réouverture de $app..."
+                    if [ "$app" == "Electron" ] # Gestion de VS Code qui s'appellent "Electron" à la fermeture et "Visual Studio Code" à l'ouverture
+                    then
+                        app="Visual Studio Code"
+                        code && echo -e "\n$app a été réouverte.\n" || # Spécial pour VS Code car la commande pour ouvrir cette app est spécifique
+                        echo -e "\nERREUR : l'application $app n'a pas pu être ouverte.\n" && GESTION_ERREUR=1
+                    else
+                        open -a "$app" >&2 && echo -e "\n$app a été réouverte.\n" ||
+                        echo -e "\nERREUR : l'application $app n'a pas pu être ouverte.\n" && GESTION_ERREUR=1
+                    fi
+                else
+                    : # permet de gérer le choix final pour quitter
+                fi
+            done
+            exit $GESTION_ERREUR # sortie avec ou sans erreur selon ce qu'il s'est passé
+        else
+            echo -e "\nERREUR : votre saisie \"$1\" ne fait pas partie de la liste de choix.\nTapez \"$DERNIERE_OPTION\" pour \"$OPTION_SORTIE\""
+        fi
+    fi
+fi
+
+# Boucler tant que le choix n'est pas correct = tant que choix n'est pas un string > 1char
+until [ -n "$CHOIX" ] 
+do
+    echo -e "\nChoisissez une application pour la redémarrer ou tapez \"$DERNIERE_OPTION\" pour \"$OPTION_SORTIE\"\n"
+    select CHOIX in "${TABLEAU_APP_OUVERTES[@]}"
+    do
+        break 
+    done
+    if [ -n "$CHOIX" ] # si le choix est correct
+    then
+        :
+    else
+        echo -e "ERREUR : votre saisie ne fait pas partie de la liste de choix.\nTapez \"$DERNIERE_OPTION\" pour \"$OPTION_SORTIE\""
+    fi
+done    
+
+# Une fois le choix fait, redémarrage sauf si souhait quitter commande
+if [ "$CHOIX" == "$OPTION_SORTIE" ]
+then
+    echo -e "\nVous avez choisi de \"$CHOIX\" sans rien faire.\n"
+    exit 0
+else
+    # Fermeture de l'app - ne fonctionne pas pour VS Code mais je n'ai pas envie de rendre le code trop lourd en ajoutant le traitement d'app q
+    APP_A_FERMER="$CHOIX"
+    echo -e "\nFermeture de $APP_A_FERMER..."
+    # osascript est spécial et pour Apple - besoin de protéger le nom de l'app entre guillemets
+    osascript -e "quit app \"$APP_A_FERMER\"" &&
+    echo -e "\n\"$APP_A_FERMER\" a été fermée.\n" ||
+    { echo -e "\nERREUR : l'application $APP_A_FERMER n'a pas pu être fermée.\n" && exit 1 ; }
+    
+    # Fermeture forcée si l'app refuse de fermer
+    sleep 3 # met en pause pour X secondes le script pour éviter de trop rapidement obtenir le nom de apps ouvertes qui ne seraient pas encore fermées mais en cours de fermeture
+    remplissage_tableau_app_ouverte TABLEAU_APP_OUVERTES # récupération du nouveau tableau des apps après la tentative de fermeture
+    for app in "${TABLEAU_APP_OUVERTES[@]}"
+        do
+            if [ "$app" == "$APP_A_FERMER" ] # si l'app à fermer ne la pas correctement été
+            then # alors fermeture forcée "violente"
+                pkill -x $app && echo "$app fermée de manière forcée..." ||
+                { echo -e "\nERREUR : l'application $app n'a pas pu être fermée de manière forcée.\n" &&
+                exit 1 ; }
+            else
+                :
+            fi
+        done
+        
+    # Réouverture de l'app
+    echo "Réouverture de $APP_A_FERMER..."
+    if [ "$APP_A_FERMER" == "Electron" ] # Gestion de VS Code qui s'appellent "Electron" à la fermeture et "Visual Studio Code" à l'ouverture
+    then
+        APP_A_FERMER="Visual Studio Code"
+        code && echo -e "\n$APP_A_FERMER a été réouverte.\n" || # Spécial pour VS Code car la commande pour ouvrir cette app est spécifique
+        echo -e "\nERREUR : l'application $APP_A_FERMER n'a pas pu être ouverte.\n" && GESTION_ERREUR=1
+    else
+        open -a "$APP_A_FERMER" >&2 && echo -e "\n$APP_A_FERMER a été réouverte.\n" ||
+        echo -e "\nERREUR : l'application $APP_A_FERMER n'a pas pu être ouverte.\n" && GESTION_ERREUR=1
+    fi
+    exit $GESTION_ERREUR # sortie avec ou sans erreur selon ce qu'il s'est passé
+fi
+

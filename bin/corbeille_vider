@@ -1,3 +1,69 @@
 #!/usr/bin/env bash
-#
-{ rm -rf ~/.Trash/* && echo -e "\nLa corbeille a été vidée.\n" ; } || echo -e "\nERREUR : La corbeille n'a pas pu être vidée.\n"
+
+declare -a TABLEAU_FICHIERS # pour l'affichage initial
+declare -a TABLEAU_PATH # pour la suppression
+declare -a TABLEAU_FICHIERS_RESTANTS # pour l'affichage final
+
+PATH_CORBEILLE=$HOME/.Trash/*
+
+# Obtention de la liste des fichiers initiaux
+for file in $PATH_CORBEILLE
+do
+    filename="${file##*/}"
+    if [ "$filename" != "*" ]
+    then
+        TABLEAU_FICHIERS+=("$filename")
+        TABLEAU_PATH+=("$file")
+    else
+        :
+    fi
+done
+
+# Affichage du contenu de cette liste
+if [ ${#TABLEAU_FICHIERS[@]} -ne 0 ] # si tableau n'est pas vide
+then
+    echo -e "\nListe des fichiers dans la corbeille :"
+    for filename in "${TABLEAU_FICHIERS[@]}"
+    do
+        echo "$filename"
+    done
+else
+    echo -e "\nLa corbeille est déjà vide...\n"
+    exit 0
+fi
+
+echo -e "\nVidage de la corbeille..."
+for file in "${TABLEAU_PATH[@]}"
+do
+    filename="${file##*/}"
+    rm -rf "$file" # &&
+    #echo "Fichier \"$filename\" supprimé..." ||
+    #echo -e "\nERREUR : le fichier \"$filename\" n'a pas pu être supprimé.\n"
+done
+
+# Obtention de la liste des fichiers finaux
+for file in $PATH_CORBEILLE
+do
+    filename="${file##*/}"
+    if [ "$filename" != "*" ]
+    then
+        TABLEAU_FICHIERS_RESTANTS+=("$filename")
+    else
+        :
+    fi
+done
+
+if [ ${#TABLEAU_FICHIERS_RESTANTS[@]} -eq 0 ]
+then
+    echo -e "\nLa corbeille a été vidée.\n"
+else
+    echo -e "\nERREUR : La corbeille n'a pas pu être vidée.\n"
+    echo -e "Voici la liste des fichiers à supprimer manuellement (ou contrôler le script) :"
+    for element in "${TABLEAU_FICHIERS_RESTANTS[@]}"
+    do
+        echo "$element"
+    done
+    echo ""
+    exit 1
+fi
+

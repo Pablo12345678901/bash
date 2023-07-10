@@ -13,7 +13,7 @@ La liste ci-dessous n'est pas triée par ordre de priorité :
 - Portabilité slash-antislash : Apprendre comment rendre mes script portables VS les slashs / anti-slash des paths selon l'environnement
 - Proposition string : Apprendre à faire une proposition de string à l'utilisateur. Proposition qu'il peut modifier (effacer partiellement / tout) puis valider
 - Terminal app : Créer un bout de code pour maintenir l'app Terminal disponible = focus dessus en premier plan pendant des tâches qui ouvrent les apps ou gèrent les apps. l'intégrer dans les scripts qui utilisent les apps. Si possible, en faire un script distinct (ex : qui run en arrière plan)
-
+- Script app_ouvrir : obtenir la liste de toutes les apps disponibles sur le Mac et les proposer sous forme y/n + sélect à la fin de l'ouverture des apps de base
 
 
 
