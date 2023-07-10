@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+MESSAGE="Bonjour"
+echo "$MESSAGE"
+unset MESSAGE
+# désormais la variable MESSAGE est unset et n'a pas de valeur
+echo "${MESSAGE:="Aurevoir"}"
+echo "$MESSAGE"

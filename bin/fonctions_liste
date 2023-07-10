@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Tri par ordre alphabétique pour éviter doublons
+# Donner noms complexes pour éviter doublon avec fonction déjà dans bash
+
+# Fonction test
+test_retourne_valeur () {
+    local -n VAR_FONCTION=$1
+    echo "Ancienne valeur pour VAR : \"$VAR_FONCTION\""
+    read -p "Nouvelle valeur pour VAR : " NOUVELLE_VALEUR
+    VAR_FONCTION="$NOUVELLE_VALEUR"
+    echo "Dans la fonction : nouvelle valeur $VAR_FONCTION"
+}
+
+################ DEBUT DES FONCTIONS ICI ##############################

@@ -4,18 +4,21 @@ exit 0
 : <<HEREDOCUMENT
 La liste ci-dessous n'est pas triée par ordre de priorité :
 
-- bash - code source : Obtenir le code source de bash pour l'étudier
+SCRIPTS
 - Dock : Supprimer du dock automatiquement les apps à droite de la barre
-- Fonctions - optimisation : Rassembler les fonctions des fichiers (copier/coller) dans un fichier à part. Puis appeler les fonctions depuis les différents fichiers. Transformer les bouts de code en fonctions génériques pour réutilisation
-- Historique Bash : Apprendre à ne pas sauvegarder l'historique des commandes de bash. # cf ce site : https://stackoverflow.com/questions/6475524/how-do-i-prevent-commands-from-showing-up-in-bash-history
 - Historique navigateurs : Créer un script pour supprimer l'historique / cache / tout des navigateur Chrome / Firefox / Safari
-- Menu de sélection : Créer un menu de sélection pour des commandes. et pouvoir passer des argument éventuels à ces commandes
-- Portabilité slash-antislash : Apprendre comment rendre mes script portables VS les slashs / anti-slash des paths selon l'environnement
-- Proposition string : Apprendre à faire une proposition de string à l'utilisateur. Proposition qu'il peut modifier (effacer partiellement / tout) puis valider
 - Terminal app : Créer un bout de code pour maintenir l'app Terminal disponible = focus dessus en premier plan pendant des tâches qui ouvrent les apps ou gèrent les apps. l'intégrer dans les scripts qui utilisent les apps. Si possible, en faire un script distinct (ex : qui run en arrière plan)
 - Script app_ouvrir : obtenir la liste de toutes les apps disponibles sur le Mac et les proposer sous forme y/n + sélect à la fin de l'ouverture des apps de base
 
+APPRENTISSAGE :
+- bash - code source : Obtenir le code source de bash pour l'étudier
+- Historique Bash : Apprendre à ne pas sauvegarder l'historique des commandes de bash. # cf ce site : https://stackoverflow.com/questions/6475524/how-do-i-prevent-commands-from-showing-up-in-bash-history
+- Menu de sélection : Créer un menu de sélection pour des commandes. et pouvoir passer des argument éventuels à ces commandes
+- Portabilité slash-antislash : Apprendre comment rendre mes script portables VS les slashs / anti-slash des paths selon l'environnement
+- Proposition string : Apprendre à faire une proposition de string à l'utilisateur. Proposition qu'il peut modifier (effacer partiellement / tout) puis valider
 
+OPTIMISATION D'ECRITURE : 
+- Fonctions - optimisation : Rassembler les fonctions des fichiers (copier/coller) dans un fichier à part. Puis appeler les fonctions depuis les différents fichiers. Transformer les bouts de code en fonctions génériques pour réutilisation
 
 
 

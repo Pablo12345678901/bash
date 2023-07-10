@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+source fonctions_liste
+
+VAR="Bonjour"
+echo "Dans le script, var vaut : $VAR"
+test_retourne_valeur VAR # test d'appel d'une fonction simple
+echo "De retour dans le script, var vaut : $VAR"

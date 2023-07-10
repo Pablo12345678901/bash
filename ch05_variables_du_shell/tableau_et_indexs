@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+tableau=(premier deuxième troisième quatrième)
+for i in "${!tableau[@]}"; do 
+  echo "Index : $i valeur : ${tableau[$i]}"
+done
