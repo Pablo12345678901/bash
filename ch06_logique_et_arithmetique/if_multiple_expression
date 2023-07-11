@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+NF='/Users/pablo/Desktop/Developpement/bash/ch06_logique_et_arithmetique/if_multiple_expression'
+
+if [ -r $NF -a \( -f "$NF" -o -p "$NF" \) ]
+# -r file : True if file exists and is readable.
+# -a = and = &&
+# -f file : True if file exists and is a regular file.
+# -o = or = ||
+# -p file : True if file is a named pipe (FIFO).
+then
+    echo "Vrai"
+else
+    echo "Faux"
+fi

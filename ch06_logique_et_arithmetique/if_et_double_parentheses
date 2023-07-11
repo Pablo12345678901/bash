@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# test pour voir les résultat des différentes expressions :
+if (( 1 == 0 ))
+then
+    echo "Vrai : ici / 1 vaut 0"
+else
+    echo "Faux : ici / 1 ne vaut pas 0"
+fi
+# Résultat : Faux : ici / 1 ne vaut pas 0
+
+NOMBRE=0
+
+if ((NOMBRE))
+then
+    echo "Vrai : nombre est différent de 0 = $NOMBRE"
+else
+    echo "Faux : nombre est égal à 0 = $NOMBRE"
+fi
+# Résultat : Faux : nombre est égal à 0 = 0
+
+if ((++NOMBRE))
+then
+    echo "Vrai : nombre est différent de 0 = $NOMBRE"
+else
+    echo "Faux : nombre est égal à 0 = $NOMBRE"
+fi
+# Résultat : Vrai : nombre est différent de 0 = 1
