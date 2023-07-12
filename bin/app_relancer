@@ -1,30 +1,5 @@
 #!/usr/bin/env bash
-
-function remplissage_tableau_app_ouverte {
-local -n tableau=$1 # variable liée à la variable globale du tableau des app ouvertes
-
-# Osacript fonctionne sur Mac uniquement (non portable)
-LISTE_STRING_APP_OUVERTES=$(osascript -e 'set text item delimiters to ":"' -e 'tell application "System Events" to (name of every application process whose background only is false) as string' | sort )
-
-# Séparation des éléments par des ":" pour futur split avec ":"
-SPECIAL_CHAR_SEPARATOR=':'
-LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Terminal/} # Tout fermer sauf Terminal - retiré Terminal de la liste des apps à fermer
-# Pour développer sur VS CODE, décommenter la ligne ci-dessous, sinon l'app se fermera.
-#LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Electron/} # et Vs Code pour coder
-LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES//$SPECIAL_CHAR_SEPARATOR$SPECIAL_CHAR_SEPARATOR/$SPECIAL_CHAR_SEPARATOR} # remplacement du délimiteur double par un simple suite à la suppression de l'app Terminal de la liste des apps à fermer
-
-# Formatage du string à spliter : suppression des leading and trailing space, suppression des éventuels doubles points avant et après
-LISTE_STRING_APP_OUVERTES=$(sed -e 's/[[:space:]]*$//' <<< $LISTE_STRING_APP_OUVERTES)
-LISTE_STRING_APP_OUVERTES=$(sed -e 's/^[[:space:]]*//' <<< $LISTE_STRING_APP_OUVERTES)
-LISTE_STRING_APP_OUVERTES=$(sed -e 's/^://' <<< $LISTE_STRING_APP_OUVERTES)
-
-# Splitter le string en tableau selon un séparateur spécial
-OLDIFS=$IFS # conservation de la valeur d'origine du séparateur IFS
-IFS=: # le séparateur est désormais ":""
-TABLEAU_APP_OUVERTES=($LISTE_STRING_APP_OUVERTES) # split du string en tableau selon le nouveau séparateur
-IFS=$OLDIFS # remise de IFS à son ancienne valeur
-
-} # Fin de fonction
+source fonctions_personnelles
 
 declare -a TABLEAU_APP_OUVERTES
 remplissage_tableau_app_ouverte TABLEAU_APP_OUVERTES # cf fonction ci-dessus

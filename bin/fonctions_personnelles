@@ -1,0 +1,167 @@
+#!/usr/bin/env bash
+
+# Ranger par ordre alphabétique pour éviter doublons
+# Donner noms complexes pour éviter doublon avec fonction déjà dans bash
+
+function app_fermer_normal {
+if [ -z "$1" ]
+then
+    echo "ERREUR : aucune app transmise en argument."
+    exit 1
+else
+    local -n APP=$1
+    osascript -e "quit app \"$APP\"" && # osascript est spécial et pour Apple - besoin de protéger le nom de l'app entre guillemets
+    echo "$APP fermée..." ||
+    {   echo -e "\nERREUR : l'application $APP n'a pas pu être fermée.\n" ;
+        exit 1 ;
+    }
+fi
+}
+
+
+function app_fermer_brutal {
+if [ -z "$1" ]
+then
+    echo "ERREUR : aucune app transmise en argument."
+    exit 1
+else
+    local -n APP=$1
+    pkill -x "$APP" && echo "$APP fermée de manière forcée..." ||
+    {   echo -e "\nERREUR : l'application $APP n'a pas pu être fermée de manière forcée.\n" ;
+        exit 1 ;
+    }
+fi
+}
+
+
+function retourne_choix_si_nb_correct_selon_select {
+# Argument optionnel $3 = option_quitter
+local -n TABLEAU=$1
+local -n ARG_FOURNI=$2
+local -n CHOIX=$3
+local -n MESSAGE=$4
+TABLEAU_COPIE=("${TABLEAU[@]}")             
+# Ajout de l'option quitter à la liste si fourni
+if [ -n "$5" ] 
+then
+    local -n OPTION_QUITTER=$5
+    TABLEAU_COPIE+=("$OPTION_QUITTER")
+else
+    :
+fi
+
+NB_REGEX='^[0-9]+$' # Utile pour tester les index
+if [[ "$ARG_FOURNI" =~ $NB_REGEX ]]
+then
+    if [ "$ARG_FOURNI" -gt 0 -a "$ARG_FOURNI" -le ${#TABLEAU_COPIE[@]} ]
+    then
+        CHOIX="${TABLEAU_COPIE[(($ARG_FOURNI-1))]}" # décalage de l'index car les choix à select débutent à 1 et pas 0
+    else
+        echo -e "\nERREUR : le numéro fourni en argument \"$ARG_FOURNI\" ne fait pas partie de la liste des choix.\n"
+        exit 1
+    fi
+else
+    echo -e "\nL'argument \"$ARG_FOURNI\" n'est pas valable."
+    echo "$MESSAGE\n"
+    exit 1
+fi
+}
+
+
+function question_oui_non {
+    local -n REPONSE_UTILISATEUR=$1
+    local QUESTION_POSEE="$2"
+    echo "" # esthétique
+    read -p "$QUESTION_POSEE" CHOIX
+    case "$CHOIX" in
+        [OoYy]  )   CHOIX='o';;
+        [Nn]    )   CHOIX='n';;
+        *       )   echo -e "\nERREUR : veuillez saisir une réponse parmi :\n\"OoYy\" pour \"Oui\"\n\"Nn\" pour \"Non\""
+                    question_oui_non $1 "$2" # appel récursif de la fonction tant que la réponse n'est pas oui ou non - similaire à une boucle
+        ;;
+    esac
+    REPONSE_UTILISATEUR=$CHOIX
+}
+
+
+function remplissage_tableau_app_ouverte {
+local -n tableau=$1 # variable liée à la variable globale du tableau des app ouvertes
+
+# Osacript fonctionne sur Mac uniquement (non portable)
+LISTE_STRING_APP_OUVERTES=$(osascript -e 'set text item delimiters to ":"' -e 'tell application "System Events" to (name of every application process whose background only is false) as string' | sort )
+
+# Séparation des éléments par des ":" pour futur split avec ":"
+SPECIAL_CHAR_SEPARATOR=':'
+LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Terminal/} # Tout fermer sauf Terminal - retiré Terminal de la liste des apps à fermer
+# VS CODE, décommenter la ligne ci-dessous, sinon l'app se fermera.
+#LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Electron/} # et Vs Code pour coder
+# Microsoft Word, décommenter la ligne ci-dessous, sinon l'app se fermera.
+#LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Microsoft\ Word/} # et Word pour prendre des notes
+LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES//$SPECIAL_CHAR_SEPARATOR$SPECIAL_CHAR_SEPARATOR/$SPECIAL_CHAR_SEPARATOR} # remplacement du délimiteur double par un simple suite à la suppression de l'app Terminal de la liste des apps à fermer
+
+# Formatage du string à spliter : suppression des leading and trailing space, suppression des éventuels doubles points avant et après
+LISTE_STRING_APP_OUVERTES=$(sed -e 's/[[:space:]]*$//' <<< $LISTE_STRING_APP_OUVERTES)
+LISTE_STRING_APP_OUVERTES=$(sed -e 's/^[[:space:]]*//' <<< $LISTE_STRING_APP_OUVERTES)
+LISTE_STRING_APP_OUVERTES=$(sed -e 's/^://' <<< $LISTE_STRING_APP_OUVERTES)
+
+# Splitter le string en tableau selon un séparateur spécial
+OLDIFS=$IFS # conservation de la valeur d'origine du séparateur IFS
+IFS=: # le séparateur est désormais ":""
+TABLEAU_APP_OUVERTES=($LISTE_STRING_APP_OUVERTES) # split du string en tableau selon le nouveau séparateur
+IFS=$OLDIFS # remise de IFS à son ancienne valeur
+}
+
+
+function select_parmi_liste_avec_option_quitter {
+# arguments à fournir dans l'ordre : 
+local -n TABLEAU_D_OPTIONS=$1
+local -n OPTION_POUR_ARRETER=$2
+local -n CHOIX_UTILISATEUR=$3
+local -n MESSAGE_AFFICHE=$4
+
+TABLEAU_CHOIX=("${TABLEAU_D_OPTIONS[@]}") # copie du tableau original car je vais y ajouter l'option de sortie
+TABLEAU_CHOIX+=("$OPTION_POUR_ARRETER")
+DERNIERE_OPTION=${#TABLEAU_CHOIX[@]}
+CHOIX_UTILISATEUR=""
+until [ -n "$CHOIX_UTILISATEUR" ] 
+do
+    echo -e "\n$MESSAGE_AFFICHE ou tapez \"$DERNIERE_OPTION\" pour \"$OPTION_POUR_ARRETER\"\n"
+    select CHOIX_UTILISATEUR in "${TABLEAU_CHOIX[@]}"
+    do
+        break 
+    done
+    if [ -n "$CHOIX_UTILISATEUR" ] # si le choix est correct
+    then
+        :
+    else
+        echo -e "ERREUR : votre saisie ne fait pas partie de la liste de choix.\nTapez \"$DERNIERE_OPTION\" pour \"$OPTION_POUR_ARRETER\""
+    fi
+done   
+
+}
+
+
+function tableau_affichage_contenu_avec_message {
+local -n TABLEAU=$1
+MESSAGE=""
+if [ -z "$2" ]
+then
+    :  
+else
+    MESSAGE="$2"
+fi
+
+# Affichage du contenu tableau que s'il y a au moins un élément
+if [ 0 -lt ${#TABLEAU[@]} ]
+then
+    echo "" # retour à la ligne esthétique
+    echo -e "$2"
+    for ELEMENT in "${TABLEAU[@]}"
+    do
+        echo "$ELEMENT"
+    done
+    echo ""
+else
+    :
+fi
+}

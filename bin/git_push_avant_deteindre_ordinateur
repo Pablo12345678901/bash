@@ -1,21 +1,5 @@
 #!/usr/bin/env bash
-
-function question_oui_non {
-    local -n reponse=$1
-    local QUESTION="$2"
-    echo "" # esthétique
-    read -p "$QUESTION" CHOIX
-    case "$CHOIX" in
-        [OoYy]  )   CHOIX='o';;
-        [Nn]    )   CHOIX='n';;
-        *       )   echo -e "\nERREUR : veuillez saisir une réponse parmi :\n\"OoYy\" pour \"Oui\"\n\"Nn\" pour \"Non\""
-                    question_oui_non $1 "$2" # appel récursif de la fonction tant que la réponse n'est pas oui ou non - similaire à une boucle
-        ;;
-    esac
-    reponse=$CHOIX
-}
-# Fin des fonction
-
+source fonctions_personnelles
 
 # Demande si souhait de push Git avant d'éteindre
 QUESTION="Souhaiteriez-vous git push avant d'éteindre l'ordinateur ? (Oo/Nn) "
