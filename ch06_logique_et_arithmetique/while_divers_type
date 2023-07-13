@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+COMPTEUR=0
+MAX=10
+while ((COMPTEUR < MAX))
+do
+    let COMPTEUR++
+    echo "Boucle $COMPTEUR"
+done
+
+echo -e "\nTapez du texte du clavier et il sera affiché ensuite... (enter pour stopper)\n"
+OLDIFS=$IFS
+while IFS= read -rs TEXTE_LU_AU_CLAVIER
+# -r pour annuler l'effet des '\' lu au clavier
+# -s pour ne pas montrer la saisie de l'utilisateur (comme pour MDP)
+do
+    if [ "$TEXTE_LU_AU_CLAVIER" != "" ]
+    then
+        echo "\"$TEXTE_LU_AU_CLAVIER\""
+    else
+        echo -e "\nVous sortez de la boucle.\n"
+        break
+    fi
+done
+IFS=$OLDIFS
+
+: <<VARIANTEFOR
+echo "FOR"
+for VALEUR in $(seq 1.0 0.01 10000)
+do
+	echo "$VALEUR"
+done
+VARIANTEFOR
+
+: <<VARIANTEWHILE
+echo "WHILE"
+seq 1.0 0.01 10000 | \
+while read VALEUR
+do
+	echo "$VALEUR"
+done
+VARIANTEWHILE
+
+
+

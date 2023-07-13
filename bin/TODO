@@ -10,6 +10,9 @@ SCRIPTS
 - Terminal app : Créer un bout de code pour maintenir l'app Terminal disponible = focus dessus en premier plan pendant des tâches qui ouvrent les apps ou gèrent les apps. l'intégrer dans les scripts qui utilisent les apps. Si possible, en faire un script distinct (ex : qui run en arrière plan)
 - Script app_ouvrir : obtenir la liste de toutes les apps disponibles sur le Mac et les proposer sous forme y/n + sélect à la fin de l'ouverture des apps de base
 
+DEBUG
+- empêcher les apps fermée via la commande app_fermer de se réouvrir automatiquement au redémarrage de l'ordi - c'est génant
+
 APPRENTISSAGE :
 - bash - code source : Obtenir le code source de bash pour l'étudier
 - Historique Bash : Apprendre à ne pas sauvegarder l'historique des commandes de bash. # cf ce site : https://stackoverflow.com/questions/6475524/how-do-i-prevent-commands-from-showing-up-in-bash-history

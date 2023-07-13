@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+# dashes - print a line of dashes
+
+# options: # how many (default 72)
+# -c X use char X instead of dashes
+
+LEN=72
+CHAR='-'
+while (( $# > 0 ))
+do
+    case $1 in
+        [0-9]*) LEN=$1
+        ;;
+        -c) shift;
+               CHAR=${1:--} # par défaut CHAR vaudra '-' si $1 par défini
+        ;;
+        *) printf 'usage: %s [-c X] [#]\n' ${0##*/} >&2
+            exit 2
+        ;;
+    esac
+    shift
+done
+
+echo -e "\nAffichage de $LEN fois le char \"$CHAR\" :"
+for ((i=0; i<LEN; i++))
+do
+    echo -n "$CHAR"
+done
+echo -e "\n" # pour retour à la ligne final
