@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# Shows character codes while typing. More to the point, it also captures signals.
+# Utile pour savoir quel combinaison génère quel signal
+
+# Trap function
+sig() {
+    printf '\t\t\t%s\t(re-enabled now, works next time)\n' "$1" # affichage du signal et du fait qu'il est à nouveau rétablit
+    # A trap disables itself after being called once.
+    trap - $1 # "-" : le signal est remis à sa valeur d'orgine (=annulé pour cette fois)
+}
+
+# Remplir le tableaux des signaux
+mapfile -t signals < <(trap -l | grep -Eo SIG[-+A-Z0-9]+)
+# mapfile : lit des lignes depuis une entrée vers un tableau
+# mapfile -t : supprime les retours à la ligne éventuels
+# trap -l : affiche la liste des signaux et leur numéros
+# grep -E : interprête l'élément suivant comme un pattern
+# grep -o : affiche uniquement les parties qui matchent de la ligne
+
+for signal in "${signals[@]}"; do
+    trap "sig $signal" "$signal"
+    # exécute la commande "sig $signal" (cf fonction ci-dessus)
+    # chaque fois que le signal est intercepté
+done
+
+# Display characters
+printf "Start typing to examine characters and signals. Exit with Ctrl-C (twice).\n\n"
+# Besoin de faire 2 fois ctrl+c car la première fois, le signal est 'trap'
+printf "Char\tDec\t Hex\tSignal\n" # affichage esthétique
+
+while IFS= read -rN 1 char
+# IFS=null - pas de char séparateur
+# read -r : ne pas permettre aux barres obliques inverses de se comporter comme des caractères d'échappement
+# read -N n : termine seulement après avoir lu exactement N caractères, à moins que le caractère EOF soit rencontré ou que le délai de lecture n'expire.
+# en résumé : read un char et le stocke dans la var 'char'
+do 
+    LC_CTYPE=C printf '\t%3d\t0x%02X\n' "'$char" "'$char"
+    # LC_CTYPE : This variable determines the interpretation of characters and the behavior of character classes within filename expansion and pattern matching (see Filename Expansion).
+    # %3d : signed decimal de 3 chiffres
+    # %02X : unsigned hexadecimal de 2 char
+done
