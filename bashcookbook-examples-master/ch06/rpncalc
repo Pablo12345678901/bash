@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# calculatrice pour entiers 
+# fonctionnement :
+# (1 2 +) équivaut à (1 + 2)
+# (1 2 + 5 *) équivaut à ((1 + 2) * 5)
 # cookbook filename: rpncalc
 #
 # simple RPN command-line (integer) calculator

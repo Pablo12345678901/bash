@@ -15,6 +15,9 @@ harfbuzz
 icu4c
 jbig2dec
 jpeg-turbo
+libcbor
+libevent
+libfido2
 libidn
 libpng
 libtiff
@@ -31,6 +34,7 @@ lzo
 m4
 minizip
 mpdecimal
+mysql
 openjdk
 openjpeg
 openssl@1.1
@@ -38,6 +42,7 @@ openssl@3
 pcre2
 pixman
 pkg-config
+protobuf@21
 pyenv
 python@3.11
 readline
@@ -47,6 +52,7 @@ sqlite
 xorgproto
 xz
 z3
+zlib
 zstd
 
 CASKS

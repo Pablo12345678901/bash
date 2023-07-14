@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+echo "Emplacement initial : $PWD" # $(pwd) = $PWD
+PS3="
+Saisissez un nombre parmi la liste : " # PS3 adapte l'invite de réponse de l'utilisateur ( par défaut vaut : '#? ')
+select DOSSIER in /*
+do
+    echo "PS3 : \"$PS3\""
+    echo "Vous avez choisi l'option n° $REPLY."
+    cd $DOSSIER
+    echo "Nouvel emplacement : $PWD"
+    cd $OLDPWD
+    echo "Retour à l'emplacement initial : $PWD"
+done
