@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+# calculatrice pour entiers et floats
+# fonctionnement :
+# 1 + 2 * 3 -> donnera (1 + 2) * 3 -> les opérations sont lues et réalisée de gauche à droite
+# pas de priorisations des symbôle '*' et '/' -> amélioration potentielle
+# pas de gestion éventuelle division par 0 car grossirait conséquemment le bloc 'case'
+# permet aussi l'usage de 'x' / 'X' à la place de '*'
+if [ -z "$1" ]
+then
+    echo -e "\nSyntaxe attendue : $(basename $0) nb opérateur nb [[ op nb ] ... ]\n"
+    exit 0
+else
+    :
+fi
+
+TABLEAU_ARG=("$@")
+LONGUEUR_TABLEAU_ARG="${#TABLEAU_ARG[@]}"
+declare -a TABLEAU_ARGUMENTS_FILTRES
+# Le tableau des arguments peut contenir des arguments spéciaux
+# si l'opérateur '*' fait partie du calcul -> car il déclenche l'équivalent de 'echo *'
+# qui appelent une liste de contenu de répertoire (dossier1 dossier2 ... dossierN)
+# Il est nécessaire de filtrer ces argument pour le bon fonctionnement du script.
+NB_RESULTATS_COMMANDE_ETOILE=0
+PREMIERE_BOUCLE="true"
+FIRST_ELEMENT_COMMANDE_ETOILE=""
+
+# Prise de connaissance du détail du résultat de la commande 'echo *'
+for ELEMENT in *
+do
+    if [ "$PREMIERE_BOUCLE" = "true" ]
+    then
+        PREMIERE_BOUCLE="false"
+        FIRST_ELEMENT_COMMANDE_ETOILE="$ELEMENT" # conservation pour comparaison entre
+        # les arguments fourni et le résultat de la commande
+        # 'echo *' (liste de contenu de répertoire)
+    else
+        :
+    fi
+    ((NB_RESULTATS_COMMANDE_ETOILE++)) # comptage du nombre d'élément
+done
+
+# Filtrage des arguments passés au script et conservation du résultat dans un tableau
+for ((i=0; i<LONGUEUR_TABLEAU_ARG; i++))
+do
+    if [ "${TABLEAU_ARG[$i]}" = "$FIRST_ELEMENT_COMMANDE_ETOILE" ]
+    then
+       TABLEAU_ARGUMENTS_FILTRES+=('*') # remplacement par le symbôle '*'
+       # et incrémentation du nombre d'éléments car les arguments suivants font partie
+       # du résultat de la commande 'echo *' (composée de plusieurs éléments)
+       (( i += (($NB_RESULTATS_COMMANDE_ETOILE-1)) )) # -1 car en fin de boucle + 1
+    else
+        TABLEAU_ARGUMENTS_FILTRES+=("${TABLEAU_ARG[$i]}")
+    fi
+done
+
+# Contrôle de la bonne syntaxe des arguments (filtrés) passés au script
+# Contrôle si minimum 3 argument et si nombre impair (car 1 + 2 / 3 -> toujours nb arg impair)
+if [ \( ${#TABLEAU_ARGUMENTS_FILTRES[@]} -lt 3 \) -o \( $((${#TABLEAU_ARGUMENTS_FILTRES[@]} % 2)) -eq 0 \) ]
+then
+    echo -e "\nERREUR de syntaxe : \"$(basename $0) ${TABLEAU_ARGUMENTS_FILTRES[*]}\"\nSyntaxe attendue : $(basename $0) nb opérateur nb [[ op nb ] ... ]\n"
+    exit 1
+fi
+
+
+PREMIER_CALCUL="true" # pour le premier calcul car composé de 3 éléments dans le
+# tableau d'argument tandis que les boucles suivantes seront composés que de 2 éléments
+# on prend le résultat précédent comme 3ème élément
+INDEX=0 # pour ajustement de l'élément utilisé
+NB_BOUCLE=0 # pour affichage de l'étape de calcul intermédiaire et nb étapes totales
+while [ $INDEX -lt ${#TABLEAU_ARGUMENTS_FILTRES[@]} ] # tant qu'on a pas atteint le dernier arg (taille max -1)
+do
+    if [ "$PREMIER_CALCUL" = "true" ]
+    then
+        PREMIER_CALCUL="false"
+        # Retourne la valeur de l'index actuel puis l'augmente de 1
+        NB_1="${TABLEAU_ARGUMENTS_FILTRES[((INDEX++))]}"
+        OPERATEUR="${TABLEAU_ARGUMENTS_FILTRES[((INDEX++))]}"
+        NB_2="${TABLEAU_ARGUMENTS_FILTRES[((INDEX++))]}"
+    else
+        NB_1="$RESULTAT"
+        OPERATEUR="${TABLEAU_ARGUMENTS_FILTRES[((INDEX++))]}"
+        NB_2="${TABLEAU_ARGUMENTS_FILTRES[((INDEX++))]}"
+    fi
+    CALCUL="$NB_1 $OPERATEUR $NB_2" # conservation pour affichage à la fin de chaque boucle
+    
+    # Ce case remplace l'opérateur en dur dans le message
+    # puis effectue le calcul avec Awk pour traiter les éventuels nb floats
+    case "$OPERATEUR" in
+    '+' ) RESULTAT="$(awk -v a="$NB_1" -v b="$NB_2" -v op=$OPERATEUR 'BEGIN{ print a+b }')" ;;
+    '-' ) RESULTAT="$(awk -v a="$NB_1" -v b="$NB_2" 'BEGIN{ print a-b }')" ;;
+    '*' | 'x' | 'X' ) RESULTAT="$(awk -v a="$NB_1" -v b="$NB_2" 'BEGIN{ print a*b }')" ;;
+    '/' ) RESULTAT="$(awk -v a="$NB_1" -v b="$NB_2" 'BEGIN{ print a/b }')" ;;
+    * )	{ echo "Erreur : l'opérateur \"$OPERATEUR\" dans le calcul \"$CALCUL\" n'a pas été reconnu..." ; exit 1 ; } ;;
+    esac   
+    # Affichage des résultat au fur et à mesure
+    echo -e "\nÉtape $((++NB_BOUCLE)) : $CALCUL = $RESULTAT" # incrémentation du nombre de boucle puis affichage
+done
+
+# Ajustement du pluriel "étapes" si plusieurs étapes
+if [ $NB_BOUCLE -gt 1 ]
+then
+    PLURIEL="s"
+else
+    :
+fi
+
+echo -e "\nRésumé :\nNb d'étape$PLURIEL : $NB_BOUCLE\nCalcul : ${TABLEAU_ARGUMENTS_FILTRES[*]} = $RESULTAT\n"

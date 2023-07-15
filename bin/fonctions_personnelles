@@ -34,6 +34,11 @@ fi
 }
 
 
+function calculatrice_appel_script {
+    calculatrice_en_ligne_de_commande_avec_ou_sans_affichage $*
+}
+
+
 function retourne_choix_si_nb_correct_selon_select {
 # Argument optionnel $3 = option_quitter
 local -n TABLEAU=$1

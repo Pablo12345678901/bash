@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# via la fonction : 
+# calculatrice_appel_script '1+5' 
+
+# via le script :
+calculatrice_en_ligne_de_commande_avec_ou_sans_affichage '1+6'
