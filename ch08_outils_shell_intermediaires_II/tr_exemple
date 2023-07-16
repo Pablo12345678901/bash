@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+tr 'est' '+-*"' < <(man man)
+# les 'e' seront remplacés par un '+'
+# les 's' par un '-'
+# les 't' par '*'
+# et '"' ne remplacera jamais rien ici

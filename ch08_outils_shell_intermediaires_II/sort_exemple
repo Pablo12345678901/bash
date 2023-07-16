@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+FICHIER="$REPERTOIRE_DES_COMMANDES_PERSO/bluetooth_eteindre" # Path à adapter, ici : un des mes script persos
+echo "Voici le contenu du fichier (non trié) :"
+echo ""
+grep $ $FICHIER
+echo ""
+echo "Voici le contenu du fichier (trié) :"
+echo ""
+grep $ $FICHIER | sort
+echo ""
