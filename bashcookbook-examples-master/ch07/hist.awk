@@ -1,7 +1,7 @@
 #!/usr/bin/awk -f
 # cookbook filename: hist.awk
 # Histograms in Awk
-# Usage: ls -lR /usr/local | hist.awk
+# Usage: ls -lR /usr/local | FILENAME
 
 function max(arr, big)
 {
@@ -20,7 +20,7 @@ END {
     # for scaling
     maxm = max(user);
     for (i in user) {
-        #printf "%s owns %d files\n", i, user[i]
+        printf "%s owns %d files.\n", i, user[i]
         scaled = 60 * user[i] / maxm ;
         printf "%-10.10s [%8d]:", i, user[i]
         for (i=0; i<scaled; i++) {

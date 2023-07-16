@@ -1,7 +1,6 @@
-#!/usr/bin/awk -f
+#!/usr/bin/awk
 # Associative arrays in Awk
-# Usage: 
-
+# Usage: ls -lR /usr/local | FILENAME
 NF > 7 {
     user[$3]++
 }

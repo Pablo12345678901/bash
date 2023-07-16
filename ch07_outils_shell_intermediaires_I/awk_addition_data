@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+ls -l | awk '/^total/{getline} {print "Taille du fichier : " $5; somme += $5 } END {print "Somme finale : " somme} '
+# la première ligne qui contient le regex 'total' est matché et rien n'est fait avec
+# la variable somme (sans le $ en 'awk') correspond au 5ème mot de chaque ligne
+# = la taille en octets

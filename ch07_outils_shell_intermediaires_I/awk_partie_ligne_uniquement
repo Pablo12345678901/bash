@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+awk ' {print $1 }' < <(man man)
+# affiche le premier mot (séparateur de base : espace)
+awk ' { print $0 }' < <(man man)
+# affiche la ligne entière

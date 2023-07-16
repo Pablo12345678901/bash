@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+ls -l | awk ' NF > 7 {somme += $5 } END {print "Somme finale : " somme} '
