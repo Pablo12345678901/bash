@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+source fonctions_personnelles
+
+# Données à adapter en cas de changement d'environnement
+REPERTOIRE_DES_LOGS="/private/var/log/*"
+PATH_CORBEILLE=~/.Trash # Sans guillemets pour permettre l'expansion du ~
+REGEX=".*(.log)$" # match si le fichier se termine par l'extension '.log'
+############################
+
+declare -a TABLEAU_FICHIERS_LOGS
+declare -a TABLEAU_PATH_FICHIERS_LOGS
+for ELEMENT in $REPERTOIRE_DES_LOGS
+do
+    if [[ "$ELEMENT" =~ $REGEX ]]
+    then
+        TABLEAU_PATH_FICHIERS_LOGS+=("$ELEMENT")
+        TABLEAU_FICHIERS_LOGS+=("$(basename $ELEMENT)") # Pour un affichage plus propre sans le path entier
+    else
+        :
+    fi
+done
+
+# Options communes à tous les cas
+OPTION_STOP="Quittez"
+CHOIX_CHOIX=""
+
+if [ -z "$1" ]
+then
+    MESSAGE_D_OUVERTURE="Veuillez sélectionnez le fichier des logs à ouvrir."
+    select_parmi_liste TABLEAU_FICHIERS_LOGS CHOIX_CHOIX MESSAGE_D_OUVERTURE OPTION_STOP
+    if [ "$CHOIX_CHOIX" = "$OPTION_STOP" ]
+    then
+        echo -e "\nVous avez choisi de \"$OPTION_STOP\".\n"
+        exit 1
+    else
+        # Affichage du contenu des logs du fichier choisi
+        echo -e "\nAffichage du fichier \"$CHOIX_CHOIX\" :\n"
+        grep $ "${TABLEAU_PATH_FICHIERS_LOGS[((REPLY-1))]}" # '-1' car index select débute à 1
+        # 'grep $' recherche tous les match d'une ligne donc toutes les lignes
+        echo ""
+        echo -e "\nUne copie du contenu des logs de \"$CHOIX_CHOIX\" a placée dans la corbeille pour consultation éventuelle.\n"
+        grep $ "${TABLEAU_PATH_FICHIERS_LOGS[((REPLY-1))]}" > $PATH_CORBEILLE/$CHOIX_CHOIX
+    fi
+else
+    ARGUMENT_FOURNI="$1"
+    MAX=$((${#TABLEAU_FICHIERS_LOGS[@]}+1)) # +1 car select débute à l'index 1
+    MESSAGE_AVANT_RETOUR="Veuillez saisir un nombre compris entre 1 et $MAX"
+    retourne_choix_si_nb_correct_selon_select TABLEAU_FICHIERS_LOGS ARGUMENT_FOURNI CHOIX_CHOIX MESSAGE_AVANT_RETOUR OPTION_STOP || exit 1 # si erreur d'argument
+    if [ "$CHOIX_CHOIX" = "$OPTION_STOP" ]
+    then
+        echo -e "\nVous avez choisi de \"$OPTION_STOP\".\n"
+        exit 1
+    else
+        # Affichage du contenu des logs du fichier choisi
+        echo -e "\nAffichage du fichier \"$CHOIX_CHOIX\" :\n"
+        grep $ "${TABLEAU_PATH_FICHIERS_LOGS[(($1-1))]}" # '-1' car index select débute à 1
+        # 'grep $' recherche tous les match d'une ligne donc toutes les lignes
+        echo ""
+        echo -e "\nUne copie du contenu des logs de \"$CHOIX_CHOIX\" a placée dans la corbeille pour consultation éventuelle.\n"
+        grep $ "${TABLEAU_PATH_FICHIERS_LOGS[(($1-1))]}" > $PATH_CORBEILLE/$CHOIX_CHOIX
+    fi
+fi

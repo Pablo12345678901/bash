@@ -3,6 +3,8 @@
 # Ranger par ordre alphabétique pour éviter doublons
 # Donner noms complexes pour éviter doublon avec fonction déjà dans bash
 
+# A
+
 function app_fermer_normal {
 if [ -z "$1" ]
 then
@@ -33,45 +35,41 @@ else
 fi
 }
 
+# B
+
+# C
 
 function calculatrice_appel_script {
-    calculatrice_en_ligne_de_commande_avec_ou_sans_affichage $*
+    calculatrice_avec_ou_sans_affichage $*
 }
 
+# D
 
-function retourne_choix_si_nb_correct_selon_select {
-# Argument optionnel $3 = option_quitter
-local -n TABLEAU=$1
-local -n ARG_FOURNI=$2
-local -n CHOIX=$3
-local -n MESSAGE=$4
-TABLEAU_COPIE=("${TABLEAU[@]}")             
-# Ajout de l'option quitter à la liste si fourni
-if [ -n "$5" ] 
-then
-    local -n OPTION_QUITTER=$5
-    TABLEAU_COPIE+=("$OPTION_QUITTER")
-else
-    :
-fi
+# E
 
-NB_REGEX='^[0-9]+$' # Utile pour tester les index
-if [[ "$ARG_FOURNI" =~ $NB_REGEX ]]
-then
-    if [ "$ARG_FOURNI" -gt 0 -a "$ARG_FOURNI" -le ${#TABLEAU_COPIE[@]} ]
-    then
-        CHOIX="${TABLEAU_COPIE[(($ARG_FOURNI-1))]}" # décalage de l'index car les choix à select débutent à 1 et pas 0
-    else
-        echo -e "\nERREUR : le numéro fourni en argument \"$ARG_FOURNI\" ne fait pas partie de la liste des choix.\n"
-        exit 1
-    fi
-else
-    echo -e "\nL'argument \"$ARG_FOURNI\" n'est pas valable."
-    echo "$MESSAGE\n"
-    exit 1
-fi
-}
+# F
 
+# G
+
+# H
+
+# I
+
+# J
+
+# K
+
+# L
+
+# M
+
+# N
+
+# O
+
+# P
+
+# Q
 
 function question_oui_non {
     local -n REPONSE_UTILISATEUR=$1
@@ -88,6 +86,7 @@ function question_oui_non {
     REPONSE_UTILISATEUR=$CHOIX
 }
 
+# R
 
 function remplissage_tableau_app_ouverte {
 local -n tableau=$1 # variable liée à la variable globale du tableau des app ouvertes
@@ -117,20 +116,63 @@ IFS=$OLDIFS # remise de IFS à son ancienne valeur
 }
 
 
-function select_parmi_liste_avec_option_quitter {
+function retourne_choix_si_nb_correct_selon_select {
+local -n TABLEAU=$1
+local -n ARG_FOURNI=$2
+local -n CHOIX=$3
+local -n MESSAGE=$4 # Message pour expliquer l'argument à fournir ("range des choix entre 1 et MAX")
+# Argument optionnel $5 = option_quitter
+TABLEAU_COPIE=("${TABLEAU[@]}")             
+# Ajout de l'option quitter à la liste si fourni
+if [ -n "$5" ] 
+then
+    local -n OPTION_QUITTER=$5
+    TABLEAU_COPIE+=("$OPTION_QUITTER")
+else
+    :
+fi
+
+NB_REGEX='^[0-9]+$' # Utile pour tester les index
+if [[ "$ARG_FOURNI" =~ $NB_REGEX ]]
+then
+    if [ "$ARG_FOURNI" -gt 0 -a "$ARG_FOURNI" -le ${#TABLEAU_COPIE[@]} ]
+    then
+        CHOIX="${TABLEAU_COPIE[(($ARG_FOURNI-1))]}" # décalage de l'index car les choix à select débutent à 1 et pas 0
+    else
+        echo -e "\nERREUR : le numéro fourni en argument \"$ARG_FOURNI\" ne fait pas partie de la liste des choix.\n"
+        exit 1
+    fi
+else
+    echo -e "\nL'argument \"$ARG_FOURNI\" n'est pas valable."
+    echo -e "$MESSAGE\n"
+    exit 1
+fi
+}
+
+# S
+
+function select_parmi_liste {
 # arguments à fournir dans l'ordre : 
 local -n TABLEAU_D_OPTIONS=$1
-local -n OPTION_POUR_ARRETER=$2
-local -n CHOIX_UTILISATEUR=$3
-local -n MESSAGE_AFFICHE=$4
+local -n CHOIX_UTILISATEUR=$2
+local -n MESSAGE_AFFICHE=$3
+MESSAGE_BOUCLE=""
+if [ -z "$4" ] # si le 4ème paramètre est défini = si options pour arrêter a été fournie
+then    
+    TABLEAU_CHOIX=("${TABLEAU_D_OPTIONS[@]}") # copie du tableau original (à conserver)    
+else
+    local -n OPTION_POUR_ARRETER=$4 # optionnel
+    TABLEAU_CHOIX=("${TABLEAU_D_OPTIONS[@]}") # copie du tableau original car je vais y ajouter l'option de sortie
+    TABLEAU_CHOIX+=("$OPTION_POUR_ARRETER") # ajout de l'option de sortie
+    DERNIERE_OPTION="${#TABLEAU_CHOIX[@]}"
+    MESSAGE_SI_OPTION_QUITTER="Tapez \"$DERNIERE_OPTION\" pour \"$OPTION_POUR_ARRETER\"
+    " # inclus un retour à la ligne
+fi
 
-TABLEAU_CHOIX=("${TABLEAU_D_OPTIONS[@]}") # copie du tableau original car je vais y ajouter l'option de sortie
-TABLEAU_CHOIX+=("$OPTION_POUR_ARRETER")
-DERNIERE_OPTION=${#TABLEAU_CHOIX[@]}
 CHOIX_UTILISATEUR=""
 until [ -n "$CHOIX_UTILISATEUR" ] 
 do
-    echo -e "\n$MESSAGE_AFFICHE ou tapez \"$DERNIERE_OPTION\" pour \"$OPTION_POUR_ARRETER\"\n"
+    echo -e "\n$MESSAGE_AFFICHE.\n$MESSAGE_SI_OPTION_QUITTER"
     select CHOIX_UTILISATEUR in "${TABLEAU_CHOIX[@]}"
     do
         break 
@@ -139,12 +181,13 @@ do
     then
         :
     else
-        echo -e "ERREUR : votre saisie ne fait pas partie de la liste de choix.\nTapez \"$DERNIERE_OPTION\" pour \"$OPTION_POUR_ARRETER\""
+        echo -e "ERREUR : votre saisie ne fait pas partie de la liste de choix.\n$MESSAGE_SI_OPTION_QUITTER"
     fi
 done   
 
 }
 
+# T
 
 function tableau_affichage_contenu_avec_message {
 local -n TABLEAU=$1
@@ -170,3 +213,15 @@ else
     :
 fi
 }
+
+# U
+
+# V
+
+# W
+
+# X
+
+# Y
+
+# Z

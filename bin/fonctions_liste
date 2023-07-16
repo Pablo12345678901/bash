@@ -4,12 +4,6 @@
 declare -a TABLEAU_FONCTIONS
 
 # La boucle lit les données depuis le fichier (qui est produit avec l'output de la commande grep)
-OLDIFS=$IFS
-echo "OLDIFS : \"$OLDIFS\""
-IFS=
-echo "IFS : \"$IFS\""
-IFS=$OLDIFS
-echo "FIN"
 while IFS= read -r # pour ajouter un délimiteur, ajouter -d 'CHARDELIMITEUR'
 # 'IFS=' préserve les éventuels espaces avant et après l'élément
 do

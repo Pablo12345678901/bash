@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+
+# Calculatrice supportant les floats
+# L'argument doit être transmis entre guillemets simples pour éviter l'erreur s'il contient des parenthèses.
+# Par contre il doit y avoir un opérateur entre un nombre de une parenthèse de début
+# sinon cela bug et donne des mauvais résultats sans informer l'utilisateur de l'erreur...
+
+REGEX_CONTROLE_ARGUMENT="['('')']*[-+]?[0-9]+['('')']*[-+/*]['('')']*[-+]?[0-9]+['('')']*(['('')']*[-+/*]['('')']*[-+]?[0-9]+['('')']*)*[[:space:]]"
+# contrôle que la syntaxe est plus ou moins ok - ne couvre pas tous les bugs
+# ['('')']* : parenthèse optionnelles pas de nb maximum
+# [-+]? : signe '+' '-' optionnel (max 1x)
+# [0-9]+ : nombres min 1x
+# [-+/*] : opérateur 1x
+if [ -z "$1" ]
+then
+    echo -e "\nSyntaxe :\n$(basename $0) 'calculenunblocsansespaceentreguillemetssimples'\n"
+    read -p "Quel calcul voudriez-vous effectuer ? " ARGUMENT
+    ARGUMENT="$( echo "$ARGUMENT" | tr -d ' ' | tr -d "'" ) "
+    if [[ "$ARGUMENT" =~ $REGEX_CONTROLE_ARGUMENT ]]
+    then
+        awk -v CALCUL="$ARGUMENT" "BEGIN{ print \"Calcul : \" CALCUL \"= \" $ARGUMENT }" ||
+        { echo -e "\nERREUR dans le calcul $ARGUMENT.\n" ; exit 1 ; }
+        exit 0
+    else
+        echo -e "\nERREUR : $ARGUMENT\nSyntaxe :\n$(basename $0) 'calculenunblocsansespaceentreguillemetssimples'\n"
+        exit 1
+    fi
+    # Conservation du calcul pour affichage
+    # suppression des espaces s'il y en a et des guillemets simples car déjà entouré de guillemets doubles
+    # après avoir été lu par 'read'
+    # et conservation d'un espace final pour espacer le égal du calcul
+else
+    :
+fi
+
+if [ "$1" == "affichage" ] # si le premier argument est "affichage"
+then
+    shift 1 # suppression de l'argument 'affichage'
+    ARGUMENT="$(echo "$*" | tr -d ' ') "
+    if [[ "$ARGUMENT" =~ $REGEX_CONTROLE_ARGUMENT ]]
+    then
+        awk -v CALCUL="$ARGUMENT" "BEGIN{ print \"Calcul : \" CALCUL \"= \" $ARGUMENT }" ||
+        { echo -e "\nERREUR dans le calcul $ARGUMENT.\n" ; exit 1 ; }
+        exit 0
+    else
+        echo -e "\nERREUR : $ARGUMENT\nSyntaxe :\n$(basename $0) 'calculenunblocsansespaceentreguillemetssimples'\n"
+        exit 1
+    fi
+else   
+    #  sinon, fourni le résultat uniquement
+    # pour utilisation dans des scripts
+    ARGUMENT="$(echo "$*" | tr -d ' ') "
+    if [[ "$ARGUMENT" =~ $REGEX_CONTROLE_ARGUMENT ]]
+    then
+        awk "BEGIN{ print $ARGUMENT }" ||
+        { echo -e "\nERREUR dans le calcul $ARGUMENT.\n" ; exit 1 ; }
+        exit 0
+    else
+        echo -e "\nERREUR : $ARGUMENT\nSyntaxe :\n$(basename $0) 'calculenunblocsansespaceentreguillemetssimples'\n"
+        exit 1
+    fi
+fi

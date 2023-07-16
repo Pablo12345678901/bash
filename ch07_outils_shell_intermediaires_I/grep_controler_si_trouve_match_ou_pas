@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+PATTERN="source"
+FICHIER="/Users/pablo/Desktop/Developpement/bash/*"
+grep -qR $PATTERN $FICHIER 2>&1 /dev/null # envoi STDERR vers STDIN puis STDIN vers /dev/null qui efface sans afficher l'output
+# -q : quiet : ne montre pas le match et s'arrête dès qu'un match a été trouvé
+if [ $? = 0 ]
+then
+    echo "Il y a eu un match"
+else
+    echo "Pas eu de match"
+fi

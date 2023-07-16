@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+PATTERN="source"
+FICHIER="/Users/pablo/Desktop/Developpement/bash/*"
+EXCLUDED_DIRECTORY='/Users/pablo/Desktop/Developpement/bash/bashcookbook-examples-master'
+echo "Premier filtre du match :"
+grep -Ri --exclude-dir $EXCLUDED_DIRECTORY $PATTERN $FICHIER
+echo "" 
+echo "Deuxième filtre du match :"
+grep -Ri  $PATTERN $FICHIER | grep -v '-'
+echo ""
+echo "Troisième filtre du match :"
+grep -Ri  $PATTERN $FICHIER | grep -v '-' | grep -vi 'ressources'
+# -v : supprime les lignes du match qui contiennet '-' et 'ressources' peut
+# importe la casse

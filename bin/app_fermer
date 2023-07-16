@@ -17,7 +17,7 @@ if [ "$REPONSE" == 'o' ]
 then
     if [ -z "$1" ]
     then    
-        select_parmi_liste_avec_option_quitter TABLEAU_APP_OUVERTES OPTION_SORTIE CHOIX MESSAGE_SELECT
+        select_parmi_liste TABLEAU_APP_OUVERTES OPTION_SORTIE CHOIX MESSAGE_SELECT
         if [ "$CHOIX" == "$OPTION_SORTIE" ]
         then
             echo ""
@@ -72,8 +72,8 @@ then
             # gestion des autres cas (valeur non égale à "all")
             ARGUMENT_FOURNI="$1"
             CHOIX_FINAL=""
-            MAX=$((${#TABLEAU_APP_OUVERTES[@]}+1)) # +1 car on ajoute aussi l'option de quitter
-            MESSAGE_ERREUR="Veuillez sélectionner un nombre parmi la liste des apps ouvertes compris entre 1 et ."
+            MAX=$((${#TABLEAU_APP_OUVERTES[@]}+1)) # +1 car select débute à 1
+            MESSAGE_ERREUR="Veuillez sélectionner un nombre parmi la liste des apps ouvertes compris entre 1 et $MAX."
             retourne_choix_si_nb_correct_selon_select TABLEAU_APP_OUVERTES ARGUMENT_FOURNI CHOIX_FINAL MESSAGE_ERREUR OPTION_SORTIE || exit 1
             if [ "$CHOIX_FINAL" == "$OPTION_SORTIE" ]
             then
