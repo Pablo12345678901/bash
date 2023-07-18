@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# tri numérique selon le 2ème et 3ème champs
+# si le tri n'a que des champs numérique, je peux mettre l'option '-n' devant le tout
+# sinon, je peux préciser le champ numérique avec 'n' après le champs ex : '-k 1,1n'
+#sort -t '.' -n -k 2,2 -k 3,3 <<-HEREDOCUMENT
+sort -t '.' -n +2.0 <<-HEREDOCUMENT
+192.109.23.23
+192.109.05.23
+102.304.3.4
+102.304.1.5
+909.000.2.1
+0.1.9.4
+0.0.0.2
+HEREDOCUMENT

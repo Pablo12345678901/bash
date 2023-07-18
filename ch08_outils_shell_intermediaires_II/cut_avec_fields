@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+echo "AVANT"
+echo "$PATH"
+echo ""
+echo ""
+echo "$PATH" | cut -d ':' -f 2-5
+# index du premier field = 1
+
+# obtenir le texte entre crochet avec un multiple cut et différent séparateur de champs
+{ cut -d '[' -f 2 | cut -d ']' -f 1 ; } <<-LIGNEAVECCROCHETDOUBLE
+Tableau[Key]
+Tableau[KEY]
+Tableau[key]
+Tableau[kEy]
+LIGNEAVECCROCHETDOUBLE
+ 

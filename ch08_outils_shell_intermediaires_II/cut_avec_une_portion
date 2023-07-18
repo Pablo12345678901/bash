@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+echo "Affichage des char 3 à 5 sur chaque ligne"
+ps -l | cut -c3-5
+# index du premier char = 1

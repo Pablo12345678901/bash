@@ -33,6 +33,7 @@ else
 fi
 
 echo -e "Ouverture des apps...\n"
+open -a "Finder" >&2 &
 open -a "Microsoft Excel" >&2 &
 open -a "Microsoft Word" >&2 &
 open -a "Google Chrome" >&2 &
