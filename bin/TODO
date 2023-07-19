@@ -5,7 +5,9 @@ exit 0
 La liste ci-dessous n'est pas triée par ordre de priorité :
 
 SCRIPTS
+- finaliser le script du listing des commandes bash
 - script qui remplace toutes les occurences d'un pattern dans un/plusieurs fichiers par un autre -> pr développer plus vite si changement nom SCRIPT / FONCTION : cf mes notes / attention à bien afficher la liste des fichiers impactés (et les matchs impacté) avec un choix y/n avant de lancer car très puissant
+- script qui recherche un pattern dans les commentaires de mes fichiers pour retrouver le bout de code qui correspond - cela m'évite de prendre des notes dans le word
 - Script app_ouvrir : obtenir la liste de toutes les apps disponibles sur le Mac et les proposer sous forme y/n + sélect à la fin de l'ouverture des apps de base
 - Script app_ouvrir permettre un argument du nom de l'app à ouvrir que grep recherche dans les apps disponibles sur le Mac puis ouvre (ex : app_ouvrir Chrome)
 - Terminal app : Créer un bout de code pour maintenir l'app Terminal disponible = focus dessus en premier plan pendant des tâches qui ouvrent les apps ou gèrent les apps. l'intégrer dans les scripts qui utilisent les apps. Si possible, en faire un script distinct (ex : qui run en arrière plan)

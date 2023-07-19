@@ -1,0 +1,4156 @@
+Bash :
+- Liste des aliases, builtins, commands (=files), functions et keywords et informations.
+- Les sections NAME et DESCRIPTION sont affichées pour chaque commande si celles-ci dépassent 3 mots.
+
+"!" : 
+	La commande "!" de type "keyword" ne possède pas de page manuel dédiée.
+	Tapez "help !", "info !" ou "!" pour essayer d'obtenir davantage d'informations.
+
+"." : 
+	La commande "." de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help .", "info ." ou "." pour essayer d'obtenir davantage d'informations.
+
+"2to3" : 
+	La commande "2to3" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help 2to3", "info 2to3" ou "2to3" pour essayer d'obtenir davantage d'informations.
+
+"2to3-3.11" : 
+	La commande "2to3-3.11" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help 2to3-3.11", "info 2to3-3.11" ou "2to3-3.11" pour essayer d'obtenir davantage d'informations.
+
+":" : 
+	La commande ":" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help :", "info :" ou ":" pour essayer d'obtenir davantage d'informations.
+
+"aa" : 
+	NAME :
+		aa - Manipulate Apple Archives
+	DESCRIPTION :
+		aa creates and manipulates Apple Archives
+
+"ab" : 
+	NAME :
+		ab - Apache HTTP server benchmarking tool
+
+"ac" : 
+	NAME :
+		ac – connect time accounting
+	DESCRIPTION :
+		By default, a record of individual login and logout
+		times are recorded by login(1) and init(8),
+		respectively to syslogd(8).  The ac utility examines
+		these records and writes the accumulated connect
+		time (in hours) for all logins to the standard
+		output.
+
+"accton" : 
+	NAME :
+		accton – enable/disable system accounting
+	DESCRIPTION :
+		The accton utility is used for switching system
+		accounting on or off.  If called with the argument
+		acctfile, system accounting is enabled.  The acctfile
+		specified must exist prior to starting system
+		accounting, or accton will return an error.  A
+		record of every process that is started by the
+		execve(2) system call and then later exits the
+		system is stored in
+
+"actool" : 
+	La commande "actool" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help actool", "info actool" ou "actool" pour essayer d'obtenir davantage d'informations.
+
+"aea" : 
+	NAME :
+		aea - Manipulate Apple Encrypted Archives
+	DESCRIPTION :
+		aea creates and manipulates Apple Encrypted Archives
+		(AEA)
+
+"afclip" : 
+	La commande "afclip" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help afclip", "info afclip" ou "afclip" pour essayer d'obtenir davantage d'informations.
+
+"afconvert" : 
+	NAME :
+		afconvert – Audio File Convert
+	DESCRIPTION :
+		Audio File Convert will convert a source audio file
+		to a new audio file with the specified file and
+		data types
+
+"afhash" : 
+	NAME :
+		afhash – Audio File Hash
+	DESCRIPTION :
+		Audio File Hash writes an SHA-1 hash to an audio
+		file or prints (to stdout) the hash contained in
+		an audio file
+
+"afida" : 
+	NAME :
+		afida – Audio File Image Distortion Analyzer
+	DESCRIPTION :
+		afida compares a reference audio file with a distorted
+		version and estimates the perceivable spatial image
+		distortions in terms of image shift and width.
+
+"afinfo" : 
+	NAME :
+		afinfo – Audio File Info
+	DESCRIPTION :
+		Audio File Info prints out information about an
+		audio file to stdout
+
+"afktool" : 
+	NAME :
+		afktool – AppleFirmwareKit debug utility
+	DESCRIPTION :
+		See afktool [help] for more information.
+
+"afplay" : 
+	NAME :
+		afplay – Audio File Play
+	DESCRIPTION :
+		Audio File Play plays an audio file to the default
+		audio output
+
+"afscexpand" : 
+	NAME :
+		afscexpand – decompress files compressed with HFS+
+		compression
+	DESCRIPTION :
+		The afscexpand command is used to decompress files
+		compressed with HFS+ compression.
+
+"agentxtrap" : 
+	NAME :
+		agentxtrap - send an AgentX NotifyPDU to an AgentX
+		master agent
+	DESCRIPTION :
+		agentxtrap issues an AgentX NotifyPDU to a master
+		agent. One or more object identifiers (OIDs) can
+		be given as arguments on the command line.  A type
+		and a value must accompany each object identifier.
+		Each variable name is given in the format specified
+		in variables(5).
+
+"agvtool" : 
+	La commande "agvtool" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help agvtool", "info agvtool" ou "agvtool" pour essayer d'obtenir davantage d'informations.
+
+"alias" : 
+	La commande "alias" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help alias", "info alias" ou "alias" pour essayer d'obtenir davantage d'informations.
+
+"amdgpu-arch" : 
+	La commande "amdgpu-arch" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help amdgpu-arch", "info amdgpu-arch" ou "amdgpu-arch" pour essayer d'obtenir davantage d'informations.
+
+"amt" : 
+	NAME :
+		amt – Abstract Machine Test Utility
+	DESCRIPTION :
+		The amt utility is used to verify that the low level
+		functions necessary to enforce requirements of the
+		Controlled Access Protection Profile (CAPP) are
+		working correctly.
+
+"analyze-build" : 
+	La commande "analyze-build" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help analyze-build", "info analyze-build" ou "analyze-build" pour essayer d'obtenir davantage d'informations.
+
+"apachectl" : 
+	NAME :
+		apachectl - Apache HTTP Server Control Interface
+
+"apfs_hfs_convert" : 
+	NAME :
+		apfs_hfs_convert – convert an existing HFS file
+		system to APFS file system
+	DESCRIPTION :
+		The apfs_hfs_convert command converts an existing
+		HFS file system to a new APFS file system.
+
+"apfs_unlockfv" : 
+	NAME :
+		apfs_unlockfv – unlock an APFS FileVault data volume
+	DESCRIPTION :
+		The apfs_unlockfv utility unlocks an APFS-formatted
+		FileVault-encrypted data volume.
+
+"app-sso" : 
+	NAME :
+		app-sso – A tool used to control and get information
+		about the Kerberos SSO extension.
+	DESCRIPTION :
+		app-sso is used to control and get information about
+		the Kerberos Single Sign-on (SSO) extension via the
+		command line. The Kerberos SSO extension simplifies
+		using Kerberos authentication with an Active Directory
+		based Kerberos realm. It also allows the user to
+		use Active Directory specific functions such as
+		password changes and password expiration notifications.
+
+"appleh13camerad" : 
+	La commande "appleh13camerad" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help appleh13camerad", "info appleh13camerad" ou "appleh13camerad" pour essayer d'obtenir davantage d'informations.
+
+"applesingle" : 
+	NAME :
+		applesingle, binhex, macbinary – encode and decode
+		files
+	DESCRIPTION :
+		applesingle, binhex, macbinary are implemented as
+		a single tool with multiple names.  All invocations
+		support the three verbs encode, decode, and probe.
+
+"appletviewer" : 
+	La commande "appletviewer" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help appletviewer", "info appletviewer" ou "appletviewer" pour essayer d'obtenir davantage d'informations.
+
+"apply" : 
+	NAME :
+		apply – apply a command to a set of arguments
+	DESCRIPTION :
+		The apply utility runs the named command on each
+		argument argument in turn.
+
+"appsleepd" : 
+	NAME :
+		appsleepd – app sleep daemon
+	DESCRIPTION :
+		appsleepd provides app sleep services.
+
+"app_fermer" : 
+	La commande "app_fermer" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help app_fermer", "info app_fermer" ou "app_fermer" pour essayer d'obtenir davantage d'informations.
+
+"app_ouvrir" : 
+	La commande "app_ouvrir" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help app_ouvrir", "info app_ouvrir" ou "app_ouvrir" pour essayer d'obtenir davantage d'informations.
+
+"app_relancer" : 
+	La commande "app_relancer" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help app_relancer", "info app_relancer" ou "app_relancer" pour essayer d'obtenir davantage d'informations.
+
+"apropos" : 
+	NAME :
+		man, apropos, whatis – display online manual
+		documentation pages
+	DESCRIPTION :
+		The man utility finds and displays online manual
+		documentation pages.  If mansect is provided, man
+		restricts the search to the specific section of the
+		manual.
+
+"apt" : 
+	La commande "apt" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help apt", "info apt" ou "apt" pour essayer d'obtenir davantage d'informations.
+
+"ar" : 
+	NAME :
+		ar – create and maintain library archives
+	DESCRIPTION :
+		The ar utility creates and maintains groups of files
+		combined into an archive.  Once an archive has been
+		created, new files can be added and existing files
+		can be extracted, deleted, or replaced.
+
+"arch" : 
+	NAME :
+		arch – print architecture type or run selected
+		architecture of a universal binary
+	DESCRIPTION :
+		The arch command with no arguments, displays the
+		machine's architecture type.
+
+"arp" : 
+	NAME :
+		arp – address resolution display and control
+	DESCRIPTION :
+		The arp utility displays and modifies the
+		Internet-to-Ethernet address translation tables
+		used by the address resolution protocol (arp(4)).
+		With no flags, the program displays the current ARP
+		entry for hostname. The host may be specified by
+		name or by number, using Internet dot notation.
+
+"as" : 
+	NAME :
+		as - Mac OS X Mach-O GNU-based assemblers
+	DESCRIPTION :
+		The as command translates assembly code in the named
+		files to object code.  If no files are specified,
+		as reads from stdin.  All undefined symbols in the
+		assembly are treated as global.  The output of the
+		assembly is left in the file a.out by default.
+
+"asa" : 
+	NAME :
+		asa – interpret carriage-control characters.
+	DESCRIPTION :
+		The asa utility reads files sequentially, mapping
+		FORTRAN carriage- control characters to line-printer
+		control sequences, and writes them to the standard
+		output.
+
+"aslmanager" : 
+	NAME :
+		aslmanager – Apple System Log data life-cycle manager
+	DESCRIPTION :
+		aslmanager manages rotated files and ASL data written
+		by the syslogd server.  It is started automatically
+		at various times by syslogd.  It may also be invoked
+		from the command line by the superuser (root).  It
+		manages the life-cycle of data in the ASL database,
+		rotated log files, and ASL directory data stores.
+		Configuration information for aslmanager
+
+"asr" : 
+	NAME :
+		asr – Apple Software Restore; copy volumes (e.g.
+		from disk images)
+	DESCRIPTION :
+		asr efficiently copies disk images onto volumes,
+		either directly or via a multicast network stream.
+		asr can also accurately clone volumes without the
+		use of an intermediate disk image.
+
+"AssetCacheLocatorUtil" : 
+	NAME :
+		AssetCacheLocatorUtil – Utility for reporting
+		information about macOS Content Caches
+	DESCRIPTION :
+		AssetCacheLocatorUtil reports information related
+		to macOS Content Caches running on the computer or
+		on the local network.
+
+"AssetCacheManagerUtil" : 
+	NAME :
+		AssetCacheManagerUtil – control the macOS Content
+		Cache
+	DESCRIPTION :
+		AssetCacheManagerUtil controls the macOS Content
+		Cache. AssetCacheManagerUtil must be run by root
+		except as noted below.  The options are:
+
+"AssetCacheTetheratorUtil" : 
+	NAME :
+		AssetCacheTetheratorUtil – control networking of
+		tethered devices
+	DESCRIPTION :
+		iOS and tvOS devices connected to a computer with
+		a USB cable can be "tethered," so that they route
+		their Internet requests through the computer.
+		AssetCacheTetheratorUtil enables a tethered network,
+		disables it, or reports on its status.  Tethering
+		requires Content Caching. AssetCacheTetheratorUtil
+		must be run by root, except for the isEnabled
+
+"assetutil" : 
+	NAME :
+		assetutil process asset catalog .car files
+	DESCRIPTION :
+		assetutil processes a .car file generated from a
+		image catalog removing requested scale factors,
+		device idioms, subtypes, performance and memory
+		classes. When thinning scale, idiom, subtype,
+		performance, memory, and graphicsclassfallbacks can
+		be given multiple times, the resulting file will
+		contain all of the assets that match all of the
+		parameters given. If
+
+"at" : 
+	NAME :
+		at, batch, atq, atrm – queue, examine, or delete
+		jobs for later execution
+	DESCRIPTION :
+		The at and batch utilities read commands from
+		standard input or a specified file.  The commands
+		are executed at a later time, using sh(1).
+
+"atos" : 
+	NAME :
+		atos – convert numeric addresses to symbols of
+		binary images or processes
+	DESCRIPTION :
+		The atos command converts numeric addresses to their
+		symbolic equivalents.  If full debug symbol information
+		is available, for example in a .app.dSYM sitting
+		beside a .app, then the output of atos will include
+		file name and source line number information.
+
+"atq" : 
+	NAME :
+		at, batch, atq, atrm – queue, examine, or delete
+		jobs for later execution
+	DESCRIPTION :
+		The at and batch utilities read commands from
+		standard input or a specified file.  The commands
+		are executed at a later time, using sh(1).
+
+"atrm" : 
+	NAME :
+		at, batch, atq, atrm – queue, examine, or delete
+		jobs for later execution
+	DESCRIPTION :
+		The at and batch utilities read commands from
+		standard input or a specified file.  The commands
+		are executed at a later time, using sh(1).
+
+"atsutil" : 
+	NAME :
+		atsutil – font registration system utility
+	DESCRIPTION :
+		atsutil tool controls some aspects of the font
+		registration system.  It may be used to modify font
+		auto activation settings, font protection settings,
+		remove font registration databases and caches, or
+		restart the font registration daemon.
+
+"audit" : 
+	NAME :
+		audit – audit management utility
+	DESCRIPTION :
+		The audit utility controls the state of the audit
+		system.  One of the following flags is required as
+		an argument to audit:
+
+"auditd" : 
+	NAME :
+		auditd – audit log management daemon
+	DESCRIPTION :
+		The auditd daemon responds to requests from the
+		audit(8) utility and notifications from the kernel.
+		It manages the resulting audit log files and specified
+		log file locations.
+
+"auditreduce" : 
+	NAME :
+		auditreduce – select records from audit trail files
+	DESCRIPTION :
+		The auditreduce utility selects records from the
+		audit trail files based on the specified criteria.
+		Matching audit records are printed to the standard
+		output in their raw binary form.  If no file argument
+		is specified, the standard input is used by default.
+		Use the praudit(1) utility to print the selected
+		audit records in human-readable form.
+
+"autoconf" : 
+	NAME :
+		autoconf - Generate configuration scripts
+	DESCRIPTION :
+		Generate a configuration script from a TEMPLATE-FILE
+		if given, or 'configure.ac' if present, or else
+		'configure.in'.  Output is sent to the standard
+		output if TEMPLATE-FILE is given, else into
+		'configure'.
+
+"autoheader" : 
+	NAME :
+		autoheader - Create a template header for configure
+	DESCRIPTION :
+		Create a template file of C '#define' statements
+		for 'configure' to use.  To this end, scan
+		TEMPLATE-FILE, or 'configure.ac' if present, or
+		else 'configure.in'.
+
+"autom4te" : 
+	NAME :
+		autom4te - Generate files and scripts thanks to M4
+	DESCRIPTION :
+		Run GNU M4 on the FILES, avoiding useless runs.
+		Output the traces if tracing, the frozen file if
+		freezing, otherwise the expansion of the FILES.
+
+"automationmodetool" : 
+	NAME :
+		automationmodetool – Manage UI automation security
+		preferences.
+	DESCRIPTION :
+		automationmodetool can be used to configure a device
+		such that Automation Mode for UI testing can be
+		enabled without user authentication.  This is useful
+		for configuring machines in continuous integration
+		(CI) environments as well as those in labs where
+		the active users do not have administrator privileges.
+		Running the tool for this purpose requires an
+
+"automator" : 
+	NAME :
+		automator – Runs Automator workflow.
+	DESCRIPTION :
+		automator runs the specified workflow.  To create
+		or edit a workflow, use the Automator application.
+
+"automount" : 
+	NAME :
+		automount – mount autofs on the appropriate mount
+		points
+	DESCRIPTION :
+		automount reads the /etc/auto_master file, and any
+		local or network maps it includes, and mounts autofs
+		on the appropriate mount points to cause mounts to
+		be triggered.  It will also attempt to unmount any
+		top-level autofs mounts that correspond to maps no
+		longer found.
+
+"autopoint" : 
+	NAME :
+		autopoint - copies standard gettext infrastructure
+	DESCRIPTION :
+		Copies standard gettext infrastructure files into
+		a source package.
+
+"autoreconf" : 
+	NAME :
+		autoreconf - Update generated configuration files
+	DESCRIPTION :
+		Run 'autoconf' and, when needed, 'aclocal',
+		'autoheader', 'automake', 'autopoint' (formerly
+		'gettextize'), 'glibtoolize', 'intltoolize', and
+		'gtkdocize' to regenerate the GNU Build System files
+		in specified DIRECTORIES and their subdirectories
+		(defaulting to '.').
+
+"autoscan" : 
+	NAME :
+		autoscan - Generate a preliminary configure.ac
+	DESCRIPTION :
+		Examine source files in the directory tree rooted
+		at SRCDIR, or the current directory if none is
+		given.  Search the source files for common portability
+		problems, check for incompleteness of 'configure.ac',
+		and create a file 'configure.scan' which is a
+		preliminary 'configure.ac' for that package.
+
+"autoupdate" : 
+	NAME :
+		autoupdate - Update a configure.ac to a newer
+		Autoconf
+	DESCRIPTION :
+		Update each TEMPLATE-FILE if given, or 'configure.ac'
+		if present, or else 'configure.in', to the syntax
+		of the current version of Autoconf. The original
+		files are backed up.
+
+"auval" : 
+	NAME :
+		auval – AudioUnit validation
+	DESCRIPTION :
+		AUValidation tests a specified AudioUnit for API
+		and behavioural conformance.  returns: OK: 0,
+		malformed execution: 1, unit not conformant: -1
+
+"auvaltool" : 
+	NAME :
+		auval – AudioUnit validation
+	DESCRIPTION :
+		AUValidation tests a specified AudioUnit for API
+		and behavioural conformance.  returns: OK: 0,
+		malformed execution: 1, unit not conformant: -1
+
+"avbdeviced" : 
+	NAME :
+		avbdeviced – peristent entity management for AVB.
+	DESCRIPTION :
+		The avbdeviced executable is used for the managment
+		of persistent AVB entities which are advertised by
+		the Mac.
+
+"avbdiagnose" : 
+	NAME :
+		avbdiagnose – diagnostic tool for AVB.
+	DESCRIPTION :
+		The avbdiagnose tool is used to capture a snapshot
+		of the current AVB system state and help diagnose
+		common issues with AVB.
+
+"avbutil" : 
+	NAME :
+		avbutil – manage AVB features and settings.
+	DESCRIPTION :
+		The avbutil executable is used for the managment
+		AVB features and settings.
+
+"avconvert" : 
+	NAME :
+		avconvert – movie conversion tool
+	DESCRIPTION :
+		avconvert is a tool that converts source media files
+		to different file types for sharing on the web or
+		loading onto devices.  The tool will not allow
+		protected content to be converted.  Only one video
+		and one audio track is preserved through the
+		conversion, along with metadata tracks. The tool
+		will never resize the video higher than the source
+		dimensions.
+
+"avmediainfo" : 
+	NAME :
+		avmediainfo – media analysis tool
+	DESCRIPTION :
+		avmediainfo is a tool that can be used to parse and
+		analyze media files. It is capable of displaying
+		generic information about the asset related to its
+		tracks, metadata, format extensions, chunks, and
+		samples. It also warns the user of any errors
+		encountered while parsing the media file. <media_file>
+		The media file to be analysed.
+
+"avmetareadwrite" : 
+	La commande "avmetareadwrite" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help avmetareadwrite", "info avmetareadwrite" ou "avmetareadwrite" pour essayer d'obtenir davantage d'informations.
+
+"awk" : 
+	NAME :
+		awk - pattern-directed scanning and processing
+		language
+	DESCRIPTION :
+		Awk scans each input file for lines that match any
+		of a set of patterns specified literally in prog
+		or in one or more files specified as -f progfile.
+		With each pattern there can be an associated action
+		that will be performed when a line of a file matches
+		the pattern.  Each line is matched against the
+		pattern portion of every pattern-action
+
+"banner" : 
+	NAME :
+		banner – print large banner on printer
+	DESCRIPTION :
+		Banner prints a large, high quality banner on the
+		standard output.  If the message is omitted, it
+		prompts for and reads one line of its standard
+		input.
+
+"base64" : 
+	NAME :
+		base64 – Encode and decode using Base64 representation
+	DESCRIPTION :
+		base64 encodes and decodes Base64 data, as specified
+		in RFC 4648.  With no options, base64 reads raw
+		data from stdin and writes encoded data as a
+		continuous block to stdout.
+
+"basename" : 
+	NAME :
+		 basename, dirname – return filename or directory
+		 portion of pathname
+	DESCRIPTION :
+		The basename utility deletes any prefix ending with
+		the last slash ‘/’ character present in string
+		(after first stripping trailing slashes), and a
+		suffix, if given.  The suffix is not stripped if
+		it is identical to the remaining characters in
+		string.  The resulting filename is written to the
+		standard output.  A non-existent suffix is ignored.
+		If -a is specified,
+
+"bash" : 
+	NAME :
+		bash - GNU Bourne-Again SHell
+	DESCRIPTION :
+		Bash is an sh-compatible command language interpreter
+		that executes commands read from the standard input
+		or from a file.  Bash also incorporates useful
+		features from the Korn and C shells (ksh and csh).
+
+"bashbug" : 
+	NAME :
+		bashbug - report a bug in bash
+	DESCRIPTION :
+		bashbug is a shell script to help the user compose
+		and mail bug reports concerning bash in a standard
+		format.  bashbug invokes the editor specified by
+		the environment variable EDITOR on a temporary copy
+		of the bug report format outline. The user must
+		fill in the appropriate fields and exit the editor.
+		bashbug then mails the completed report to bug-
+
+"batch" : 
+	NAME :
+		at, batch, atq, atrm – queue, examine, or delete
+		jobs for later execution
+	DESCRIPTION :
+		The at and batch utilities read commands from
+		standard input or a specified file.  The commands
+		are executed at a later time, using sh(1).
+
+"bc" : 
+	NAME :
+		bc - arbitrary-precision decimal arithmetic language
+		and calculator
+	DESCRIPTION :
+		bc(1) is an interactive processor for a language
+		first standardized in 1991 by POSIX.  (The current
+		standard is here
+		(https://pubs.opengroup.org/onlinepubs/9699919799/utilities/bc.html).)
+		The language provides unlimited precision decimal
+		arithmetic and is somewhat C-like, but there are
+		differences.  Such differences will be
+
+"bg" : 
+	La commande "bg" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help bg", "info bg" ou "bg" pour essayer d'obtenir davantage d'informations.
+
+"bind" : 
+	La commande "bind" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help bind", "info bind" ou "bind" pour essayer d'obtenir davantage d'informations.
+
+"binhex" : 
+	NAME :
+		applesingle, binhex, macbinary – encode and decode
+		files
+	DESCRIPTION :
+		applesingle, binhex, macbinary are implemented as
+		a single tool with multiple names.  All invocations
+		support the three verbs encode, decode, and probe.
+
+"binhex.pl" : 
+	NAME :
+		binhex.pl - use Convert::BinHex to encode files as
+		BinHex
+	DESCRIPTION :
+		Each file is converted to file.hqx.
+
+"binhex5.30.pl" : 
+	La commande "binhex5.30.pl" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help binhex5.30.pl", "info binhex5.30.pl" ou "binhex5.30.pl" pour essayer d'obtenir davantage d'informations.
+
+"bioutil" : 
+	NAME :
+		bioutil – tool for viewing/changing Touch ID
+		configuration and listing/deleting enrolled
+		fingerprints
+	DESCRIPTION :
+		bioutil provides the possibility of viewing and
+		changing Touch ID configuration, both system-wide
+		and user-specific. It also allows listing and
+		deleting enrolled fingerprints.
+
+"bison" : 
+	NAME :
+		bison - GNU Project parser generator (yacc replacement)
+	DESCRIPTION :
+		Bison is a parser generator in the style of yacc(1).
+		It should be upwardly compatible with input files
+		designed for yacc.
+
+"bitesize.d" : 
+	NAME :
+		bitesize.d - analyse disk I/O size by process. Uses
+		DTrace.
+	DESCRIPTION :
+		This produces a report for the size of disk events
+		caused by processes. These are the disk events sent
+		by the block I/O driver.
+
+"bless" : 
+	NAME :
+		bless – set volume bootability and startup disk
+		options
+	DESCRIPTION :
+		bless is used to modify the volume bootability
+		characteristics of filesystems, as well as select
+		the active boot device.  bless has 6 modes of
+		execution: Folder Mode, Mount Mode, Device Mode,
+		NetBoot Mode, Info Mode, and Unbless Mode.
+
+"BlueTool" : 
+	La commande "BlueTool" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help BlueTool", "info BlueTool" ou "BlueTool" pour essayer d'obtenir davantage d'informations.
+
+"bluetoothd" : 
+	La commande "bluetoothd" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help bluetoothd", "info bluetoothd" ou "bluetoothd" pour essayer d'obtenir davantage d'informations.
+
+"bluetooth_connexion_souris" : 
+	La commande "bluetooth_connexion_souris" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help bluetooth_connexion_souris", "info bluetooth_connexion_souris" ou "bluetooth_connexion_souris" pour essayer d'obtenir davantage d'informations.
+
+"bluetooth_eteindre" : 
+	La commande "bluetooth_eteindre" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help bluetooth_eteindre", "info bluetooth_eteindre" ou "bluetooth_eteindre" pour essayer d'obtenir davantage d'informations.
+
+"blueutil" : 
+	La commande "blueutil" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help blueutil", "info blueutil" ou "blueutil" pour essayer d'obtenir davantage d'informations.
+
+"BootCacheControl" : 
+	NAME :
+		BootCacheControl – provides control of caches used
+		during startup.
+	DESCRIPTION :
+		Users should not run BootCacheControl manually.
+
+"bputil" : 
+	NAME :
+		bputil – Utility to precisely modify the security
+		settings on Apple Silicon Macs.
+	DESCRIPTION :
+		This utility is not meant for normal users or even
+		sysadmins. It provides unabstracted access to
+		capabilities which are normally handled for the
+		user automatically when changing the security policy
+		through GUIs such as the Startup Security Utility
+		in macOS Recovery (“recoveryOS”). It is possible
+		to make your system security much weaker and therefore
+		easier to
+
+"brctl" : 
+	NAME :
+		brctl – Manage the CloudDocs daemon
+	DESCRIPTION :
+		brctl understands the following commands:
+
+"break" : 
+	La commande "break" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help break", "info break" ou "break" pour essayer d'obtenir davantage d'informations.
+
+"brew" : 
+	NAME :
+		brew - The Missing Package Manager for macOS (or
+		Linux)
+	DESCRIPTION :
+		Homebrew is the easiest and most flexible way to
+		install the UNIX tools Apple didn´t include with
+		macOS. It can also install software not packaged
+		for your Linux distribution without requiring sudo.
+
+"brew_conserver_choses_installees" : 
+	La commande "brew_conserver_choses_installees" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help brew_conserver_choses_installees", "info brew_conserver_choses_installees" ou "brew_conserver_choses_installees" pour essayer d'obtenir davantage d'informations.
+
+"brew_liste_choses_installees.txt" : 
+	La commande "brew_liste_choses_installees.txt" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help brew_liste_choses_installees.txt", "info brew_liste_choses_installees.txt" ou "brew_liste_choses_installees.txt" pour essayer d'obtenir davantage d'informations.
+
+"brew_montrer_choses_installees" : 
+	La commande "brew_montrer_choses_installees" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help brew_montrer_choses_installees", "info brew_montrer_choses_installees" ou "brew_montrer_choses_installees" pour essayer d'obtenir davantage d'informations.
+
+"brew_reinstaller_formulaes_et_casks" : 
+	La commande "brew_reinstaller_formulaes_et_casks" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help brew_reinstaller_formulaes_et_casks", "info brew_reinstaller_formulaes_et_casks" ou "brew_reinstaller_formulaes_et_casks" pour essayer d'obtenir davantage d'informations.
+
+"bsdtar" : 
+	NAME :
+		tar – manipulate tape archives
+	DESCRIPTION :
+		tar creates and manipulates streaming archive files.
+		This implementation can extract from tar, pax, cpio,
+		zip, jar, ar, xar, rpm, 7-zip, and ISO 9660 cdrom
+		images and can create tar, pax, cpio, ar, zip,
+		7-zip, and shar archives.
+
+"bspatch" : 
+	NAME :
+		bspatch – apply a patch built with bsdiff(1)
+	DESCRIPTION :
+		The bspatch utility generates newfile from oldfile
+		and patchfile where patchfile is a binary patch
+		built by bsdiff(1).
+
+"BTLEServer" : 
+	DESCRIPTION :
+		BTLEServer is a process that handles Bluetooth LE
+		features.
+
+"BTLEServerAgent" : 
+	DESCRIPTION :
+		BTLEServerAgent is a process that handles Bluetooth
+		LE features.
+
+"bugpoint" : 
+	La commande "bugpoint" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help bugpoint", "info bugpoint" ou "bugpoint" pour essayer d'obtenir davantage d'informations.
+
+"builtin" : 
+	La commande "builtin" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help builtin", "info builtin" ou "builtin" pour essayer d'obtenir davantage d'informations.
+
+"bundle" : 
+	NAME :
+		bundle - Ruby Dependency Management
+	DESCRIPTION :
+		Bundler manages an application´s dependencies through
+		its entire life across many machines systematically
+		and repeatably.
+
+"bundler" : 
+	La commande "bundler" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help bundler", "info bundler" ou "bundler" pour essayer d'obtenir davantage d'informations.
+
+"bunzip2" : 
+	NAME :
+		bzip2, bunzip2 - a block-sorting file compressor,
+		v1.0.8 bzcat - decompresses files to stdout
+		bzip2recover - recovers data from damaged bzip2
+		files
+	DESCRIPTION :
+		bzip2 compresses files using the Burrows-Wheeler
+		block sorting text compression algorithm, and Huffman
+		coding.  Compression is generally considerably
+		better than that achieved by more conventional
+		LZ77/LZ78-based compressors, and approaches the
+		performance of the PPM family of statistical
+		compressors.
+
+"bzcat" : 
+	NAME :
+		bzip2, bunzip2 - a block-sorting file compressor,
+		v1.0.8 bzcat - decompresses files to stdout
+		bzip2recover - recovers data from damaged bzip2
+		files
+	DESCRIPTION :
+		bzip2 compresses files using the Burrows-Wheeler
+		block sorting text compression algorithm, and Huffman
+		coding.  Compression is generally considerably
+		better than that achieved by more conventional
+		LZ77/LZ78-based compressors, and approaches the
+		performance of the PPM family of statistical
+		compressors.
+
+"bzcmp" : 
+	NAME :
+		bzcmp, bzdiff - compare bzip2 compressed files
+	DESCRIPTION :
+		Bzcmp and bzdiff are used to invoke the cmp or the
+		diff program on bzip2 compressed files.  All options
+		specified are passed directly to cmp or diff.  If
+		only 1 file is specified, then the files compared
+		are file1 and an uncompressed file1.bz2.  If two
+		files are specified, then they are uncompressed if
+		necessary and fed to cmp or diff.  The exit
+
+"bzdiff" : 
+	NAME :
+		bzcmp, bzdiff - compare bzip2 compressed files
+	DESCRIPTION :
+		Bzcmp and bzdiff are used to invoke the cmp or the
+		diff program on bzip2 compressed files.  All options
+		specified are passed directly to cmp or diff.  If
+		only 1 file is specified, then the files compared
+		are file1 and an uncompressed file1.bz2.  If two
+		files are specified, then they are uncompressed if
+		necessary and fed to cmp or diff.  The exit
+
+"bzegrep" : 
+	NAME :
+		grep, egrep, fgrep, rgrep, bzgrep, bzegrep, bzfgrep,
+		zgrep, zegrep, zfgrep – file pattern searcher
+	DESCRIPTION :
+		The grep utility searches any given input files,
+		selecting lines that match one or more patterns.
+		By default, a pattern matches an input line if the
+		regular expression (RE) in the pattern matches the
+		input line without its trailing newline.  An empty
+		expression matches every line. Each input line that
+		matches at least one of the patterns is written to
+
+"bzfgrep" : 
+	NAME :
+		grep, egrep, fgrep, rgrep, bzgrep, bzegrep, bzfgrep,
+		zgrep, zegrep, zfgrep – file pattern searcher
+	DESCRIPTION :
+		The grep utility searches any given input files,
+		selecting lines that match one or more patterns.
+		By default, a pattern matches an input line if the
+		regular expression (RE) in the pattern matches the
+		input line without its trailing newline.  An empty
+		expression matches every line. Each input line that
+		matches at least one of the patterns is written to
+
+"bzgrep" : 
+	NAME :
+		grep, egrep, fgrep, rgrep, bzgrep, bzegrep, bzfgrep,
+		zgrep, zegrep, zfgrep – file pattern searcher
+	DESCRIPTION :
+		The grep utility searches any given input files,
+		selecting lines that match one or more patterns.
+		By default, a pattern matches an input line if the
+		regular expression (RE) in the pattern matches the
+		input line without its trailing newline.  An empty
+		expression matches every line. Each input line that
+		matches at least one of the patterns is written to
+
+"bzip2" : 
+	NAME :
+		bzip2, bunzip2 - a block-sorting file compressor,
+		v1.0.8 bzcat - decompresses files to stdout
+		bzip2recover - recovers data from damaged bzip2
+		files
+	DESCRIPTION :
+		bzip2 compresses files using the Burrows-Wheeler
+		block sorting text compression algorithm, and Huffman
+		coding.  Compression is generally considerably
+		better than that achieved by more conventional
+		LZ77/LZ78-based compressors, and approaches the
+		performance of the PPM family of statistical
+		compressors.
+
+"bzip2recover" : 
+	NAME :
+		bzip2, bunzip2 - a block-sorting file compressor,
+		v1.0.8 bzcat - decompresses files to stdout
+		bzip2recover - recovers data from damaged bzip2
+		files
+	DESCRIPTION :
+		bzip2 compresses files using the Burrows-Wheeler
+		block sorting text compression algorithm, and Huffman
+		coding.  Compression is generally considerably
+		better than that achieved by more conventional
+		LZ77/LZ78-based compressors, and approaches the
+		performance of the PPM family of statistical
+		compressors.
+
+"bzless" : 
+	NAME :
+		bzmore, bzless - file perusal filter for crt viewing
+		of bzip2 compressed text
+	DESCRIPTION :
+		Bzmore is a filter which allows examination of
+		compressed or plain text files one screenful at a
+		time on a soft-copy terminal.  bzmore works on files
+		compressed with bzip2 and also on uncompressed
+		files.  If a file does not exist, bzmore looks for
+		a file of the same name with the addition of a .bz2
+		suffix.
+
+"bzmore" : 
+	NAME :
+		bzmore, bzless - file perusal filter for crt viewing
+		of bzip2 compressed text
+	DESCRIPTION :
+		Bzmore is a filter which allows examination of
+		compressed or plain text files one screenful at a
+		time on a soft-copy terminal.  bzmore works on files
+		compressed with bzip2 and also on uncompressed
+		files.  If a file does not exist, bzmore looks for
+		a file of the same name with the addition of a .bz2
+		suffix.
+
+"c++" : 
+	NAME :
+		clang - the Clang C, C++, and Objective-C compiler
+	DESCRIPTION :
+		clang is a C, C++, and Objective-C compiler which
+		encompasses preprocessing, parsing, optimization,
+		code generation, assembly, and linking.  Depending
+		on which high-level mode setting is passed, Clang
+		will stop before doing a full link.  While Clang
+		is highly integrated, it is important to understand
+		the stages of compilation, to understand
+
+"c++filt" : 
+	NAME :
+		llvm-cxxfilt - LLVM symbol name demangler
+	DESCRIPTION :
+		llvm-cxxfilt is a symbol demangler that can be used
+		as a replacement for the GNU c++filt tool. It takes
+		a series of symbol names and prints their demangled
+		form on the standard output stream. If a name cannot
+		be demangled, it is simply printed as is.
+
+"c-index-test" : 
+	La commande "c-index-test" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help c-index-test", "info c-index-test" ou "c-index-test" pour essayer d'obtenir davantage d'informations.
+
+"c89" : 
+	NAME :
+		c89 – standard C language compiler
+	DESCRIPTION :
+		This is the name of the C language compiler as
+		required by the IEEE Std 1003.1-2001 (“POSIX.1”)
+		standard.
+
+"c99" : 
+	NAME :
+		c99 – standard C language compiler
+	DESCRIPTION :
+		This is the name of the C language compiler as
+		required by the IEEE Std 1003.1-2001 (“POSIX.1”)
+		standard.
+
+"caffeinate" : 
+	NAME :
+		caffeinate – prevent the system from sleeping on
+		behalf of a utility
+	DESCRIPTION :
+		caffeinate creates assertions to alter system sleep
+		behavior.  If no assertion flags are specified,
+		caffeinate creates an assertion to prevent idle
+		sleep.  If a utility is specified, caffeinate creates
+		the assertions on the utility's behalf, and those
+		assertions will persist for the duration of the
+		utility's execution. Otherwise, caffeinate creates
+		the
+
+"cairo-sphinx" : 
+	La commande "cairo-sphinx" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help cairo-sphinx", "info cairo-sphinx" ou "cairo-sphinx" pour essayer d'obtenir davantage d'informations.
+
+"cairo-trace" : 
+	La commande "cairo-trace" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help cairo-trace", "info cairo-trace" ou "cairo-trace" pour essayer d'obtenir davantage d'informations.
+
+"cal" : 
+	NAME :
+		cal, ncal – displays a calendar and the date of
+		Easter
+	DESCRIPTION :
+		The cal utility displays a simple calendar in
+		traditional format and ncal offers an alternative
+		layout, more options and the date of Easter.  The
+		new format is a little cramped but it makes a year
+		fit on a 25x80 terminal.  If arguments are not
+		specified, the current month is displayed.
+
+"calculatrice_avec_ou_sans_affichage" : 
+	La commande "calculatrice_avec_ou_sans_affichage" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help calculatrice_avec_ou_sans_affichage", "info calculatrice_avec_ou_sans_affichage" ou "calculatrice_avec_ou_sans_affichage" pour essayer d'obtenir davantage d'informations.
+
+"calendar" : 
+	NAME :
+		calendar – reminder service
+	DESCRIPTION :
+		The calendar utility checks the current directory
+		for a file named calendar and displays lines that
+		begin with either today's date or tomorrow's.  On
+		the day before a weekend (normally Friday), events
+		for the next three days are displayed.
+
+"caller" : 
+	La commande "caller" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help caller", "info caller" ou "caller" pour essayer d'obtenir davantage d'informations.
+
+"cancel" : 
+	NAME :
+		cancel - cancel jobs
+	DESCRIPTION :
+		The cancel command cancels print jobs.  If no
+		destination or id is specified, the currently
+		printing job on the default destination is canceled.
+
+"captoinfo" : 
+	NAME :
+		captoinfo - convert a termcap description into a
+		terminfo description
+	DESCRIPTION :
+		captoinfo looks in file for termcap descriptions.
+		For each one found, an equivalent terminfo description
+		is written to standard output. Termcap tc capabilities
+		are translated directly to terminfo use capabilities.
+
+"cap_mkdb" : 
+	NAME :
+		cap_mkdb – create capability database
+	DESCRIPTION :
+		Cap_mkdb builds a hashed database out of the getcap(3)
+		logical database constructed by the concatenation
+		of the specified files .
+
+"case" : 
+	La commande "case" de type "keyword" ne possède pas de page manuel dédiée.
+	Tapez "help case", "info case" ou "case" pour essayer d'obtenir davantage d'informations.
+
+"cat" : 
+	NAME :
+		cat – concatenate and print files
+	DESCRIPTION :
+		The cat utility reads files sequentially, writing
+		them to the standard output.  The file operands are
+		processed in command-line order.  If file is a
+		single dash (‘-’) or absent, cat reads from the
+		standard input.  If file is a UNIX domain socket,
+		cat connects to it and then reads it until EOF.
+		This complements the UNIX domain binding capability
+		available in
+
+"cc" : 
+	NAME :
+		clang - the Clang C, C++, and Objective-C compiler
+	DESCRIPTION :
+		clang is a C, C++, and Objective-C compiler which
+		encompasses preprocessing, parsing, optimization,
+		code generation, assembly, and linking.  Depending
+		on which high-level mode setting is passed, Clang
+		will stop before doing a full link.  While Clang
+		is highly integrated, it is important to understand
+		the stages of compilation, to understand
+
+"cd" : 
+	La commande "cd" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help cd", "info cd" ou "cd" pour essayer d'obtenir davantage d'informations.
+
+"certtool" : 
+	NAME :
+		certtool - create key pairs, certificates and
+		certificate signing requests for use with Keychains
+	DESCRIPTION :
+		Certtool is a UNIX command-line program which is
+		used to create key pairs, certificates, and certificate
+		signing requests; to import externally generated
+		certificates and Certificate Revocation Lists (CRLs)
+		into a Keychain, and to display the contents of
+		certificates and CRLs.
+
+"cfprefsd" : 
+	NAME :
+		cfprefsd – defaults server
+	DESCRIPTION :
+		cfprefsd provides preferences services for the
+		CFPreferences and NSUserDefaults APIs.
+
+"chat" : 
+	NAME :
+		chat - Automated conversational script with a modem
+	DESCRIPTION :
+		The chat program defines a conversational exchange
+		between the computer and the modem. Its primary
+		purpose is to establish the connection between the
+		Point-to-Point Protocol Daemon (pppd) and the
+		remote's pppd process.
+
+"checkgid" : 
+	NAME :
+		checkgid – validate group identifiers
+	DESCRIPTION :
+		Given one or more group identifers on the command
+		line (e.g., "httpd" or "#-1"), figure out whether
+		they'll be valid for the server to use at run- time.
+
+"checknr" : 
+	NAME :
+		checknr – check nroff/troff files
+	DESCRIPTION :
+		The checknr utility checks a list of nroff(1) or
+		troff(1) input files for certain kinds of errors
+		involving mismatched opening and closing delimiters
+		and unknown commands.  If no files are specified,
+		checknr checks the standard input.
+
+"chflags" : 
+	NAME :
+		chflags – change file flags
+	DESCRIPTION :
+		The chflags utility modifies the file flags of the
+		listed files as specified by the flags operand.
+
+"chfn" : 
+	NAME :
+		chpass, chfn, chsh – add or change user database
+		information
+	DESCRIPTION :
+		The chpass utility allows editing of the user
+		database information associated with user or, by
+		default, the current user.
+
+"chgrp" : 
+	NAME :
+		chgrp – change group
+	DESCRIPTION :
+		The chgrp utility sets the group ID of the file
+		named by each file operand to the group ID specified
+		by the group operand.
+
+"chmod" : 
+	NAME :
+		chmod – change file modes or Access Control Lists
+	DESCRIPTION :
+		The chmod utility modifies the file mode bits of
+		the listed files as specified by the mode operand.
+		It may also be used to modify the Access Control
+		Lists (ACLs) associated with the listed files.
+
+"chown" : 
+	NAME :
+		chown – change file owner and group
+	DESCRIPTION :
+		The chown utility changes the user ID and/or the
+		group ID of the specified files.  Symbolic links
+		named by arguments are silently left unchanged
+		unless -h is used.
+
+"chpass" : 
+	NAME :
+		chpass, chfn, chsh – add or change user database
+		information
+	DESCRIPTION :
+		The chpass utility allows editing of the user
+		database information associated with user or, by
+		default, the current user.
+
+"chroot" : 
+	NAME :
+		chroot – change root directory
+	DESCRIPTION :
+		The chroot utility changes its current and root
+		directories to the supplied directory newroot and
+		then exec's command with provided arguments, if
+		supplied, or an interactive copy of the user's login
+		shell.
+
+"chsh" : 
+	NAME :
+		chpass, chfn, chsh – add or change user database
+		information
+	DESCRIPTION :
+		The chpass utility allows editing of the user
+		database information associated with user or, by
+		default, the current user.
+
+"cjpeg" : 
+	NAME :
+		cjpeg - compress an image file to a JPEG file
+	DESCRIPTION :
+		cjpeg compresses the named image file, or the
+		standard input if no file is named, and produces a
+		JPEG/JFIF file on the standard output.  The currently
+		supported input file formats are: PPM (PBMPLUS color
+		format), PGM (PBMPLUS grayscale format), BMP, GIF,
+		and Targa.
+
+"ckksctl" : 
+	La commande "ckksctl" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help ckksctl", "info ckksctl" ou "ckksctl" pour essayer d'obtenir davantage d'informations.
+
+"cksum" : 
+	NAME :
+		cksum, sum – display file checksums and block counts
+	DESCRIPTION :
+		The cksum utility writes to the standard output
+		three whitespace separated fields for each input
+		file.  These fields are a checksum CRC, the total
+		number of octets in the file and the file name.  If
+		no file name is specified, the standard input is
+		used and no file name is written.
+
+"clang" : 
+	NAME :
+		clang - the Clang C, C++, and Objective-C compiler
+	DESCRIPTION :
+		clang is a C, C++, and Objective-C compiler which
+		encompasses preprocessing, parsing, optimization,
+		code generation, assembly, and linking.  Depending
+		on which high-level mode setting is passed, Clang
+		will stop before doing a full link.  While Clang
+		is highly integrated, it is important to understand
+		the stages of compilation, to understand
+
+"clang++" : 
+	NAME :
+		clang - the Clang C, C++, and Objective-C compiler
+	DESCRIPTION :
+		clang is a C, C++, and Objective-C compiler which
+		encompasses preprocessing, parsing, optimization,
+		code generation, assembly, and linking.  Depending
+		on which high-level mode setting is passed, Clang
+		will stop before doing a full link.  While Clang
+		is highly integrated, it is important to understand
+		the stages of compilation, to understand
+
+"clang-16" : 
+	La commande "clang-16" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-16", "info clang-16" ou "clang-16" pour essayer d'obtenir davantage d'informations.
+
+"clang-apply-replacements" : 
+	La commande "clang-apply-replacements" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-apply-replacements", "info clang-apply-replacements" ou "clang-apply-replacements" pour essayer d'obtenir davantage d'informations.
+
+"clang-change-namespace" : 
+	La commande "clang-change-namespace" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-change-namespace", "info clang-change-namespace" ou "clang-change-namespace" pour essayer d'obtenir davantage d'informations.
+
+"clang-check" : 
+	La commande "clang-check" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-check", "info clang-check" ou "clang-check" pour essayer d'obtenir davantage d'informations.
+
+"clang-cl" : 
+	La commande "clang-cl" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-cl", "info clang-cl" ou "clang-cl" pour essayer d'obtenir davantage d'informations.
+
+"clang-cpp" : 
+	La commande "clang-cpp" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-cpp", "info clang-cpp" ou "clang-cpp" pour essayer d'obtenir davantage d'informations.
+
+"clang-doc" : 
+	La commande "clang-doc" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-doc", "info clang-doc" ou "clang-doc" pour essayer d'obtenir davantage d'informations.
+
+"clang-extdef-mapping" : 
+	La commande "clang-extdef-mapping" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-extdef-mapping", "info clang-extdef-mapping" ou "clang-extdef-mapping" pour essayer d'obtenir davantage d'informations.
+
+"clang-format" : 
+	La commande "clang-format" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-format", "info clang-format" ou "clang-format" pour essayer d'obtenir davantage d'informations.
+
+"clang-include-cleaner" : 
+	La commande "clang-include-cleaner" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-include-cleaner", "info clang-include-cleaner" ou "clang-include-cleaner" pour essayer d'obtenir davantage d'informations.
+
+"clang-include-fixer" : 
+	La commande "clang-include-fixer" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-include-fixer", "info clang-include-fixer" ou "clang-include-fixer" pour essayer d'obtenir davantage d'informations.
+
+"clang-linker-wrapper" : 
+	La commande "clang-linker-wrapper" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-linker-wrapper", "info clang-linker-wrapper" ou "clang-linker-wrapper" pour essayer d'obtenir davantage d'informations.
+
+"clang-move" : 
+	La commande "clang-move" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-move", "info clang-move" ou "clang-move" pour essayer d'obtenir davantage d'informations.
+
+"clang-offload-bundler" : 
+	La commande "clang-offload-bundler" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-offload-bundler", "info clang-offload-bundler" ou "clang-offload-bundler" pour essayer d'obtenir davantage d'informations.
+
+"clang-offload-packager" : 
+	La commande "clang-offload-packager" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-offload-packager", "info clang-offload-packager" ou "clang-offload-packager" pour essayer d'obtenir davantage d'informations.
+
+"clang-pseudo" : 
+	La commande "clang-pseudo" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-pseudo", "info clang-pseudo" ou "clang-pseudo" pour essayer d'obtenir davantage d'informations.
+
+"clang-query" : 
+	La commande "clang-query" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-query", "info clang-query" ou "clang-query" pour essayer d'obtenir davantage d'informations.
+
+"clang-refactor" : 
+	La commande "clang-refactor" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-refactor", "info clang-refactor" ou "clang-refactor" pour essayer d'obtenir davantage d'informations.
+
+"clang-rename" : 
+	La commande "clang-rename" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-rename", "info clang-rename" ou "clang-rename" pour essayer d'obtenir davantage d'informations.
+
+"clang-reorder-fields" : 
+	La commande "clang-reorder-fields" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-reorder-fields", "info clang-reorder-fields" ou "clang-reorder-fields" pour essayer d'obtenir davantage d'informations.
+
+"clang-repl" : 
+	La commande "clang-repl" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-repl", "info clang-repl" ou "clang-repl" pour essayer d'obtenir davantage d'informations.
+
+"clang-scan-deps" : 
+	La commande "clang-scan-deps" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-scan-deps", "info clang-scan-deps" ou "clang-scan-deps" pour essayer d'obtenir davantage d'informations.
+
+"clang-tblgen" : 
+	La commande "clang-tblgen" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-tblgen", "info clang-tblgen" ou "clang-tblgen" pour essayer d'obtenir davantage d'informations.
+
+"clang-tidy" : 
+	La commande "clang-tidy" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clang-tidy", "info clang-tidy" ou "clang-tidy" pour essayer d'obtenir davantage d'informations.
+
+"clangd" : 
+	La commande "clangd" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clangd", "info clangd" ou "clangd" pour essayer d'obtenir davantage d'informations.
+
+"clangd-xpc-test-client" : 
+	La commande "clangd-xpc-test-client" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help clangd-xpc-test-client", "info clangd-xpc-test-client" ou "clangd-xpc-test-client" pour essayer d'obtenir davantage d'informations.
+
+"clear" : 
+	NAME :
+		clear - clear the terminal screen
+	DESCRIPTION :
+		clear clears your screen if this is possible.  It
+		looks in the environment for the terminal type and
+		then in the terminfo database to figure out how to
+		clear the screen.
+
+"cmp" : 
+	NAME :
+		asn1parse, ca, ciphers, cmp, cms, crl, crl2pkcs7,
+		dgst, dhparam, dsa, dsaparam, ec, ecparam, enc,
+		engine, errstr, gendsa, genpkey, genrsa, info, kdf,
+		mac, nseq, ocsp, passwd, pkcs12, pkcs7, pkcs8, pkey,
+		pkeyparam, pkeyutl, prime, rand, rehash, req, rsa,
+		rsautl, s_client, s_server, s_time, sess_id, smime,
+		speed, spkac, srp, storeutl, ts,
+	DESCRIPTION :
+		Every cmd listed above is a (sub-)command of the
+		openssl(1) application.  It has its own detailed
+		manual page at openssl-cmd(1). For example, to view
+		the manual page for the openssl dgst command, type
+		"man openssl-dgst".
+
+"cmpdylib" : 
+	NAME :
+		cmpdylib - compare two dynamic shared libraries for
+		compatibility
+	DESCRIPTION :
+		cmpdylib compares two versions of a dynamic shared
+		library to see if they are compatible with each
+		other. If the two versions are incompatible, the
+		reason is printed to stdout, and the exit status
+		is nonzero. If they are compatible, nothing is
+		printed, and the exit status is zero.
+
+"code" : 
+	NAME :
+		code - capture the namespace context for a code
+		fragment
+	DESCRIPTION :
+		Creates a scoped value for the specified command
+		and its associated arg arguments.  A scoped value
+		is a list with three elements:  the "@scope" keyword,
+		a namespace context, and a value string.  For
+		example, the command namespace foo {
+
+"codecctl" : 
+	La commande "codecctl" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help codecctl", "info codecctl" ou "codecctl" pour essayer d'obtenir davantage d'informations.
+
+"codesign" : 
+	NAME :
+		codesign – Create and manipulate code signatures
+	DESCRIPTION :
+		The codesign command is used to create, check, and
+		display code signatures, as well as inquire into
+		the dynamic status of signed code in the system.
+
+"codesign_allocate" : 
+	NAME :
+		codesign_allocate -  add code signing data to a
+		Mach-O file
+	DESCRIPTION :
+		codesign_allocate sets up a Mach-O file used by the
+		dynamic linker so space for code signing data of
+		the specified size for the specified architecture
+		is embedded in the Mach-O file.  The program must
+		be passed one -a argument or one -A argument for
+		each architecture in a universal file, or exactly
+		one -a or -A for a thin file.
+
+"col" : 
+	NAME :
+		col – filter reverse line feeds from input
+	DESCRIPTION :
+		The col utility filters out reverse (and half
+		reverse) line feeds so that the output is in the
+		correct order with only forward and half forward
+		line feeds, and replaces white-space characters
+		with tabs where possible.
+
+"colcrt" : 
+	NAME :
+		colcrt – filter nroff output for CRT previewing
+	DESCRIPTION :
+		The colcrt utility provides virtual half-line and
+		reverse line feed sequences for terminals without
+		such capability, and on which overstriking is
+		destructive.  Half-line characters and underlining
+		(changed to dashing `-') are placed on new lines
+		in between the normal output lines.
+
+"colldef" : 
+	NAME :
+		colldef – convert collation sequence source definition
+	DESCRIPTION :
+		The colldef utility converts a collation sequence
+		source definition into a format usable by the
+		strxfrm() and strcoll() functions.  It is used to
+		define the many ways in which strings can be ordered
+		and collated.  The strxfrm() function transforms
+		its first argument and places the result in its
+		second argument.  The transformed string is such
+		that it can be
+
+"colrm" : 
+	NAME :
+		colrm – remove columns from a file
+	DESCRIPTION :
+		The colrm utility removes selected columns from the
+		lines of a file.  A column is defined as a single
+		character in a line.  Input is read from the standard
+		input.  Output is written to the standard output.
+
+"column" : 
+	NAME :
+		column – columnate lists
+	DESCRIPTION :
+		The column utility formats its input into multiple
+		columns.  Rows are filled before columns.  Input
+		is taken from file operands, or, by default, from
+		the standard input.  Empty lines are ignored.
+
+"comm" : 
+	NAME :
+		comm – select or reject lines common to two files
+	DESCRIPTION :
+		The comm utility reads file1 and file2, which should
+		be sorted lexically, and produces three text columns
+		as output: lines only in file1; lines only in file2;
+		and lines in both files.
+
+"command" : 
+	La commande "command" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help command", "info command" ou "command" pour essayer d'obtenir davantage d'informations.
+
+"commandes_bash_obtenir_liste_et_info" : 
+	La commande "commandes_bash_obtenir_liste_et_info" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help commandes_bash_obtenir_liste_et_info", "info commandes_bash_obtenir_liste_et_info" ou "commandes_bash_obtenir_liste_et_info" pour essayer d'obtenir davantage d'informations.
+
+"commandes_perso_liste" : 
+	La commande "commandes_perso_liste" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help commandes_perso_liste", "info commandes_perso_liste" ou "commandes_perso_liste" pour essayer d'obtenir davantage d'informations.
+
+"common" : 
+	La commande "common" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help common", "info common" ou "common" pour essayer d'obtenir davantage d'informations.
+
+"compgen" : 
+	La commande "compgen" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help compgen", "info compgen" ou "compgen" pour essayer d'obtenir davantage d'informations.
+
+"complete" : 
+	La commande "complete" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help complete", "info complete" ou "complete" pour essayer d'obtenir davantage d'informations.
+
+"compopt" : 
+	La commande "compopt" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help compopt", "info compopt" ou "compopt" pour essayer d'obtenir davantage d'informations.
+
+"compress" : 
+	NAME :
+		compress, uncompress – compress and expand data
+	DESCRIPTION :
+		The compress utility reduces the size of files using
+		adaptive Lempel-Ziv coding.  Each file is renamed
+		to the same name plus the extension .Z.  A file
+		argument with a .Z extension will be ignored except
+		it will cause an error exit after other arguments
+		are processed.  If compression would not reduce the
+		size of a file, the file is ignored.
+
+"compression_tool" : 
+	NAME :
+		compression_tool - encode/decode files using the
+		Compression library
+	DESCRIPTION :
+		compression_tool encodes (compresses), or decodes
+		(uncompresses) files using the Compression library.
+
+"comp_err" : 
+	NAME :
+		comp_err - compile MySQL error message file
+	DESCRIPTION :
+		comp_err creates the errmsg.sys file that is used
+		by mysqld to determine the error messages to display
+		for different error codes. comp_err normally is run
+		automatically when MySQL is built. It compiles the
+		errmsg.sys file from text-format error information
+		in MySQL source distributions:
+
+"config_data" : 
+	NAME :
+		config_data - Query or change configuration of Perl
+		modules
+	DESCRIPTION :
+		The "config_data" tool provides a command-line
+		interface to the configuration of Perl modules.  By
+		"configuration", we mean something akin to "user
+		preferences" or "local settings".  This is a
+		formalization and abstraction of the systems that
+		people like Andreas Koenig ("CPAN::Config"), Jon
+		Swartz ("HTML::Mason::Config"), Andy
+
+"config_data5.30" : 
+	NAME :
+		config_data - Query or change configuration of Perl
+		modules
+	DESCRIPTION :
+		The "config_data" tool provides a command-line
+		interface to the configuration of Perl modules.  By
+		"configuration", we mean something akin to "user
+		preferences" or "local settings".  This is a
+		formalization and abstraction of the systems that
+		people like Andreas Koenig ("CPAN::Config"), Jon
+		Swartz ("HTML::Mason::Config"), Andy
+
+"continue" : 
+	La commande "continue" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help continue", "info continue" ou "continue" pour essayer d'obtenir davantage d'informations.
+
+"coproc" : 
+	La commande "coproc" de type "keyword" ne possède pas de page manuel dédiée.
+	Tapez "help coproc", "info coproc" ou "coproc" pour essayer d'obtenir davantage d'informations.
+
+"corbeille_vider" : 
+	La commande "corbeille_vider" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help corbeille_vider", "info corbeille_vider" ou "corbeille_vider" pour essayer d'obtenir davantage d'informations.
+
+"coreaudiod" : 
+	DESCRIPTION :
+		coreaudiod is a daemon used for Core Audio related
+		purposes.  coreaudiod was introduced with OSX version
+		10.4.
+
+"corelist" : 
+	NAME :
+		corelist - a commandline frontend to Module::CoreList
+	DESCRIPTION :
+		See Module::CoreList for one.
+
+"corelist5.30" : 
+	NAME :
+		corelist - a commandline frontend to Module::CoreList
+	DESCRIPTION :
+		See Module::CoreList for one.
+
+"corelist5.34" : 
+	NAME :
+		corelist - a commandline frontend to Module::CoreList
+	DESCRIPTION :
+		See Module::CoreList for one.
+
+"count" : 
+	La commande "count" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help count", "info count" ou "count" pour essayer d'obtenir davantage d'informations.
+
+"cp" : 
+	NAME :
+		cp – copy files
+	DESCRIPTION :
+		In the first synopsis form, the cp utility copies
+		the contents of the source_file to the target_file.
+		In the second synopsis form, the contents of each
+		named source_file is copied to the destination
+		target_directory.  The names of the files themselves
+		are not changed.  If cp detects an attempt to copy
+		a file to itself, the copy will fail.
+
+"cpan" : 
+	NAME :
+		cpan - easily interact with CPAN from the command
+		line
+	DESCRIPTION :
+		This script provides a command interface (not a
+		shell) to CPAN. At the moment it uses CPAN.pm to
+		do the work, but it is not a one-shot command runner
+		for CPAN.pm.
+
+"cpan5.30" : 
+	NAME :
+		cpan - easily interact with CPAN from the command
+		line
+	DESCRIPTION :
+		This script provides a command interface (not a
+		shell) to CPAN. At the moment it uses CPAN.pm to
+		do the work, but it is not a one-shot command runner
+		for CPAN.pm.
+
+"cpan5.34" : 
+	NAME :
+		cpan - easily interact with CPAN from the command
+		line
+	DESCRIPTION :
+		This script provides a command interface (not a
+		shell) to CPAN. At the moment it uses CPAN.pm to
+		do the work, but it is not a one-shot command runner
+		for CPAN.pm.
+
+"cpio" : 
+	NAME :
+		cpio – copy files to and from archives
+	DESCRIPTION :
+		cpio copies files between archives and directories.
+		This implementation can extract from tar, pax, cpio,
+		zip, jar, ar, and ISO 9660 cdrom images and can
+		create tar, pax, cpio, ar, and shar archives.
+
+"cpp" : 
+	La commande "cpp" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help cpp", "info cpp" ou "cpp" pour essayer d'obtenir davantage d'informations.
+
+"cpuctl" : 
+	NAME :
+		cpuctl – program to control CPUs
+	DESCRIPTION :
+		The cpuctl command can be used to control and inspect
+		the state of CPUs in the system.
+
+"cpuwalk.d" : 
+	NAME :
+		cpuwalk.d - Measure which CPUs a process runs on.
+		Uses DTrace.
+	DESCRIPTION :
+		This program is for multi-CPU servers, and can help
+		identify if a process is running on multiple CPUs
+		concurrently or not.
+
+"cpu_profiler.d" : 
+	La commande "cpu_profiler.d" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help cpu_profiler.d", "info cpu_profiler.d" ou "cpu_profiler.d" pour essayer d'obtenir davantage d'informations.
+
+"crc32" : 
+	NAME :
+		crc32 - Perform a 32bit Cyclic Redundancy Check
+	DESCRIPTION :
+		This package provides a Tcl implementation of the
+		CRC-32 algorithm based upon information provided
+		at http://www.naaccr.org/standard/crc32/document.html
+		If either the critcl package or the Trf package are
+		available then a compiled version may be used
+		internally to accelerate the checksum calculation.
+
+"crc325.30" : 
+	La commande "crc325.30" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help crc325.30", "info crc325.30" ou "crc325.30" pour essayer d'obtenir davantage d'informations.
+
+"creatbyproc.d" : 
+	NAME :
+		creatbyproc.d - snoop creat()s by process name.
+		Uses DTrace.
+	DESCRIPTION :
+		creatbyproc.d is a DTrace OneLiner to print file
+		creations as it occurs, including the name of the
+		process calling the open.
+
+"createhomedir" : 
+	NAME :
+		createhomedir – create and populate home directories
+		on the local computer.
+	DESCRIPTION :
+		createhomedir provides several options for creating
+		and populating home directories.
+
+"crlrefresh" : 
+	NAME :
+		crlrefresh - update and maintain system-wide CRL
+		cache
+	DESCRIPTION :
+		Crlrefresh is a UNIX command-line program which is
+		used to refresh and update the contents of the
+		system-wide cache of Certificate Revocation Lists
+		(CRLs). CRLs, which are optionally used as part of
+		the procedure for verifying X.509 certificates, are
+		typically fetched from the network using a URL which
+		appears in (some) certificates. Caching CRLs
+
+"cron" : 
+	NAME :
+		cron – daemon to execute scheduled commands (Vixie
+		Cron)
+	DESCRIPTION :
+		The cron utility is launched by launchd(8) when it
+		sees the existence of /etc/crontab or files in
+		/usr/lib/cron/tabs.  There should be no need to
+		start it manually.  See
+		/System/Library/LaunchDaemons/com.vix.cron.plist
+		for details.
+
+"crontab" : 
+	NAME :
+		crontab – maintain crontab files for individual
+		users (V3)
+	DESCRIPTION :
+		The crontab utility is the program used to install,
+		deinstall or list the tables used to drive the
+		cron(8) daemon in Vixie Cron.  Each user can have
+		their own crontab, and they are not intended to be
+		edited directly.
+
+"csh" : 
+	NAME :
+		tcsh - C shell with file name completion and command
+		line editing
+	DESCRIPTION :
+		tcsh is an enhanced but completely compatible version
+		of the Berkeley UNIX C shell, csh(1).  It is a
+		command language interpreter usable both as an
+		interactive login shell and a shell script command
+		processor.  It includes a command-line editor (see
+		The command-line editor), programmable word completion
+		(see Completion and listing), spelling
+
+"csplit" : 
+	NAME :
+		csplit – split files based on context
+	DESCRIPTION :
+		The csplit utility splits file into pieces using
+		the patterns args.  If file is a dash (‘-’), csplit
+		reads from standard input.
+
+"csreq" : 
+	NAME :
+		csreq – Expert tool for manipulating Code Signing
+		Requirement data
+	DESCRIPTION :
+		The csreq command manipulates Code Signing Requirement
+		data.  It reads one requirement from a file or
+		command arguments, converts it into internal form,
+		checks it, and then optionally outputs it in a
+		different form.
+
+"csrutil" : 
+	NAME :
+		csrutil – Configure system security policies
+	DESCRIPTION :
+		csrutil modifies System Integrity Protection settings.
+		Some of the commands require the device to be booted
+		into the Recovery OS.  Invoke csrutil with no
+		arguments to see a full usage statement.
+
+"ctags" : 
+	NAME :
+		ctags – create a tags file
+	DESCRIPTION :
+		ctags makes a tags file for ex(1) from the specified
+		C, Pascal, Fortran, YACC, lex, and lisp sources.
+		A tags file gives the locations of specified objects
+		in a group of files.  Each line of the tags file
+		contains the object name, the file in which it is
+		defined, and a search pattern for the object
+		definition, separated by white-space.
+
+"ctf_insert" : 
+	NAME :
+		ctf_insert - insert Compact C Type Format data into
+		a mach_kernel file
+	DESCRIPTION :
+		ctf_insert inserts CTF (Compact C Type Format) data
+		into a mach_kernel binary, storing the data in a
+		newly created (__CTF,__ctf) section. This section
+		must not be present in the input file.  ctf_insert(1)
+		must be passed one -arch argument for each architecture
+		in a universal file, or exactly one -arch for a
+		thin file.
+
+"cu" : 
+	NAME :
+		cu - Call up another system
+	DESCRIPTION :
+		The cu command is used to call up another system
+		and act as a dial in terminal.  It can also do
+		simple file transfers with no error checking.
+
+"cups-config" : 
+	NAME :
+		cups-config - get cups api, compiler, directory,
+		and link information.
+	DESCRIPTION :
+		The cups-config command allows application developers
+		to determine the necessary command-line options for
+		the compiler and linker, as well as the installation
+		directories for filters, configuration files, and
+		drivers.  All values are reported to the standard
+		output.
+
+"cupsaccept" : 
+	NAME :
+		cupsaccept/cupsreject - accept/reject jobs sent to
+		a destination
+	DESCRIPTION :
+		The cupsaccept command instructs the printing system
+		to accept print jobs to the specified destinations.
+
+"cupsctl" : 
+	NAME :
+		cupsctl - configure cupsd.conf options
+	DESCRIPTION :
+		cupsctl updates or queries the cupsd.conf file for
+		a server. When no changes are requested, the current
+		configuration values are written to the standard
+		output in the format "name=value", one per line.
+
+"cupsdisable" : 
+	NAME :
+		cupsdisable, cupsenable - stop/start printers and
+		classes
+	DESCRIPTION :
+		cupsenable starts the named printers or classes
+		while cupsdisable stops the named printers or
+		classes.
+
+"cupsenable" : 
+	NAME :
+		cupsdisable, cupsenable - stop/start printers and
+		classes
+	DESCRIPTION :
+		cupsenable starts the named printers or classes
+		while cupsdisable stops the named printers or
+		classes.
+
+"cupsfilter" : 
+	NAME :
+		cupsfilter - convert a file to another format using
+		cups filters (deprecated)
+	DESCRIPTION :
+		cupsfilter is a front-end to the CUPS filter subsystem
+		which allows you to convert a file to a specific
+		format, just as if you had printed the file through
+		CUPS. By default, cupsfilter generates a PDF file.
+		The converted file is sent to the standard output.
+
+"cupsreject" : 
+	NAME :
+		cupsaccept/cupsreject - accept/reject jobs sent to
+		a destination
+	DESCRIPTION :
+		The cupsaccept command instructs the printing system
+		to accept print jobs to the specified destinations.
+
+"cupstestppd" : 
+	NAME :
+		cupstestppd - test conformance of ppd files
+	DESCRIPTION :
+		cupstestppd tests the conformance of PPD files to
+		the Adobe PostScript Printer Description file format
+		specification version 4.3.  It can also be used to
+		list the supported options and available fonts in
+		a PPD file.  The results of testing and any other
+		output are sent to the standard output.
+
+"curl" : 
+	NAME :
+		curl - transfer a URL
+	DESCRIPTION :
+		curl is a tool for transferring data from or to a
+		server. It supports these protocols: DICT, FILE,
+		FTP, FTPS, GOPHER, GOPHERS, HTTP, HTTPS, IMAP,
+		IMAPS, LDAP, LDAPS, MQTT, POP3, POP3S, RTMP, RTMPS,
+		RTSP, SCP, SFTP, SMB, SMBS, SMTP, SMTPS, TELNET,
+		TFTP, WS and WSS. The command is designed to work
+		without user interaction.
+
+"curl-config" : 
+	NAME :
+		curl-config - Get information about a libcurl
+		installation
+	DESCRIPTION :
+		curl-config displays information about the curl and
+		libcurl installation.
+
+"cut" : 
+	NAME :
+		cut – cut out selected portions of each line of a
+		file
+	DESCRIPTION :
+		The cut utility cuts out selected portions of each
+		line (as specified by list) from each file and
+		writes them to the standard output.  If no file
+		arguments are specified, or a file argument is a
+		single dash (‘-’), cut reads from the standard
+		input.  The items specified by list can be in terms
+		of column position or in terms of fields delimited
+		by a special
+
+"cvadmin" : 
+	NAME :
+		cvadmin - Administer an Xsan File System
+	DESCRIPTION :
+		cvadmin is an interactive command used for general
+		purpose administration of an Xsan volume including:
+
+"cvaffinity" : 
+	NAME :
+		cvaffinity - set, get, or delete the affinity of a
+		file or directory
+	DESCRIPTION :
+		cvaffinity can be used to set an affinity for a
+		specific storage pool on a file or directory, or
+		list the current affinity.  An affinity is created
+		in a storage pool through the volume configuration,
+		see snfs_config(5).  It is a name, up to eight (8)
+		characters, describing a special media type. Use
+		cvadmin(8) to see what affinity sets are
+
+"cvcp" : 
+	NAME :
+		cvcp - Xsan Copy Utility
+	DESCRIPTION :
+		cvcp provides a high speed, multi-threaded copy
+		mechanism for copying directories onto and off of
+		an Xsan volume. The utility uses IO strategies and
+		multi-threading techniques that exploit the Xsan
+		IO model.
+
+"cvdb" : 
+	NAME :
+		cvdb - Xsan Client File System Debugger
+	DESCRIPTION :
+		cvdb provides a mechanism for developers and system
+		administrators to extract debugging information
+		from the Xsan File System client filesystem.  It
+		can be used by system administrators to change the
+		level of system logging that the client filesystem
+		performs.  There is also a switch to retrieve various
+		statistics.
+
+"cvdbset" : 
+	NAME :
+		cvdbset - A program to control cvdb tracing.
+	DESCRIPTION :
+		cvdbset is a tool for system administrators to
+		control cvdb(8) tracing information from the Xsan
+		File System client file system.
+
+"cvfsck" : 
+	NAME :
+		cvfsck - Check and Recover a Xsan Volume
+	DESCRIPTION :
+		The cvfsck program can check and repair Xsan file
+		system metadata corruption due to a system crash,
+		bad disk or other catastrophic failure. This program
+		also has the ability to list all of the existing
+		files and their pertinent statistics, such as inode
+		number, size, file type and location in the volume.
+
+"cvfsdb" : 
+	NAME :
+		cvfsdb - Xsan File System debugging tool
+	DESCRIPTION :
+		The cvfsdb command is a tool for debugging an Xsan
+		volume.
+
+"cvfsid" : 
+	NAME :
+		cvfsid - Display SNFS System Identifier
+	DESCRIPTION :
+		cvfsid provides a mechanism for displaying the SNFS
+		identifier for the executing system.  For customers
+		using client-based licensing, SNFS identifiers are
+		used to generate individual client licenses.  This
+		identifier string is submitted to Apple Technical
+		Support for license authorization keys.  See the
+		installation instructions for additional
+
+"cvgather" : 
+	NAME :
+		cvgather - Compile debugging information for a Xsan
+		File System
+	DESCRIPTION :
+		The cvgather program is used to collect debug
+		information from a volume.  This creates a tar file
+		of the system's Xsan File System debug logs,
+		configuration, version information and disk devices.
+
+"cvlabel" : 
+	NAME :
+		cvlabel - Label Xsan Disk Devices (LUNs)
+	DESCRIPTION :
+		cvlabel is used when configuring the Xsan File
+		System disks. One host that has visibility to all
+		the storage area network disk devices must create
+		a list of disk labels, their associated device names
+		and optionally the sectors to use. The mount_acfs(8)
+		process uses the volume labels to determine which
+		disk drive is to be used for Xsan
+
+"cvmkdir" : 
+	NAME :
+		cvmkdir - Create an Xsan Directory with an Affinity
+	DESCRIPTION :
+		The cvmkdir command creates a Xsan File System
+		directory and attaches an affinity parameter (key)
+		to it.  If no option is used and the directory
+		exists, the cvmkdir command displays the assigned
+		affinity. Once an affinity is assigned to a directory,
+		it cannot be altered.  If no key is specified and
+		the directory does not exist, the directory
+
+"cvmkfile" : 
+	NAME :
+		cvmkfile - Create a pre-allocated file
+	DESCRIPTION :
+		cvmkfile can be used to pre-allocate a file on the
+		Xsan volume.  This is useful and preferable when
+		preparing a file for use in a real-time or streaming
+		environment as the entire file is represented in
+		only one file system extent. Additionally, a file
+		can be placed onto a specific storage pool by
+		specifying the key value, which is used as the
+		affinity
+
+"cvmkfs" : 
+	NAME :
+		cvmkfs - Initialize a Xsan Volume
+	DESCRIPTION :
+		cvmkfs will initialize a Xsan volume optionally
+		using volume_name as the name. If no name is supplied,
+		a list of volumes configured will be presented.
+		Active file systems may not be re-initialized. The
+		user will be prompted for a confirmation before
+		initializing the volume.
+
+"cvupdatefs" : 
+	NAME :
+		cvupdatefs - Commit a Xsan Volume configuration
+		change
+	DESCRIPTION :
+		The cvupdatefs program is used to commit a configuration
+		change to a Xsan volume. Possible configuration
+		changes include storage pool list modification as
+		well as volume journal modification.
+
+"cvversions" : 
+	NAME :
+		cvversions - Display Xsan client/server versions
+	DESCRIPTION :
+		cvversions will display the revision, build level
+		and creation date for the File System Manager (FSM)
+		and client subsystems of the Xsan File System.
+
+"c_rehash" : 
+	NAME :
+		openssl-rehash, c_rehash - Create symbolic links
+		to files named by the hash values
+	DESCRIPTION :
+		This command is generally equivalent to the external
+		script c_rehash, except for minor differences noted
+		below.
+
+"dappprof" : 
+	NAME :
+		dappprof - profile user and lib function usage.
+		Uses DTrace.
+	DESCRIPTION :
+		dappprof prints details on user and library call
+		times for processes as a summary style aggragation.
+		By default the user fuctions are traced, options
+		can be used to trace library activity. Output can
+		include function counts, elapsed times and on cpu
+		times.
+
+"dapptrace" : 
+	NAME :
+		dapptrace - trace user and library function usage.
+		Uses DTrace.
+	DESCRIPTION :
+		dapptrace prints details on user and library function
+		calls. By default it traces user functions only,
+		options can be used to trace library activity.
+
+"darwin-debug" : 
+	La commande "darwin-debug" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help darwin-debug", "info darwin-debug" ou "darwin-debug" pour essayer d'obtenir davantage d'informations.
+
+"dash" : 
+	NAME :
+		dash – command interpreter (shell)
+	DESCRIPTION :
+		dash is the standard command interpreter for the
+		system.  The current version of dash is in the
+		process of being changed to conform with the POSIX
+		1003.2 and 1003.2a specifications for the shell.
+		This version has many features which make it appear
+		similar in some respects to the Korn shell, but it
+		is not a Korn shell clone (see ksh(1)).  Only
+		features
+
+"date" : 
+	NAME :
+		date – display or set date and time
+	DESCRIPTION :
+		When invoked without arguments, the date utility
+		displays the current date and time.  Otherwise,
+		depending on the options specified, date will set
+		the date and time or print it in a user-defined
+		way.
+
+"dbicadmin" : 
+	NAME :
+		dbicadmin - utility for administrating DBIx::Class
+		schemata
+
+"dbicadmin5.30" : 
+	NAME :
+		dbicadmin - utility for administrating DBIx::Class
+		schemata
+
+"dbilogstrip" : 
+	NAME :
+		dbilogstrip - filter to normalize DBI trace logs
+		for diff'ing
+	DESCRIPTION :
+		Replaces any hex addresses, e.g, 0x128f72ce with
+		"0xN".
+
+"dbilogstrip5.30" : 
+	NAME :
+		dbilogstrip - filter to normalize DBI trace logs
+		for diff'ing
+	DESCRIPTION :
+		Replaces any hex addresses, e.g, 0x128f72ce with
+		"0xN".
+
+"dbiprof" : 
+	NAME :
+		dbiprof - command-line client for DBI::ProfileData
+	DESCRIPTION :
+		This tool is a command-line client for the
+		DBI::ProfileData.  It allows you to analyze the
+		profile data file produced by DBI::ProfileDumper
+		and produce various useful reports.
+
+"dbiprof5.30" : 
+	NAME :
+		dbiprof - command-line client for DBI::ProfileData
+	DESCRIPTION :
+		This tool is a command-line client for the
+		DBI::ProfileData.  It allows you to analyze the
+		profile data file produced by DBI::ProfileDumper
+		and produce various useful reports.
+
+"dbiproxy" : 
+	NAME :
+		dbiproxy - A proxy server for the DBD::Proxy driver
+	DESCRIPTION :
+		This tool is just a front end for the DBI::ProxyServer
+		package. All it does is picking options from the
+		command line and calling DBI::ProxyServer::main().
+		See DBI::ProxyServer for details.
+
+"dbiproxy5.30" : 
+	NAME :
+		dbiproxy - A proxy server for the DBD::Proxy driver
+	DESCRIPTION :
+		This tool is just a front end for the DBI::ProxyServer
+		package. All it does is picking options from the
+		command line and calling DBI::ProxyServer::main().
+		See DBI::ProxyServer for details.
+
+"dbmmanage" : 
+	NAME :
+		dbmmanage - Manage user authentication files in DBM
+		format
+
+"db_archive" : 
+	DESCRIPTION :
+		The db_archive utility writes the pathnames of log
+		files that are no longer in use (for example, no
+		longer involved in active transactions), to the
+		standard output, one pathname per line. These log
+		files should be written to backup media to provide
+		for recovery in the case of catastrophic failure
+		(which also requires a snapshot of the database
+
+"db_checkpoint" : 
+	DESCRIPTION :
+		The db_checkpoint utility is a daemon process that
+		monitors the database log, and periodically calls
+		DB_ENV->txn_checkpoint to checkpoint it.
+
+"db_codegen" : 
+	La commande "db_codegen" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help db_codegen", "info db_codegen" ou "db_codegen" pour essayer d'obtenir davantage d'informations.
+
+"db_deadlock" : 
+	DESCRIPTION :
+		The db_deadlock utility traverses the database
+		environment lock region, and aborts a lock request
+		each time it detects a deadlock or a lock request
+		that has timed out. By default, in the case of a
+		deadlock, a random lock request is chosen to be
+		aborted.
+
+"db_dump" : 
+	DESCRIPTION :
+		The db_dump utility reads the database file file
+		and writes it to the standard output using a portable
+		flat-text format understood by the db_load utility.
+		The file argument must be a file produced using the
+		Berkeley DB library functions.
+
+"db_hotbackup" : 
+	La commande "db_hotbackup" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help db_hotbackup", "info db_hotbackup" ou "db_hotbackup" pour essayer d'obtenir davantage d'informations.
+
+"db_load" : 
+	DESCRIPTION :
+		The db_load utility reads from the standard input
+		and loads it into the database file. The database
+		file is created if it does not already exist.
+
+"db_printlog" : 
+	DESCRIPTION :
+		The db_printlog utility is a debugging utility that
+		dumps Berkeley DB log files in a human-readable
+		format.
+
+"db_recover" : 
+	DESCRIPTION :
+		The db_recover utility must be run after an unexpected
+		application, Berkeley DB, or system failure to
+		restore the database to a consistent state. All
+		committed transactions are guaranteed to appear
+		after db_recover has run, and all uncommitted
+		transactions will be completely undone.
+
+"db_stat" : 
+	DESCRIPTION :
+		The db_stat utility utility displays statistics for
+		Berkeley DB environments.
+
+"db_upgrade" : 
+	DESCRIPTION :
+		The db_upgrade utility upgrades the Berkeley DB
+		version of one or more files and the databases they
+		contain to the current release version.
+
+"db_verify" : 
+	DESCRIPTION :
+		The db_verify utility verifies the structure of one
+		or more files and the databases they contain.
+
+"dc" : 
+	DESCRIPTION :
+		dc(1) is an arbitrary-precision calculator.  It
+		uses a stack (reverse Polish notation) to store
+		numbers and results of computations. Arithmetic
+		operations pop arguments off of the stack and push
+		the results.
+
+"dd" : 
+	NAME :
+		dd – convert and copy a file
+	DESCRIPTION :
+		The dd utility copies the standard input to the
+		standard output.  Input data is read and written
+		in 512-byte blocks.  If input reads are short, input
+		from multiple reads are aggregated to form the
+		output block.  When finished, dd displays the number
+		of complete and partial input and output blocks and
+		truncated input records to the standard error output.
+
+"ddns-confgen" : 
+	NAME :
+		ddns-confgen - ddns key generation tool
+	DESCRIPTION :
+		tsig-keygen and ddns-confgen are invocation methods
+		for a utility that generates keys for use in TSIG
+		signing. The resulting keys can be used, for example,
+		to secure dynamic DNS updates to a zone or for the
+		rndc command channel.
+
+"debinhex.pl" : 
+	NAME :
+		debinhex.pl - use Convert::BinHex to decode BinHex
+		files
+	DESCRIPTION :
+		Each file is expected to be a BinHex file.  By
+		default, the output file is given the name that the
+		BinHex file dictates, regardless of the name of the
+		BinHex file.
+
+"debinhex5.30.pl" : 
+	La commande "debinhex5.30.pl" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help debinhex5.30.pl", "info debinhex5.30.pl" ou "debinhex5.30.pl" pour essayer d'obtenir davantage d'informations.
+
+"declare" : 
+	La commande "declare" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help declare", "info declare" ou "declare" pour essayer d'obtenir davantage d'informations.
+
+"defaults" : 
+	NAME :
+		defaults – access the Mac OS X user defaults system
+	DESCRIPTION :
+		Defaults allows users to read, write, and delete
+		Mac OS X user defaults from a command-line shell.
+		Mac OS X applications and other programs use the
+		defaults system to record user preferences and other
+		information that must be maintained when the
+		applications aren't running (such as default font
+		for new documents, or the position of an Info panel).
+		Much of this
+
+"delv" : 
+	NAME :
+		delv - DNS lookup and validation utility
+	DESCRIPTION :
+		delv (Domain Entity Lookup & Validation) is a tool
+		for sending DNS queries and validating the results,
+		using the the same internal resolver and validator
+		logic as named.
+
+"demandoc" : 
+	NAME :
+		demandoc – emit only text of UNIX manuals
+	DESCRIPTION :
+		The demandoc utility emits only the text portions
+		of well-formed mdoc(7) and man(7) UNIX manual files.
+
+"DeRez" : 
+	NAME :
+		DeRez - decompiles resources (DEPRECATED)
+	DESCRIPTION :
+		Tools supporting Carbon development, including
+		DeRez, were deprecated with Xcode 6.
+
+"derq" : 
+	NAME :
+		derq – Query and manipulate DER entitlements.
+	DESCRIPTION :
+		The derq command queries DER encoded entitlements
+		using the CoreEntitlements library.
+
+"desdp" : 
+	La commande "desdp" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help desdp", "info desdp" ou "desdp" pour essayer d'obtenir davantage d'informations.
+
+"devmodectl" : 
+	La commande "devmodectl" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help devmodectl", "info devmodectl" ou "devmodectl" pour essayer d'obtenir davantage d'informations.
+
+"DevToolsSecurity" : 
+	NAME :
+		DevToolsSecurity – Change the security authorization
+		policies for developer systems
+	DESCRIPTION :
+		This tool changes the security authorization policies
+		for use of Apple- code-signed debugger and performance
+		analysis tools on development systems.
+
+"dev_mkdb" : 
+	NAME :
+		dev_mkdb – create /dev database
+	DESCRIPTION :
+		The dev_mkdb command creates a db(3) hash access
+		method database in “/var/run/dev.db” which contains
+		the names of all of the character and block special
+		files in the “/dev” directory, using the file type
+		and the st_rdev field as the key.
+
+"df" : 
+	NAME :
+		df – display free disk space
+	DESCRIPTION :
+		The df utility displays statistics about the amount
+		of free disk space on the specified filesystem or
+		on the filesystem of which file is a part. Values
+		are displayed in 512-byte per block counts.  If
+		neither a file or a filesystem operand is specified,
+		statistics for all mounted filesystems are displayed
+		(subject to the -t option below).
+
+"diagnose-fu" : 
+	La commande "diagnose-fu" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help diagnose-fu", "info diagnose-fu" ou "diagnose-fu" pour essayer d'obtenir davantage d'informations.
+
+"diagtool" : 
+	La commande "diagtool" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help diagtool", "info diagtool" ou "diagtool" pour essayer d'obtenir davantage d'informations.
+
+"diff" : 
+	NAME :
+		diff – differential file and directory comparator
+	DESCRIPTION :
+		The diff utility compares the contents of file1 and
+		file2 and writes to the standard output the list
+		of changes necessary to convert one file into the
+		other.  No output is produced if the files are
+		identical.
+
+"diff3" : 
+	NAME :
+		diff3 - compare three files line by line
+	DESCRIPTION :
+		Compare three files line by line.
+
+"diffstat" : 
+	NAME :
+		diffstat - make histogram from diff-output
+	DESCRIPTION :
+		This program reads the output of diff and displays
+		a histogram of the insertions, deletions, and
+		modifications per-file.  Diffstat is a program that
+		is useful for reviewing large, complex patch files.
+		It reads from one or more input files which contain
+		output from diff, producing a histogram of the total
+		lines changed for each file
+
+"dig" : 
+	NAME :
+		dig - DNS lookup utility
+	DESCRIPTION :
+		dig (domain information groper) is a flexible tool
+		for interrogating DNS name servers. It performs DNS
+		lookups and displays the answers that are returned
+		from the name server(s) that were queried. Most DNS
+		administrators use dig to troubleshoot DNS problems
+		because of its flexibility, ease of use and clarity
+		of output. Other lookup tools tend
+
+"DirectoryService" : 
+	NAME :
+		dspluginhelperd – support daemon for legacy
+		DirectoryService plugins
+	DESCRIPTION :
+		DirectoryService has been replaced by opendirectoryd(8).
+		dspluginhelperd provides support for 3rd party
+		DirectoryService plugins.
+
+"dirname" : 
+	NAME :
+		 basename, dirname – return filename or directory
+		 portion of pathname
+	DESCRIPTION :
+		The basename utility deletes any prefix ending with
+		the last slash ‘/’ character present in string
+		(after first stripping trailing slashes), and a
+		suffix, if given.  The suffix is not stripped if
+		it is identical to the remaining characters in
+		string.  The resulting filename is written to the
+		standard output.  A non-existent suffix is ignored.
+		If -a is specified,
+
+"dirs" : 
+	La commande "dirs" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help dirs", "info dirs" ou "dirs" pour essayer d'obtenir davantage d'informations.
+
+"disklabel" : 
+	NAME :
+		disklabel – manipulate and query an Apple Label
+		disk label
+	DESCRIPTION :
+		The disklabel utility manipulates ``Apple Label''
+		partition metadata. ``Apple Label'' partitions allow
+		for a disk device to have a consistent name,
+		ownership, and permissions across reboots, even
+		though uses a dynamic pseudofilesystem for /dev.
+
+"diskutil" : 
+	NAME :
+		diskutil – modify, verify and repair local disks
+	DESCRIPTION :
+		diskutil manipulates the structure of local disks.
+		It provides information about, and allows the
+		administration of, partitioning schemes, layouts,
+		and formats of disks. This includes hard disks,
+		solid state disks, optical discs, disk images, APFS
+		volumes, CoreStorage volumes, and AppleRAID sets.
+		It generally manipulates whole volumes
+
+"disown" : 
+	La commande "disown" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help disown", "info disown" ou "disown" pour essayer d'obtenir davantage d'informations.
+
+"dispqlen.d" : 
+	NAME :
+		dispqlen.d - dispatcher queue length by CPU. Uses
+		DTrace.
+	DESCRIPTION :
+		The dispatcher queue length is an indication of CPU
+		saturation.  It is not an indicatior of utilisation
+		- the CPUs may or may not be utilised when the
+		dispatcher queue reports a length of zero.
+
+"disque_dur_ejecter" : 
+	La commande "disque_dur_ejecter" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help disque_dur_ejecter", "info disque_dur_ejecter" ou "disque_dur_ejecter" pour essayer d'obtenir davantage d'informations.
+
+"distnoted" : 
+	NAME :
+		distnoted – distributed notification server
+	DESCRIPTION :
+		distnoted provides distributed notification services.
+
+"ditto" : 
+	NAME :
+		ditto – copy directory hierarchies, create and
+		extract archives
+	DESCRIPTION :
+		In its first form, ditto copies one or more source
+		files or directories to a destination directory.
+		If the destination directory does not exist it will
+		be created before the first source is copied.  If
+		the destination directory already exists then the
+		source directories are merged with the previous
+		contents of the destination.
+
+"djpeg" : 
+	NAME :
+		djpeg - decompress a JPEG file to an image file
+	DESCRIPTION :
+		djpeg decompresses the named JPEG file, or the
+		standard input if no file is named, and produces
+		an image file on the standard output. PBMPLUS
+		(PPM/PGM), BMP, GIF, or Targa output format can be
+		selected.
+
+"dmc" : 
+	NAME :
+		dmc - controls the Disk Mount Conditioner
+	DESCRIPTION :
+		dmc(1) configures the Disk Mount Conditioner. The
+		Disk Mount Conditioner is a kernel provided service
+		that can degrade the disk I/O being issued to
+		specific mount points, providing the illusion that
+		the I/O is executing on a slower device. It can
+		also cause the conditioned mount point to advertise
+		itself as a different device type, e.g. the
+
+"dmesg" : 
+	NAME :
+		dmesg – display the system message buffer
+	DESCRIPTION :
+		Dmesg displays the contents of the system message
+		buffer.  This command needs to be run as root.
+
+"dnctl" : 
+	NAME :
+		dnctl – Traffic shaper control program
+	DESCRIPTION :
+		The dnctl utility is the user interface for controlling
+		the dummynet(4) traffic shaper.
+
+"dns-sd" : 
+	NAME :
+		dns-sd – Multicast DNS (mDNS) & DNS Service Discovery
+		(DNS-SD) Test Tool
+	DESCRIPTION :
+		The dns-sd command is a network diagnostic tool,
+		much like ping(8) or traceroute(8).  However, unlike
+		those tools, most of its functionality is not
+		implemented in the dns-sd executable itself, but
+		in library code that is available to any application.
+		The library API that dns-sd uses is documented in
+		/usr/include/dns_sd.h.  The dns-sd command replaces
+		the
+
+"do" : 
+	La commande "do" de type "keyword" ne possède pas de page manuel dédiée.
+	Tapez "help do", "info do" ou "do" pour essayer d'obtenir davantage d'informations.
+
+"done" : 
+	La commande "done" de type "keyword" ne possède pas de page manuel dédiée.
+	Tapez "help done", "info done" ou "done" pour essayer d'obtenir davantage d'informations.
+
+"dot_clean" : 
+	NAME :
+		dot_clean – Merge ._* files with corresponding
+		native files.
+	DESCRIPTION :
+		For each dir, dot_clean recursively merges all ._*
+		files with their corresponding native files according
+		to the rules specified with the given arguments.
+		By default, if there is an attribute on the native
+		file that is also present in the ._ file, the most
+		recent attribute will be used.
+
+"drutil" : 
+	NAME :
+		drutil – interact with CD/DVD burners
+	DESCRIPTION :
+		drutil uses the DiscRecording framework to interact
+		with attached burning devices.  Common verbs include
+		burn, erase, eject, help, info, list, status, and
+		tray.
+
+"dscacheutil" : 
+	NAME :
+		dscacheutil – gather information, statistics and
+		initiate queries to the Directory Service cache.
+	DESCRIPTION :
+		dscacheutil does various operations against the
+		Directory Service cache including gathering statistics,
+		initiating lookups, inspection, cache flush, etc.
+		This tool replaces most of the functionality of the
+		lookupd tool previously available in the OS.
+
+"dscl" : 
+	NAME :
+		dscl – Directory Service command line utility
+	DESCRIPTION :
+		dscl is a general-purpose utility for operating on
+		Directory Service directory nodes.  Its commands
+		allow one to create, read, and manage Directory
+		Service data.  If invoked without any commands,
+		dscl runs in an interactive mode, reading commands
+		from standard input.  Interactive processing is
+		terminated by the quit command.  Leading dashes
+		("-") are
+
+"dsconfigad" : 
+	NAME :
+		dsconfigad – retrieves/changes configuration for
+		Active Directory.
+	DESCRIPTION :
+		This tool allows command-line configuration of the
+		Active Directory. dsconfigad has the same functionality
+		for configuring the Active Directory as the Directory
+		Utility application.  It requires "admin" privileges
+		to the local workstation and to the Directory to
+		make changes.
+
+"dsconfigldap" : 
+	NAME :
+		dsconfigldap – LDAP server configuration/binding
+		add/remove tool.
+	DESCRIPTION :
+		dsconfigldap allows addition or removal of LDAP
+		server configurations. Presented below is a discussion
+		of possible parameters. Usage has three intents:
+		add server config, remove server config, or display
+		help.
+
+"dseditgroup" : 
+	NAME :
+		dseditgroup – group record manipulation tool.
+	DESCRIPTION :
+		dseditgroup allows manipulation of a single named
+		group record on either the default local node or
+		the specified DirectoryService node. For the "read"
+		operation the authentication search policy (/Search
+		node) is consulted. Default behaviour is presented
+		below after a discussion of each operation and the
+		possible parameters.
+
+"dsenableroot" : 
+	NAME :
+		dsenableroot – enables or disables the root account.
+	DESCRIPTION :
+		dsenableroot sets the password for the root account
+		if enabling the root user account.  Otherwise, if
+		disable [-d] is chosen, the root account passwords
+		are removed and the root user is disabled.
+
+"dserr" : 
+	NAME :
+		dserr – prints a description for an error code.
+	DESCRIPTION :
+		dserr prints a description for an error code.
+
+"dsexport" : 
+	NAME :
+		dsexport – export records from OpenDirectory
+	DESCRIPTION :
+		The dsexport utility exports records from Open
+		Directory.
+
+"dsimport" : 
+	DESCRIPTION :
+		dsimport is a tool for importing records into an
+		Open Directory source.
+
+"dsmemberutil" : 
+	NAME :
+		dsmemberutil – various operations for the membership
+		APIs, including state dump, check memberships,
+		UUIDs, etc.
+	DESCRIPTION :
+		dsmemberutil is a program that implements the
+		membership API calls in a command line utility.
+
+"dsymutil" : 
+	NAME :
+		dsymutil - manipulate archived DWARF debug symbol
+		files
+	DESCRIPTION :
+		dsymutil links the DWARF debug information found
+		in the object files for an executable executable
+		by using debug symbols information contained in its
+		symbol table. By default, the linked debug information
+		is placed in a .dSYM bundle with the same name as
+		the executable.
+
+"dtrace" : 
+	NAME :
+		dtrace – dynamic tracing compiler and tracing utility
+	DESCRIPTION :
+		DTrace is a comprehensive dynamic tracing framework
+		ported from Solaris. DTrace provides a powerful
+		infrastructure that permits administrators, developers,
+		and service personnel to concisely answer arbitrary
+		questions about the behavior of the operating system
+		and user programs.
+
+"dtruss" : 
+	NAME :
+		dtruss - process syscall details. Uses DTrace.
+	DESCRIPTION :
+		dtruss prints details on process system calls. It
+		is like a DTrace version of truss, and has been
+		designed to be less intrusive than truss.
+
+"du" : 
+	NAME :
+		du – display disk usage statistics
+	DESCRIPTION :
+		The du utility displays the file system block usage
+		for each file argument and for each directory in
+		the file hierarchy rooted in each directory argument.
+		If no file is specified, the block usage of the
+		hierarchy rooted in the current directory is
+		displayed.
+
+"dwarfdump" : 
+	NAME :
+		dwarfdump - dump and verify DWARF debug information
+	DESCRIPTION :
+		dwarfdump parses DWARF sections in object files,
+		archives, and .dSYM bundles and prints their contents
+		in human-readable form. Only the .debug_info section
+		is printed unless one of the section-specific options
+		or --all is specified.
+
+"dyld_info" : 
+	NAME :
+		dyld_info – Displays information used by dyld in
+		programs and dylibs
+	DESCRIPTION :
+		The dyld_info tool will display information that
+		dyld uses from binaries. It supports fixups information
+		encoded as opcode based or as chained fixups.
+
+"dyld_usage" : 
+	NAME :
+		dyld_usage - report dynamic linker activity in
+		real-time
+	DESCRIPTION :
+		The dyld_usage utility presents an ongoing display
+		of information pertaining to dynamic linker activity
+		within one or more processes. It requires root
+		privileges due to the kernel tracing facility it
+		uses to operate. By default dyld_usage monitors
+		dyld activity in all processes except the running
+		dyld_usage process, Terminal, telnetd, sshd,
+
+"dynamic_pager" : 
+	NAME :
+		dynamic_pager – swap configuration daemon
+	DESCRIPTION :
+		The dynamic_pager daemon can be used to specify a
+		base name for swapfile names using the "-F" command
+		line option or by modifying the configuration plist
+		file.
+
+"echo" : 
+	La commande "echo" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help echo", "info echo" ou "echo" pour essayer d'obtenir davantage d'informations.
+
+"ed" : 
+	NAME :
+		ed, red – text editor
+	DESCRIPTION :
+		The ed utility is a line-oriented text editor.  It
+		is used to create, display, modify and otherwise
+		manipulate text files.  When invoked as red, the
+		editor runs in "restricted" mode, in which the only
+		difference is that the editor restricts the use of
+		filenames which start with ‘!’ (interpreted as shell
+		commands by ed) or contain a ‘/’.  Note that
+
+"edquota" : 
+	NAME :
+		edquota – edit user quotas
+	DESCRIPTION :
+		Edquota is a quota editor.  By default, or if the
+		-u flag is specified, one or more users may be
+		specified on the command line.  For each user a
+		temporary file is created with an ASCII representation
+		of the current disk quotas for that user.  The list
+		of filesystems with user quotas is determined by
+		scanning the mounted filesystems for a .quota.ops.user
+		file
+
+"egrep" : 
+	NAME :
+		grep, egrep, fgrep, rgrep, bzgrep, bzegrep, bzfgrep,
+		zgrep, zegrep, zfgrep – file pattern searcher
+	DESCRIPTION :
+		The grep utility searches any given input files,
+		selecting lines that match one or more patterns.
+		By default, a pattern matches an input line if the
+		regular expression (RE) in the pattern matches the
+		input line without its trailing newline.  An empty
+		expression matches every line. Each input line that
+		matches at least one of the patterns is written to
+
+"elif" : 
+	La commande "elif" de type "keyword" ne possède pas de page manuel dédiée.
+	Tapez "help elif", "info elif" ou "elif" pour essayer d'obtenir davantage d'informations.
+
+"else" : 
+	La commande "else" de type "keyword" ne possède pas de page manuel dédiée.
+	Tapez "help else", "info else" ou "else" pour essayer d'obtenir davantage d'informations.
+
+"enable" : 
+	La commande "enable" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help enable", "info enable" ou "enable" pour essayer d'obtenir davantage d'informations.
+
+"enc2xs" : 
+	NAME :
+		enc2xs -- Perl Encode Module Generator
+	DESCRIPTION :
+		enc2xs builds a Perl extension for use by Encode
+		from either Unicode Character Mapping files (.ucm)
+		or Tcl Encoding Files (.enc).  Besides being used
+		internally during the build process of the Encode
+		module, you can use enc2xs to add your own encoding
+		to perl.  No knowledge of XS is necessary.
+
+"enc2xs5.30" : 
+	NAME :
+		enc2xs -- Perl Encode Module Generator
+	DESCRIPTION :
+		enc2xs builds a Perl extension for use by Encode
+		from either Unicode Character Mapping files (.ucm)
+		or Tcl Encoding Files (.enc).  Besides being used
+		internally during the build process of the Encode
+		module, you can use enc2xs to add your own encoding
+		to perl.  No knowledge of XS is necessary.
+
+"enc2xs5.34" : 
+	NAME :
+		enc2xs -- Perl Encode Module Generator
+	DESCRIPTION :
+		enc2xs builds a Perl extension for use by Encode
+		from either Unicode Character Mapping files (.ucm)
+		or Tcl Encoding Files (.enc).  Besides being used
+		internally during the build process of the Encode
+		module, you can use enc2xs to add your own encoding
+		to perl.  No knowledge of XS is necessary.
+
+"encguess" : 
+	NAME :
+		encguess - guess character encodings of files
+	DESCRIPTION :
+		The encoding identification is done by checking one
+		encoding type at a time until all but the right
+		type are eliminated. The set of encoding types to
+		try is defined by the -s parameter and defaults to
+		ascii, utf8 and UTF-16/32 with BOM. This can be
+		overridden by passing one or more encoding types
+		via the -s parameter. If you need to pass in multiple
+
+"encguess5.30" : 
+	NAME :
+		encguess - guess character encodings of files
+	DESCRIPTION :
+		The encoding identification is done by checking one
+		encoding type at a time until all but the right
+		type are eliminated. The set of encoding types to
+		try is defined by the -s parameter and defaults to
+		ascii, utf8 and UTF-16/32 with BOM. This can be
+		overridden by passing one or more encoding types
+		via the -s parameter. If you need to pass in multiple
+
+"encguess5.34" : 
+	NAME :
+		encguess - guess character encodings of files
+	DESCRIPTION :
+		The encoding identification is done by checking one
+		encoding type at a time until all but the right
+		type are eliminated. The set of encoding types to
+		try is defined by the -s parameter and defaults to
+		ascii, utf8 and UTF-16/32 with BOM. This can be
+		overridden by passing one or more encoding types
+		via the -s parameter. If you need to pass in multiple
+
+"encode_keychange" : 
+	NAME :
+		encode_keychange - produce the KeyChange string for
+		SNMPv3
+	DESCRIPTION :
+		encode_keychange produces a KeyChange string using
+		the old and new passphrases as described in Section
+		5 of RFC 2274 "User-based Security Model (USM) for
+		version 3 of the Simple Network Management Protocol
+		(SNMPv3)". -t option is mandatory and specifies the
+		hash transform type to use.
+
+"env" : 
+	NAME :
+		env – set environment and execute command, or print
+		environment
+	DESCRIPTION :
+		The env utility executes another utility after
+		modifying the environment as specified on the command
+		line.  Each name=value option specifies the setting
+		of an environment variable, name, with a value of
+		value.  All such environment variables are set
+		before the utility is executed.
+
+"envsubst" : 
+	NAME :
+		envsubst - substitutes environment variables in
+		shell format strings
+	DESCRIPTION :
+		Substitutes the values of environment variables.
+
+"erb" : 
+	NAME :
+		erb – Ruby Templating
+	DESCRIPTION :
+		erb is a command line front-end for ERB library,
+		which is an implementation of eRuby.
+
+"errinfo" : 
+	NAME :
+		errinfo - print errno for syscall fails. Uses DTrace.
+	DESCRIPTION :
+		errinfo snoops syscall failures and prints the errno
+		value and description of the error number.
+
+"esac" : 
+	La commande "esac" de type "keyword" ne possède pas de page manuel dédiée.
+	Tapez "help esac", "info esac" ou "esac" pour essayer d'obtenir davantage d'informations.
+
+"eslogger" : 
+	NAME :
+		eslogger – log Endpoint Security events
+	DESCRIPTION :
+		eslogger interfaces with Endpoint Security to log
+		events to standard output or to the unified logging
+		system.
+
+"eval" : 
+	La commande "eval" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help eval", "info eval" ou "eval" pour essayer d'obtenir davantage d'informations.
+
+"event_rpcgen.py" : 
+	La commande "event_rpcgen.py" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help event_rpcgen.py", "info event_rpcgen.py" ou "event_rpcgen.py" pour essayer d'obtenir davantage d'informations.
+
+"ex" : 
+	NAME :
+		vim - Vi IMproved, a programmer's text editor
+	DESCRIPTION :
+		Vim is a text editor that is upwards compatible to
+		Vi.  It can be used to edit all kinds of plain text.
+		It is especially useful for editing programs.
+
+"exec" : 
+	La commande "exec" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help exec", "info exec" ou "exec" pour essayer d'obtenir davantage d'informations.
+
+"execsnoop" : 
+	NAME :
+		execsnoop - snoop new process execution. Uses DTrace.
+	DESCRIPTION :
+		execsnoop prints details of new processes as they
+		are executed. Details such as UID, PID and argument
+		listing are printed out.
+
+"exit" : 
+	La commande "exit" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help exit", "info exit" ou "exit" pour essayer d'obtenir davantage d'informations.
+
+"expand" : 
+	NAME :
+		expand, unexpand – expand tabs to spaces, and vice
+		versa
+	DESCRIPTION :
+		The expand utility processes the named files or the
+		standard input writing the standard output with
+		tabs changed into blanks.  Backspace characters are
+		preserved into the output and decrement the column
+		count for tab calculations.  The expand utility is
+		useful for pre-processing character files (before
+		sorting, looking at specific columns, etc.) that
+
+"expect" : 
+	NAME :
+		expect - programmed dialogue with interactive
+		programs, Version 5
+
+"export" : 
+	La commande "export" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help export", "info export" ou "export" pour essayer d'obtenir davantage d'informations.
+
+"expr" : 
+	NAME :
+		expr – evaluate expression
+	DESCRIPTION :
+		The expr utility evaluates expression and writes
+		the result on standard output.
+
+"extcheck" : 
+	La commande "extcheck" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help extcheck", "info extcheck" ou "extcheck" pour essayer d'obtenir davantage d'informations.
+
+"eyapp" : 
+	NAME :
+		eyapp - A Perl front-end to the Parse::Eyapp module
+	DESCRIPTION :
+		The eyapp compiler is a front-end to the Parse::Eyapp
+		module, which lets you compile Parse::Eyapp grammar
+		input files into Perl LALR(1) Object Oriented parser
+		modules.
+
+"eyapp5.30" : 
+	NAME :
+		eyapp - A Perl front-end to the Parse::Eyapp module
+	DESCRIPTION :
+		The eyapp compiler is a front-end to the Parse::Eyapp
+		module, which lets you compile Parse::Eyapp grammar
+		input files into Perl LALR(1) Object Oriented parser
+		modules.
+
+"false" : 
+	La commande "false" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help false", "info false" ou "false" pour essayer d'obtenir davantage d'informations.
+
+"fax2ps" : 
+	NAME :
+		fax2ps - convert a TIFF facsimile to compressed
+		PostScript™
+	DESCRIPTION :
+		fax2ps reads one or more TIFF facsimile image files
+		and prints a compressed form of PostScript on the
+		standard output that is suitable for printing.
+
+"fax2tiff" : 
+	NAME :
+		fax2tiff - create a TIFF Class F fax file from raw
+		fax data
+	DESCRIPTION :
+		fax2tiff creates a TIFF file containing  CCITT Group
+		3 or Group 4 encoded data from one or more files
+		containing "raw" Group 3 or Group 4 encoded data
+		(typically obtained directly from a fax modem).  By
+		default, each row of data in the resultant TIFF
+		file is 1-dimensionally encoded and padded or
+		truncated to 1728 pixels, as needed.  The
+
+"fc" : 
+	La commande "fc" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help fc", "info fc" ou "fc" pour essayer d'obtenir davantage d'informations.
+
+"fc-cache" : 
+	La commande "fc-cache" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help fc-cache", "info fc-cache" ou "fc-cache" pour essayer d'obtenir davantage d'informations.
+
+"fc-cat" : 
+	La commande "fc-cat" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help fc-cat", "info fc-cat" ou "fc-cat" pour essayer d'obtenir davantage d'informations.
+
+"fc-conflist" : 
+	La commande "fc-conflist" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help fc-conflist", "info fc-conflist" ou "fc-conflist" pour essayer d'obtenir davantage d'informations.
+
+"fc-list" : 
+	La commande "fc-list" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help fc-list", "info fc-list" ou "fc-list" pour essayer d'obtenir davantage d'informations.
+
+"fc-match" : 
+	La commande "fc-match" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help fc-match", "info fc-match" ou "fc-match" pour essayer d'obtenir davantage d'informations.
+
+"fc-pattern" : 
+	La commande "fc-pattern" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help fc-pattern", "info fc-pattern" ou "fc-pattern" pour essayer d'obtenir davantage d'informations.
+
+"fc-query" : 
+	La commande "fc-query" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help fc-query", "info fc-query" ou "fc-query" pour essayer d'obtenir davantage d'informations.
+
+"fc-scan" : 
+	La commande "fc-scan" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help fc-scan", "info fc-scan" ou "fc-scan" pour essayer d'obtenir davantage d'informations.
+
+"fc-validate" : 
+	La commande "fc-validate" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help fc-validate", "info fc-validate" ou "fc-validate" pour essayer d'obtenir davantage d'informations.
+
+"fcgistarter" : 
+	NAME :
+		fcgistarter - Start a FastCGI program
+
+"fddist" : 
+	NAME :
+		fddist - file descriptor usage distributions. Uses
+		DTrace.
+	DESCRIPTION :
+		This prints distributions for read and write events
+		by file descriptor, by process. This can be used
+		to determine which file descriptor a process is
+		doing the most I/O with.
+
+"fdesetup" : 
+	NAME :
+		fdesetup – FileVault configuration tool
+	DESCRIPTION :
+		fdesetup is used to enable or disable FileVault,
+		to list, add, or remove enabled FileVault users,
+		and to obtain status about the current state of
+		FileVault. Most commands require root access and
+		need to be authenticated with either a FileVault
+		password, a personal recovery key (if enabled), and
+		in some cases the private key from the installed
+		institutional
+
+"fdisk" : 
+	NAME :
+		fdisk – DOS partition maintenance program
+	DESCRIPTION :
+		In order for the BIOS to boot the kernel, certain
+		conventions must be adhered to.  Sector 0 of a
+		bootable hard disk must contain boot code, an MBR
+		partition table, and a magic number (0xAA55).  These
+		MBR partitions (also known as BIOS partitions) can
+		be used to break the disk up into several pieces.
+
+"fg" : 
+	La commande "fg" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help fg", "info fg" ou "fg" pour essayer d'obtenir davantage d'informations.
+
+"fgrep" : 
+	NAME :
+		grep, egrep, fgrep, rgrep, bzgrep, bzegrep, bzfgrep,
+		zgrep, zegrep, zfgrep – file pattern searcher
+	DESCRIPTION :
+		The grep utility searches any given input files,
+		selecting lines that match one or more patterns.
+		By default, a pattern matches an input line if the
+		regular expression (RE) in the pattern matches the
+		input line without its trailing newline.  An empty
+		expression matches every line. Each input line that
+		matches at least one of the patterns is written to
+
+"fi" : 
+	La commande "fi" de type "keyword" ne possède pas de page manuel dédiée.
+	Tapez "help fi", "info fi" ou "fi" pour essayer d'obtenir davantage d'informations.
+
+"fibreconfig" : 
+	NAME :
+		fibreconfig – Tool for configuring settings for
+		Fibre Channel controllers and targets.
+
+"fido2-assert" : 
+	NAME :
+		fido2-assert – get/verify a FIDO2 assertion
+	DESCRIPTION :
+		fido2-assert gets or verifies a FIDO2 assertion.
+
+"fido2-cred" : 
+	NAME :
+		fido2-cred – make/verify a FIDO2 credential
+	DESCRIPTION :
+		fido2-cred makes or verifies a FIDO2 credential.
+
+"fido2-token" : 
+	NAME :
+		fido2-token – find and manage a FIDO2 authenticator
+	DESCRIPTION :
+		fido2-token manages a FIDO2 authenticator.
+
+"file" : 
+	NAME :
+		file – determine file type
+	DESCRIPTION :
+		This manual page documents version 5.04 of the file
+		command.
+
+"filebyproc.d" : 
+	NAME :
+		filebyproc.d - snoop opens by process name. Uses
+		DTrace.
+	DESCRIPTION :
+		filebyproc.d is a DTrace OneLiner to print file
+		pathnames as they are opened, including the name
+		of the process calling the open.  A line will be
+		printed regardless of whether the open is actually
+		successful or not.
+
+"FileCheck" : 
+	La commande "FileCheck" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help FileCheck", "info FileCheck" ou "FileCheck" pour essayer d'obtenir davantage d'informations.
+
+"filecoordinationd" : 
+	NAME :
+		filecoordinationd – system-wide file access
+		coordination
+	DESCRIPTION :
+		filecoordinationd is used by the Foundation framework's
+		NSFileCoordinator class to coordinate access to
+		files by multiple processes, and to message registered
+		NSFilePresenters.
+
+"fileproviderctl" : 
+	NAME :
+		fileproviderctl - introspect file provider extensions
+	DESCRIPTION :
+		fileproviderctl allows you to control the fileproviderd
+		daemon and enumerate and manipulate files.
+
+"filtercalltree" : 
+	NAME :
+		filtercalltree – Filter or prune a call tree file
+		generated by sample or malloc_history
+	DESCRIPTION :
+		filtercalltree reads a file containing a call tree,
+		as generated by the sample(1) or malloc_history(1)
+		commands, and filters or prunes it as specified by
+		the options.
+
+"find" : 
+	NAME :
+		find – walk a file hierarchy
+	DESCRIPTION :
+		The find utility recursively descends the directory
+		tree for each path listed, evaluating an expression
+		(composed of the “primaries” and “operands” listed
+		below) in terms of each file in the tree.
+
+"find-all-symbols" : 
+	La commande "find-all-symbols" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help find-all-symbols", "info find-all-symbols" ou "find-all-symbols" pour essayer d'obtenir davantage d'informations.
+
+"findrule" : 
+	NAME :
+		findrule - command line wrapper to File::Find::Rule
+	DESCRIPTION :
+		"findrule" mostly borrows the interface from GNU
+		find(1) to provide a command-line interface onto
+		the File::Find::Rule heirarchy of modules.
+
+"findrule5.30" : 
+	NAME :
+		findrule - command line wrapper to File::Find::Rule
+	DESCRIPTION :
+		"findrule" mostly borrows the interface from GNU
+		find(1) to provide a command-line interface onto
+		the File::Find::Rule heirarchy of modules.
+
+"finger" : 
+	NAME :
+		finger – user information lookup program
+	DESCRIPTION :
+		The finger utility displays information about the
+		system users.
+
+"firefox" : 
+	La commande "firefox" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help firefox", "info firefox" ou "firefox" pour essayer d'obtenir davantage d'informations.
+
+"firmwarepasswd" : 
+	NAME :
+		firmwarepasswd – tool for setting and removing
+		firmware passwords on a system
+	DESCRIPTION :
+		The firmwarepasswd command is used to add or remove
+		firmware passwords from a system as well as check
+		status and other options.  The firmwarepasswd command
+		requires root privileges to run.
+
+"fixproc" : 
+	NAME :
+		fixproc - Fixes a process by performing the specified
+		action.
+	DESCRIPTION :
+		Fixes a process named "proc" by performing the
+		specified action.  The actions can be check, kill,
+		restart, exist, or fix.  The action is specified
+		on the command line or is read from a default
+		database, which describes the default action to
+		take for each process.  The database format and the
+		meaning of each action are described below.
+
+"flex" : 
+	NAME :
+		flex - the fast lexical analyser generator
+	DESCRIPTION :
+		Generates programs that perform pattern-matching
+		on text.
+
+"flex++" : 
+	NAME :
+		flex - the fast lexical analyser generator
+	DESCRIPTION :
+		Generates programs that perform pattern-matching
+		on text.
+
+"fmt" : 
+	NAME :
+		fmt – simple text formatter
+	DESCRIPTION :
+		The fmt utility is a simple text formatter which
+		reads the concatenation of input files (or standard
+		input if none are given) and produces on standard
+		output a version of its input with lines as close
+		to the goal length as possible without exceeding
+		the maximum.  The goal length defaults to 65 and
+		the maximum to 10 more than the goal length.
+
+"fold" : 
+	NAME :
+		fold – fold long lines for finite width output
+		device
+	DESCRIPTION :
+		The fold utility is a filter which folds the contents
+		of the specified files, or the standard input if
+		no files are specified, breaking the lines to have
+		a maximum of 80 columns.
+
+"fonctions_liste" : 
+	La commande "fonctions_liste" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help fonctions_liste", "info fonctions_liste" ou "fonctions_liste" pour essayer d'obtenir davantage d'informations.
+
+"fonctions_personnelles" : 
+	La commande "fonctions_personnelles" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help fonctions_personnelles", "info fonctions_personnelles" ou "fonctions_personnelles" pour essayer d'obtenir davantage d'informations.
+
+"fontrestore" : 
+	NAME :
+		fontrestore – Restore the available system fonts
+		to a pristine state, if possible.
+	DESCRIPTION :
+		fontrestore detects fonts in /Library/Fonts,
+		/System/Library/Fonts, and ~/Library/Fonts which
+		are not part of the system install and moves them
+		to /Library/Fonts (Removed), /System/Library/Fonts
+		(Removed), and ~/Library/Fonts/Fonts (Removed)
+		directories. Critical fonts required for operation
+		of the user interface are also restored.
+
+"footprint" : 
+	NAME :
+		footprint – gathers memory information about one
+		or more processes
+	DESCRIPTION :
+		The footprint utility gathers and displays memory
+		consumption information for the specified processes
+		or memory graph files.
+
+"for" : 
+	La commande "for" de type "keyword" ne possède pas de page manuel dédiée.
+	Tapez "help for", "info for" ou "for" pour essayer d'obtenir davantage d'informations.
+
+"freetype-config" : 
+	NAME :
+		freetype-config - Get information about a libfreetype
+		installation
+	DESCRIPTION :
+		freetype-config returns information needed for
+		compiling and linking programs with the FreeType
+		library, such as linker flags and compilation
+		parameters.  Alternatively, it can be used to query
+		information about the FreeType library version
+		installed on the system, such as the installation
+		(directory path) prefix or the FreeType
+
+"fsck" : 
+	NAME :
+		fsck – filesystem consistency check and interactive
+		repair
+	DESCRIPTION :
+		The first form of fsck preens a standard set of
+		filesystems or the specified filesystems.  It is
+		normally used in the script /etc/rc during automatic
+		reboot.  Here fsck reads the filesystem descriptor
+		table (using getfsent(3)) to determine which
+		filesystems to check.  Only partitions that have
+		``rw,'' ``rq'' or ``ro'' as options, and that have
+		non-zero
+
+"fsck_apfs" : 
+	NAME :
+		fsck_apfs – APFS consistency check
+	DESCRIPTION :
+		The fsck_apfs utility verifies and repairs APFS
+		containers and volumes.
+
+"fsck_cs" : 
+	NAME :
+		fsck_cs – verify and repair CoreStorage logical
+		volume groups
+	DESCRIPTION :
+		The fsck_cs utility verifies and repairs CoreStorage
+		logical volume group metadata.
+
+"fsck_exfat" : 
+	NAME :
+		fsck_exfat – Verify and repair ExFAT file systems.
+	DESCRIPTION :
+		The fsck_exfat utility verifies and repairs ExFAT
+		file systems.
+
+"fsck_hfs" : 
+	NAME :
+		fsck_hfs – HFS file system consistency check
+	DESCRIPTION :
+		The fsck_hfs utility verifies and repairs HFS+ file
+		systems.
+
+"fsck_msdos" : 
+	NAME :
+		fsck_msdos – DOS/Windows (FAT) file system consistency
+		check
+	DESCRIPTION :
+		The fsck_msdos utility verifies and repairs FAT
+		file systems (more commonly known as DOS file
+		systems).
+
+"fsck_udf" : 
+	NAME :
+		fsck_udf – check a UDF filesystem
+	DESCRIPTION :
+		The fsck_udf command examines a UDF filesystem
+		residing on devicePath for correctness.
+
+"fstyp" : 
+	NAME :
+		fstyp – identify a file system
+	DESCRIPTION :
+		The fstyp utility attempts to determine what sort
+		of volume is present on the given device.  It
+		operates by iterating over directories that are
+		typically part of the path, searching for files
+		matching the pattern fstyp_* and running them.  If
+		it finds a match, it will print out the file system
+		type name and exit with a return value of 1.  If
+		it does not
+
+"fstyp_hfs" : 
+	NAME :
+		fstyp_hfs – check for an HFS volume
+	DESCRIPTION :
+		The fstyp_hfs utility is not intended to be run
+		directly, but rather called by fstyp(8) while it
+		is trying to determine which file system type is
+		present on the given device.  It returns 1 if it
+		thinks the device contains an HFS volume, and 0
+		otherwise.
+
+"fstyp_msdos" : 
+	NAME :
+		fstyp_msdos – check for an MSDOS FAT volume
+	DESCRIPTION :
+		The fstyp_msdos utility is not intended to be run
+		directly, but rather called by fstyp(8) while it
+		is trying to determine which file system type is
+		present on the given device.  It returns 1 if it
+		thinks the device contains an MSDOS FAT volume, and
+		0 otherwise.
+
+"fstyp_ntfs" : 
+	NAME :
+		fstyp_ntfs – check for a Windows NT File System
+		(NTFS) volume
+	DESCRIPTION :
+		The fstyp_ntfs utility is not intended to be run
+		directly, but rather called by fstyp(8) while it
+		is trying to determine which file system type is
+		present on the given device.  It returns 1 if it
+		thinks the device contains a Windows NT File System
+		(NTFS) volume, and 0 otherwise.
+
+"fstyp_udf" : 
+	NAME :
+		fstyp_udf – check for a UDF volume
+	DESCRIPTION :
+		The fstyp_udf utility is not intended to be run
+		directly, but rather called by fstyp(8) while it
+		is trying to determine which file system type is
+		present on the given device.  It returns 1 if it
+		thinks the device contains a UDF volume, and 0
+		otherwise.
+
+"fs_usage" : 
+	NAME :
+		fs_usage – report system calls and page faults
+		related to filesystem activity in real-time
+	DESCRIPTION :
+		The fs_usage utility presents an ongoing display
+		of system call usage information pertaining to
+		filesystem activity.  It requires root privileges
+		due to the kernel tracing facility it uses to
+		operate.  By default, the activity monitored includes
+		all system processes except the running fs_usage
+		process, Terminal, telnetd, telnet, sshd, rlogind,
+		tcsh,
+
+"function" : 
+	La commande "function" de type "keyword" ne possède pas de page manuel dédiée.
+	Tapez "help function", "info function" ou "function" pour essayer d'obtenir davantage d'informations.
+
+"funzip" : 
+	NAME :
+		funzip - filter for extracting from a ZIP archive
+		in a pipe
+	DESCRIPTION :
+		for more details.  details.
+
+"fuser" : 
+	NAME :
+		fuser - list process IDs of all processes that have
+		one or more files open
+	DESCRIPTION :
+		The fuser utility shall write to standard output
+		the process IDs of processes running on the local
+		system that have one or more named files open. For
+		block special devices, all processes using any file
+		on that device are listed.
+
+"fwkdp" : 
+	NAME :
+		fwkdp – FireWire KDP Tool
+	DESCRIPTION :
+		Use fwkdp to act as a proxy for the kernel debugging
+		KDP protocol over FireWire. It will also accept
+		kernel core dump images transmitted over FireWire.
+		Additionally, fwkdp can be used to set the boot-args
+		necessary for a target machine which is to be
+		debugged.
+
+"fwkpfv" : 
+	NAME :
+		fwkpfv – FireWire kprintf viewer
+	DESCRIPTION :
+		Use fwkpfv to receive FireWire kprintf logging.
+		FireWireKPrintf redirects "kprintf()" logging to
+		FireWire. Kernel printfs or "kprintfs" are used by
+		many kernel services as a low level logging mechanism.
+		They can also be used in third party kernel extensions.
+		FireWire kprintfs are available very early in the
+		kernel's startup and right until the cpu is powered
+
+"g++" : 
+	La commande "g++" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help g++", "info g++" ou "g++" pour essayer d'obtenir davantage d'informations.
+
+"gatherheaderdoc" : 
+	NAME :
+		gatherheaderdoc – header documentation processor
+	DESCRIPTION :
+		Gatherheaderdoc processes the headerdoc output in
+		directory and creates an index page that links to
+		each header's documentation.
+
+"gcc" : 
+	La commande "gcc" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gcc", "info gcc" ou "gcc" pour essayer d'obtenir davantage d'informations.
+
+"gcore" : 
+	NAME :
+		gcore – get core images of running processes
+	DESCRIPTION :
+		The gcore program creates a core file image of the
+		process specified by pid.  The resulting core file
+		can be used with a debugger, e.g.  lldb(1), to
+		examine the state of the process.
+
+"gcov" : 
+	NAME :
+		llvm-cov - emit coverage information
+	DESCRIPTION :
+		The llvm-cov tool shows code coverage information
+		for programs that are instrumented to emit profile
+		data. It can be used to work with gcov-style coverage
+		or with clang's instrumentation based profiling.
+
+"gdbus" : 
+	La commande "gdbus" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gdbus", "info gdbus" ou "gdbus" pour essayer d'obtenir davantage d'informations.
+
+"gdbus-codegen" : 
+	La commande "gdbus-codegen" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gdbus-codegen", "info gdbus-codegen" ou "gdbus-codegen" pour essayer d'obtenir davantage d'informations.
+
+"gem" : 
+	NAME :
+		gem – RubyGems program
+	DESCRIPTION :
+		RubyGems is a sophisticated package manager for the
+		Ruby programming language. On OS X the default
+		bindir for gems that install binaries is
+		/Library/Ruby/bin.
+
+"gencat" : 
+	NAME :
+		gencat – NLS catalog compiler
+	DESCRIPTION :
+		The gencat utility merges the text NLS input files
+		input-files... into a formatted message catalog
+		file output-file.  The file output-file will be
+		created if it does not already exist.  If output-file
+		does exist, its messages will be included in the
+		new output-file.  If set and message numbers collide,
+		the new message text defined in input-files... will
+
+"genstrings" : 
+	La commande "genstrings" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help genstrings", "info genstrings" ou "genstrings" pour essayer d'obtenir davantage d'informations.
+
+"gen_bridge_metadata" : 
+	NAME :
+		gen_bridge_metadata – Objective-C Bridges Metadata
+		Generator
+	DESCRIPTION :
+		gen_bridge_metadata is a tool that generates bridging
+		metadata information for a given framework or set
+		of headers. The Objective-C bridges supported in
+		Mac OS X, such as PyObjC (Python), read this
+		information at runtime.
+
+"getconf" : 
+	NAME :
+		getconf – retrieve standard configuration variables
+	DESCRIPTION :
+		The getconf utility prints the values of POSIX or
+		X/Open path or system configuration variables to
+		the standard output.  If a variable is undefined,
+		the string “undefined” is output.
+
+"GetFileInfo" : 
+	NAME :
+		/usr/bin/GetFileInfo – get attributes of files and
+		directories (DEPRECATED)
+	DESCRIPTION :
+		Tools supporting Carbon development, including
+		/usr/bin/GetFileInfo, were deprecated with Xcode
+		6.
+
+"getopt" : 
+	NAME :
+		getopt – parse command options
+	DESCRIPTION :
+		The getopt utility is used to break up options in
+		command lines for easy parsing by shell procedures,
+		and to check for legal options.  Optstring is a
+		string of recognized option letters (see getopt(3));
+		if a letter is followed by a colon, the option is
+		expected to have an argument which may or may not
+		be separated from it by white space.  The special
+		option ‘--’
+
+"getopts" : 
+	La commande "getopts" de type "builtin" ne possède pas de page manuel dédiée.
+	Tapez "help getopts", "info getopts" ou "getopts" pour essayer d'obtenir davantage d'informations.
+
+"gettext" : 
+	NAME :
+		gettext - translate message
+	DESCRIPTION :
+		The gettext program translates a natural language
+		message into the user's language, by looking up the
+		translation in a message catalog.
+
+"gettext.sh" : 
+	La commande "gettext.sh" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gettext.sh", "info gettext.sh" ou "gettext.sh" pour essayer d'obtenir davantage d'informations.
+
+"gettextize" : 
+	NAME :
+		gettextize - install or upgrade gettext infrastructure
+	DESCRIPTION :
+		Prepares a source package to use gettext.
+
+"gif2rgb" : 
+	La commande "gif2rgb" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gif2rgb", "info gif2rgb" ou "gif2rgb" pour essayer d'obtenir davantage d'informations.
+
+"gifbuild" : 
+	La commande "gifbuild" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gifbuild", "info gifbuild" ou "gifbuild" pour essayer d'obtenir davantage d'informations.
+
+"gifclrmp" : 
+	La commande "gifclrmp" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gifclrmp", "info gifclrmp" ou "gifclrmp" pour essayer d'obtenir davantage d'informations.
+
+"giffix" : 
+	La commande "giffix" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help giffix", "info giffix" ou "giffix" pour essayer d'obtenir davantage d'informations.
+
+"giftext" : 
+	La commande "giftext" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help giftext", "info giftext" ou "giftext" pour essayer d'obtenir davantage d'informations.
+
+"giftool" : 
+	La commande "giftool" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help giftool", "info giftool" ou "giftool" pour essayer d'obtenir davantage d'informations.
+
+"gimp" : 
+	La commande "gimp" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gimp", "info gimp" ou "gimp" pour essayer d'obtenir davantage d'informations.
+
+"gio" : 
+	La commande "gio" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gio", "info gio" ou "gio" pour essayer d'obtenir davantage d'informations.
+
+"gio-querymodules" : 
+	La commande "gio-querymodules" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gio-querymodules", "info gio-querymodules" ou "gio-querymodules" pour essayer d'obtenir davantage d'informations.
+
+"git" : 
+	NAME :
+		git - the stupid content tracker
+	DESCRIPTION :
+		Git is a fast, scalable, distributed revision control
+		system with an unusually rich command set that
+		provides both high-level operations and full access
+		to internals.
+
+"git-clang-format" : 
+	La commande "git-clang-format" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help git-clang-format", "info git-clang-format" ou "git-clang-format" pour essayer d'obtenir davantage d'informations.
+
+"git-receive-pack" : 
+	NAME :
+		git-receive-pack - Receive what is pushed into the
+		repository
+	DESCRIPTION :
+		Invoked by git send-pack and updates the repository
+		with the information fed from the remote end.
+
+"git-shell" : 
+	NAME :
+		git-shell - Restricted login shell for Git-only SSH
+		access
+	DESCRIPTION :
+		This is a login shell for SSH accounts to provide
+		restricted Git access. It permits execution only
+		of server-side Git commands implementing the pull/push
+		functionality, plus custom commands present in a
+		subdirectory named git-shell-commands in the user’s
+		home directory.
+
+"git-upload-archive" : 
+	NAME :
+		git-upload-archive - Send archive back to git-archive
+	DESCRIPTION :
+		Invoked by git archive --remote and sends a generated
+		archive to the other end over the Git protocol.
+
+"git-upload-pack" : 
+	NAME :
+		git-upload-pack - Send objects packed back to
+		git-fetch-pack
+	DESCRIPTION :
+		Invoked by git fetch-pack, learns what objects the
+		other side is missing, and sends them after packing.
+
+"git_commit_avec_ou_sans_message" : 
+	La commande "git_commit_avec_ou_sans_message" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help git_commit_avec_ou_sans_message", "info git_commit_avec_ou_sans_message" ou "git_commit_avec_ou_sans_message" pour essayer d'obtenir davantage d'informations.
+
+"git_push_avant_deteindre_ordinateur" : 
+	La commande "git_push_avant_deteindre_ordinateur" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help git_push_avant_deteindre_ordinateur", "info git_push_avant_deteindre_ordinateur" ou "git_push_avant_deteindre_ordinateur" pour essayer d'obtenir davantage d'informations.
+
+"glib-compile-resources" : 
+	La commande "glib-compile-resources" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help glib-compile-resources", "info glib-compile-resources" ou "glib-compile-resources" pour essayer d'obtenir davantage d'informations.
+
+"glib-compile-schemas" : 
+	La commande "glib-compile-schemas" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help glib-compile-schemas", "info glib-compile-schemas" ou "glib-compile-schemas" pour essayer d'obtenir davantage d'informations.
+
+"glib-genmarshal" : 
+	La commande "glib-genmarshal" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help glib-genmarshal", "info glib-genmarshal" ou "glib-genmarshal" pour essayer d'obtenir davantage d'informations.
+
+"glib-gettextize" : 
+	La commande "glib-gettextize" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help glib-gettextize", "info glib-gettextize" ou "glib-gettextize" pour essayer d'obtenir davantage d'informations.
+
+"glib-mkenums" : 
+	La commande "glib-mkenums" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help glib-mkenums", "info glib-mkenums" ou "glib-mkenums" pour essayer d'obtenir davantage d'informations.
+
+"gm4" : 
+	NAME :
+		M4 - macro processor
+	DESCRIPTION :
+		Process macros in FILEs.  If no FILE or if FILE is
+		`-', standard input is read.
+
+"gnumake" : 
+	NAME :
+		make - GNU make utility to maintain groups of
+		programs
+	DESCRIPTION :
+		The purpose of the make utility is to determine
+		automatically which pieces of a large program need
+		to be recompiled, and issue the commands to recompile
+		them.  The manual describes the GNU implementation
+		of make, which was written by Richard Stallman and
+		Roland McGrath, and is currently maintained by Paul
+		Smith.  Our examples show C programs,
+
+"gobject-query" : 
+	La commande "gobject-query" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gobject-query", "info gobject-query" ou "gobject-query" pour essayer d'obtenir davantage d'informations.
+
+"gperf" : 
+	NAME :
+		gperf - manual page for gperf 3.0.3
+	DESCRIPTION :
+		GNU 'gperf' generates perfect hash functions.
+
+"gpt" : 
+	NAME :
+		gpt – GUID partition table maintenance utility
+	DESCRIPTION :
+		The gpt utility provides the necessary functionality
+		to manipulate GUID partition tables (GPTs), but see
+		BUGS below for how and where functionality is
+		missing.  The basic usage model of the gpt tool
+		follows that of the cvs(1) tool.  The general options
+		are described in the following paragraph.  The
+		remaining paragraphs describe the individual
+
+"gr2fonttest" : 
+	La commande "gr2fonttest" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gr2fonttest", "info gr2fonttest" ou "gr2fonttest" pour essayer d'obtenir davantage d'informations.
+
+"graphicssession" : 
+	NAME :
+		graphicssession – graphics session initialization
+		utility
+	DESCRIPTION :
+		graphicssession is used by the Apple Mac OS X base
+		system to initalize graphics contexts. It should
+		not be called directly.
+
+"grep" : 
+	NAME :
+		grep, egrep, fgrep, rgrep, bzgrep, bzegrep, bzfgrep,
+		zgrep, zegrep, zfgrep – file pattern searcher
+	DESCRIPTION :
+		The grep utility searches any given input files,
+		selecting lines that match one or more patterns.
+		By default, a pattern matches an input line if the
+		regular expression (RE) in the pattern matches the
+		input line without its trailing newline.  An empty
+		expression matches every line. Each input line that
+		matches at least one of the patterns is written to
+
+"gresource" : 
+	La commande "gresource" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gresource", "info gresource" ou "gresource" pour essayer d'obtenir davantage d'informations.
+
+"groups" : 
+	NAME :
+		groups – show group memberships
+	DESCRIPTION :
+		The groups utility has been obsoleted by the id(1)
+		utility, and is equivalent to “id -Gn [user]”.  The
+		command “id -p” is suggested for normal interactive
+		use.
+
+"gsettings" : 
+	La commande "gsettings" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gsettings", "info gsettings" ou "gsettings" pour essayer d'obtenir davantage d'informations.
+
+"gssd" : 
+	NAME :
+		gssd – Generic Security Services Daemon
+	DESCRIPTION :
+		gssd provides kernel access to the Generic Security
+		Services API (GSS- API).
+
+"gtester" : 
+	La commande "gtester" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gtester", "info gtester" ou "gtester" pour essayer d'obtenir davantage d'informations.
+
+"gtester-report" : 
+	La commande "gtester-report" de type "file" ne possède pas de page manuel dédiée.
+	Tapez "help gtester-report", "info gtester-report" ou "gtester-report" pour essayer d'obtenir davantage d'informations.
+
+"gunzip" : 
+	NAME :
+		gzip, gunzip, zcat – compression/decompression tool
+		using Lempel-Ziv coding (LZ77)
+	DESCRIPTION :
+		The gzip program compresses and decompresses files
+		using Lempel-Ziv coding (LZ77).  If no files are
+		specified, gzip will compress from standard input,
+		or decompress to standard output.  When in compression
+		mode, each file will be replaced with another file
+		with the suffix, set by the -S suffix option, added,
+		if possible.
+
+"gzcat" : 
+	NAME :
+		gzip, gunzip, zcat – compression/decompression tool
+		using Lempel-Ziv coding (LZ77)
+	DESCRIPTION :
+		The gzip program compresses and decompresses files
+		using Lempel-Ziv coding (LZ77).  If no files are
+		specified, gzip will compress from standard input,
+		or decompress to standard output.  When in compression
+		mode, each file will be replaced with another file
+		with the suffix, set by the -S suffix option, added,
+		if possible.
+
+"gzexe" : 
+	NAME :
+		gzexe – create auto-decompressing executables
+	DESCRIPTION :
+		The gzexe utility uses gzip(1) to compress executables,
+		producing executables that decompress on-the-fly
+		when executed.  This saves disk space, at the cost
+		of slower execution times.  The original executables
+		are saved by copying each of them to a file with
+		the same name with a ‘~’ suffix appended.  After
+		verifying that the compressed executables work as
+
+"gzip" : 
+	NAME :
+		gzip, gunzip, zcat – compression/decompression tool
+		using Lempel-Ziv coding (LZ77)
+	DESCRIPTION :
+		The gzip program compresses and decompresses files
+		using Lempel-Ziv coding (LZ77).  If no files are
+		specified, gzip will compress from standard input,
+		or decompress to standard output.  When in compression
+		mode, each file will be replaced with another file
+		with the suffix, set by the -S suffix option, added,
+		if possible.
+
+"h2ph" : 
+	NAME :
+		h2ph - convert .h C header files to .ph Perl header
+		files
+	DESCRIPTION :
+		h2ph converts any C header files specified to the
+		corresponding Perl header file format.  It is most
+		easily run while in /usr/include:
+
+"h2ph5.30" : 
+	NAME :
+		h2ph - convert .h C header files to .ph Perl header
+		files
+	DESCRIPTION :
+		h2ph converts any C header files specified to the
+		corresponding Perl header file format.  It is most
+		easily run while in /usr/include:
+
+"h2ph5.34" : 
+	NAME :
+		h2ph - convert .h C header files to .ph Perl header
+		files
+	DESCRIPTION :
+		h2ph converts any C header files specified to the
+		corresponding Perl header file format.  It is most
+		easily run while in /usr/include:
+
+"h2xs" : 
+	NAME :
+		h2xs - convert .h C header files to Perl extensions
+	DESCRIPTION :
+		h2xs builds a Perl extension from C header files.
+		The extension will include functions which can be
+		used to retrieve the value of any #define statement
+		which was in the C header files.
+
+"h2xs5.30" : 
+	NAME :
+		h2xs - convert .h C header files to Perl extensions
+	DESCRIPTION :
+		h2xs builds a Perl extension from C header files.
+		The extension will include functions which can be
+		used to retrieve the value of any #define statement
+		which was in the C header files.
+
+"h2xs5.34" : 
+	NAME :
+		h2xs - convert .h C header files to Perl extensions
+	DESCRIPTION :
+		h2xs builds a Perl extension from C header files.
+		The extension will include functions which can be
+		used to retrieve the value of any #define statement
+		which was in the C header files.
+

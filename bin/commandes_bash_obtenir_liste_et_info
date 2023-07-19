@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+
+# Améliorations 4x :
+# Adapter le contenu conservé selon tous les types
+# Types :
+# - alias -> aucun alias dans mon environnement actuel donc pas traité dans ce script
+# 1. >>>>>>> à TRAITER - builtins -> contenu de "help NOM" -> à ajouter au script
+# 2. >>>>>>> à TRAITER - commands (type files) -> man NOM ou help NOM ou info NOM -> à ajouter au script car seul le 'man NOM' est traité
+# - functions -> aucune fonction dans mon environnement actuel donc pas traité dans ce script
+# - keywords -> pas d'informations disponibles > rediriger sur la documentation officielle > site > bonne section
+# si la commande est un builtins, alors remplacer par help commande + modifier le contenu conservé
+# Autre amélioration 
+# 3. >>>>>>> à TRAITER - ajouter un avertissement OUI/NON avant de run le fichier en prévenant que long (environ X minutes) + que données précédentes effacées
+# Autre amélioration
+# 4. >>>> proposer d'ouvrir le fichier > puis si oui > ouvrir avec un éditeur de texte (via une app pas via le terminal)
+
+# Remarques diverses :
+# Ce message peut être ignoré : 
+#This manpage is not compatible with mandoc(1) and might display incorrectly.
+# Il annonce que ce n'est pas une page de manuel typique mais la copie des sections
+# fonctionne et peut donc être ignorée.
+: <<-EXPLICATIONS_SUR_COMPGEN
+compgen -a # will list all the aliases you could run.
+compgen -b # will list all the built-ins you could run.
+compgen -c # will list all the commands you could run.
+compgen -k # will list all the keywords you could run.
+compgen -A function # will list all the functions you could run.
+compgen -A function -abck # will list all the above in one go.
+EXPLICATIONS_SUR_COMPGEN
+
+# Fichier de stockage des données
+NOM_FICHIER_DE_STOCKAGE_INFORMATIONS='commandes_bash_liste_et_description.txt'
+
+# Récupération de toutes les commandes bash brutes (non triées)
+declare -a TABLEAU_DE_COMMANDE_BASH # tableau des commandes 
+while IFS= read -r # pour ajouter un délimiteur, ajouter -d 'CHARDELIMITEUR'
+# 'IFS=' préserve les éventuels espaces avant et après l'élément
+do
+   TABLEAU_DE_COMMANDE_BASH+=("$REPLY") # reply est la variable dans laquelle est stockée le résultat si aucune variable n'est fournie
+done < <(compgen -A function -abck | sort -fu)
+# compgen : cf aussi ci-dessus : Liste tout les types : aliases / builtins / commands / files / functions / keywords
+# sort -f : ignore la case pour le tri
+# sort -u : supprime éventuels doublons
+
+# Rédaction entête du fichier
+cd $REPERTOIRE_DES_COMMANDES_PERSO # aller dans le bon répertoire 
+NB_MOTS_MINIMUM_PR_AFFICHAGE=3
+
+echo "Bash :" > $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS # effacement contenu précédemment enregistré
+echo "- Liste des aliases, builtins, commands (=files), functions et keywords et informations." >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS 
+echo "- Les sections NAME et DESCRIPTION sont affichées pour chaque commande si celles-ci dépassent $NB_MOTS_MINIMUM_PR_AFFICHAGE mots." >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+echo "" >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+
+# Gestion de l'avancement
+TAILLE_TABLEAU_COMMANDE_BASH=${#TABLEAU_DE_COMMANDE_BASH[@]}
+NUM_COMMANDE_BASH_EN_COURS=0
+
+echo "Taille : $TAILLE_TABLEAU_COMMANDE_BASH"
+for COMMANDE in "${TABLEAU_DE_COMMANDE_BASH[@]}"
+do
+    # Ajout de pourcentage d'avancement de la tâche
+    ((++NUM_COMMANDE_BASH_EN_COURS)) # Avancement d'un à chaque tour de boucle
+    POURCENTAGE_AVANCEMENT="$(awk -v a=$NUM_COMMANDE_BASH_EN_COURS -v b=$TAILLE_TABLEAU_COMMANDE_BASH 'BEGIN {printf "%6.2f\n", 100*a/b }')"
+    NUMERO_COMMANDE_BASH_EN_COURS="$(awk -v numencours=$NUM_COMMANDE_BASH_EN_COURS 'BEGIN {printf "%5.0f\n", numencours }')" # pour un affichage optimisé
+    echo "$POURCENTAGE_AVANCEMENT% - $NUMERO_COMMANDE_BASH_EN_COURS/$TAILLE_TABLEAU_COMMANDE_BASH - \"$COMMANDE\"" # pour montrer avancement
+    
+    # Gestion selon si le type est un fichier et si celui-ci possède une page de manuel dédiée
+    if [ "$(type -t "$COMMANDE")" = 'file' ]
+    then
+        man "$COMMANDE" > /dev/null 2>&1 # test s'il y a une page du manuel dédiée à la commande.
+        
+        # Tri de celles qui possède de l'information du manuel ou pas et rédaction selon résultat
+        if (($?))
+        then
+            # Rédaction des informations dans le fichier
+            echo -e "\"$COMMANDE\" : " >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+            TYPE_COMMANDE="$(type -t "$COMMANDE")"
+            echo -e "\tLa commande \"$COMMANDE\" de type \"$TYPE_COMMANDE\" ne possède pas de page manuel dédiée."  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+            echo -e "\tTapez \"help $COMMANDE\", \"info $COMMANDE\" ou \"$COMMANDE\" pour essayer d'obtenir davantage d'informations."  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+            echo "" >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+        else
+            # Transformation des 2 section name et description (suppression du titre de section, récupération du paragraphe et suppression d'espace avant / après celui-ci)
+            # Section NAME
+            SECTION_NAME="$(grep -m 1 -A 5 'NAME' < <(man "$COMMANDE" | col -bx ))"
+            PARAGRAPHE_NAME="$(awk '/NAME/ { indic=1 ; getline ; } { if (indic == 1) { print $0} } /^$/ { indic=0 }' <<< $SECTION_NAME )"
+            PARAGRAPHE_SANS_ESPACE_DEBUT_FIN_NAME="$(sed -e 's/[[:space:]]*$//' -e 's/^[[:space:]]*//' <<< $PARAGRAPHE_NAME)"
+            PARAGRAPHE_SANS_RETOUR_LIGNE_NAME="$(echo "$PARAGRAPHE_SANS_ESPACE_DEBUT_FIN_NAME" | tr '\n' ' ')"
+            PARAGRAPHE_NAME_FINAL="$(echo "$PARAGRAPHE_SANS_RETOUR_LIGNE_NAME")" # pour simplifier le nom de variable pour la rédaction ensuite
+            # Section DESCRIPTION
+            SECTION_DESCRIPTION="$(grep -m 1 -A 5 'DESCRIPTION' < <(man "$COMMANDE" | col -bx ))"
+            PARAGRAPHE_DESCRIPTION="$(awk '/DESCRIPTION/ { indic=1 ; getline ; } { if (indic == 1) { print $0} } /^$/ { indic=0 }' <<< $SECTION_DESCRIPTION )"
+            PARAGRAPHE_SANS_ESPACE_DEBUT_FIN_DESCRIPTION="$(sed -e 's/[[:space:]]*$//' -e 's/^[[:space:]]*//' <<< $PARAGRAPHE_DESCRIPTION)"
+            PARAGRAPHE_SANS_RETOUR_LIGNE_DESCRIPTION="$(echo "$PARAGRAPHE_SANS_ESPACE_DEBUT_FIN_DESCRIPTION" | tr '\n' ' ')"
+            PARAGRAPHE_DESCRIPTION_FINAL="$(echo "$PARAGRAPHE_SANS_RETOUR_LIGNE_DESCRIPTION")" # pour simplifier le nom de variable pour la rédaction ensuite
+            # Fin transformation des 2 sections
+
+            # Rédaction des informations dans le fichier
+            echo -e "\"$COMMANDE\" : " >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS 
+            # Rédaction du paragraphe NAME que si plus de X mots
+            NB_MOT_DS_NAME=$(echo "$PARAGRAPHE_NAME_FINAL" | tr " " "\n" | grep -c $ )
+            if [ $NB_MOT_DS_NAME -lt $NB_MOTS_MINIMUM_PR_AFFICHAGE ]
+            then
+                :
+            else
+                echo -e "\tNAME :"  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+                { echo -e "\t\t$PARAGRAPHE_NAME_FINAL" ; } | fmt  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+            fi
+            # Rédaction du paragraphe DESCRIPTION que si plus de X mots
+            NB_MOT_DS_DESCRIPTION=$(echo "$PARAGRAPHE_DESCRIPTION_FINAL" | tr " " "\n" | grep -c $ )
+            if [ $NB_MOT_DS_DESCRIPTION -lt $NB_MOTS_MINIMUM_PR_AFFICHAGE ]
+            then
+                :
+            else
+                echo -e "\tDESCRIPTION :"  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+                { echo -e "\t\t$PARAGRAPHE_DESCRIPTION_FINAL" ; } | fmt  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+            fi
+            echo "" >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+        fi
+    else
+        # Rédaction des informations dans le fichier
+        echo -e "\"$COMMANDE\" : " >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+        TYPE_COMMANDE="$(type -t "$COMMANDE")"
+        echo -e "\tLa commande \"$COMMANDE\" de type \"$TYPE_COMMANDE\" ne possède pas de page manuel dédiée."  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+        echo -e "\tTapez \"help $COMMANDE\", \"info $COMMANDE\" ou \"$COMMANDE\" pour essayer d'obtenir davantage d'informations."  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+        echo "" >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+    fi
+done
+
+echo "Fin de la rédaction du fichier : ${NOM_FICHIER_DE_STOCKAGE_INFORMATIONS@Q}."
+# Retour au répertoire d'origine
+cd $OLDPWD
