@@ -73,7 +73,7 @@ function calculatrice_appel_script {
 
 function question_oui_non {
     local -n REPONSE_UTILISATEUR=$1
-    local QUESTION_POSEE="$2"
+    local -n QUESTION_POSEE="$2"
     echo "" # esthétique
     read -p "$QUESTION_POSEE" CHOIX
     case "$CHOIX" in

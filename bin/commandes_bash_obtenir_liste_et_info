@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
+source fonctions_personnelles
 
-# Améliorations 4x :
-# Adapter le contenu conservé selon tous les types
-# Types :
+# Ce script ouvrira l'app TextEditor de MacOs si je valide l'ouverture du fichier.
+# Il n'est donc pas portable en dehors de MacOs.
+# Ligne à remplacer si run dans un autre environnement :
+#    { open -a TextEdit $PATH_DU_FICHIER &&
+
+# Types de mots traités :
 # - alias -> aucun alias dans mon environnement actuel donc pas traité dans ce script
-# 1. >>>>>>> à TRAITER - builtins -> contenu de "help NOM" -> à ajouter au script
-# 2. >>>>>>> à TRAITER - commands (type files) -> man NOM ou help NOM ou info NOM -> à ajouter au script car seul le 'man NOM' est traité
+# - builtins -> contenu de "help NOM"
+# - commands (type files) -> seul le contenu de "man NOM" est traité (pas "help NOM" ni "info NOM")
 # - functions -> aucune fonction dans mon environnement actuel donc pas traité dans ce script
-# - keywords -> pas d'informations disponibles > rediriger sur la documentation officielle > site > bonne section
-# si la commande est un builtins, alors remplacer par help commande + modifier le contenu conservé
-# Autre amélioration 
-# 3. >>>>>>> à TRAITER - ajouter un avertissement OUI/NON avant de run le fichier en prévenant que long (environ X minutes) + que données précédentes effacées
-# Autre amélioration
-# 4. >>>> proposer d'ouvrir le fichier > puis si oui > ouvrir avec un éditeur de texte (via une app pas via le terminal)
+# - keywords -> pas d'informations disponibles
 
 # Remarques diverses :
 # Ce message peut être ignoré : 
 #This manpage is not compatible with mandoc(1) and might display incorrectly.
 # Il annonce que ce n'est pas une page de manuel typique mais la copie des sections
 # fonctionne et peut donc être ignorée.
+
 : <<-EXPLICATIONS_SUR_COMPGEN
 compgen -a # will list all the aliases you could run.
 compgen -b # will list all the built-ins you could run.
@@ -28,8 +28,52 @@ compgen -A function # will list all the functions you could run.
 compgen -A function -abck # will list all the above in one go.
 EXPLICATIONS_SUR_COMPGEN
 
+function redaction_message_erreur_dans_fichier {
+    local -n CMD="$1"
+    local -n FCH="$2"
+    # $1 = commande entre guillemets simple
+    # $2 = fichier entre guillemets simple
+    # Rédaction des informations dans le fichier
+    echo -e "\"$CMD\" : " >> $FCH
+    TYPE_COMMANDE="$(type -t "$CMD")"
+    echo -e "\tLa commande \"$CMD\" de type \"$TYPE_COMMANDE\" ne possède pas de page manuel dédiée."  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+    echo -e "\tTapez \"help $CMD\", \"info $CMD\" ou \"$CMD\" pour essayer d'obtenir davantage d'informations."  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+    echo "" >> $FCH
+}
+
+
+
 # Fichier de stockage des données
 NOM_FICHIER_DE_STOCKAGE_INFORMATIONS='commandes_bash_liste_et_description.txt'
+
+QUESTION="Voudriez-vous ouvrir le fichier (OoYy/Nn) ? "
+REPONSE=""
+
+question_oui_non REPONSE QUESTION
+if [ $REPONSE = 'o' ]
+then
+    PATH_DU_FICHIER="$REPERTOIRE_DES_COMMANDES_PERSO/$NOM_FICHIER_DE_STOCKAGE_INFORMATIONS"
+    { open -a TextEdit $PATH_DU_FICHIER &&
+    echo -e "\nOuverture du fichier ${NOM_FICHIER_DE_STOCKAGE_INFORMATIONS@Q}.\n" ; } ||
+    echo -e "\nERREUR : le fichier ${NOM_FICHIER_DE_STOCKAGE_INFORMATIONS@Q} situé $PATH_DU_FICHIER n'a pas pu être ouvert.\n"
+    exit 0
+else
+    :
+fi
+
+QUESTION="Êtes-vous sûr de vouloir lancer ce (long) script pour recharger les données ?
+Il dure environ 5 minutes... (OoYy/Nn) ? "
+REPONSE=""
+question_oui_non REPONSE QUESTION
+if [ $REPONSE = 'o' ]
+then
+    echo ""
+    :
+else
+    echo -e "\nVous quittez sans lancer le (long) script.\n"
+    exit 0
+fi
+
 
 # Récupération de toutes les commandes bash brutes (non triées)
 declare -a TABLEAU_DE_COMMANDE_BASH # tableau des commandes 
@@ -45,7 +89,7 @@ done < <(compgen -A function -abck | sort -fu)
 # Rédaction entête du fichier
 cd $REPERTOIRE_DES_COMMANDES_PERSO # aller dans le bon répertoire 
 NB_MOTS_MINIMUM_PR_AFFICHAGE=3
-
+NB_LIGNES_APRES_MATCH=10
 echo "Bash :" > $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS # effacement contenu précédemment enregistré
 echo "- Liste des aliases, builtins, commands (=files), functions et keywords et informations." >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS 
 echo "- Les sections NAME et DESCRIPTION sont affichées pour chaque commande si celles-ci dépassent $NB_MOTS_MINIMUM_PR_AFFICHAGE mots." >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
@@ -55,7 +99,7 @@ echo "" >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
 TAILLE_TABLEAU_COMMANDE_BASH=${#TABLEAU_DE_COMMANDE_BASH[@]}
 NUM_COMMANDE_BASH_EN_COURS=0
 
-echo "Taille : $TAILLE_TABLEAU_COMMANDE_BASH"
+echo "Nombre de mots utilisés par le shell Bash : $TAILLE_TABLEAU_COMMANDE_BASH"
 for COMMANDE in "${TABLEAU_DE_COMMANDE_BASH[@]}"
 do
     # Ajout de pourcentage d'avancement de la tâche
@@ -72,22 +116,19 @@ do
         # Tri de celles qui possède de l'information du manuel ou pas et rédaction selon résultat
         if (($?))
         then
-            # Rédaction des informations dans le fichier
-            echo -e "\"$COMMANDE\" : " >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
-            TYPE_COMMANDE="$(type -t "$COMMANDE")"
-            echo -e "\tLa commande \"$COMMANDE\" de type \"$TYPE_COMMANDE\" ne possède pas de page manuel dédiée."  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
-            echo -e "\tTapez \"help $COMMANDE\", \"info $COMMANDE\" ou \"$COMMANDE\" pour essayer d'obtenir davantage d'informations."  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
-            echo "" >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+            redaction_message_erreur_dans_fichier COMMANDE NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
         else
             # Transformation des 2 section name et description (suppression du titre de section, récupération du paragraphe et suppression d'espace avant / après celui-ci)
             # Section NAME
-            SECTION_NAME="$(grep -m 1 -A 5 'NAME' < <(man "$COMMANDE" | col -bx ))"
+            SECTION_NAME="$(grep -m 1 -A $NB_LIGNES_APRES_MATCH 'NAME' < <(man "$COMMANDE" | col -bx ))"
+            # grep -m : le nombre max de match avant que grep s'arrête de rechercher
+            # grep -A : le nb de ligne après le match à afficher
             PARAGRAPHE_NAME="$(awk '/NAME/ { indic=1 ; getline ; } { if (indic == 1) { print $0} } /^$/ { indic=0 }' <<< $SECTION_NAME )"
             PARAGRAPHE_SANS_ESPACE_DEBUT_FIN_NAME="$(sed -e 's/[[:space:]]*$//' -e 's/^[[:space:]]*//' <<< $PARAGRAPHE_NAME)"
             PARAGRAPHE_SANS_RETOUR_LIGNE_NAME="$(echo "$PARAGRAPHE_SANS_ESPACE_DEBUT_FIN_NAME" | tr '\n' ' ')"
             PARAGRAPHE_NAME_FINAL="$(echo "$PARAGRAPHE_SANS_RETOUR_LIGNE_NAME")" # pour simplifier le nom de variable pour la rédaction ensuite
             # Section DESCRIPTION
-            SECTION_DESCRIPTION="$(grep -m 1 -A 5 'DESCRIPTION' < <(man "$COMMANDE" | col -bx ))"
+            SECTION_DESCRIPTION="$(grep -m 1 -A $NB_LIGNES_APRES_MATCH 'DESCRIPTION' < <(man "$COMMANDE" | col -bx ))"
             PARAGRAPHE_DESCRIPTION="$(awk '/DESCRIPTION/ { indic=1 ; getline ; } { if (indic == 1) { print $0} } /^$/ { indic=0 }' <<< $SECTION_DESCRIPTION )"
             PARAGRAPHE_SANS_ESPACE_DEBUT_FIN_DESCRIPTION="$(sed -e 's/[[:space:]]*$//' -e 's/^[[:space:]]*//' <<< $PARAGRAPHE_DESCRIPTION)"
             PARAGRAPHE_SANS_RETOUR_LIGNE_DESCRIPTION="$(echo "$PARAGRAPHE_SANS_ESPACE_DEBUT_FIN_DESCRIPTION" | tr '\n' ' ')"
@@ -116,13 +157,29 @@ do
             fi
             echo "" >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
         fi
+    elif [ "$(type -t "$COMMANDE")" = 'builtin' ]
+    then
+        help "$COMMANDE" > /dev/null 2>&1 # test s'il y a une page du manuel dédiée à la commande.
+        # Tri de celles qui possède de l'information du manuel ou pas et rédaction selon résultat
+        if (($?))
+        then
+            redaction_message_erreur_dans_fichier COMMANDE NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+        else
+            # Récupération et mise en forme du contenu souhaité
+            SECTION_BUILTIN="$(grep -m 1 -A 10 "$COMMANDE" < <(help "$COMMANDE" | col -bx ))"
+            DEUX_PREMIER_PARAGRAPHES_BUILTIN="$(awk -v NOM_COMMANDE=$COMMANDE: ' { if ($0 ~ NOM_COMMANDE  || $0 ~ /^$/ ) { indic++; getline ; }} { if (indic<3) { print $0} } ' <<< $SECTION_BUILTIN )"
+            DEUX_PREMIER_PARAGRAPHES_SANS_TABULATIONS_BUILTIN="$(sed -e 's/^[\t]*//' <<< $DEUX_PREMIER_PARAGRAPHES_BUILTIN)"
+            DEUX_PARAGRAPHES_SANS_ESPACE_DEBUT_FIN_BUILTIN="$(sed -e 's/[[:space:]]*$//' -e 's/^[[:space:]]*//' <<< $DEUX_PREMIER_PARAGRAPHES_SANS_TABULATIONS_BUILTIN)"
+            PARAGRAPHE_SANS_RETOUR_LIGNE_BUILTIN="$(echo "$DEUX_PARAGRAPHES_SANS_ESPACE_DEBUT_FIN_BUILTIN" | tr '\n' ' ' )"
+            PARAGRAPHE_FINAL_BUILTIN="$PARAGRAPHE_SANS_RETOUR_LIGNE_BUILTIN"
+            # Rédaction dans le fichier
+            echo -e "\"$COMMANDE\" : " >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+            echo -e "\tDESCRIPTION :"  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+            { echo -e "\t\t$PARAGRAPHE_FINAL_BUILTIN" ; } | fmt  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+            echo "" >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+        fi
     else
-        # Rédaction des informations dans le fichier
-        echo -e "\"$COMMANDE\" : " >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
-        TYPE_COMMANDE="$(type -t "$COMMANDE")"
-        echo -e "\tLa commande \"$COMMANDE\" de type \"$TYPE_COMMANDE\" ne possède pas de page manuel dédiée."  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
-        echo -e "\tTapez \"help $COMMANDE\", \"info $COMMANDE\" ou \"$COMMANDE\" pour essayer d'obtenir davantage d'informations."  >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
-        echo "" >> $NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
+        redaction_message_erreur_dans_fichier COMMANDE NOM_FICHIER_DE_STOCKAGE_INFORMATIONS
     fi
 done
 

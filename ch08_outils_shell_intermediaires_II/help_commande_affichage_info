@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Script de développement non utile - peut être modifié
+
+#SECTION_BUILTIN="$(grep -m 1 -A 5 'NAME' < <(help "$COMMANDE" | col -bx ))"
+#$(grep -m 1 -A 5 'NAME' < <(help "$COMMANDE" | col -bx ))"
+COMMANDE='builtin'
+SECTION_BUILTIN="$(grep -m 1 -A 10 "$COMMANDE" < <(help "$COMMANDE" | col -bx ))"
+DEUX_PREMIER_PARAGRAPHES_BUILTIN="$(awk -v NOM_COMMANDE=$COMMANDE: ' { if ($0 ~ NOM_COMMANDE  || $0 ~ /^$/ ) { indic++; getline ; }} { if (indic<3) { print $0} } ' <<< $SECTION_BUILTIN )"
+DEUX_PREMIER_PARAGRAPHES_SANS_TABULATIONS_BUILTIN="$(sed -e 's/^[\t]*//' <<< $DEUX_PREMIER_PARAGRAPHES_BUILTIN)"
+DEUX_PARAGRAPHES_SANS_ESPACE_DEBUT_FIN_BUILTIN="$(sed -e 's/[[:space:]]*$//' -e 's/^[[:space:]]*//' <<< $DEUX_PREMIER_PARAGRAPHES_SANS_TABULATIONS_BUILTIN)"
+PARAGRAPHE_SANS_RETOUR_LIGNE_BUILTIN="$(echo "$DEUX_PARAGRAPHES_SANS_ESPACE_DEBUT_FIN_BUILTIN" | tr '\n' ' ' )"
+PARAGRAPHE_NAME_BUILTIN="$PARAGRAPHE_SANS_RETOUR_LIGNE_BUILTIN"
