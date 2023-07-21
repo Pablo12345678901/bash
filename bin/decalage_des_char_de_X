@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+
+# Optimisations potentielles du script :
+# Débugguer :
+#   - Il y a un bug sur ce script.
+#   - Le bug se produit avec le décalage de 2 et avec tout décalage au-delà de 5 ('tr: Illegal byte sequence')
+#   - Solution :
+#       - faire une rotation si l'intervalle va au-delà d'un certains char > le convertir en le char de début + X du dépassement
+#           - cela suppose de devoir diviser un intervalle et plusieurs si nécessaire
+# - Mesurer les intervalles (avant et après) et comparaison pour être certains que mêmes intervalles x2 -> à faire
+# - Effectuer un décalage différent sur plusieurs intervalle (plus que 2) -> quasi ok
+# - Comparer le résultat final et initial char par char pour valider si ok
+# - Quasi automatiser la création d'intervalle (qui se suivent - à coder - avec éventuellement des tailles d'intervalle random)
+# - Sauvegarder les clefs de décryptage à un endroit sécurisé
+# - Transformer le script pour accueillir un string entre guillemets simple à l'entrée et retourner un string crypté en sortie + stocker la clef de décriptage à un endroit
+
+# ord: the ascii value of a character
+# $ ord "A" #=> 65
+function ord() {
+    printf "%d" "\"$1"
+}
+# chr: the character represented by the given ASCII decimal value
+# $ chr 65 #=> A
+function chr() {
+    printf "\x$(printf "%x" $1)"
+}
+
+# chr 65#=>65+-NB
+function decalage() {
+    # Argument nécessaire :
+    # $1 : CHR_FORMAT_NUM
+    # $2 : DECALAGE_DE (nb)
+    RESULTAT="$(($1 + $2))"
+    printf "%d" $RESULTAT
+}
+
+
+DECALLAGE_SOUHAITE=1
+
+
+CHAR_DEBUT_PREMIER_INTERVALLE='A'
+CHAR_FIN_PREMIER_INTERVALLE='Z'
+CHAR_DEBUT_DEUXIEME_INTERVALLE='a'
+CHAR_FIN_DEUXIEME_INTERVALLE='z'
+
+declare -a TABLEAU_CHAR_AVANT_TRANSFORMATION
+declare -a TABLEAU_CHAR_APRES_TRANSFORMATION
+declare -a TABLEAU_DECALAGE
+
+# Remplissage tableau initial intervalle
+TABLEAU_CHAR_AVANT_TRANSFORMATION+=('A')
+TABLEAU_CHAR_AVANT_TRANSFORMATION+=('Z')
+TABLEAU_CHAR_AVANT_TRANSFORMATION+=('a')
+TABLEAU_CHAR_AVANT_TRANSFORMATION+=('z')
+
+# Obtention taille tableau
+TAILLE_TABLEAU_INTERVALLES=${#TABLEAU_CHAR_AVANT_TRANSFORMATION[@]}
+#echo "$TAILLE_TABLEAU_INTERVALLES"
+
+# Contrôle que taille divisible par 2 (=nb d'extrêmités paire) et si oui, alors remplissage du tableau des décallages
+if ((TAILLE_TABLEAU_INTERVALLES % 2))
+then
+    echo "ERREUR : le tableau des intervalle ne possède pas un nombre pair de valeurs."
+    exit 1
+else
+    TAILLE_TABLEAU_DECALAGE=$((TAILLE_TABLEAU_INTERVALLES / 2 ))
+    for ((i=0; i<$TAILLE_TABLEAU_DECALAGE; i++))
+    do
+        NUMERO_INTERVALLE=$((i + 1))
+        read -p "Décalage pour l'intervalle $NUMERO_INTERVALLE/$TAILLE_TABLEAU_DECALAGE " TABLEAU_DECALAGE[$i]
+    done
+fi
+
+# Remplissage tableau final intervalle sur base du tableau initial
+INDEX_TABLEAU_DECALAGE=0
+AUGMENTER_INDEX="false"
+for ((i=0; i<$TAILLE_TABLEAU_INTERVALLES; i++))
+do
+    CHAR_DEBUT="${TABLEAU_CHAR_AVANT_TRANSFORMATION[$i]}" # récupération du char depuis le tableau initial
+    CHAR_FORMAT_NB=$(ord $CHAR_DEBUT)
+    if [ $AUGMENTER_INDEX = "true" ]
+    then
+        CHAR_FORMAT_NB="$(decalage $CHAR_FORMAT_NB ${TABLEAU_DECALAGE[$INDEX_TABLEAU_DECALAGE]} )" # décalage du char
+        ((INDEX_TABLEAU_DECALAGE++)) # incrémentation si 'true'
+        AUGMENTER_INDEX="false"
+    else
+        CHAR_FORMAT_NB="$(decalage $CHAR_FORMAT_NB ${TABLEAU_DECALAGE[$INDEX_TABLEAU_DECALAGE]} )" # décalage du char
+        AUGMENTER_INDEX="true"
+    fi
+    CHAR_FIN="$(chr $CHAR_FORMAT_NB)"
+    TABLEAU_CHAR_APRES_TRANSFORMATION[$i]="$CHAR_FIN" # stockage du nouveau char dans le tableau final
+done
+
+INTERVALLE_AVANT_MODIFICATION=""
+INTERVALLE_APRES_MODIFICATION=""
+AVEC_TIRET="false"
+for ((i=0; i<$TAILLE_TABLEAU_INTERVALLES; i++))
+do
+    # ZONE DU BUG
+    # Gestion des char spéciaux sur les extrémité de l'intervalle -> si spécial alors ajout du '\' avant
+    if [[ ${TABLEAU_CHAR_APRES_TRANSFORMATION[$i]} =~ ('('|'^'|'$'|'|'|'['|']'|'('|')'|'\'|'.'|'*'|'+'|'?'|'’'|')'|'{'|'}') ]]
+    then
+        echo "ICI"
+        TABLEAU_CHAR_APRES_TRANSFORMATION[$i]="\\${TABLEAU_CHAR_APRES_TRANSFORMATION[$i]}"
+        echo "${TABLEAU_CHAR_APRES_TRANSFORMATION[$i]}"
+    else
+        echo "LA"
+        echo "\"${TABLEAU_CHAR_APRES_TRANSFORMATION[$i]}\""
+    fi
+    # Ajout du char à l'intervalle
+    if [ $AVEC_TIRET = "true" ]
+    then
+        INTERVALLE_AVANT_MODIFICATION+="-${TABLEAU_CHAR_AVANT_TRANSFORMATION[$i]}"
+        INTERVALLE_APRES_MODIFICATION+="-${TABLEAU_CHAR_APRES_TRANSFORMATION[$i]}"
+        AVEC_TIRET="false"
+    else
+        INTERVALLE_AVANT_MODIFICATION+="${TABLEAU_CHAR_AVANT_TRANSFORMATION[$i]}"
+        INTERVALLE_APRES_MODIFICATION+="${TABLEAU_CHAR_APRES_TRANSFORMATION[$i]}" 
+        AVEC_TIRET="true"
+    fi
+done
+
+echo "$INTERVALLE_AVANT_MODIFICATION"
+echo "$INTERVALLE_APRES_MODIFICATION"
+#INTERVALLE_APRES_MODIFICATION="$INTERVALLE_AVANT_MODIFICATION" # à adapter
+
+MESSAGE_AVANT="Je suis un lapin."
+echo "\"$MESSAGE_AVANT\""
+MESSAGE_APRES="$(echo "$MESSAGE_AVANT" | tr "$INTERVALLE_AVANT_MODIFICATION" "$INTERVALLE_APRES_MODIFICATION")"
+echo "\"$MESSAGE_APRES\""
+MESSAGE_TEST_AVANT="$(echo "$MESSAGE_APRES" | tr "$INTERVALLE_APRES_MODIFICATION" "$INTERVALLE_AVANT_MODIFICATION")"
+echo "\"$MESSAGE_TEST_AVANT\""
+echo ""
+echo "Comparaison char par char (affichage, pas test)"
+echo "\"$MESSAGE_AVANT\""
+echo "\"$MESSAGE_TEST_AVANT\""

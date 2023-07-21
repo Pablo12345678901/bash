@@ -4,7 +4,7 @@ source fonctions_personnelles
 # Demande si souhait de push Git avant d'éteindre
 QUESTION="Souhaiteriez-vous git push avant d'éteindre l'ordinateur ? (Oo/Nn) "
 REPONSE=''
-question_oui_non REPONSE "$QUESTION"
+question_oui_non REPONSE QUESTION
 
 if [ $REPONSE == 'o' ]
 then
