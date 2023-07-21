@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+FICHIER="$REPERTOIRE_DEVELOPPEMENT/bash/zzz_test_git.txt"
+
+echo "Global : $(wc $FICHIER)"
+# Affichage du nombre de : 
+# - bytes (par forcément égal au nombre de char si multibytes char sont tolérés)
+# - lignes (comptées par le nombre de \n)
+# - mots
+echo ""
+
+echo "Bytes : $(wc -c $FICHIER)"
+# souvent équivalent au nombre de char si les char multibytes ne sont pas supportés par l'environnement
+echo ""
+
+echo "Lignes : $(wc -l $FICHIER)"
+# Comptées par le nombre de \n -> donc si une ligne se termine sans retour à la ligne
+# elle ne sera pas comptabilisée
+echo ""
+
+echo "Char : $(wc -m $FICHIER)"
+echo ""
+
+echo "Mots : $(wc -w $FICHIER)"
+echo ""
+
+
+wc -w $FICHIER | awk ' { print $1} '
+# Affichage de la données sans le nom de fichier
+echo ""
+
+wc $FICHIER | awk ' {for (i = 1; i <NF; i++) { printf $i " " } }'
+echo ""

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+FICHIER="$REPERTOIRE_DEVELOPPEMENT/bash/zzz_test_git.txt"
+fmt 20 30 < $FICHIER
+# 20 = le but = la taille souhaitée
+# 30 = la taille maximum de ligne
+# par défaut : but = 65 et max = but +10char
