@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+find / -name '*.mp3' -print -exec cp '{}' ~/Desktop/MP3 \;
+# '/' : recherche de manière récursive à partir du path '/'
+# -name : match les fichiers qui se terminent avec l'extension .mp3
+# -print : affiche les résultats sur STDOUT
+# EXEC :
+# - exec : exécute une commande
+# “{}” : Combiné avec exec représente chaque path de match
+# \; : obligatoire avec exec doit être antislashé pour ne pas être considéré comme une fin de commande
+
+find / -name '*.mp3' -print0
