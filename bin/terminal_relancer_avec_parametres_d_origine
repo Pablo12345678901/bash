@@ -3,3 +3,4 @@
 # Cela recharge le profil bash et remet toute la configuration
 # comme si j'avais redémarré l'app terminal
 exec bash -l # relance "bash" en rajoutant un tiret devant
+# ou source ~/.profile

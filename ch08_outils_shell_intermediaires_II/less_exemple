@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+FICHIER="$REPERTOIRE_DEVELOPPEMENT/bash/fichier_bidon.txt"
+#FICHIER="$REPERTOIRE_DES_COMMANDES_PERSO/commandes_bash_liste_et_description.txt"
+#FICHIER="$REPERTOIRE_DES_COMMANDES_PERSO/commandes_perso_liste"
+less $FICHIER

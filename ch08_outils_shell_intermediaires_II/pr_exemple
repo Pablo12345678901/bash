@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+#FICHIER="$REPERTOIRE_DEVELOPPEMENT/bash/fichier_bidon.txt"
+FICHIER="$REPERTOIRE_DES_COMMANDES_PERSO/commandes_bash_liste_et_description.txt"
+pr $FICHIER
+# Affiche fichier txt avec une pagination.
+# Comportement par défaut :
+# - 66 lignes par pages
+# - 5 lignes de header sur chaque page avec :
+#        page number, date, time, and the pathname of the file
+#       pas forcément dans cet ordre
+# - 5 lignes blanche en fin de chaque page.
+# - 1 seule colonne
+# Options (notamment): 
+# +page : Peut aussi gérer le nombres de colonnes (exemple texte à 2 colonnes comme journal)
+# -column : Peut afficher une partie de la pagination uniquement (exemple : début à page 2) (si texte plus long que colonne alors tronqué - coupé et supprimé)

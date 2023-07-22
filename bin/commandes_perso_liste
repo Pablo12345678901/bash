@@ -15,6 +15,7 @@ DERNIERE_OPTION=${#LISTE_COMMANDE[@]}
 # Sélection de la commande à exécuter avec possibilité de quitter
 CHOIX=""
 
+
 # Gestion d'un éventuel argument (index+1 passé en argument)
 if [ -z "$1" ]
 then

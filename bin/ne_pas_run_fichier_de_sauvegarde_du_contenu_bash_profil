@@ -16,25 +16,36 @@ fi
 ################################
 # _remove $1 from PATH
 _path_del() {
-    local _l=":$PATH:"
-    while [[ $_l =~ :$1: ]]; do
-          _l=${_l//:$1:/:}
+    local -n VAR_A_MODIF_DEL=$1
+    local _l=":$VAR_A_MODIF_DEL:"
+    # $2 = path à supprimer
+    while [[ $_l =~ :$2: ]]; do
+          _l=${_l//:$2:/:}
     done
     _l=${_l%:}
     _l=${_l#:}
-    PATH="$_l"
+    VAR_A_MODIF_DEL="$_l"
 }
 
 # _prepend : prepend $1 to PATH.
 _path_prepend() {
-    _path_del "$1"
-    PATH="$1:$PATH"
+    local -n VAR_A_MODIF_PREPEND=$1
+    # $2 : le path à ajouter
+    _path_del "$2"
+    VAR_A_MODIF_PREPEND="$2:$VAR_A_MODIF_PREPEND"
 }
 
 # _append : append $1 to PATH.
 _path_append() {
-    _path_del "$1"
-    PATH="$PATH:$1"
+    local -n VAR_A_MODIF_APPEND=$1
+    # $2 : le path à ajouter
+    _path_del VAR_A_MODIF_APPEND "$2"
+    if [ -z "$VAR_A_MODIF_APPEND" ] # if lenght is 0
+    then
+        VAR_A_MODIF_APPEND="$2" # adding path without separator
+    else
+        VAR_A_MODIF_APPEND="$VAR_A_MODIF_APPEND:$2" # adding path with separator ':' before
+    fi
 }
 
 # ajout_element_tableau : argument 1 = tableau / argument 2 = élément à ajouter
@@ -72,11 +83,14 @@ ajout_au_tableau liste_path "$REPERTOIRE_DES_COMMANDES_PERSO"
 # Ajouter chaque élément du tableau à $PATH
 for path_a_ajoute in "${liste_path[@]}"
 do
-    _path_del $path_a_ajoute # supprime les doublons
-    _path_append $path_a_ajoute # ajoute en fin
+    _path_del PATH $path_a_ajoute # supprime les doublons
+    _path_append PATH $path_a_ajoute # ajoute en fin
 done
 
 export PATH
+
+# Pour lesspipe, une extension utile à la commande less de Bash
+export LESSOPEN="|/usr/local/bin/lesspipe.sh %s"
 
 TITRE_FICHIER_SAUVEGARDE_PROFIL_BASH="ne_pas_run_fichier_de_sauvegarde_du_contenu_bash_profil"
 # Sauvegarde du profil dans le répertoire des commandes personnelles
