@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+NEWDIR=~/Desktop/test12
+mkdir $NEWDIR
+find -L / -name '*.mp3' -print0 | xargs -0 mv '{}' $NEWDIR
+# find -L follow the symlink and return the info from the real file

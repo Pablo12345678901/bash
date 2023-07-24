@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+INDEX=0
+while read OUTPUT; do
+    echo -e "${OUTPUT}\n"
+    # J'insère mes arguments au fur et à mesure ici
+    echo "$((++INDEX))\n"
+done < <(locate *ces.txt) | tr '\n' '\0'  | xargs -0 -n 2 sh -c 'echo "arg0: $0 arg1: $1"'
+# xargs -0 : séparateur = '\0'
+# xargs -n NB : j'adapte le nombre d'argument que je prends ici
+
+# Debug si besoin
+: <<DEBUGPOURAFFICHAGECOMMANDESANSTRAITEMENT
+while read OUTPUT; do
+    echo -e "${OUTPUT}\n"
+done < <(locate *ces.txt)
+echo ""
+DEBUGPOURAFFICHAGECOMMANDESANSTRAITEMENT

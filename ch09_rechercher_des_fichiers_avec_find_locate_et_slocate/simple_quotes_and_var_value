@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# Création de valeur entre guillemets simple
+# contenant des valeurs de variables entre guillemets doubles
+# Attention : recommandation de passer par des arguments positionnels pour éviter des hacks.
+variable=", in the middle, "
+VAR1='before'"$variable"'after'
+VAR2='before'"'"'after'
+VAR3='before'\''after'
+# Affichage du string entre guilemets
+echo "\"$VAR1\""
+echo "\"$VAR2\""
+echo "\"$VAR2\""
+# Affichage du string tel que fourni avec/sans guilemets simple/double
+echo "${VAR1@Q}"
+echo "${VAR2@Q}"
+echo "${VAR3@Q}"
+# Ajout des l'élément au tableau
+TABLEAU+=("${VAR1@Q}")
+TABLEAU+=("Autre string") # ajout d'une autre valeur au tableau
+# Affichage des éléments du tableau
+for element in "${TABLEAU[@]}"
+do  
+    echo "ELEMENT : $element"
+done

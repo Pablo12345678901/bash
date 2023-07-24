@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+while read OUTPUT; do
+    echo -e "${OUTPUT}\n"
+done < <(locate *ces.txt)
+echo ""
+
+while read OUTPUT; do
+    echo -e "${OUTPUT}\n"
+done < <(locate *ces.txt) | tr '\n' '\0'  | xargs -0 -n 1 sh -c 'cp "$0" ~/Desktop/test1234'
+
+echo "Copie finie"

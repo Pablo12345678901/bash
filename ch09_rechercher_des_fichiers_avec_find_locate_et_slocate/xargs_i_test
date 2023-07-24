@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+DIR_CIBLE=~/Desktop/test2
+
+declare -a TABLEAU_ARGUMENT
+COMPTEUR_ARGUMENT=0
+NB_SOUHAITE=3
+while read OUTPUT; do
+    TABLEAU_ARGUMENT=( "${TABLEAU_ARGUMENT[@]}" "$OUTPUT" ) # ajout de l'argument au tableau
+    ((COMPTEUR_ARGUMENT++)) # incrémentation
+    if [ $COMPTEUR_ARGUMENT -eq $NB_SOUHAITE ]
+    then 
+        # exécution de la commande avec NB_SOUHAITE argument(s)
+        echo "Gestion commande avec arguments complets"
+        echo -e "\n\nArgument :\n1. ${TABLEAU_ARGUMENT[0]}\n2. ${TABLEAU_ARGUMENT[1]}\n3. ${TABLEAU_ARGUMENT[2]}\n\n"
+        TABLEAU_ARGUMENT=() # vider le tableau
+        COMPTEUR_ARGUMENT=0 # remise à 0 du compteur
+    else
+        :
+    fi
+done < <(locate *ces.txt)
+# Gestion des arguments restants
+if (( ${#TABLEAU_ARGUMENT[@]} ))
+then
+    for element in "${TABLEAU_ARGUMENT[@]}"
+    do
+        echo "Gestion commande avec arguments restants"
+        echo -e "\nArgument : $element"
+    done
+else
+    :
+fi
+TABLEAU_ARGUMENT=() # vidage du tableau
+COMPTEUR_ARGUMENT=0 # remise à 0 du compteur
+
+#done < <(find '/Users/pablo/Desktop/test' -print)
+
+: <<DEV
+for path in "${ARRAY[@]}"
+do
+    echo "\"$path\""
+    cp "$path" "$DIR_CIBLE"
+done
+DEV
