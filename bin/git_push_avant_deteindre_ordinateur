@@ -10,7 +10,6 @@ if [ $REPONSE == 'o' ]
 then
     while [ $REPONSE == 'o' ]
     do
-        echo "DEBUG GIT COMMIT OUI"
         git_commit_avec_ou_sans_message
         QUESTION="Y a-t-il d'autre répertoire à push ? (Oo/Nn) "
         REPONSE=''

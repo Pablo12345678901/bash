@@ -7,63 +7,54 @@ declare -a TABLEAU_FICHIERS_RESTANTS # pour l'affichage final
 PATH_CORBEILLE=$HOME/.Trash/*
 
 # Obtention de la liste des fichiers initiaux
-for file in $PATH_CORBEILLE
+while read OUTPUT
 do
-    filename="${file##*/}"
-    if [ "$filename" != "*" ]
-    then
-        TABLEAU_FICHIERS+=("$filename")
-        TABLEAU_PATH+=("$file")
-    else
-        :
-    fi
-done
+  TABLEAU_PATH=( "${TABLEAU_PATH[@]}" "$OUTPUT" ) # ajoute la nouvelle valeur à la suite des valeurs actuelles
+done < <(find $PATH_CORBEILLE -print 2>/dev/null | xargs -0 )
 
-# Affichage du contenu de cette liste
-if [ ${#TABLEAU_FICHIERS[@]} -ne 0 ] # si tableau n'est pas vide
+# Exit si tableau vide
+if [ ${#TABLEAU_PATH[@]} -eq 0 ] 
 then
-    echo -e "\nListe des fichiers dans la corbeille :"
-    for filename in "${TABLEAU_FICHIERS[@]}"
-    do
-        echo "$filename"
-    done
-else
     echo -e "\nLa corbeille est déjà vide...\n"
     exit 0
+else
+    # Récupération noms de fichiers et affichage
+    echo -e "\nListe des fichiers dans la corbeille :"
+    while read OUTPUT
+    do
+        echo "$OUTPUT"
+        TABLEAU_FICHIERS=( "${TABLEAU_FICHIERS[@]}" "$OUTPUT" ) # ajoute la nouvelle valeur à la suite des valeurs actuelles
+    done < <(find $PATH_CORBEILLE -print0 2>/dev/null | xargs -0 basename )
 fi
 
+# Vidage corbeille
 echo -e "\nVidage de la corbeille..."
 for file in "${TABLEAU_PATH[@]}"
 do
     filename="${file##*/}"
-    rm -rf "$file" # &&
-    #echo "Fichier \"$filename\" supprimé..." ||
-    #echo -e "\nERREUR : le fichier \"$filename\" n'a pas pu être supprimé.\n"
+    # Tentative de suppression
+    rm -fr "$file" ||
+    { echo -e "\nERREUR : le fichier \"$filename\" n'a pas pu être supprimé.\n" && continue ; }
+    # Affichage du fichier que si supprimé
+    echo "$filename"
 done
 
 # Obtention de la liste des fichiers finaux
-for file in $PATH_CORBEILLE
-do
-    filename="${file##*/}"
-    if [ "$filename" != "*" ]
-    then
-        TABLEAU_FICHIERS_RESTANTS+=("$filename")
-    else
-        :
-    fi
-done
+while read OUTPUT; do
+  TABLEAU_FICHIERS_RESTANTS=( "${TABLEAU_FICHIERS_RESTANTS[@]}" "$OUTPUT" ) # ajoute la nouvelle valeur à la suite des valeurs actuelles
+done < <(find $PATH_CORBEILLE -print0 2>/dev/null | xargs -0 basename )
 
 if [ ${#TABLEAU_FICHIERS_RESTANTS[@]} -eq 0 ]
 then
     echo -e "\nLa corbeille a été vidée.\n"
+    exit 0
 else
     echo -e "\nERREUR : La corbeille n'a pas pu être vidée.\n"
     echo -e "Voici la liste des fichiers à supprimer manuellement (ou contrôler le script) :"
     for element in "${TABLEAU_FICHIERS_RESTANTS[@]}"
     do
-        echo "$element"
+        echo "\"$element\""
     done
     echo ""
     exit 1
 fi
-

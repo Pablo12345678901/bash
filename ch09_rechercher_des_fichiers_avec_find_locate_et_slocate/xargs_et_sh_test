@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+# xargs : affichez message erreur si échec
+REPERTOIRE_BON="/Users/pablo/Desktop/Dev"
+REPERTOIRE_BIDON="/Users/pablo/Desktop/De"
+REPERTOIRE_BON_AUTRE="/Users/pablo/Desktop/Dev 3"
+xargs -n 1 sh -c 'ls $0 || { echo "ERREUR 1234"  && exit 255 ; } ' < <(echo "$REPERTOIRE_BIDON")
+echo "$?"
+echo ""
+
+
+: <<-DEV
+# xargs : ne pas quitter si échec
+# en mettant le code d'exit à 0 si échec pour qu'il continue
+# sh : pour passer des commandes à xargs
+LISTE_REPERTOIRE+=("$REPERTOIRE_BON") 
+LISTE_REPERTOIRE+=("$REPERTOIRE_BIDON") # dont celui du milieu = faux
+LISTE_REPERTOIRE+=("$REPERTOIRE_BON_AUTRE") 
+for element in "${LISTE_REPERTOIRE[@]}"
+do
+    echo "$element"
+done | xargs -n 3 sh -c '{ echo "REP : $0 $1 $2" ; ls "$0" "$1" "$2" && echo "" ; } || { echo "ERREUR 1234" && exit 0 ; } '
+DEV
+
+
+# tester si un argument a été fourni avant d'exécuter une commande avec &&
+echo "$REPERTOIRE_BON" | xargs sh -c 'test -n "$0" && echo "$0"'
+# Ceci est exécuté car '$0' est un string de longueur supérieur à 0
+echo "" | xargs sh -c 'test -n "$0" && echo "$0"'
+# Ceci n'est pas exécuté car '$0' n'est un string de longueur supérieur à 0
+
+REPERTOIRE_BON="/Users/pablo/Desktop/Dev"
+REPERTOIRE_BIDON="/Users/pablo/Desktop/De"
+REPERTOIRE_BON_AUTRE="/Users/pablo/Desktop/Dev 3"
+LISTE_REPERTOIRE+=("$REPERTOIRE_BON") 
+LISTE_REPERTOIRE+=("$REPERTOIRE_BIDON") # dont celui du milieu = faux
+LISTE_REPERTOIRE+=("$REPERTOIRE_BON_AUTRE") 
+for element in "${LISTE_REPERTOIRE[@]}"
+do
+    echo -e "$element\n"
+done | tr '\n' '\0' | xargs -0 -n 1 sh -c '{ echo "REP : $0" && ls "$0" && echo "" ; } || { echo "ERREUR 1234 - $0" && exit 0 ; } '
