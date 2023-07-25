@@ -1,1 +1,0 @@
-hunspell dicitonaries:  http://ispell-uk.sourceforge.net

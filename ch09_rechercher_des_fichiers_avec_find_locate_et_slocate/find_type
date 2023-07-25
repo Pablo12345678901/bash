@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+DISQUE_DUR_PERSO="/Volumes/Elements"
+
+find $DISQUE_DUR_PERSO -type f -size +5M -print

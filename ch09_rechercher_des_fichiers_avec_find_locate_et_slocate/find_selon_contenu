@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+REPERTOIRE='/Volumes/Elements/2_Taf_et_hospice'
+find $REPERTOIRE -type f -name LM* -exec grep -Hi -m 1 'Monsieur D' '{}' \;
+# '{}' : représente TOUS les résultats de la recherche en un bloc
+# '\;' : obligation de protéger ce point-virgule car il rpz la fin de la commande '-exec'
+# grep -H : montre le titre du fichier avant les résultats
+# Ce script recherche dans répertoire, tous les fichiers (f) qui possèdent un nom débutant par 'LM'
+# et y éxécute le grep du pattern qui s'arrête après 1 match par fichier

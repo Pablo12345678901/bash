@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+DISQUE_DUR_PERSO="/Volumes/Elements"
+#REPERTOIRE='/Volumes/Elements/2_Taf_et_hospice'
+find $DISQUE_DUR_PERSO -mtime -2 -print
+echo "Recherche terminée" # pr indiquer quand la recherche est terminée
