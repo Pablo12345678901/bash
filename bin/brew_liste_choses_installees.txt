@@ -1,10 +1,13 @@
 FORMULAES
 
+antiword
 autoconf
 bash
+bash-completion
 blueutil
 ca-certificates
 cairo
+dos2unix
 fontconfig
 freetype
 gettext
@@ -15,6 +18,7 @@ harfbuzz
 icu4c
 jbig2dec
 jpeg-turbo
+lesspipe
 libcbor
 libevent
 libfido2
@@ -64,3 +68,4 @@ google-chrome
 microsoft-auto-update
 microsoft-excel
 microsoft-word
+skype
