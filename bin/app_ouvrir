@@ -33,12 +33,19 @@ else
 fi
 
 echo -e "Ouverture des apps...\n"
-open -a "Finder" >&2 &
+open -j -a "Finder" >&2 &
+# open -j : ouvrir de manière hidden = cachée
 open -a "Microsoft Excel" >&2 &
+# open -g : ouvrir l'app en arrière plan - NE pas la ramener au premier plan
 open -a "Microsoft Word" >&2 &
 open -a "Google Chrome" >&2 &
-#open -a "Firefox" >&2 &
-open -a "Activity Monitor" >&2 &
-code >&2 &
+# open -a "Firefox" >&2 &
+# open -a "Activity Monitor" >&2 &
+# code >&2 & # Visual Studio Code
+open -a '/Applications/Visual Studio Code.app' >&2 &
+
+sleep 1 # pour m'assurer que les autres app sont bien ouverte
+# Puis remise au premier plan du terminal
+open -a "Terminal" >&2
 
 

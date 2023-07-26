@@ -10,7 +10,6 @@ SCRIPTS
 - script qui recherche tous les fichiers modifiés depuis X date sur le disque dur externe (sans les répertoire avec '.repertoire') et qui les copie dans un autre disque dur au même chemin avec si nécessaire création des sous-répertoires dans lesquels ils seront - tester à petite échelle avant de lancer en blocs
 - Script app_ouvrir : obtenir la liste de toutes les apps disponibles sur le Mac et les proposer sous forme y/n + sélect à la fin de l'ouverture des apps de base
 - Script app_ouvrir permettre un argument du nom de l'app à ouvrir que grep recherche dans les apps disponibles sur le Mac puis ouvre (ex : app_ouvrir Chrome)
-- Terminal app : Créer un bout de code pour maintenir l'app Terminal disponible = focus dessus en premier plan pendant des tâches qui ouvrent les apps ou gèrent les apps. l'intégrer dans les scripts qui utilisent les apps. Si possible, en faire un script distinct (ex : qui run en arrière plan)
 - Dock : Supprimer du dock automatiquement les apps à droite de la barre
 - Encrypter les fichiers sensibles de mon disque dur OU trouver un moyen qu'ils soient inaccessible (que par moi et avec MDP)
 - Finaliser le script du decalage des char (cryptage message)
