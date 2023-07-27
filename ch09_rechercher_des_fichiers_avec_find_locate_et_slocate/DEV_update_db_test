@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# Pas utile pr mac
+# Utile si je suis sur Linux car une partie du job est ici.
+
+# Pr Macos : https://www.codeproject.com/Tips/5282703/Using-Locate-Databases-on-MacOS-Unix
+# Pr Linux : https://askubuntu.com/questions/20821/using-locate-on-an-encrypted-partition/93477#93477
+# Obtention du path de la database locale
+DB_PATH="$(grep -A 10 'FILES' <(man locate | col -bx ) |
+# grep -A 10 : affiche les lignes du match + 10 autres afin d'obtenir le contexte
+grep -m 1 'locate database' |
+# grep -m 1 : s'arrête après 1 match 
+
+awk '{ for (i=1; i<=NF; i++) { if ($i ~ /\/.*/ ) {print $i } } }')"
+# awk récupère ici le path
+# équivalent entre guillemets
+#awk '{ for (i=1; i<=NF; i++) { if ( $i ~ "/.*") {print $i } } }'
+# match un regex avec special char
+
+#Modification de la variable LOCATE_PATH utilisée par la commande 'updatedb'
+export LOCATE_PATH="${HOME}${DB_PATH}"
+
+#Indexation des fichiers dans $HOME (répertoire utilisateur courant)
+updatedb -l 0 -o ${HOME}${DBPATH} -U $HOME
+# updatedb -l : Set the ``require file visibility before reporting it'' flag in the generated database to FLAG.
+# updatedb -o : Write the database to FILE instead of using the default database.
+# updatedb -U : Store only results of scanning the file system subtree rooted at PATH to the generated database. The whole file system is scanned by default.
+# Info sur cette commande via Linux Manuel : https://www.commandlinux.com/man-page/man8/updatedb.8.html
+# To create a private mlocate database as an user other than root, run :
+# updatedb -l 0 -o db_file -U source_directory
+
+echo -e "\nFin de la mise à jour de la database"
+echo -e "\nCelle-ci inclut désormais les dossiers de l'utilisateur courant.\n"
+
+locate *pablo*

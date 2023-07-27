@@ -44,7 +44,7 @@ open -a "Google Chrome" >&2 &
 # code >&2 & # Visual Studio Code
 open -a '/Applications/Visual Studio Code.app' >&2 &
 
-sleep 1 # pour m'assurer que les autres app sont bien ouverte
+sleep 3 # pour m'assurer que les autres app sont bien ouverte
 # Puis remise au premier plan du terminal
 open -a "Terminal" >&2
 

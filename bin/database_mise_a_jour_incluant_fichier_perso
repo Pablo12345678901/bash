@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Mise à jour de la DB publics
+updatedb
+
+# Mise à jour de mes fichiers perso
+export LOCATE_CONFIG="/etc/locate.users.rc"
+updatedb
+
+# Message de confirmation car longue tâche.
+echo "Fin de la mise à jour."
