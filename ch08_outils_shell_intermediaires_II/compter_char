@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-FICHIER="$REPERTOIRE_DEVELOPPEMENT/bash/zzz_test_git.txt"
+# Trouve le fichier si je le déplace ailleurs.
+FICHIER="$(find $REPERTOIRE_DEVELOPPEMENT -name "zzz_test_git.txt" -print)"
+echo -e "\n$FICHIER\n"
 
 echo "Global : $(wc $FICHIER)"
 # Affichage du nombre de : 

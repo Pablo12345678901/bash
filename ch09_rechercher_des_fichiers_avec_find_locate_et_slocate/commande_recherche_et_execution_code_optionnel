@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+COMMANDE="ls"
+PATH_COMMANDE="$(type -P $COMMANDE)"
+: <<-"DEV"
+[ -n "$PATH_COMMANDE" ] && [ -x $PATH_COMMANDE ] && $PATH_COMMANDE
+# -n : vrai si string est > 0
+# -x : vrai si fichier exécutable
+# $PATH_COMMANDE : exécution du script que si le reste est vrai
+DEV
+
+if [ -n "$PATH_COMMANDE" ] && [ -x "$PATH_COMMANDE" ]
+# -n : vrai si string est > 0
+# -x : vrai si fichier exécutable
+then
+    echo -e "\nCode exécuté si la commande \"$(basename $PATH_COMMANDE)\" a été trouvée."
+    echo "Exécution de \"$(basename $PATH_COMMANDE)\" :"
+    $PATH_COMMANDE
+    echo ""
+else
+    echo -e "\nCode exécuté si la commande \"$COMMANDE\" n'a pas été trouvée.\n"
+fi
+

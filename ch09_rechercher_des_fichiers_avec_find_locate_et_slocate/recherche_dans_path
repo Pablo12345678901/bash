@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+COMMANDE="compter_char"
+for path in ${PATH//:/ } /Users/pablo/Desktop/Developpement/bash/ch08_outils_shell_intermediaires_II
+for path in ${PATH//:/ } /PATH1 /PATH2
+# ${PATH//:/ } : remplace TOUTES les occurences de ':' par ' '
+do
+    if [ -x $path/$COMMANDE ]
+    then
+        echo "$path/$COMMANDE" # affichage du path contenant la commande
+        bash $path/$COMMANDE # Exécution de la commande
+    else 
+        echo "path non exécutable : \"$path/$COMMANDE\""  
+        :
+    fi
+done
