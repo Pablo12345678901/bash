@@ -5,4 +5,20 @@ set -v # tous les commentaires ci-dessous seront affichés
 # J'appelle ces commandes depuis le terminal avec :
 # nom_du_fichier
 # Pour adapter l'accès des fichiers, run le fichier :
-# rendre_executable-tous
+#       rendre_executable-tous
+
+# Fichiers spéciaux :
+#
+#       bind_gestion_raccourci_clavier.txt
+#               Ce fichier contient les raccourcis clavier utilisé par bash via la commande 'bind'
+#               Je peux les modifier puis les utiliser en saisissant :
+#                       bind -f $RACCOURCIS_CLAVIER
+#
+#       commandes_bash_liste_et_description.txt
+#               Ce fichier contient un résumé de tous les mots utilisés par Bash
+#               Ainsi qu'un bref résumé pour chacun.
+#               Similaire à la commande 'apropos'. Script créé pour le fun.
+#
+#       ne_pas_run_fichier_de_sauvegarde_du_contenu_bash_profil
+#               Ce fichier est une copie du profil bash.
+#               Si je change d'environnement, je peux copier son contenu pour le réutiliser.  

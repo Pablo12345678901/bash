@@ -71,6 +71,9 @@ export LESSOPEN
 # Pour la commande ajouter la database locale à la commande locate
 DB_LOCALE="$HOME/locate.user.database"
 export DB_LOCALE
+# Pour la gestion des keybinds (raccourcis clavier) de la commande 'bind'
+RACCOURCIS_CLAVIER="$REPERTOIRE_DES_COMMANDES_PERSO/bind_gestion_raccourci_clavier.txt"
+export RACCOURCIS_CLAVIER
 
 # Tableau des variables personnelles 
 declare -a TABLEAU_VARIABLES_PERSO # tableau des paths à ajouter manuellement
@@ -78,6 +81,7 @@ ajout_au_tableau TABLEAU_VARIABLES_PERSO 'REPERTOIRE_DEVELOPPEMENT'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'REPERTOIRE_DES_COMMANDES_PERSO'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'LESSOPEN'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'DB_LOCALE'
+ajout_au_tableau TABLEAU_VARIABLES_PERSO 'RACCOURCIS_CLAVIER'
 LISTE_VARIABLES_PERSO=$( IFS=: ; printf '%s' "${TABLEAU_VARIABLES_PERSO[*]}" ) # transformation du tableau en string séparé par des ":" via la définition de IFS dans un sous-shell
 # car impossible de transmettre un tableau en tant que variable d'environnement
 export LISTE_VARIABLES_PERSO # pour affichage sur demande via script correspondant

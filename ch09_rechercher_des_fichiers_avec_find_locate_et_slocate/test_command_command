@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+function ls() {
+    echo "Ceci est le script perso de 'ls'"
+}
+
+echo "pwd : $PWD"
+echo "ls sans command"
+ls
+echo "ls avec command"
+command -p ls

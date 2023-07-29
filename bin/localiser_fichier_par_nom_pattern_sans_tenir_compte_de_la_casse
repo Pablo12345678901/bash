@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+# Recommandation : fournir le pattern entre guillemets simples pour éviter toute expansion du shell
+
+if [ -n "$1" ]
+then
+    locate -d $DB_LOCALE:: -i "$1"
+else
+    echo -e "\nERREUR : aucun pattern n'a été fourni en argument du script \"$(basename $0)\"."
+    echo -e "\nSyntaxe :\n\n$(basename $0) 'PATTERN_ENTRE_GUILLEMETS_SIMPLES'\n"
+    exit 1
+fi

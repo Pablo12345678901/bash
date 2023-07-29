@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Script non fonctionnel
+
+: <<-"DEV"
+bind -V
+echo -e "\n\n"
+bind -m vi
+bind -V
+echo -e "\n\n"
+DEV
