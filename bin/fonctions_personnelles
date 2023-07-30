@@ -214,8 +214,68 @@ else
 fi
 }
 
-# U
 
+# ajout_element_tableau : argument 1 = tableau / argument 2 = élément à ajouter
+function tableau_ajout_element_que_si_non_existant_avec_espaces {
+    # $1 : NOM_DE_LA_VARIABLE_TABLEAU
+    # $2 : STRING_ELEMENT_A_AJOUTER
+    if [[ -z "$1" || -z "$2" ]]
+    then
+        echo "ERREUR : les arguments \$1 : nom_du_tableau_en_string et \$2 : élément à ajouter au tableau n'ont pas été fourni tous les 2."
+    else
+        local -n TAB=$1
+        # Contrôle si l'élément est déjà dans le tableau et ajout s'il n'y est pas.
+        ELEMENT_DEJA_DANS_TABLEAU="false"
+        # Comme les éléments peuvent contenir des espaces, besoin de boucler sur chacun
+        # Et de les comparer un par un au string fourni pour ajout.
+        for element in "${TAB[@]}"
+        do
+            if [ "$element" == "$2" ]
+            then
+                # Si l'élément est dans le tableau, on change l'indicateur à 'true' et sort de la boucle.
+                ELEMENT_DEJA_DANS_TABLEAU="true"
+                break
+            else
+                :
+            fi
+        done
+        # Ajout de l'élément que si l'indicateur est à "non true" donc à "false".
+        if [ $ELEMENT_DEJA_DANS_TABLEAU == "true" ]
+        then
+            : # si l'élément est déjà dans le tableau on ne le rajoute pas
+        else
+            TAB+=("$2")
+        fi
+    fi
+}
+
+
+# ajout_element_tableau : argument 1 = tableau / argument 2 = élément à ajouter
+function tableau_ajout_element_que_si_non_existant_sans_espaces {
+    # $1 : NOM_DE_LA_VARIABLE_TABLEAU
+    # $2 : STRING_ELEMENT_A_AJOUTER
+    if [[ -z "$1" || -z "$2" ]]
+    then
+        echo "ERREUR : les arguments \$1 : nom_du_tableau_en_string et \$2 : élément à ajouter au tableau n'ont pas été fourni tous les 2."
+    else
+        local -n TAB=$1
+        # Contrôle si l'élément est déjà dans le tableau et ajout s'il n'y est pas.
+        if [[ " ${TAB[*]} " =~ " ${2} " ]]
+        # Les éléments sont séparés par des espaces.
+        # Sauf en début et fin.
+        # Donc pour contrôler le REGEX, ajout d'espace avant et après.
+        then
+            : # si l'élément est déjà dans le tableau on ne le rajoute pas
+            #DEBUG echo "PAS d'ajout car $2 déjà dans tableau".
+        else
+            #DEBUG echo "Ajout car $2 pas encore dans tableau".
+            TAB+=("$2")
+        fi
+    fi
+}
+
+# U
+ 
 # V
 
 # W

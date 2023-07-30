@@ -9,7 +9,19 @@ do
     command=${command#\/}
     LISTE_COMMANDE+=("$command")
 done
-LISTE_COMMANDE+=("$OPTION_SORTIE") # ajout de l'option pour quitter
+
+# Tri des éléments du tableau
+STRING_LISTE_TRIEE_COMMANDES="$( tr ' ' '\n' <<<"${LISTE_COMMANDE[*]}" | sort --ignore-case | tr '\n' ' ' )"
+# '<<<' : Transformation du string en un fichier (temporaire)
+# tr : remplacement des espaces ' ' par un retour à la ligne '\n'
+# sort --ignore-case : tri dans l'ordre alphabétique en ignorant la casse
+# tr : remplacement des retour à la ligne par des espaces
+
+# String retransformé sous forme de tableau pour boucler
+LISTE_COMMANDE=($STRING_LISTE_TRIEE_COMMANDES) 
+
+# Ajout de l'option pour quitter
+LISTE_COMMANDE+=("$OPTION_SORTIE") 
 DERNIERE_OPTION=${#LISTE_COMMANDE[@]}
 
 # Sélection de la commande à exécuter avec possibilité de quitter

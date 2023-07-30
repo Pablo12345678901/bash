@@ -2,8 +2,15 @@
 
 #Remarque : la variable d'environnement $LISTE_VARIABLES_PERSO = La liste de mes variables perso provenant du fichier .profile de bash
 
-STRING_LISTE_VARIABLES_PERSO=$( tr ':' ' ' <<<"${LISTE_VARIABLES_PERSO[*]}") # remplacement des ":" par des espaces
-TABLEAU_VARIABLES_PERSO=($STRING_LISTE_VARIABLES_PERSO) # string transformé sous forme de tableau pour boucler
+# Tri des éléments du tableau
+STRING_LISTE_TRIEE_VARIABLES_PERSO=$( tr ':' '\n' <<<"${LISTE_VARIABLES_PERSO[*]}" | sort --ignore-case | tr '\n' ' ' )
+# '<<<' : Transformation du string en un fichier (temporaire)
+# tr : remplacement des ':' par un retour à la ligne '\n'
+# sort --ignore-case : tri dans l'ordre alphabétique en ignorant la casse
+# tr : remplacement des retour à la ligne par des espaces
+
+# String transformé sous forme de tableau pour boucler
+TABLEAU_VARIABLES_PERSO=($STRING_LISTE_TRIEE_VARIABLES_PERSO) 
 
 # Affichage des variables et de leur valeur
 echo -e "\nListe des variables personnelles créées par moi :\n"

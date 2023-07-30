@@ -6,6 +6,7 @@ La liste ci-dessous n'est pas triée par ordre de priorité :
 
 SCRIPTS
 - script qui remplace toutes les occurences d'un pattern dans un/plusieurs fichiers par un autre -> pr développer plus vite si changement nom SCRIPT / FONCTION : cf mes notes / attention à bien afficher la liste des fichiers impactés (et les matchs impacté) avec un choix y/n avant de lancer car très puissant
+- créer et configurer le fichier .inputrc cf section 8 de la documentation bash officielle
 - script qui met à jour la database sous forme d'un cron (intervalle régulier) incluant tous les fichiers (y.c. Desktop)
 - script qui recherche tous les fichiers modifiés depuis X date sur le disque dur externe (sans les répertoire avec '.repertoire') et qui les copie dans un autre disque dur au même chemin avec si nécessaire création des sous-répertoires dans lesquels ils seront - tester à petite échelle avant de lancer en blocs
 - Script app_ouvrir : obtenir la liste de toutes les apps disponibles sur le Mac et les proposer sous forme y/n + sélect à la fin de l'ouverture des apps de base

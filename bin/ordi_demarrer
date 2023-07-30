@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-app_ouvrir
 bluetooth_connexion_souris
+app_ouvrir

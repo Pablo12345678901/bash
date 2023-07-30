@@ -1,5 +1,21 @@
 #!/usr/bin/env bash
 
+
+
+
+
+# Source le fichier ou je conserve mes fonctions personnelles
+# Je l'ai placé dans l'environnement de développement pour faciliter ses modifications.
+# Ainsi je peux appeler les fonctions depuis n'importe quel terminal / fichier.
+# Toutefois, je dois continuer de sourcer le fichiers dans mes scripts.
+: ${REPERTOIRE_DES_COMMANDES_PERSO:="/Users/pablo/Desktop/Developpement/bash/bin"} # fixe la variable si pas définie
+. $REPERTOIRE_DES_COMMANDES_PERSO/fonctions_personnelles
+
+
+
+
+
+
 # Contrôle pour ne pas run ce script par moi-même via mes commandes personnelles.
 if [[ $0 =~ (-)?bash$ ]] # "-bash" est run au lancement et "bash" est run avec "exec bash -l" qui relance bash
 then
@@ -11,6 +27,11 @@ else
     exit 1 # exit du fichier si ce n'est pas le shell qui le run à l'ouverture
     # c'est-à-dire : exit du fichier si je le run sous le nom donné ci-dessous en tant que commande du dossier personnel.
 fi
+
+
+
+
+
 
 # Fonction pour éviter un ajout de path à double dans $PATH
 ################################
@@ -55,9 +76,22 @@ ajout_au_tableau() {
         echo "ERREUR : les arguments \$1 : nom_du_tableau_en_string et \$2 : élément à ajouter au tableau n'ont pas été fourni tous les 2."
     else
         local -n tableau=$1
-        tableau+=("$2")
+        # Contrôle si l'élément est déjà dans le tableau et ajout s'il n'y est pas.
+        if [[ " ${tableau[*]} " =~ " ${2} " ]]
+        # Les éléments sont séparés par des espaces.
+        # Sauf en début et fin.
+        # Donc pour contrôler le REGEX, ajout d'espace avant et après.
+        then
+            : # si l'élément est déjà dans le tableau on ne le rajoute pas
+        else
+            tableau+=("$2")
+        fi
     fi
 }
+
+
+
+
 
 ################################
 # Liste variables d'environnement personnelles (créées par moi)
@@ -74,17 +108,31 @@ export DB_LOCALE
 # Pour la gestion des keybinds (raccourcis clavier) de la commande 'bind'
 RACCOURCIS_CLAVIER="$REPERTOIRE_DES_COMMANDES_PERSO/bind_gestion_raccourci_clavier.txt"
 export RACCOURCIS_CLAVIER
+# Path du fichier de profil bash
+BASH_PROFILE_PATH="$HOME/.profile"
+export BASH_PROFILE_PATH
+# Path du fichier bashrc
+BASHRC_PATH='/etc/bashrc'
+export BASHRC_PATH
 
 # Tableau des variables personnelles 
 declare -a TABLEAU_VARIABLES_PERSO # tableau des paths à ajouter manuellement
+# La fonction ajout_au_tableau ajoute QUE si la variable n'y est pas encore.
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'REPERTOIRE_DEVELOPPEMENT'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'REPERTOIRE_DES_COMMANDES_PERSO'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'LESSOPEN'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'DB_LOCALE'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'RACCOURCIS_CLAVIER'
+ajout_au_tableau TABLEAU_VARIABLES_PERSO 'BASH_PROFILE_PATH'
+ajout_au_tableau TABLEAU_VARIABLES_PERSO 'BASHRC_PATH'
 LISTE_VARIABLES_PERSO=$( IFS=: ; printf '%s' "${TABLEAU_VARIABLES_PERSO[*]}" ) # transformation du tableau en string séparé par des ":" via la définition de IFS dans un sous-shell
 # car impossible de transmettre un tableau en tant que variable d'environnement
 export LISTE_VARIABLES_PERSO # pour affichage sur demande via script correspondant
+
+
+
+
+
 
 
 ##################################
@@ -105,8 +153,27 @@ done
 
 export PATH
 
-TITRE_FICHIER_SAUVEGARDE_PROFIL_BASH="ne_pas_run_fichier_de_sauvegarde_du_contenu_bash_profil"
+
+
+
+
+
+
+# Liste des alias ici
+# Nom bidon pr tester la création d'un alias
+alias affiche_nimporte_quoi_qwjdwfj="printf \"J'affiche nimporte quoi depuis un alias.\n\" ; pwd ; cd ~/Desktop/Developpement ; pwd ; cd $OLDPWD ; pwd ; "
+# Fin des alias
+
+
+
+
+
+
+
+
+
 # Sauvegarde du profil dans le répertoire des commandes personnelles
+TITRE_FICHIER_SAUVEGARDE_PROFIL_BASH="ne_pas_run_fichier_de_sauvegarde_du_contenu_bash_profil"
 { cd $REPERTOIRE_DES_COMMANDES_PERSO &&
-cp ~/.profile $TITRE_FICHIER_SAUVEGARDE_PROFIL_BASH && # sauvegarde du profile utilisé dans le répertoire perso
-cd $OLDPWD ; } || echo -e "Le fichier .profile n'a pas pu être copié dans le répertoire perso.\nDébugger le fichier .profile.\n" >&2 # cd $OLDPWD revient ou j'étais
+cp $BASH_PROFILE_PATH $TITRE_FICHIER_SAUVEGARDE_PROFIL_BASH && # sauvegarde du profile utilisé dans le répertoire perso
+cd $OLDPWD ; } || echo -e "Le fichier .profile situé '$BASH_PROFILE_PATH' n'a pas pu être copié dans le répertoire perso.\nDébugger le fichier .profile.\n" >&2 # cd $OLDPWD revient ou j'étais

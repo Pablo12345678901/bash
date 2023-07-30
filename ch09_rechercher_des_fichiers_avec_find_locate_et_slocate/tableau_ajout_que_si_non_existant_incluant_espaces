@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+REPERTOIRE_TEST='/Users/pablo/Desktop/REP_TEST'
+
+# ajout_element_tableau : argument 1 = tableau / argument 2 = élément à ajouter
+tableau_ajout_element_que_si_non_existant_avec_espaces() {
+    # $1 : NOM_DE_LA_VARIABLE_TABLEAU
+    # $2 : STRING_ELEMENT_A_AJOUTER
+    if [[ -z "$1" || -z "$2" ]]
+    then
+        echo "ERREUR : les arguments \$1 : nom_du_tableau_en_string et \$2 : élément à ajouter au tableau n'ont pas été fourni tous les 2."
+    else
+        local -n TAB=$1
+        # Contrôle si l'élément est déjà dans le tableau et ajout s'il n'y est pas.
+        ELEMENT_DEJA_DANS_TABLEAU="false"
+        for element in "${TAB[@]}"
+        do
+            if [ "$element" == "$2" ]
+            then
+                ELEMENT_DEJA_DANS_TABLEAU="true"
+                break
+            else
+                :
+            fi
+        done
+        if [ $ELEMENT_DEJA_DANS_TABLEAU == "true" ]
+        then
+            echo "PAS d'ajout car \"$2\" déjà dans tableau".
+            : # si l'élément est déjà dans le tableau on ne le rajoute pas
+        else
+            echo "Ajout car \"$2\" pas encore dans tableau".
+            TAB+=("$2")
+        fi
+    fi
+}
+
+# Données test
+declare -a TABLEAU_X
+# Ajout de données sans espaces par moi
+tableau_ajout_element_que_si_non_existant_avec_espaces TABLEAU_X "3"
+tableau_ajout_element_que_si_non_existant_avec_espaces TABLEAU_X "2"
+tableau_ajout_element_que_si_non_existant_avec_espaces TABLEAU_X "221"
+# Test d'ajout données sans espaces
+tableau_ajout_element_que_si_non_existant_avec_espaces TABLEAU_X "2214" # non présent
+tableau_ajout_element_que_si_non_existant_avec_espaces TABLEAU_X "221" # déjà présent
+# Test d'ajout fichiers avec espaces
+while read OUTPUT; do
+   tableau_ajout_element_que_si_non_existant_avec_espaces TABLEAU_X "$OUTPUT"
+done < <(find $REPERTOIRE_TEST -type f -name '*' -print0 | xargs -0 -n 1 bash -c 'printf "$0\n" ')
+# Test d'ajout des mêmes fichiers en doublons
+while read OUTPUT; do
+   tableau_ajout_element_que_si_non_existant_avec_espaces TABLEAU_X "$OUTPUT"
+done < <(find $REPERTOIRE_TEST -type f -name '*' -print0 | xargs -0 -n 1 bash -c 'printf "$0\n" ')
+# Test d'ajout données avec espaces
+tableau_ajout_element_que_si_non_existant_avec_espaces TABLEAU_X "Autre fichier avec espaces" # non présent
+tableau_ajout_element_que_si_non_existant_avec_espaces TABLEAU_X "FICHIER TEST 1" # déja présent
+
+# Affichage résultat finaux
+for element in "${TABLEAU_X[@]}"
+do
+    echo "$element"
+done
+
+

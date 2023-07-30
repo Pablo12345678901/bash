@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+# ajout_element_tableau : argument 1 = tableau / argument 2 = élément à ajouter
+tableau_ajout_element_que_si_non_existant_sans_espaces() {
+    if [[ -z "$1" || -z "$2" ]]
+    then
+        echo "ERREUR : les arguments \$1 : nom_du_tableau_en_string et \$2 : élément à ajouter au tableau n'ont pas été fourni tous les 2."
+    else
+        local -n tableau=$1
+        # Contrôle si l'élément est déjà dans le tableau et ajout s'il n'y est pas.
+        if [[ " ${tableau[*]} " =~ " ${2} " ]]
+        # Les éléments sont séparés par des espaces.
+        # Sauf en début et fin.
+        # Donc pour contrôler le REGEX, ajout d'espace avant et après.
+        then
+            : # si l'élément est déjà dans le tableau on ne le rajoute pas
+            echo "PAS d'ajout car $2 déjà dans tableau".
+        else
+            echo "Ajout car $2 pas encore dans tableau".
+            tableau+=("$2")
+        fi
+    fi
+}
+
+TABLEAU_X=("1" "2" "3")
+tableau_ajout_element_que_si_non_existant_sans_espaces TABLEAU_X 3
+tableau_ajout_element_que_si_non_existant_sans_espaces TABLEAU_X "2"
+tableau_ajout_element_que_si_non_existant_sans_espaces TABLEAU_X "221"
+for element in ${TABLEAU_X[*]}
+do
+    echo "$element"
+done
+
