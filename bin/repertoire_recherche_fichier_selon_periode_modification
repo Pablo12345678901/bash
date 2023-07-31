@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+
+# Argument du script
+# $1 : optionnel : le répertoire
+# $2 : optionnel : la période -> si fournie doit être un nombre différent de 0 avec un signe +/-
+# $3 : optionnel : '-s : pour indiquer que mode silencieux : aucun message affiché (hormis résultat recherche). -> pour usage dans d'autre script
+
+############ AVERTISSEMENT ############
+# Ce script peut être long selon la taille (le nombre de fichier) du répertoire
+# dans lequel la commande 'find' effectue sa recherche.
+# Il n'affiche aucun message d'erreur.
+# Et pendant le chargement - rien n'est affiché.
+# Les résultats sont affichés par bloc est affiché en bloc.
+############ AVERTISSEMENT ############
+
+SYNTAXE="Syntaxe :\n\t$(basename $0)    REPERTOIRE_DE_RECHERCHE    SIGNE_NUM_ENTIER_DIFFERENT_DE_ZERO_UNITE\n"
+REPERTOIRE_PAR_DEFAUT="$REPERTOIRE_DEVELOPPEMENT/bash"
+# Contrôle des arguments
+if [ -z "$1" ] # si pas d'argument fourni
+then
+    REPERTOIRE="$REPERTOIRE_PAR_DEFAUT"
+    PERIODE="-1d"
+    echo -e "\nAucun répertoire fourni en 1er argument."
+    echo -e "Aucune période fournie en 2ème argument."
+    echo -e "Comportement par défaut :"
+else
+    if [ -d "$1" ] # si le premier argument est un répertoire
+    then
+        REPERTOIRE="$1"
+        if [ -z "$2" ]
+        then
+            PERIODE="-1d"
+            echo -e "\nAucune période fournie en 2ème argument."
+            echo -e "Comportement par défaut :"
+            # Continue le script avec le comportement par défaut
+        else
+            PERIODE="$2"
+            REGEX_PERIODE_SIGNE_NB_DIF_ZERO_UNITE="^[+-]{1}[1-9]?[0-9]*[smhdw]{1}$"
+            if [[ "$PERIODE" =~ $REGEX_PERIODE_SIGNE_NB_DIF_ZERO_UNITE ]]
+            then
+                # Continue le script
+                :
+            else
+                echo -e "\nERREUR : l'argument fourni \"$PERIODE \" n'est pas un nombre entier <>0 avec signe +/- suivi d'une unité s|m|h|d|v.\n"
+                echo -e "$SYNTAXE"
+                exit 1
+            fi
+        fi
+    else
+        echo -e "\nERREUR : l'argument fourni \"$REPERTOIRE \" n'est pas un répertoire.\n"
+        echo -e "$SYNTAXE"
+        exit 1 
+    fi
+fi
+
+MODE_SILENCIEUX="off"
+if [ "$3" = "-s" ]
+then
+    MODE_SILENCIEUX="on"
+else
+    :
+fi
+
+if [ "$MODE_SILENCIEUX" = "on" ]
+then
+    : # pas d'affichage de message
+else
+    # Affichage du type de recherche exécutée
+    echo -e "\nRecherche des documents dans le répertoire \"$REPERTOIRE\" modifiés sur la période \"$PERIODE\".\n"
+fi
+
+
+DERNIER_REPERTOIRE_AFFICHE=""
+REPERTOIRE_COURANT=""
+FICHIER_COURANT=""
+while read LIGNE
+# Lecture ligne par ligne du résultat fourni par -> find ... | tr ...
+do
+    FICHIER_COURANT="${LIGNE##*/}" # récupération du bout de path après le dernier '/'
+    REPERTOIRE_COURANT="${LIGNE%$FICHIER_COURANT}" # retirer le fichier du path
+    if [ "$REPERTOIRE_COURANT" != "$DERNIER_REPERTOIRE_AFFICHE" ]
+    then
+        # affichage du répertoire courant que s'il est différent de celui du fichier précédent
+        echo -e "\n$REPERTOIRE_COURANT\n"
+        DERNIER_REPERTOIRE_AFFICHE="$REPERTOIRE_COURANT" # puis adaptation du dernier répertoire affiché au répertoire courant
+    else
+        :
+    fi
+    echo -e "\t$FICHIER_COURANT" # affichage du nom du fichier dans tous les cas
+done < <(find -s "$REPERTOIRE" -path *.git -prune -o -type f -mtime "$PERIODE" -print0 2>/dev/null |
+# find -s : traverse les répertoire par ordre alphabétique
+# -path ... -prunt -o : ne va pas dans les répertoires .git
+# find -type f : que les fichiers pas les répertoires
+# find -mtime : moment de la dernière modification
+# find -print : affiche les résultat sur STDOUT
+# 2>/dev/null : les messages d'erreurs sont ignorés
+# TEMPS
+# par défaut unité = 1d = 24h = 1 jour
+#   le nb doit être :
+#	positif avec '+' : signifie il y a plus de X jours
+#	sans signe : signifie il y a exactement X jours
+#	négatif avec '-' : signifie il y a moins de X jours
+# Unités de temps :
+#	        s       second
+#           m       minute (60 seconds)
+#           h       hour (60 minutes)
+#           d       day (24 hours)
+#           w       week (7 days)
+tr '\0' '\n') # retour à la ligne imposé pour gérer les fichiers lu par 'read'
+# car ceux-ci peuvent contenir des espaces
+# donc affichage d'un fichier par ligne
+
+if [ "$MODE_SILENCIEUX" = "on" ]
+then
+    : # pas d'affichage de message
+else
+    # Affichage du type de recherche exécutée
+    echo -e "\nRecherche terminée." # pr indiquer quand la recherche est terminée
+fi
+
+echo "" # pour avoir une ligne d'espace avant le 'prompt'.
+
