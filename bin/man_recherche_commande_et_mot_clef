@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles # pour le choix oui/non
+
+SCRIPT_DE_RECHERCHE_ADDITIONNELLE="man_info_commande" # à adapter si changement nom du script dans répertoire commandes personnelles
+
+# Contrôle qu'un argument a été fourni au script
+if [ -z "$1" ] || [ -z "$2" ]
+# $1 : nom de la commande recherchée
+# $2 : option ou mot-clef à recherché dans le manuel
+then
+    echo -e "\nERREUR : il faut fournir 2 arguments à ce script."
+    echo -e "Vous avez fourni les arguments suivants : \"$*\"."
+    echo -e "\nSyntaxe :\n\t$(basename $0) NOM_COMMANDE OPTION_RECHERCHEE\n"
+    exit 1
+else
+    :
+fi
+
+# Résumé script :
+# Le mot sur lequel je recherche de l'information peut être dans :
+#       - builtins           -> lancement de 'help NOMBUILTIN'
+#       - man                -> lancement de 'man NOMCOMMANDE'
+# Sinon, affichage message 'ni builtin ni commande'
+# et appel sur demande du script manuel_info_commande
+
+REGEX_RECHERCHE="[[:space:]]*$2[[:space:]]*"
+
+case $(type -t "$1") in
+# type -t : affiche le type de commande
+
+    "builtin" ) help "$1" | less -I -p "$REGEX_RECHERCHE" ;;
+    # less -I : insensitive à la casse
+    # less -p : demande à 'less' de débuter l'affichage à la première occurence du pattern.
+    # le REGEX du mot clef recherché est composé d'au moins un espace avant et 0 ou plusieurs espaces après.
+    
+    # Pas tous les keywords ont un page 'help' donc tentative de trouver la page.
+    "keyword" ) { help "$1" >/dev/null
+                if (($?))
+                then
+                    # Si pas de page manuel dédiée alors recherche avec man -k
+                    echo -e "\nAucune page de 'help' dédiée existante pour le keyword \"$1\"."
+                    # CHOIX APPEL MANUEL_INFO_COMMANDE
+                    REPONSE=""
+                    QUESTION="Voudriez-vous rechercher \"$1\" avec le script \"$SCRIPT_DE_RECHERCHE_ADDITIONNELLE\" ? (YyOo/Nn) "
+                    question_oui_non REPONSE QUESTION
+                    if [ "$REPONSE" == "o" ]
+                    then
+                        $SCRIPT_DE_RECHERCHE_ADDITIONNELLE "$1"
+                    else
+                        echo -e "\nVous choisissez de quitter sans recherche additionnelle.\n"
+                        exit 0
+                    fi
+                else
+                    help "$1" | less -I -p "$REGEX_RECHERCHE" # recherche du mot clef recherché dans la page du manuel
+                fi ; }
+                ;;
+
+    # file : dont commandes
+    "file" )    {   man "$1" >/dev/null
+                    if (($?))
+                    then
+                        # Si pas de page manuel dédiée alors recherche avec man -k
+                        echo -e "\nAucune page de manuel dédiée existante pour la commande \"$1\"."
+                        # CHOIX APPEL MANUEL_INFO_COMMANDE
+                        REPONSE=""
+                        QUESTION="Voudriez-vous rechercher \"$1\" avec le script \"$SCRIPT_DE_RECHERCHE_ADDITIONNELLE\" ? (YyOo/Nn) "
+                        question_oui_non REPONSE QUESTION
+                        if [ "$REPONSE" == "o" ]
+                        then
+                            $SCRIPT_DE_RECHERCHE_ADDITIONNELLE "$1"
+                        else
+                            echo -e "\nVous choisissez de quitter sans recherche additionnelle.\n"
+                            exit 0
+                        fi
+                    else
+                        man "$1" | less -I -p "$REGEX_RECHERCHE" # recherche du mot clef recherché dans la page du manuel
+                    fi ; }
+    ;; 
+
+    # Dans tous les autres cas :
+    * )         echo -e "\nAucune page de manuel existante pour le mot \"$1\" de type \"$(type -t "$1")\"."                      
+                REPONSE=""
+                QUESTION="Voudriez-vous rechercher \"$1\" avec le script \"$SCRIPT_DE_RECHERCHE_ADDITIONNELLE\" ? (YyOo/Nn) "
+                question_oui_non REPONSE QUESTION
+                if [ "$REPONSE" == "o" ]
+                then
+                    $SCRIPT_DE_RECHERCHE_ADDITIONNELLE "$1"
+                else
+                    echo -e "\nVous choisissez de quitter sans recherche additionnelle.\n"
+                    exit 0
+                fi
+    ;;
+esac

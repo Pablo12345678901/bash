@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+# Contrôle qu'un argument a été fourni au script
+if [ -z "$1" ]
+then
+    echo -e "\nERREUR : aucun argument fourni."
+    echo -e "\nSyntaxe :\n\t$(basename $0) MOT_SUR_LEQUEL_JE_SOUHAITERAIS_DE_L_INFORMATION\n"
+    exit 1
+else
+    :
+fi
+
+# Résumé script :
+# Le mot sur lequel je recherche de l'information peut être dans :
+#       - builtins
+#       - man
+#       - si pas dans man alors recherche avec man -k
+
+REGEX_RECHERCHE="^       $1 "
+
+case $(type -t "$1") in
+# type -t : affiche le type de commande
+    
+    "builtin" ) man bash | less -I -p "$REGEX_RECHERCHE" ;; # affiche la section du manuel qui contient le builtin recherché
+    # less -I : insensitive à la casse
+    # less -p : demande à 'less' de débuter l'affichage à la première occurence du pattern.
+    # les espaces après le début de ligne correspondent à un nombre d'espace lié à la pagination de manual.
+    # Si le nombre d'espaces de manual varie, il faut le faire varier ici aussi.
+    
+    "keyword" ) man bash | less -I -p "$REGEX_RECHERCHE" ;; # similaire à builtins mais séparé pour une éventuelle évolution future
+
+    # Commande -> recherche page de manuel dédiée ou man -k si échec
+    "file" )    {    man "$1" >/dev/null
+                if (($?))
+                then
+                    # Si pas de page manuel dédiée alors recherche avec man -k
+                    echo -e "\nAucune page de manuel existante pour la commande \"$1\"."
+                    echo -e "\nRecherche avec man -k $1.\n"
+                    man -k "$1"
+                else
+                    man "$1" # affichage de la page du manuel si existante
+                fi ; }
+                ;; 
+                
+    # Autre -> recherche page de manuel dédiée ou man -k si échec
+    * )         {    man "$1" >/dev/null
+                if (($?))
+                then
+                    # Si pas de page manuel dédiée alors recherche avec man -k
+                    echo -e "\nAucune page de manuel existante pour le mot \"$1\" de type $(type -t "$1")."
+                    echo -e "\nRecherche avec man -k $1.\n"
+                    man -k "$1"
+                else
+                    man "$1" # affichage de la page du manuel si existante
+                fi ; }
+                ;; 
+esac

@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-############################################
-# Ci-dessous mon code perso.
 # Contrôle pour ne pas run ce script par moi-même via mes commandes personnelles.
 if [[ $0 =~ (-)?bash$ ]] # "-bash" est run au lancement et "bash" est run avec "exec bash -l" qui relance bash
 then
@@ -13,13 +11,8 @@ else
     exit 1 # exit du fichier si ce n'est pas le shell qui le run à l'ouverture
     # c'est-à-dire : exit du fichier si je le run sous le nom donné ci-dessous en tant que commande du dossier personnel.
 fi
-# Ci-dessus mon code perso.
-############################################
 
 
-
-############################################
-# Code original :
 # System-wide .bashrc file for interactive bash(1) shells.
 if [ -z "$PS1" ]; then
    return
@@ -28,15 +21,16 @@ fi
 PS1='\h:\W \u\$ '
 # Make bash check its window size after a process completes
 shopt -s checkwinsize
+shopt -s histappend # Ajout de l'historique de toutes les sessions -> pas clair...
 
+# Prompt_command est exécuté avant chaque commande
+PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"
+# history -a : télécharger l'historique instantanément dans le fichier bash_history
+# history -c : vider l'historique de la session
+# history -r : télécharger l'historique depuis bash_history vers la session
 [ -r "/etc/bashrc_$TERM_PROGRAM" ] && . "/etc/bashrc_$TERM_PROGRAM"
-# Fin du code original
-############################################
 
 
-
-############################################
-# Ci-dessous mon code perso.
 : ${REPERTOIRE_DES_COMMANDES_PERSO:="/Users/pablo/Desktop/Developpement/bash/bin"} # fixe la variable si pas définie
 : ${BASHRC_PATH:="/etc/bashrc"} # fixe la variable si pas définie
 TITRE_FICHIER_SAUVEGARDE_BASHRC="ne_pas_run_fichier_de_sauvegarde_du_contenu_bashrc"

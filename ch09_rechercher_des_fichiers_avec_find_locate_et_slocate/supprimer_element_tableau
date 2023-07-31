@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+function tableau_supprimer_tous_les_occurences_d_un_element {
+#   $1 : le tableau
+#   $2 : l'élément à supprimer entre guillemets si nécessaire
+    local -n TAB=$1
+    local ELE="$2" # element à supprimer
+    echo "ELE $ELE"
+    for ELEMENT in "${TAB[@]}"
+    do
+        for INDEX in "${!TAB[@]}" # besoin de l'index pour unset la variable
+        do
+            if [[ "${TAB[$INDEX]}" = "$ELE" ]]
+            then
+                unset -v TAB[$INDEX]
+                echo "$?"
+            fi
+        done
+    done
+}
+
+# Données test
+TABLEAU=("Je suis" "un" 12 "un" 12 "Je suis")
+ELEMENT_A_SUPPRIMER="un"
+tableau_affichage_contenu_avec_message TABLEAU
+tableau_supprimer_tous_les_occurences_d_un_element TABLEAU "Je suis"
+tableau_affichage_contenu_avec_message TABLEAU
+
+

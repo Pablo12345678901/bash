@@ -1,0 +1,19 @@
+# Test ligne 
+
+# a # a -> OUI -> BUG
+In this MOT_REMPLACEMENT article # let us review 15 MOT_REMPLACEMENT examples of Linux
+# In this MOT_RECHERCHE article # let us review 15 MOT_RECHERCHE examples of Linux
+
+# xyz # a -> NON -> BUG
+And this is # MOT_RECHERCHE last line.
+# And this is # MOT_RECHERCHE last line.
+
+# a # xyz -> OUI -> BUG
+this line is MOT_REMPLACEMENT 1st # lower case line in this file.
+# this line is MOT_RECHERCHE 1st # lower case line in this file.
+
+# a a -> OUI -> OK
+First - create MOT_REMPLACEMENT following demo_file that will be used in MOT_REMPLACEMENT
+# First - create MOT_RECHERCHE following demo_file that will be used in MOT_RECHERCHE
+
+Donnees bidon

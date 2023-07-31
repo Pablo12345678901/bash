@@ -1,0 +1,177 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Récupérer les éléments utiles dans mes notes après avoir rédigé ce script.
+# Amélioration potentielles :
+#   accepter les strings de plusieurs mots avec gestion des espaces
+#   accepter de remplacer un string par un string vide
+
+# Contrôle qu'un argument a été fourni au script
+# Cette section doit être adaptée une fois les test avec données terminée
+if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
+# $1 : STRING_RECHERCHE
+# $2 : STRING_REMPLACEMENT
+# $3 : FICHIER
+then
+    ############################################################
+    ##############    DONNEES  TEST    #########################
+    ############################################################
+    MOT_RECHERCHE="${1:-"wesh"}"
+    MOT_REMPLACEMENT="${2:-"bash"}"
+    FICHIER_TEST="${3:-"/Users/pablo/Desktop/Developpement/bash/bin/terminal_relancer_avec_parametres_d_origine"}"  # Fichier pr test
+    #FICHIER_TEST="$REPERTOIRE_DEVELOPPEMENT/bash/Z_fichiers_pr_test/autre_fichier.txt" # Autre fichier pr test
+    ############################################################
+    ##############    DONNEES  TEST    #########################
+    ############################################################
+
+    # Code prêt pour la suite
+    #echo -e "\nERREUR : il faut fournir au minimum 3 arguments à ce script."
+    #echo -e "Vous avez fourni les arguments suivants : \"$*\"."
+    #echo -e "\nSyntaxe :\n\t$(basename $0) STRING_RECHERCHE    STRING_REMPLACEMENT    FICHIER [...]\n"
+    #exit 1
+
+else
+    MOT_RECHERCHE="$1"
+    MOT_REMPLACEMENT="$2"
+    FICHIER_TEST="$3"
+    :
+fi
+
+
+# Sécurité pour m'assurer que je fais les choses correctement avant de lancer un remplacement violent
+REPONSE=""
+QUESTION="Êtes-vous certains de vouloir remplacer toutes les occurences
+de : $MOT_RECHERCHE
+par : $MOT_REMPLACEMENT
+dans le fichier : $FICHIER_TEST ?
+
+(YyOo/Nn) -> "
+question_oui_non REPONSE QUESTION
+if [ "$REPONSE" = 'o' ]
+then
+    echo -e "\nRemplacement de \"$MOT_RECHERCHE\" par \"$MOT_REMPLACEMENT\" dans le fichier \"$FICHIER_TEST\".\n"
+else
+    echo -e "\nAnnulation du remplacement.\n"
+    exit 0
+fi
+
+
+############################################################
+##############   A DEVELOPPER    ###########################
+############################################################
+
+# CONTROLE ENTREE CORRECTE :
+# Entrée : un / plusieurs fichier / répertoires + deux mots clefs MOT_RECHERCHE MOT_REMPLACEMENT
+# boucle avec test :
+#       si fichier
+#           -> inclure dans tableau
+#           puis shift -1
+#           continue -> étude prochaine option
+#       si répertoires
+#           -> ajout de tous les sous fichiers du répertoires dans le tableau avec find
+#           puis shift -1
+#           continue -> étude prochaine option
+#       si pas fichier alors :
+#           test si tableau contient au moins un fichier
+#           si oui :
+#               récupère argument en tant que mot clef recherché
+#               puis shift -1
+#               si autre argument :
+#                   récupère argument en tant que mot de remplacement
+#                   puis shift -1
+#                   test si autre argument (test si argument $1 = nul)
+#                   si autre argument : affiche msg erreur
+#                   sinon passe au remplacement
+#               sinon : affiche message d'erreur
+#           sinon : affiche message d'erreur
+
+
+
+# OBTENTION ET AFFICHAGE MATCH
+# grep sur chaque fichier du tableau mot le mot clefs :
+# afficher la liste des fichiers impactés (et les matchs impacté)
+# et décision (cf ci-dessous) avant remplacement
+
+# DECISION
+# puis Demande choix :
+# select :
+#   valider la modification sur tous les fichiers et match
+#   passer en revue chaque fichier
+#   annuler l'action de modification -> exit
+# Selon choix :
+#   modification de tous les fichiers et match -> lancer
+#   si passer en revue chacun :
+#       affichage toutes les lignes et match fichier par fichier
+#       select :
+#           valider la modif de toutes les lignes
+#           passer en revue chacune -> fichier suivant quand fini
+#           annuler la modification pour ce fichier -> passe au fichier suivant
+#           quitter -> exit
+
+############################################################
+##############   FIN A DEVELOPPER    #######################
+############################################################
+
+
+
+# Conservation des lignes dans un tableau qui :
+#   - ne sont pas uniquement composéees de commentaires
+#   - match un mot recherché
+#   - le mot recherché n'est pas dans un commentaire en fin de ligne
+# REGEX
+REGEX_SYMBOLE_COMMENTAIRE="#" # à adapter si changement de langage (exemple : 'C' )
+REGEX_LIGNE_UNIQUEMENT_COMMENTAIRE="^[[:space:]]*[.$REGEX_SYMBOLE_COMMENTAIRE.]+.*$"
+# ^ et $ : début et fin de ligne
+# * match 0 ou plusieurs fois (0 - infini)
+# + : match 1 ou plusieurs fois
+# . : n'importe quel char
+# [.X.] : ne doit pas être ce string
+# UTILISATION DU REGEX
+while read LIGNE
+do
+    LIGNE="${LIGNE/:/ }" # attrape la ligne et remplace le premier ':' par un espace
+    NUM_LIGNE=$(echo "$LIGNE" | awk ' {print $1} ') # affiche le numéro de lignes
+    CONTENU_LIGNE="${LIGNE/$NUM_LIGNE /}" # supprime le numéro de ligne + un espace (juste après)
+    # Conservation que des lignes contenant un match qui est avant un commentaire.
+    # Donc suppression des lignes contenant un match UNIQUEMENT dans un commentaire.
+    INDEX_SYMBOLE_COMMENTAIRE=$(string_recherche_sous_string_echo_index_ou_moins_un " $REGEX_SYMBOLE_COMMENTAIRE " "$CONTENU_LIGNE")
+    if [ $((INDEX_SYMBOLE_COMMENTAIRE)) -ge 0 ] # si l'index est >=0 ça veut dire qu'il y a eu un match d'un symbole de commentaire
+    then
+        INDEX_MOT_RECHERCHE=$(string_recherche_sous_string_echo_index_ou_moins_un "$MOT_RECHERCHE" "$CONTENU_LIGNE")
+        if [ $INDEX_MOT_RECHERCHE -lt $INDEX_SYMBOLE_COMMENTAIRE ]
+        then
+            TABLEAU_NUM_LIGNES+=($NUM_LIGNE)
+            TABLEAU_CONTENU_LIGNE+=("$CONTENU_LIGNE")
+        else
+            : # le match vient après le commentaire donc la ligne n'est pas rajoutée au tableaux des matchs
+        fi
+    else
+        TABLEAU_NUM_LIGNES+=($NUM_LIGNE)
+        TABLEAU_CONTENU_LIGNE+=("$CONTENU_LIGNE")
+    fi
+    # Fonction personnelle :
+    # $1 : sous-string recherché
+    # $2 : string dans lequel est effectué la recherche
+    # Recherche d'un éventuel index du symbole commentaire séparés d'espace car on a déja retiré les lignes qui débutaient par ce symbole
+done < <(   grep -E -n -v "$REGEX_LIGNE_UNIQUEMENT_COMMENTAIRE" "$FICHIER_TEST" | # retrait des lignes contenant uniquement des commentaires
+            # grep -E : extended regex
+            # grep -n : chaque output est précédé du numéro de lignes. Ligne de début = 1. Le compteur recommencer à chaque fichier.
+            # grep -v : affiche les lignes qui ne matchent pas.
+            grep "$MOT_RECHERCHE" # recherche du REGEX parmi les lignes restantes
+            # parmi les lignes restantes, retraits des lignes qui contiennet le REGEX après un #
+        ) 
+
+
+
+
+# REMPLACEMENT
+# Sur la base d'un nom de fichier et d'un tableau de lignes, remplace les occurences d'un mot par un autre.
+for NUM in ${TABLEAU_NUM_LIGNES[@]}
+do
+    sed -i '' "${NUM}s/${MOT_RECHERCHE}/${MOT_REMPLACEMENT}/g" $FICHIER_TEST
+    # sed -i '' : inline - sans fichier de back-up
+    # s/ : substitute
+    # g : remplace tous les matchs pas juste le premier
+done
+

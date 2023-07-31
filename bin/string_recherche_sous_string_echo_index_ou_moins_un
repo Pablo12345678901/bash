@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+
+# Ce script contrôle si un sous-string est inclus dans un string et retourne (avec echo) :
+#   L'index du début du sous-string dans le string s'il y est (echo "$INDEX_MATCH").
+#   -1 sinon : (echo "-1").
+#
+#
+# Les arguments à fournir au script sont :
+# $1 : le sous-string recherché = variable avec contenu entre guillemets
+# $2 : le string = variable avec contenu entre guillemets
+
+# Contrôle des 2 arguments
+if [ -z "$1" ] || [ -z "$2" ]
+# $1 : sous-string recherché
+# $2 : string dans lequel est effectué la recherche
+then
+    echo -e "\nERREUR : il faut fournir 2 arguments à ce script."
+    echo -e "\nSyntaxe :\n\t$(basename $0)   SOUS_STRING_RECHERCHE    STRING\n"
+    exit 1
+else
+    if [ $# -gt 2 ]
+    then
+        echo -e "\nERREUR : vous avez fourni plus de 2 arguments à ce script."
+        echo -e "\nContrôler éventuellement que les arguments sont entre guillemets s'ils contiennent plusieurs mots."
+        echo -e "\nSyntaxe :\n\t$(basename $0)   SOUS_STRING_RECHERCHE    STRING\n"
+        exit 1
+    else
+        STRING_RECHERCHE="$1"
+        LONGUEUR_STRING_RECHERCHE=${#STRING_RECHERCHE}
+        # Bloc pour les tests ci-dessous
+        #DEBUG BLOC="Je suis un chat et en anglais chat c'est ct alors ça roule ?cat"
+        BLOC="$2"
+        LONGUEUR_BLOC=${#BLOC}
+    fi
+fi
+
+# Contrôle du match
+# Si longueur du string recherché > longueur bloc alors il n'y est forcément pas.
+if [ $LONGUEUR_STRING_RECHERCHE -gt $LONGUEUR_BLOC ]
+then
+    :
+else
+    # Boucle de test
+    # pour chaque char du string
+    # si le premier char match ce char
+    #   test du 2ème char
+    #   si le 2ème char match ce char
+    #   test du 3ème etc jusqu'à la fin de la longueur du string recherché
+    #   si toujours vrai alors ok
+    #  si une fois faux alors passer au char suivant
+    # jusqu'à l'index taille string - (différence entre taille string et taille string recherché)
+    MOT_MATCH="false"
+    for ((i=0; i<$LONGUEUR_BLOC; i++))
+    do
+        NB_CHAR_SIMILAIRE=0 # remise à 0 à chaque incrémentation du char du bloc à partir duquel la recherche est faite.
+        for ((j=0; j<$LONGUEUR_STRING_RECHERCHE; j++))
+        do
+            if [ $LONGUEUR_BLOC -gt $((i+j)) ]
+            then
+                if [ "${BLOC:$((i+j)):1}" == "${STRING_RECHERCHE:$j:1}" ] # comparaison des char
+                then
+                    ((NB_CHAR_SIMILAIRE++)) # incrémentation du nb char de similaire si match
+                    if [ $NB_CHAR_SIMILAIRE -eq $LONGUEUR_STRING_RECHERCHE ] # si tous les char du mot recherché ont matché alors OK
+                    then
+                        INDEX_MATCH=$((i+j-LONGUEUR_STRING_RECHERCHE+1)) # +1 car si le string mesure 3, l'index i+j final est 2 -> 2-3 = -1 mais l'index de match est 0.
+                        MOT_MATCH="true"
+                        break
+                    else
+                        if [ $j -eq $((LONGUEUR_STRING_RECHERCHE-1)) ] # si on est arrivé au bout du bloc.
+                        then
+                            break # on passe au char suivant dans le bloc.
+                        else
+                            : # sinon on continue à boucler
+                        fi
+                    fi
+                else
+                    break # on passe au char suivant dans le bloc.
+                fi
+            else
+                :
+            fi
+            :
+        done
+        if [ $MOT_MATCH = "true" ]
+        then
+            # Le script echo l'index du match et exit avec 0 si le string recherché a pas été trouvé.
+            echo "$INDEX_MATCH"
+            exit 0
+            break # sortie de la boucle
+        else
+            : # on passe au char suivant dans le bloc.
+        fi
+    done
+fi
+
+# Le script echo "-1" et exit avec 1 si le string recherché n'a pas été trouvé.
+if [ $MOT_MATCH = "false" ]
+then
+    echo "-1"
+    exit 1
+else
+    :
+fi
+

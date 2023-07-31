@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+# Script pour espacer les commandes testée en ligne de commande.
+
+# Contrôle qu'un argument a été fourni au script
+if [ -z "$1" ]
+then
+    echo -e "\nERREUR : aucun argument fourni."
+    echo -e "\nSyntaxe :\n\t$(basename $0) NB_D_ESPACE_A_PRINTER\n"
+    exit 1
+else
+    re='^[1-9]+[0-9]*$'
+    if [[ $1 =~ $re ]]
+    then
+        for ((i=0; i<$1; i++))
+        do
+            printf "\n"
+        done
+    else
+        echo -e "\nERREUR: L'argument fourni \"$1\" n'est pas un nombre."
+        echo -e "\nSyntaxe :\n\t$(basename $0) NB_D_ESPACE_A_PRINTER\n"
+        exit 1
+    fi
+fi
