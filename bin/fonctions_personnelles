@@ -63,6 +63,24 @@ function calculatrice_appel_script {
 
 # M
 
+function module_controle_si_present_sinon_installe {
+    # $1 : module à installer par brew
+    # La fonction retourne une valeur qui faut contrôler :
+    # 0 : réussite de l'installation / déjà installé
+    # 1 : échec de l'installation.
+    MODULE_NECESSAIRE="$1"
+    which "$MODULE_NECESSAIRE" >/dev/null # non affichage du résultat de la recherche
+    if (($?))
+    then
+        echo -e "\nInstallation de '$MODULE_NECESSAIRE' (requis pour ce script).\n"
+         brew install "$MODULE_NECESSAIRE" &&
+        { echo -e "\nInstallation terminée.\n" && return 0 ; } ||
+        { echo -e "\nERREUR : installation échouée.\n" && return 1 ; }
+    else
+        return 0 # si déjà installé
+    fi
+}
+
 # N
 
 # O
@@ -153,32 +171,36 @@ fi
 # S
 
 function select_parmi_liste {
-# arguments à fournir dans l'ordre : 
-local -n TABLEAU_D_OPTIONS=$1
-local -n CHOIX_UTILISATEUR=$2
-local -n MESSAGE_AFFICHE=$3
+# arguments à fournir dans l'ordre :
+# $1 : TAB_D_OPTIONS
+# $2 : CH_UTILISATEUR
+# $3 : MES_AFFICHE -> avant d'afficher les choix
+# $4 : optionnel : OPT_POUR_ARRETER
+local -n TAB_D_OPTIONS=$1
+local -n CH_UTILISATEUR=$2
+local -n MES_AFFICHE=$3 # Message
 MESSAGE_BOUCLE=""
 if [ -z "$4" ] # si le 4ème paramètre est défini = si options pour arrêter a été fournie
 then    
-    TABLEAU_CHOIX=("${TABLEAU_D_OPTIONS[@]}") # copie du tableau original (à conserver)    
+    TABLEAU_CHOIX=("${TAB_D_OPTIONS[@]}") # copie du tableau original (à conserver)    
 else
-    local -n OPTION_POUR_ARRETER=$4 # optionnel
-    TABLEAU_CHOIX=("${TABLEAU_D_OPTIONS[@]}") # copie du tableau original car je vais y ajouter l'option de sortie
-    TABLEAU_CHOIX+=("$OPTION_POUR_ARRETER") # ajout de l'option de sortie
+    local -n OPT_POUR_ARRETER=$4 # optionnel
+    TABLEAU_CHOIX=("${TAB_D_OPTIONS[@]}") # copie du tableau original car je vais y ajouter l'option de sortie
+    TABLEAU_CHOIX+=("$OPT_POUR_ARRETER") # ajout de l'option de sortie
     DERNIERE_OPTION="${#TABLEAU_CHOIX[@]}"
-    MESSAGE_SI_OPTION_QUITTER="Tapez \"$DERNIERE_OPTION\" pour \"$OPTION_POUR_ARRETER\"
+    MESSAGE_SI_OPTION_QUITTER="Tapez \"$DERNIERE_OPTION\" pour \"$OPT_POUR_ARRETER\"
     " # inclus un retour à la ligne
 fi
 
-CHOIX_UTILISATEUR=""
-until [ -n "$CHOIX_UTILISATEUR" ] 
+CH_UTILISATEUR=""
+until [ -n "$CH_UTILISATEUR" ] 
 do
-    echo -e "\n$MESSAGE_AFFICHE.\n$MESSAGE_SI_OPTION_QUITTER"
-    select CHOIX_UTILISATEUR in "${TABLEAU_CHOIX[@]}"
+    echo -e "\n$MES_AFFICHE.\n$MESSAGE_SI_OPTION_QUITTER"
+    select CH_UTILISATEUR in "${TABLEAU_CHOIX[@]}"
     do
         break 
     done
-    if [ -n "$CHOIX_UTILISATEUR" ] # si le choix est correct
+    if [ -n "$CH_UTILISATEUR" ] # si le choix est correct
     then
         :
     else

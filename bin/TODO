@@ -2,6 +2,7 @@
 echo -e "\nCeci est la liste des choses améliorables pour bash\n"
 exit 0
 : <<HEREDOCUMENT
+
 La liste ci-dessous n'est pas triée par ordre de priorité :
 
 SCRIPTS

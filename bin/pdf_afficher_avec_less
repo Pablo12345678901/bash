@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+
+############ AVERTISSEMENT ############
+# Ce script est long car il convertit un PDF via OCR en texte.
+# Il n'affiche aucun message d'erreur.
+# Et pendant le chargement - rien n'est affiché.
+# À la fin de la tâche, le texte est lu avec 'less'.
+############ AVERTISSEMENT ############
+
+source fonctions_personnelles
+
+# Contrôle si ocrmypdf est présent dans l'environnement sinon l'installe.
+MODULE_REQUIS="ocrmypdf"
+module_controle_si_present_sinon_installe "$MODULE_REQUIS" || { echo -e "\nÉchec (exit)\n" ; exit 1 ; } # exit si erreur lors de l'installation
+
+# Contrôle de l'argument fourni au script
+SYNTAXE="\nSyntaxe :\n\t$(basename $0) FICHIER_PDF\n"
+if [ -z "$1" ]
+then
+    echo -e "\nERREUR : aucun argument fourni."
+    echo -e "$SYNTAXE"
+    exit 1
+else
+    # Test si fichier
+    if [ -f "$1" ]
+    then
+        REGEX_EXTENSION_PDF=".*\.pdf"
+        # Test si extension PDF
+        if [[ "$1" =~ $REGEX_EXTENSION_PDF ]]
+        then
+            PATH_PDF="$1"
+            FICHIER_PDF="${PATH_PDF##*/}"
+            # La suite du code s'exécute si arrivé ici.
+            # Sinon dans tous les autres cas : exit 1
+        else
+            echo -e "\nERREUR : l'argument fourni \"$1\" n'est pas un fichier PDF (pas d'extension '.pdf')."
+            echo -e "$SYNTAXE"
+            exit 1
+        fi
+    else
+        echo -e "\nERREUR : l'argument fourni \"$1\" n'est pas un fichier."
+        echo -e "$SYNTAXE"
+        exit 1
+    fi
+fi
+
+# Selection du type d'output
+# Liste des options pour réutilisation
+OPTION_1="avec PDF OCR uniquement"
+OPTION_2="avec fichier txt uniquement"
+OPTION_3="avec fichier txt et PDF OCR"
+OPTION_4="sans fichier d'output"
+# Path des éventuels fichiers produits
+FICHIER_PDF_SANS_EXTENSION="${FICHIER_PDF%.pdf}" #  besoin de retirer l'extension car
+##################################################  elle sera réajoutée selon le type de fichier output
+NOM_FICHIER_PDF_OCR=~/Desktop/${FICHIER_PDF_SANS_EXTENSION}_version_OCR.pdf
+NOM_FICHIER_TXT=~/Desktop/${FICHIER_PDF_SANS_EXTENSION}.txt
+# Ajout des options au tableau
+TABLEAU_D_OPTIONS+=("$OPTION_1")
+TABLEAU_D_OPTIONS+=("$OPTION_2")
+TABLEAU_D_OPTIONS+=("$OPTION_3")
+TABLEAU_D_OPTIONS+=("$OPTION_4")
+# Variable pour la fonction
+CHOIX_SELECTIONNE=""
+MESSAGE_AFFICHE="Quel type d'output aimeriez-vous ? "
+OPTION_POUR_ARRETER="Quitter"
+select_parmi_liste TABLEAU_D_OPTIONS CHOIX_SELECTIONNE MESSAGE_AFFICHE OPTION_POUR_ARRETER
+# Adaptation du type d'output selon le choix
+# Mise des paths de fichier entre guillemets simples pour qu'il soient considérés comme des blocs par la commande finale.
+case "$CHOIX_SELECTIONNE" in
+"$OPTION_POUR_ARRETER" ) exit 0 ;;
+"$OPTION_1" )   #   - avec PDF OCR uniquement
+                OUTPUT_OCR="--force-ocr '$PATH_PDF' '$NOM_FICHIER_PDF_OCR'"
+                ;;
+"$OPTION_2" )   #   - avec fichier txt uniquement
+                OUTPUT_OCR="--sidecar '$NOM_FICHIER_TXT' --force-ocr '$PATH_PDF' /dev/null"
+                ;;
+"$OPTION_3" )   #   - avec fichier txt et PDF OCR
+                OUTPUT_OCR="--sidecar '$NOM_FICHIER_TXT' --force-ocr '$PATH_PDF' '$NOM_FICHIER_PDF_OCR'"
+                ;;
+"$OPTION_4" )   #   - sans fichier d'output
+                OUTPUT_OCR="--sidecar -  --force-ocr '$PATH_PDF' /dev/null"
+                ;;
+* )             echo "ERREUR : choix non reconnu." &&
+                exit 1
+                ;;
+esac
+
+# choix y/n : afficher avec less ?
+REPONSE_LESS=""
+QUESTION_LESS="Voudriez-vous afficher ensuite le résultat avec less ? (YyOo/Nn) "
+question_oui_non REPONSE_LESS QUESTION_LESS
+case "$REPONSE_LESS" in
+'o' )   # Avec less
+        AVEC_LESS="| less" 
+        ;;
+'n' )   # Sans less
+        AVEC_LESS=""
+        ;;
+* )     echo "ERREUR : choix non reconnu." &&
+        exit 1
+        ;;
+esac
+
+# choix y/n : avec message d'erreur et info sur l'avancement de la tâche ?
+REPONSE_MESSAGE_ERREUR=""
+QUESTION_MESSAGE_ERREUR="Voudriez-vous afficher les éventuels messages d'erreur ainsi que l'avancement de la tâche ? (YyOo/Nn) "
+question_oui_non REPONSE_MESSAGE_ERREUR QUESTION_MESSAGE_ERREUR
+case "$REPONSE_MESSAGE_ERREUR" in
+'o' )   # Avec message
+        MESSAGE_ERREUR=""
+        ;;
+'n' )   # Sans message
+        MESSAGE_ERREUR="2>/dev/null" # message d'erreur envoyé sur /dev/null
+        ;;
+* )     echo "ERREUR : choix non reconnu." &&
+        exit 1
+        ;;
+esac
+
+# Exécution de la commande finale
+COMMANDE_FINALE="ocrmypdf $OUTPUT_OCR $MESSAGE_ERREUR $AVEC_LESS"
+echo -e "\nExécution de la commande :"
+echo -e "$COMMANDE_FINALE\n"
+eval "$COMMANDE_FINALE"
+#\"$AVEC_LESS\"
+# Remarques sur la commande finale
+# --sidecar génère un fichier texte avec le contenu du pdf
+# - : le tiret après sidecar signifie que le fichier est affiche sur STDOUT
+# --force-ocr : oblige ocr à récupérer le texte même si c'est déjà traité avec ocr (pr compatibilité avec ts PDF). Si pas activé, stop par défaut (dérangeant).
+# les 2 arguments suivants sont : input.pdf output.pdf
+# l'output est /dev/null pour ne pas créer de nouveau fichier (output obligatoire)
+# 2>dev/null pour ignorer tout message d'erreur
+# | less : pour afficher l'output
