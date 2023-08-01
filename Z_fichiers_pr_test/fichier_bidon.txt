@@ -1,234 +1,32 @@
-Salut ça va ? echnologie du web
-
-TECHNOLOGIES DE BASE DU WEB
-- HTML
-- CSS
-- JS (javascript)
-
-TECHNOLOGIES QUI GRAVITE AUTOUR DU WEB
-- php
-- MySQL
-- Django
-- React JS
-
-AUTRE TECHNOLOGIES LIEES AU WEB
-- requête http
-- format JSON
-- API REST
-
 FONCTIONNEMENT
 > Depuis machine (ordinateur/téléphone)
-> Connexion à une page internet à travers un navigateur (par exemple : Google Crhome) via une URL (adresse) par exemple : https://google.com.
-(>étape intermédiaire DNS : traduire l'adresse url en adresse IP pour savoir à quel serveur on s'adresse)
-> Mon navigateur va communiquer avec un serveur avec une requête HTTP (ou HTTPS)
-> Le serveur renvoie du contenu HTML (mais aussi CSS, image, javascript) représentant ainsi la page web qui s'affichera au navigateur.
-> L'url sera du type "...google.com?q=programmation" > Tout ce qui est après le "?" sera interprêté par Google comme une recherche.
+> Connexion à une page internet à travers un nav@@@@@@@@@@@@@@@igateur (par exemple : Google Crhome) via une URL (adresse) par exemple : https://google.com.
+(>étape intermédiaire DNS :@@@@@@@@@@@@@@@ traduire l'adresse url en adresse IP pour savoir à quel serveur on s'adresse)
+> Mon navigateur va communiquer avec un serveur avec une requête HTTP (ou @@@@@@@@@@@@@@@HTTPS)
+> Le serveur renvoie d@@@@@@@@@@@@@@@ u contenu HTML (mais aussi CSS, image, javascript) représentant ainsi la page web qui s'affichera au navigateur.
+> L'url sera @@@@@@@@@@@@@@@du type "...google.com?q=programmation" > Tout ce qui est après le "?" sera interprêté par Google comme une recherche.
 > Recherche qu'il effectuera sur son serveur.
 > Google va produire le contenu HTML (il varie selon les utilisateur qui font la recherche).
-> Quand le contenu HTML est prêt, il est renvoyé dans la réponse (avec image, CSS, JS)
-> C'est une page Web amiqleddf salut ca va ksksks
+> Quand le contenu HTML est prêt, il est renvoyé @@@@@@@@@@@@@@@dans la réponse (avec image, CSS, JS)
+> C'est une pa@@@@@@@@@@@@@@@ge Web amiqleddf sa@@@@@@@@@@@@@@@lut ca va ksksks
 DIFFERENCE ENTRE FRONT-END ET BACK-END
 Front end : partie visible et proche de l'utilisateur (HTML, CSS, JS)
 Sur la partie front end, il y a aussi Angular ou React JS qui permettent de réaliser des interfaces plus élaborées.
 Back-end : gestion des données (PHP, Django, .NetCore, node js, MySQL. RAILS, spring)
-
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 DIFFERENCE ENTRE LANGAGE ET FRAMEWORK
-Langage de balisage : HTML, CSS
-Langage de programmation : JS, php, python, C#. Java et Ruby
-Framework : Ensemble de composant logiciels. Les composants seront appelés à partir des langages de programmation afin de faire des choses plus puissantes. Le framework = la caisse à outil du développeur. Il existe des framework pour tout faire : des applications web, mobile, et bien d'autres choses.
-
+Langage de ba@@@@@@@@@@@@@@@lisage : HTML, CSS
+Langage de programmation : JS, php, python, C#. Jav@@@@@@@@@@@@@@@a et Ruby
+Framework : Ensemble de composant logiciels. Les composants seront appelés à par@@@@@@@@@@@@@@@tir des langages de programmation afin de faire des choses plus puissantes. Le framework = la caisse à outil du développeur. Il existe des framework pour tout faire : des applications web, mobile, et bien d'autres choses.
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 LISTE DE FRAMEWORK
 JS : Angular, React JS, node js, jQuery
 php : Symphony, Laravel
-Python : django, Flask
+Pyth@@@@@@@@@@@@@@@on : django, Flask
 C# : ASP.NET MVC, .Net Core
 Java : spring
 Ruby : RAILS
-FRAMEWORK FRONT-END
+FRAMEWORK FRONT-END@@@@@@@@@@@@@@@
 Angular, React JS, jQuery
 FRAMEWORK BACK-END
-Tous les autres ci-dessus
-
-CRITERES POUR APPRENDRE UN LANGAGE / FRAMEWORK
-- raisons techniques
-- raisons historiques
-- choix stratégiques en fonction du projet sur lequel je travaille
-- raison marketing
-CONTEXTE
-JS
-Par exemple JS est un standard du web. Les développeur web s'orientent davantage vers les framework JS.
-JS back-end ET moi j'adore
-le framework "node JS" est arrivé plus tard que php (php est plus ancien que node JS)
-PHP
-PHP peut être utilisé sans framework : il est possible d'utiliser des fonctions PHP pour accéder à une base de données MySQL et créer un petit back-end facilement. Du coup, PHP est un standard encore très utilisé. Je peux créer une application web assez facilement avec PHP.
-PHP AVANCE
-Pour aller plus loin et faire des choses plus compliquée, il faudra utiliser des framework PHP comme "symphony" ou "Laravel".
-PYTHON
-Langage très simple et populaire.
-Combiné au framework django, il  permet de réaliser des sites/applcation web très facilement.
-C#
-Écosytème à Microsoft.
-Très solide
-Très puissant avec des framework comme ASP.NET MVC ou .NETCore (framework pour serveur web crossplatform = linux, mac, Windows).
-Mais plus demandant au niveau de l'apprentissage.
-Peut aussi être utilisé sur la création de jeux vidéos avec "Unity"
-Ou d'app mobile avec "xamarin"
-Java
-Incontournable du développement avec une grosse communauté.
-Son plus populaire framework : java spring.
-Ruby
-Technologie à part mais permettant d'excellent résultats.
-
-CREATION DE SITE WEB
-
-SITE WEB STATIQUE
-La page web est faite en HTML et CSS mais ne dépend pas d'une base de données.
-EXEMPLE
-- Site vitrine
-- CV en ligne
-- Page d'information (CGU)
-FRONT END
-HTML, CSS, JS
-BACK END ET BASE DE DONNEES
-Sans X2
-
-SITE WEB DYNAMIQUE
-La page web dépend d'une base de données.
-EXEMPLE
-- e-commerce
-- Petites annonces
-FRONT END
-HTML, CSS, JS éventuellement un framework Angular ou React JS
-BACK END ET BASE DE DONNEES
-- PHP en back-end avec une base de données MySQL
-OU
-- Python avec django en back-end
-OU
-- C# avec .NETCore en back-end
-
-CMS
-- Content Management System : Un CMS permet de faire un site web sans coder.
-- Il est possible d'y coder pour faire des choses plus avancée mais n'importe quel utilisateur peut sans servir sans coder.
-CMS LES PLUS CONNUS
-- WORDPRESS
-- Joomla!
-- Drupal
-TECHNOLOGIES DES CMS
-FRONT-END
-HTML, CSS, JS
-BACK-END
-Avec php
-BASE DE DONNEES
-Avec MySQL
-AVANTAGES ET INCONVENIENTS DES CMS
-Avantages :
-- Pas besoin d'apprendre la programmation pour créer un site web.
-Inconvenients :
-- Génère du contenu à partir du php - ces contenus sont relativement lourd (HTML, CSS, JS) > provoquant une sous-optimisation et une lenteur.
-- impacte aussi le SEO car la performance du site est prise en compte par les moteurs de recherche.
-
-MISE EN LIGNE
-
-HEBERGEMENT
-- avec l'hébergement gratuit/payant pour obtenir une url.
-- l'hébergement est comme mon disque dur sur internet : pour y stocker mes fichiers HTML, CSS, images, zip et exécuter du php.
-- utilisation du protocole FTP pour mettre mes fichiers sur mon hébergement
-- nom de domaine est l'adresse internet reliée à mon hébergement
-- il est possible de relier plusieurs nom de domaine à mon hébergement > possible d'avoir plusieurs sous-répertoire sur un hébergement et de rattacher un seul nom de domaine par répertoire
-
-GRATUIT SITE STATIQUE AVEC GITHUB
-Github-Pages est gratuit mais ne fonctionne qu'avec des pages statiques.
-
-CREATION DE REPOSITORY
-- github.com
-- créer compte avec sign up
-- se connecter
-- en haut à droite > cliquer sur "+" > new repository
-- fournir un nom
-- mettre en repository "public"
-- cliquer sur "Create repository"
-
-TELECHARGEMENT DES FICHIERS SUR LE REPOSITORY
-- cliquer sur "Uploading existing files"
-- télécharger les fichiers en les faisant glisser sur l'écran
-- cliquer sur "Commit change"
-- contrôler que mes fichiers sont bien téléchargés
-
-ACTIVER LE GITHUB PAGE
-- aller dans les settings
-- cliquer sur "Pages" (à gauche) > section "Github Pages"
-- chosir la "Branch" = main puis cliquer sur "save"
-ACCEDER A LA PAGE WEB
-- cliquer sur "Pages" (à gauche) > section "Github Pages"
-- au bout de quelque instant, l'url est créée et s'affiche. Exemple :
-"Your site is live at https://pablo12345678901.github.io/site_recettes/"
-- qd je clique dessus, erreur 404 = normale car je suis à la racine.
-- pour accéder aux fichiers, il me suffit de taper l'url et de rajouter le nom du fichier.
-Exemple : https://pablo12345678901.github.io/site_recettes/recette.html
-
-EVITER L'ERREUR 404 A LA RACINE
-- Dupliquer le fichier html dans mes dossier
-- Le renommer "index.html"
-- Le re-télécharger dans le dossier
-- Raffraîchir la page racine (cela peut prendre quelque minutes avant que cela fonctionne)
-
-SUPPRESSION DE FICHIER
-- depuis le repository github > cliquer sur le fichier > cliquer sur supprimer
-
-PAYANT
-Principe : Hébergement payant environ 30 CHF/an pour obtenir une url et un nom de domaine.
-
-PAYANT AVEC OVH
-OVH : payant mais dynamique - environ 22 EUR
-- possible d'exécuter du PHP sur OVH
-
-ACHAT DU NOM DE DOMAINE ET HEBERGEMENT
-- Rechercher OVH nom de domaine sur Google
-- Aller sur : https://www.ovhcloud.com/fr/domains/
-- Taper le nom de domaine que je souhaiterais avec l'extensions > s'il n'est pas disponible, ce sera écrit "Transférable" et je devrais en chercher un autre
-- Une fois trouvé, sélectionner et cliquer sur continuer
-- sélectionner l'abonnement le plus basique (possible d'évoluer ensuite) > selon :
-	- le nombre de site web disponible
-	- l'espace disponible
-	- le nombre d'adresse e-mail pro
-- conserver l'option du certificat SSL (site débutera par https)
-- ne pas installer de CMS (ex de CMS : Wordpress)
-- chaque année, besoin de payer pour conserver le nom de domaine - si pas payé, OVH le remet en vente
-- chaque année, besoin de payer l'hébergement
-
-PUBLICATION DES FICHIERS AVEC FTP
-
-TELECHARGEMENT DE FILEZILLA
-- Rechercher "Filezilla" sur Google
-- cliquer sur https://filezilla-project.org/
-- > Download > version "Client" et gratuite
-
-CONNEXION
-- Saisir le nom d'hôte, l'identifiant et le mot de passe pour se connecter (J'ai dû recevoir ces informations par e-mail). Sinon, aller sur OVH > Se connecter > Web > Hébergements > cliquer sur le nom de mon hébergement > Onglet FTP :
-	- le lien vers le cluster = l'adresse = l'hôte
-	- voir le nom de l'utilisateur FTP plus bas, sinon en créer un autre pour avoir l'identifiant et le mot de passe
-- Sauvegarder ces informations dans Filezilla sous > Fichier > Gestionnaire de sites
-- Une fois sauvegardés, pour accéder aux sites, je vais dans options et je sélectionne le site
-
-PUBLICATION DES FICHIERS
-- Une fois connecté, je vois mes dossiers.
-- Il y a un dossier "www" = il est à la racine du site web
-- Déposer mes fichiers (HTML, CSS, ...) sur ce dossier "www"
-- me rendre sur mon l'adresse de mon site web pour contrôler que tout est bon
-
-PAYANT AVEC 1&1
-1&1 : payant mais dynamique
-
-SERVEUR CLOUD
-
-PRINCIPE
-- avec Azure, AMS (Amazon Web Service), Heroku
-- Les serveurs cloud sont plus puissants et évolutif : ils fonctionnent avec davantage de langages et framework.
-- Ils sont facilement scalable : il est aisément possible d'augmenter la puissance pour répondre au nombre croissant d'utilisateur.
-- Facturation à la demande. Plus le serveur est utilisé et plus je paye pour celui-ci.
-
-PYTHONANYWHERE POUR SITE AVEC DJANGO
-Voir section sous Python
-
-HEROKU POUR PYTHON ET SITE AVEC DJANGO
-Voir section sous Python
+Tous les aut@@@@@@@@@@@@@@@res ci-dessus

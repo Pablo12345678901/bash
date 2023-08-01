@@ -10701,9 +10701,9 @@ Bash :
 	La commande "redaction_message_erreur_dans_fichier" de type "function" ne possède pas de page manuel dédiée.
 	Tapez "help redaction_message_erreur_dans_fichier", "info redaction_message_erreur_dans_fichier" ou "redaction_message_erreur_dans_fichier" pour essayer d'obtenir davantage d'informations.
 
-"remplissage_tableau_app_ouverte" : 
-	La commande "remplissage_tableau_app_ouverte" de type "function" ne possède pas de page manuel dédiée.
-	Tapez "help remplissage_tableau_app_ouverte", "info remplissage_tableau_app_ouverte" ou "remplissage_tableau_app_ouverte" pour essayer d'obtenir davantage d'informations.
+"app_ouvertes_obtention_et_remplissage_tableau" : 
+	La commande "app_ouvertes_obtention_et_remplissage_tableau" de type "function" ne possède pas de page manuel dédiée.
+	Tapez "help app_ouvertes_obtention_et_remplissage_tableau", "info app_ouvertes_obtention_et_remplissage_tableau" ou "app_ouvertes_obtention_et_remplissage_tableau" pour essayer d'obtenir davantage d'informations.
 
 "rendre_executable_tous" : 
 	La commande "rendre_executable_tous" de type "file" ne possède pas de page manuel dédiée.

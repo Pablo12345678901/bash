@@ -2,25 +2,40 @@
 
 source fonctions_personnelles
 
+# Remarques : si je suis bloqué dans une boucle infinie :
+# -> Changing "done" to "done </dev/tty" could solve the problem > cf /dev/tty
 # Récupérer les éléments utiles dans mes notes après avoir rédigé ce script.
 # Amélioration potentielles :
+#   mode silencieux
 #   accepter les strings de plusieurs mots avec gestion des espaces
 #   accepter de remplacer un string par un string vide
+#   faire fonctionner le vidage de la corbeille depuis ce script
+
+
+
+
+declare -a TABLEAU_FICHIERS
+
+SYNTAXE="Syntaxe :\n\t$(basename $0)    STRING_RECHERCHE    STRING_REMPLACEMENT    FICHIER_OU_REPERTOIRE [...]\n"
+NOM_FICHIER_OUTPUT_CORBEILLE="$(basename $0)_output.txt"
+PATH_FICHIER_OUTPUT_CORBEILLE=~/.Trash/${NOM_FICHIER_OUTPUT_CORBEILLE}
 
 # Contrôle qu'un argument a été fourni au script
 # Cette section doit être adaptée une fois les test avec données terminée
-if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]
-# $1 : STRING_RECHERCHE
+if [[ -z "$1" || -z "$2" || -z "$3" ]]
+# $1 : REGEX_RECHERCHE
 # $2 : STRING_REMPLACEMENT
-# $3 : FICHIER
+# $3 : FICHIER_OU_REPERTOIRE
+# ($...) : ...
 then
     ############################################################
     ##############    DONNEES  TEST    #########################
     ############################################################
-    MOT_RECHERCHE="${1:-"wesh"}"
-    MOT_REMPLACEMENT="${2:-"bash"}"
-    FICHIER_TEST="${3:-"/Users/pablo/Desktop/Developpement/bash/bin/terminal_relancer_avec_parametres_d_origine"}"  # Fichier pr test
-    #FICHIER_TEST="$REPERTOIRE_DEVELOPPEMENT/bash/Z_fichiers_pr_test/autre_fichier.txt" # Autre fichier pr test
+    # Cette section est à modifier quand les tests seront terminés.
+    # Incluant un contrôle des arguments.
+    REGEX_RECHERCHE="${1:-"wesh"}"
+    STRING_REMPLACEMENT="${2:-"bash"}"
+    FICHIER_OU_REPERTOIRE="${3:-"$REPERTOIRE_DEVELOPPEMENT/bash/Z_fichiers_pr_test/autre_fichier.txt"}"  # Fichier pr test
     ############################################################
     ##############    DONNEES  TEST    #########################
     ############################################################
@@ -28,150 +43,443 @@ then
     # Code prêt pour la suite
     #echo -e "\nERREUR : il faut fournir au minimum 3 arguments à ce script."
     #echo -e "Vous avez fourni les arguments suivants : \"$*\"."
-    #echo -e "\nSyntaxe :\n\t$(basename $0) STRING_RECHERCHE    STRING_REMPLACEMENT    FICHIER [...]\n"
+    #echo -e "$SYNTAXE"
     #exit 1
-
+    echo "DEBUG SAISIR 3 ARGUMENT"
+    exit 1
 else
-    MOT_RECHERCHE="$1"
-    MOT_REMPLACEMENT="$2"
-    FICHIER_TEST="$3"
-    :
+    REGEX_RECHERCHE="$1"
+    STRING_REMPLACEMENT="$2"
+    FICHIER_OU_REPERTOIRE="$3"
+    if [[ -d "$3" || -f "$3" ]] # si le 3ème argument est un fichier ou un répertoire = ok
+    then
+        # si fichier -> ajout au tableau
+        if [ -f "$FICHIER_OU_REPERTOIRE" ]
+        then
+            TABLEAU_FICHIERS+=("$FICHIER_OU_REPERTOIRE")
+        else # donc forcément répertoire -> ajout des fichiers du répertoire au tableau
+            repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FICHIER_OU_REPERTOIRE"
+        fi
+    else
+        echo -e "\nERREUR : l'argument fourni \"$FICHIER_OU_REPERTOIRE\" n'est pas un fichier / répertoire.\n"
+        echo -e "$SYNTAXE"
+        exit 1
+    fi
+    NB_ARGUMENTS=$#
+    NB_ARGUMENT_MINIMUM=3
+    if [ $NB_ARGUMENTS -gt $NB_ARGUMENT_MINIMUM ]
+    then
+        for ((i=$((NB_ARGUMENT_MINIMUM+1)); i<=$NB_ARGUMENTS; i++)) # +1 à cause du décalage des index qui débute à 0 et pas à 1 quand il y a 1 argument / raisonnement similaire pour le '<=NBARGUMENT'
+        do
+            FICHIER_OU_REPERTOIRE_ARG_SUIVANT="${!i}"
+            if [[ -d "${!i}" || -f "${!i}" ]] # si le 3ème argument est un fichier ou un répertoire = ok
+            then
+                # si fichier -> ajout au tableau
+                if [ -f "$FICHIER_OU_REPERTOIRE_ARG_SUIVANT" ]
+                then
+                    TABLEAU_FICHIERS+=("$FICHIER_OU_REPERTOIRE_ARG_SUIVANT")
+                else # donc forcément répertoire -> ajout des fichiers du répertoire au tableau
+                    repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FICHIER_OU_REPERTOIRE_ARG_SUIVANT"
+                fi
+            else
+                echo -e "\nERREUR : l'argument $i fourni \"$FICHIER_OU_REPERTOIRE_ARG_SUIVANT\" n'est pas un fichier / répertoire.\n"
+                echo -e "$SYNTAXE"
+                exit 1
+            fi
+        done
+    else
+        : # continue le script s'il y a exactement le nombre d'argument minimum.
+    fi
 fi
 
+# Récupération des matchs dans un string
+REGEX_DE_MARQUAGE_ARGUMENT_SPECIAL="LISTE_DE_FICHIER_SEPARES_PAR_DES_DOUBLES_POINTS"
+LISTE_FICHIERS+="$REGEX_DE_MARQUAGE_ARGUMENT_SPECIAL"
+for FICHIER_UN_PAR_UN in "${TABLEAU_FICHIERS[@]}"
+do
+    LISTE_FICHIERS+="$(echo -n ":$FICHIER_UN_PAR_UN")" # un espace à la fin de chaque fichier
+done
 
-# Sécurité pour m'assurer que je fais les choses correctement avant de lancer un remplacement violent
-REPONSE=""
-QUESTION="Êtes-vous certains de vouloir remplacer toutes les occurences
-de : $MOT_RECHERCHE
-par : $MOT_REMPLACEMENT
-dans le fichier : $FICHIER_TEST ?
-
-(YyOo/Nn) -> "
-question_oui_non REPONSE QUESTION
-if [ "$REPONSE" = 'o' ]
-then
-    echo -e "\nRemplacement de \"$MOT_RECHERCHE\" par \"$MOT_REMPLACEMENT\" dans le fichier \"$FICHIER_TEST\".\n"
-else
-    echo -e "\nAnnulation du remplacement.\n"
-    exit 0
-fi
-
-
-############################################################
-##############   A DEVELOPPER    ###########################
-############################################################
-
-# CONTROLE ENTREE CORRECTE :
-# Entrée : un / plusieurs fichier / répertoires + deux mots clefs MOT_RECHERCHE MOT_REMPLACEMENT
-# boucle avec test :
-#       si fichier
-#           -> inclure dans tableau
-#           puis shift -1
-#           continue -> étude prochaine option
-#       si répertoires
-#           -> ajout de tous les sous fichiers du répertoires dans le tableau avec find
-#           puis shift -1
-#           continue -> étude prochaine option
-#       si pas fichier alors :
-#           test si tableau contient au moins un fichier
-#           si oui :
-#               récupère argument en tant que mot clef recherché
-#               puis shift -1
-#               si autre argument :
-#                   récupère argument en tant que mot de remplacement
-#                   puis shift -1
-#                   test si autre argument (test si argument $1 = nul)
-#                   si autre argument : affiche msg erreur
-#                   sinon passe au remplacement
-#               sinon : affiche message d'erreur
-#           sinon : affiche message d'erreur
-
-
-
-# OBTENTION ET AFFICHAGE MATCH
-# grep sur chaque fichier du tableau mot le mot clefs :
-# afficher la liste des fichiers impactés (et les matchs impacté)
-# et décision (cf ci-dessous) avant remplacement
-
-# DECISION
-# puis Demande choix :
-# select :
-#   valider la modification sur tous les fichiers et match
-#   passer en revue chaque fichier
-#   annuler l'action de modification -> exit
-# Selon choix :
-#   modification de tous les fichiers et match -> lancer
-#   si passer en revue chacun :
-#       affichage toutes les lignes et match fichier par fichier
-#       select :
-#           valider la modif de toutes les lignes
-#           passer en revue chacune -> fichier suivant quand fini
-#           annuler la modification pour ce fichier -> passe au fichier suivant
-#           quitter -> exit
-
-############################################################
-##############   FIN A DEVELOPPER    #######################
-############################################################
-
-
-
-# Conservation des lignes dans un tableau qui :
+# Conservation des lignes qui :
 #   - ne sont pas uniquement composéees de commentaires
 #   - match un mot recherché
 #   - le mot recherché n'est pas dans un commentaire en fin de ligne
-# REGEX
+
+# Gestion du regex qui doit matcher les mauvaises lignes avec match QUE dans un commentaire
 REGEX_SYMBOLE_COMMENTAIRE="#" # à adapter si changement de langage (exemple : 'C' )
-REGEX_LIGNE_UNIQUEMENT_COMMENTAIRE="^[[:space:]]*[.$REGEX_SYMBOLE_COMMENTAIRE.]+.*$"
+REGEX_LIGNE_UNIQUEMENT_COMMENTAIRE="^\t\t[1-9]{1}[0-9]*\t[.$REGEX_SYMBOLE_COMMENTAIRE.]+.*$" # contient
 # ^ et $ : début et fin de ligne
+# \t : contient des tabulation selon le format défini par l'autre script : 2_TAB NUM_LIGNE>0 1_TAB CONTENU_LIGNE
+# [1-9] et [0-9] match un de ces nombres
+# {1} : match exactement 1x
 # * match 0 ou plusieurs fois (0 - infini)
 # + : match 1 ou plusieurs fois
 # . : n'importe quel char
 # [.X.] : ne doit pas être ce string
-# UTILISATION DU REGEX
-while read LIGNE
+
+
+# Indicateurs pour affichage après avoir supprimé les fichiers sans lignes et répertoires sans fichiers
+FLAG_ESPACE_AU_TOUT_DEBUT="true"
+FLAG_AFFICHAGE_REPERTOIRE="false"
+FLAG_AFFICHAGE_FICHIER="false"
+FLAG_AFFICHAGE_LIGNE="false"
+# Variable de conservation des valeurs pour affichage plus tard
+CONSERVATION_REPERTOIRE=""
+CONSERVATION_FICHIER=""
+CONSERVATION_LIGNE=""
+# Mémorisation du dernier élément pr affiché que si différent du précédent
+DERNIER_REPERTOIRE_AFFICHE=""
+DERNIER_FICHIER_AFFICHE=""
+
+# Filtrage des données
+while read LIGNE_FILTREE
 do
-    LIGNE="${LIGNE/:/ }" # attrape la ligne et remplace le premier ':' par un espace
-    NUM_LIGNE=$(echo "$LIGNE" | awk ' {print $1} ') # affiche le numéro de lignes
-    CONTENU_LIGNE="${LIGNE/$NUM_LIGNE /}" # supprime le numéro de ligne + un espace (juste après)
-    # Conservation que des lignes contenant un match qui est avant un commentaire.
-    # Donc suppression des lignes contenant un match UNIQUEMENT dans un commentaire.
-    INDEX_SYMBOLE_COMMENTAIRE=$(string_recherche_sous_string_echo_index_ou_moins_un " $REGEX_SYMBOLE_COMMENTAIRE " "$CONTENU_LIGNE")
-    if [ $((INDEX_SYMBOLE_COMMENTAIRE)) -ge 0 ] # si l'index est >=0 ça veut dire qu'il y a eu un match d'un symbole de commentaire
+    # 4 types de lignes :
+    #   REPERTOIRE
+    #   FICHIER
+    #   LIGNE
+    #   VIDE
+    # Ces 4 types ont été mis juste avant la mise séparés par ':'
+    # Récupération du type de la ligne
+    TYPE_LIGNE_FILTREE="${LIGNE_FILTREE%%:*}" # récupération du type avec avoir coupé le plus long morceau possédant un ':' depuis la droite
+    LIGNE_FILTREE="${LIGNE_FILTREE#$TYPE_LIGNE_FILTREE:}" # récupération de la ligne avec avoir coupé le type (et ':') depuis la gauche
+    # Adaptation des flags selon le type de ligne rencontré
+    # Raisonnement sur l'algorithme utilisé
+    #   Une première ligne vide est imprimée avant tout autre chose et ce dès qu'une ligne (avec numéro) a été détectée.
+    #   Le répertoire du match courant est conservé mais son flag d'affichage n'est activé que s'il est différent du précédent répertoire affiché.
+    #   Dans tous les cas le répertoire n'est affiché que si une ligne après celui-ci a été détectée.
+    #   Le fichier du match courant est conservé mais son flag d'affichage n'est activé que s'il est différent du précédent fichier affiché.
+    #   Dans tous les cas le fichier n'est affiché que si une ligne après celui-ci a été détectée.
+    #   Aussitôt qu'une nouvelle ligne est détectée, le flag d'affichage s'active. L'affichage (du répertoire et/ou fichier dépendra de leurs flags individuels.
+    #   Dans tous les cas, la ligne sera affichée après un éventuel affichage de répertoire et/ou fichier.
+    #   Finalement, les lignes vides déclenchent un print vide (print ligne vide) que si le flag d'une ligne détectée est activée.
+    #   Ensuite, ce flag est désactivé et sera réactivé à la prochaine rencontre d'une ligne avec numéro.
+    case "$TYPE_LIGNE_FILTREE" in
+    "REPERTOIRE" )      CONSERVATION_REPERTOIRE="$LIGNE_FILTREE"
+                        if [ "$CONSERVATION_REPERTOIRE" != "$DERNIER_REPERTOIRE_AFFICHE" ]
+                        then
+                            FLAG_AFFICHAGE_REPERTOIRE="true"
+                        else
+                            :
+                        fi
+                        ;;
+    "FICHIER" )         CONSERVATION_FICHIER="$LIGNE_FILTREE"
+                        if [ "$CONSERVATION_FICHIER" != "$DERNIER_FICHIER_AFFICHE" ]
+                        then
+                            FLAG_AFFICHAGE_FICHIER="true"
+                        else
+                            :
+                        fi
+                        ;;
+    "LIGNE" )           CONSERVATION_LIGNE="$LIGNE_FILTREE"
+                        FLAG_AFFICHAGE_LIGNE="true"
+                        ;;
+    # Une ligne vide est ignoré sauf si l'indicateur de ligne dit "true" (une ligne était là avant) - donc l'espace vide est important pour délimiter la fin du fichier.
+    "VIDE" )            if [ $FLAG_ESPACE_AU_TOUT_DEBUT = "true" ]
+                        then
+                            echo "" # impression d'un espace avant l'output pour être plus esthétique.
+                            FLAG_ESPACE_AU_TOUT_DEBUT="false"
+                        else # après avoir imprimé le premier espace, on sera toujours ici
+                            # affichage d'un espace de fin après avoir listé toutes les lignes du fichier concerné - ce pour chaque fichier
+                            # affichage d'un espace que si précédé d'une ligne -> si plusieurs espaces à la suite, les suivants seront ignorés
+                            if [ $FLAG_AFFICHAGE_LIGNE = "true" ]
+                            then
+                                echo ""
+                                FLAG_AFFICHAGE_LIGNE="false"
+                            else
+                                :
+                            fi
+                        fi
+                        ;;
+    esac
+    # Utilisation des flags pour un affichage dynamique :
+    if [ $FLAG_AFFICHAGE_LIGNE = "true" ]
     then
-        INDEX_MOT_RECHERCHE=$(string_recherche_sous_string_echo_index_ou_moins_un "$MOT_RECHERCHE" "$CONTENU_LIGNE")
-        if [ $INDEX_MOT_RECHERCHE -lt $INDEX_SYMBOLE_COMMENTAIRE ]
+        if [ $FLAG_AFFICHAGE_REPERTOIRE = "true" ]
         then
-            TABLEAU_NUM_LIGNES+=($NUM_LIGNE)
-            TABLEAU_CONTENU_LIGNE+=("$CONTENU_LIGNE")
+            # affichage du répertoire avec un espace
+            echo "$CONSERVATION_REPERTOIRE"
+            echo ""
+            # et mise à jour du dernier répertoire affiché
+            DERNIER_REPERTOIRE_AFFICHE="$CONSERVATION_REPERTOIRE" 
+            # remise du flag à false
+            FLAG_AFFICHAGE_REPERTOIRE="false"
         else
-            : # le match vient après le commentaire donc la ligne n'est pas rajoutée au tableaux des matchs
+            :
         fi
+        #
+        if [ $FLAG_AFFICHAGE_FICHIER = "true" ]
+        then
+            # affichage du fichier avec un espace et remise du flag à false
+            echo "$CONSERVATION_FICHIER"
+            echo ""
+            # et mise à jour du dernier fichier affiché
+            DERNIER_FICHIER_AFFICHE="$CONSERVATION_FICHIER" 
+            # remise du flag à false
+            FLAG_AFFICHAGE_FICHIER="false"
+        else
+            :
+        fi
+        # Et après l'éventuel répertoire et fichier -> affichage du contenu de la ligne
+        echo "$CONSERVATION_LIGNE"
     else
-        TABLEAU_NUM_LIGNES+=($NUM_LIGNE)
-        TABLEAU_CONTENU_LIGNE+=("$CONTENU_LIGNE")
+        : # pas d'affichage si le déclencheur minimum (une ligne avec num) n'est pas présente.
     fi
-    # Fonction personnelle :
-    # $1 : sous-string recherché
-    # $2 : string dans lequel est effectué la recherche
-    # Recherche d'un éventuel index du symbole commentaire séparés d'espace car on a déja retiré les lignes qui débutaient par ce symbole
-done < <(   grep -E -n -v "$REGEX_LIGNE_UNIQUEMENT_COMMENTAIRE" "$FICHIER_TEST" | # retrait des lignes contenant uniquement des commentaires
-            # grep -E : extended regex
-            # grep -n : chaque output est précédé du numéro de lignes. Ligne de début = 1. Le compteur recommencer à chaque fichier.
-            # grep -v : affiche les lignes qui ne matchent pas.
-            grep "$MOT_RECHERCHE" # recherche du REGEX parmi les lignes restantes
-            # parmi les lignes restantes, retraits des lignes qui contiennet le REGEX après un #
-        ) 
+done < <( while read LIGNE
+        do
+            BESOIN_CHECK="false"
+            case "$LIGNE" in
+            '/'* )      echo -e "REPERTOIRE:$LIGNE" ;; # si débute par '/'
+            [^1-9]* )   echo -e "FICHIER:\t$LIGNE" ;; # si débute par exactement 1x tab -> affichage avec 1x tab
+            [1-9]* )    BESOIN_CHECK="true" ;; # si débute par un numéro de ligne
+            * )         echo -e "VIDE:$LIGNE" ;; # si ligne vide -> affichage tel quel
+            esac
+            
+            if [ $BESOIN_CHECK = "true" ]
+            then
+                NUM_LIGNE=$(echo "$LIGNE" | awk ' {print $1} ') # affiche le numéro de lignes
+                CONTENU_LIGNE="$(sed -e "s/\t//" <(echo "${LIGNE#$NUM_LIGNE}"))" # coupe le numéro de ligne + la tabulation qui suit
+                # Conservation que des lignes contenant un match qui est avant un commentaire.
+                # Donc suppression des lignes contenant un match UNIQUEMENT dans un commentaire.
+                INDEX_SYMBOLE_COMMENTAIRE=$(string_recherche_sous_string_echo_index_ou_moins_un " $REGEX_SYMBOLE_COMMENTAIRE" "$CONTENU_LIGNE") # un commentaire est débute par 'espace #'
+                if [ $((INDEX_SYMBOLE_COMMENTAIRE)) -ge 0 ] # si l'index est >=0 ça veut dire qu'il y a eu un match d'un symbole de commentaire
+                then
+                    INDEX_REGEX_RECHERCHE=$(string_recherche_sous_string_echo_index_ou_moins_un "$REGEX_RECHERCHE" "$CONTENU_LIGNE")
+                    # si l'index est plus petit cela signifie qu'il arrive avant dans la ligne
+                    if [ $INDEX_REGEX_RECHERCHE -lt $INDEX_SYMBOLE_COMMENTAIRE ] 
+                    then
+                        # affichage ligne
+                        echo -e "LIGNE:\t\t$LIGNE"
+                    else
+                        : # le match vient après le commentaire donc la ligne n'est pas rajoutée au tableaux des matchs
+                    fi
+
+                else
+                    # affichage ligne
+                    echo -e "LIGNE:\t\t$LIGNE"
+                fi
+            else
+                :
+            fi
+            # La fonction ci-dessous appelle le script d'affichage des résultats = les lignes qui match le REGEX - non filtrées par rapport aux commentaires
+        done < <( repertoire_recherche_regex "$REGEX_RECHERCHE" "$LISTE_FICHIERS" -s |
+    # '-s' pour silencieux : sans les messages
+    # Affichage BRUT des répertoires,
+    #   TAB fichiers
+    #       TAB TAB numéro_de_ligne TAB contenu
+    # Suppression des mauvaises lignes composée UNIQUEMENT d'un commentaire (100% commentaire)
+    grep -E -v "$REGEX_LIGNE_UNIQUEMENT_COMMENTAIRE" ) ) |
+    # grep -E : extended regex
+    # grep -n : chaque output est précédé du numéro de lignes. Ligne de début = 1. Le compteur recommencer à chaque fichier.
+    # grep -v : affiche les lignes qui ne matchent pas.
+    tee "$PATH_FICHIER_OUTPUT_CORBEILLE" # double parethèse car après filtrage des lignes correcte, il faut vérifier si chaque répertoire contient au moins un fichier et si chaque fichier contient au moins une ligne avant de l'afficher.
+    # envoi d'un doublon vers la corbeille car il se peut que s'il y a trop de match, il soient tronqués à l'écran.
+
+echo -e "\nLes fichiers concernés et les matchs ont été affichés ci-dessus. Une copie de l'output a été placée dans la corbeille sous le nom de \"$NOM_FICHIER_OUTPUT_CORBEILLE\".\n"
+
+
+REPONSE_LESS=""
+QUESTION_LESS="Voudriez-vous consulter cet output avec less ? (YyOo/Nn) "
+question_oui_non REPONSE_LESS QUESTION_LESS
+if [ "$REPONSE_LESS" = 'o' ]
+then
+    less $PATH_FICHIER_OUTPUT_CORBEILLE
+else
+    :
+fi
+
+# Sécurité car remplacement violent
+declare -a TABLEAU_OPTIONS
+OPTION_1="Validez tous les remplacements"
+OPTIONS_2="Contrôler fichier par fichier"
+TABLEAU_OPTIONS+=("$OPTION_1")
+TABLEAU_OPTIONS+=("$OPTIONS_2")
+CHOIX_SELECTIONNE=""
+MESSAGE_AFFICHE="\nQue décidez-vous pour la suite ? "
+OPTION_POUR_ARRETER="Quitter"
+select_parmi_liste TABLEAU_OPTIONS CHOIX_SELECTIONNE MESSAGE_AFFICHE OPTION_POUR_ARRETER
+if [ "$CHOIX_SELECTIONNE" = "$OPTION_POUR_ARRETER" ]
+then
+    echo -e "\nVous décidez d'annuler le remplacement.\n"
+    exit 0
+else
+    echo -e "\nVous avez choisi \"$CHOIX_SELECTIONNE\".\n"
+    if [ "$CHOIX_SELECTIONNE" = "$OPTION_1" ] # validation massive
+    then
+        # Choix fait : modification de tous les fichiers et match -> lancer
+        # Récupération des données : elles sont déjà nettoyées il ne reste plus qu'à récupérer les éléments pour le remplacement.
+        # récupérer les data du fichier dans la corbeille
+        REPERTOIRE_COURANT=""
+        FICHIER_COURANT=""
+        PATH_COURANT=""
+        LIGNE_COURANTE=""
+        NUMERO_LIGNE_COURANTE=""
+        # Flag pr ne pas run la commande sur les première lignes dans lesquelles il n'y a pas de répertoire/fichier/ligne (num) disponible.
+        FLAG_DONNEES_PR_REMPLACEMENT_COMPLETE="false" 
+        while read LIGNE_FINALE
+        do
+            case "$LIGNE_FINALE" in
+            '/'* )          REPERTOIRE_COURANT="$LIGNE_FINALE"
+                            continue # REPERTOIRE mais pas encore ligne : passer à la boucle (ligne) suivante sans rien afficher
+                            ;; # si débute par '/'
+
+            [^1-9]* )       FICHIER_COURANT="$LIGNE_FINALE"
+                            PATH_COURANT="${REPERTOIRE_COURANT}/${FICHIER_COURANT}"
+                            continue # FICHIER mais pas encore ligne : passer à la boucle (ligne) suivante sans rien afficher
+                            ;; # si débute par exactement 1x tab -> affichage avec 1x tab
+            [1-9]* )        LIGNE_COURANTE="$LIGNE_FINALE"
+                            NUMERO_LIGNE_COURANTE="$(echo "$LIGNE_COURANTE" | awk ' { print $1 } ' )"
+                            # Active le flag que si false, la première fois qu'une ligne (avec num) est rencontrée
+                            # Éviter de remettre à true la variable et économise du CPU
+                            if [ $FLAG_DONNEES_PR_REMPLACEMENT_COMPLETE = "false" ]
+                            then
+                                FLAG_DONNEES_PR_REMPLACEMENT_COMPLETE="true"
+                            else
+                                :
+                            fi
+                            ;; # si débute par un numéro de ligne
+            * )             continue # Ligne vide : passer à la boucle (ligne) suivante sans rien afficher
+                            ;; # va à la prochaine boucle -> évite de lancer la commande de remplacement sans argument (provoquerait erreur)
+            esac
+            if [ $FLAG_DONNEES_PR_REMPLACEMENT_COMPLETE = "true" ]
+            then
+                sed -i '' "${NUMERO_LIGNE_COURANTE}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" $PATH_COURANT
+                # sed -i '' : inline - sans fichier de back-up
+                # s/ : substitute
+                # g : remplace tous les matchs pas juste le premier
+            else
+                : # Pas de remplacement tant que le flag n'est pas activé.
+            fi
+        done < <(grep $ "$PATH_FICHIER_OUTPUT_CORBEILLE")
+        echo -e "\nRemplacement terminé.\n"
+    else
 
 
 
 
-# REMPLACEMENT
-# Sur la base d'un nom de fichier et d'un tableau de lignes, remplace les occurences d'un mot par un autre.
-for NUM in ${TABLEAU_NUM_LIGNES[@]}
-do
-    sed -i '' "${NUM}s/${MOT_RECHERCHE}/${MOT_REMPLACEMENT}/g" $FICHIER_TEST
-    # sed -i '' : inline - sans fichier de back-up
-    # s/ : substitute
-    # g : remplace tous les matchs pas juste le premier
-done
+
+
+
+
+
+
+
+
+        # Choix fait : Passage en revue fichier par fichier
+        # Récupération des données : elles sont déjà nettoyées il ne reste plus qu'à récupérer les éléments pour le remplacement.
+        # récupérer les data du fichier dans la corbeille
+        REPERTOIRE_COURANT=""
+        FICHIER_COURANT=""
+        PATH_COURANT=""
+        LIGNE_COURANTE=""
+        NUMERO_LIGNE_COURANTE=""
+        # Liste des flags qui influencent l'affichage
+        FLAG_LIGNE_A_AFFICHER="false"
+        # Tableau de stockage pour affichage des match par fichier et éventuels gestion un par un
+        declare -a TABLEAU_LIGNES
+        declare -a TABLEAU_NUMERO_LIGNES
+        # Gestion des datas du select hors boucle pour éviter qu'elles soient réinitialisées à chaque fois
+        declare -a TABLEAU_OPTIONS_SELECT
+        OPTION_1="Remplacer tous les match du fichier"
+        OPTION_2="Contrôler les match un par un"
+        OPTION_POUR_STOP="Quitter"
+        TABLEAU_OPTIONS_SELECT+=("$OPTION_1")
+        TABLEAU_OPTIONS_SELECT+=("$OPTION_2")
+        CHOIX_CHOISI="" # réinitialisation dans la fonction à chaque appel de toute façon
+        MESSAGE_MONTRE="Que décidez-vous ? "
+        # Affichage des données pour prise de décision
+        while read LIGNE_FINALE
+                do
+                    case "$LIGNE_FINALE" in
+                    '/'* )          REPERTOIRE_COURANT="$LIGNE_FINALE"
+                                    ;; # si débute par '/'
+                    [^1-9]* )       FICHIER_COURANT="$LIGNE_FINALE"
+                                    PATH_COURANT="${REPERTOIRE_COURANT}/${FICHIER_COURANT}"
+                                    ;; # si débute par exactement 1x tab -> affichage avec 1x tab
+                    [1-9]* )        TABLEAU_LIGNES+=("$LIGNE_FINALE") # Ajout de la ligne au tableau des lignes
+                                    NUMERO_LIGNE="$(echo "$LIGNE_COURANTE" | awk ' { print $1 } ' )"
+                                    TABLEAU_NUMERO_LIGNES+=($((NUMERO_LIGNE))) # Ajout du numéro de ligne au tableau des numéro de lignes.
+                                    FLAG_LIGNE_A_AFFICHER="true" # passage du flag à true car il y a du contenu à afficher.
+                                    # Dès qu'une ligne vide sera captée, le contenu sera affiché et le flag repassé à "false"
+                                    ;; # si débute par un numéro de ligne
+                    * )             if [ $FLAG_LIGNE_A_AFFICHER = "true" ]
+                                    then 
+                                        # Affichage données du fichiers avec espacements esthétiques
+                                        echo ""
+                                        echo "$REPERTOIRE_COURANT"
+                                        echo ""
+                                        echo "$FICHIER_COURANT"
+                                        echo ""
+                                        # Affichage contenu tableau
+                                        tableau_affichage_contenu_avec_message TABLEAU_LIGNES
+                                        # Sélection :
+                                        # Remplacer tous les match du fichier en question ?
+                                        # Les passer en revue un par un ?
+                                        # Quitter
+                                        set -x
+                                        set -v
+                                        select_parmi_liste TABLEAU_OPTIONS_SELECT CHOIX_CHOISI MESSAGE_MONTRE OPTION_POUR_STOP 
+                                        echo "DEBUG : $REPLY"
+                                        set +v
+                                        set +x
+                                        if [ "$CHOIX_CHOISI" = "$OPTION_POUR_ARRETER" ]
+                                        then
+                                            echo -e "\nVous décidez d'annuler le remplacement.\n"
+                                            exit 0
+                                        else
+                                            echo -e "\nVous avez choisi \"$CHOIX_CHOISI\".\n"
+                                            if [ "$CHOIX_CHOISI" = "$OPTION_1" ] # validation massive pour ce fichier et passage au fichier suivant
+                                            then
+                                                for NUMERO_LIGNE in "${TABLEAU_NUMERO_LIGNES[@]}"
+                                                do
+                                                    echo "DEBUG : sed -i '' $((NUMERO_LIGNE))s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g $PATH_COURANT"
+                                                    #sed -i '' "$((NUMERO_LIGNE))s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" $PATH_COURANT
+                                                    # sed -i '' : inline - sans fichier de back-up
+                                                    # s/ : substitute
+                                                    # g : remplace tous les matchs pas juste le premier
+                                                done
+                                                echo -e "\nRemplacement dans le fichier \"$FICHIER_COURANT\" situé $PATH_COURANT terminé.\n"
+                                                #
+                                            else # passage en revue un par un
+                                                QUESTION_VALIDATION_REMPLACEMENT="Voulez-vous remplacer \"$REGEX_RECHERCHE\" par \"$STRING_REMPLACEMENT\" dans cette ligne du fichier \"$FICHIER_COURANT\" situé $PATH_COURANT ? (YyOn/Nn) "
+                                                for i in "${!TABLEAU_LIGNES[@]}"
+                                                do 
+                                                    echo "LIGNE : \"${TABLEAU_LIGNES[$i]}\""
+                                                    # choix oui non
+                                                    REPONSE="" # réinitialisation de la réponse à chaque boucle
+                                                    question_oui_non REPONSE QUESTION_VALIDATION_REMPLACEMENT
+                                                    if [ "$REPONSE" = 'o' ]
+                                                    then
+                                                        echo "Ligne remplacée"
+                                                        echo "DEBUG : sed -i '' $((${TABLEAU_NUMERO_LIGNES[$i]}))/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g $PATH_COURANT"
+                                                        #sed -i '' "$((${TABLEAU_NUMERO_LIGNES[$i]}))/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" $PATH_COURANT
+                                                        # sed -i '' : inline - sans fichier de back-up
+                                                        # s/ : substitute
+                                                        # g : remplace tous les matchs pas juste le premier
+                                                    else
+                                                        :
+                                                    fi
+                                                done
+                                            fi
+                                        fi
+                                        FLAG_LIGNE_A_AFFICHER="false"
+                                        TABLEAU_LIGNES=() # remise à vide du tableau
+                                        TABLEAU_NUMERO_LIGNES=() # remise à vide du tableau
+                                    else
+                                        : # lignes vides sont ignorées sinon
+                                    fi
+                                    ;; # match les lignes vides
+                    esac
+                done < <(grep $ "$PATH_FICHIER_OUTPUT_CORBEILLE")
+
+
+
+
+
+
+
+    fi
+fi
+
+exit 0
 

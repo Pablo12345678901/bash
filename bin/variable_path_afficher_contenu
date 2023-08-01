@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+echo -e "\nContenu de la variable \"\$PATH\" :\n"
+sort -f < <(    OLDIFS="$IFS" # récupération de la valeur de IFS
+# sort -f : ignore la casse
+                IFS=: # Modification du char séparateur de base
+                for CHAQUE_PATH in $PATH
+                do
+                    echo -e "\t$CHAQUE_PATH"
+                done 
+                IFS="$OLDIFS" # Remise de IFS à son ancienne valeur
+            )
+echo ""

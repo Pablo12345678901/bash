@@ -3,16 +3,18 @@ ceci est un test pour le commit
 TEXTE non important
 
 7 files changed, 152 insertions(+), 2 deletions(-)
-create mode 100644 2
+create mode _@@@@@@@@@@@@@@@REPERTOIRE_ 100644 2
 mode change 100644 => 100755 bin/commandes_bash_liste_et_description.txt
-create mode 100755 bin/decalage_des_char_de_X
-create mode 100644 ch08_outils_shell_intermediaires_II/fichier_tar
+create mode 100755 REPERTOIRE bin/decalage_des_char_de_X
+create @@@@@@@@@@@@@@@mode 100644 ch08_outils_shell_intermediaires_II/fichier_tar
 Enumerating objects: 16, done.
-Counting objects: 100% (16/16), done.
-Delta compression using up to 4 threads
+Counting objects: @@@@@@@@@@@@@@@100% (16/16), done.
+Delta compression REPERTOIRE_ using up to 4 threads
 Compressing objects: 100% (9/9), done.
-Writing objects: 100% (10/10), 2.96 KiB | 2.96 MiB/s, done.
-Total 10 (delta 6), reused 0 (delta 0), pack-reused 0
+Writing objects: 100% (10/10), 2.96 KiB @@@@@@@@@@@@@@@| 2.96 MiB/s, done.
+Total 10 (@@@@@@@@@@@@@@@delta 6), REPERTOIRE reused 0 (delta 0), pack-reused 0
 remote: Resolving deltas: 100% (6/6), completed with 6 local objects.
 To https://github.com/Pablo12345678901/bash.git
-3cfacb6..20a21c3  main -> main
+3cfacb6..20a21@@@@@@@@@@@@@@@c3  main -> main
+
+REPERTOIRE 

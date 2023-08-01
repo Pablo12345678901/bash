@@ -1,60 +1,6 @@
 #!/usr/bin/env bash
 
 source fonctions_personnelles # pour le choix oui/non
-function recherche_dans_documentation {
-    # $1 : la commande recherché
-    # $2 : le mot clef recherché
-    # $3 : le type de recherche "man" / "help"
-    # $4 : le script de recherche additionnelle
-    # Variables du script
-    COMMANDE_RECHERCHEE="$1"
-    MOT_CLE_RECHERCHE="$2"
-    # Backslash des éventuels char spéciaux via case du mot clef pour un REGEX
-    # Liste char spéciaux REGEX : besoin d'être anti-slasher dans le REGEX -> (‘^$|[]()\.*+?’)'" (pas sûr que liste complète)
-    # Liste char spéciaux PATTERN : besoin d'être anti-slasher pour case ci-dessous afin d'être matché -> ?*+@!()[]|\'"+ (pas sûr que liste complète)
-    case "$MOT_CLE_RECHERCHE" in
-    # ajout d'un backslash si char spécial selon REGEX
-    ^ | \| | \[ | \] | \( | \) | \\ | . | \* | \+ | \? | \) | \' | \" ) MOT_CLE_RECHERCHE="\\$MOT_CLE_RECHERCHE";;
-    $ ) ;; # rien pour pouvoir rechercher 'TOUT' avec '$' car sinon j'annule ce type de recherche et elle est pratique.
-    * ) ;; # rien sinon
-    esac
-    REGEX_RECHERCHE="[[:space:]]*$MOT_CLE_RECHERCHE[[:space:]]*"
-    # Affichage pour pouvoir contrôler après coup si la recherche n'a rien donné.
-    echo -e "\nREGEX RECHERCHE \"$REGEX_RECHERCHE\"\n" # Ceci n'est pas du débug - c'est un affichage volontaire.
-    TYPE_RECHERCHE="$3"
-    SCRIPT_RECHERCHE_ADDITIONNELLE="$4"
-    # Tentative de recherche
-    "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" >/dev/null && # s'il y a une page de manuel / help
-    "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" | # récupère la page
-    col -bx | # la formatte pr traitement
-    head -n 6 | # récupère les 6 première lignes (dont le titre (help) ou section NAME (man))
-    grep -c "$COMMANDE_RECHERCHEE" # contrôle que la commande recherchée figure bien dans le titre de la page de manuel
-    # car parfois la page de manuel contient une autre commande (ex : man ? -> ne redirige pas vers '?' mais vers 'man test')
-    ##########################################################################
-    # La tentative de recherche retourne 0 si grep à compter au moins un match
-    # Et retourne 1 si aucun résultat ou si grep n'a pas trouvé la commande dans le titre de la page manuel.
-    if (($?))
-    then
-        # Si pas de page manuel dédiée alors recherche avec man -k
-        echo -e "\nAucune page de manuel dédiée existante pour le mot \"$COMMANDE_RECHERCHEE\" de type \"$(type -t "$COMMANDE_RECHERCHEE")\"."
-        # Demande si souhait recherche générale via autre script
-        REPONSE=""
-        QUESTION="Voudriez-vous rechercher \"$COMMANDE_RECHERCHEE\" avec le script \"$SCRIPT_RECHERCHE_ADDITIONNELLE\" ? (YyOo/Nn) "
-        question_oui_non REPONSE QUESTION
-        if [ "$REPONSE" == "o" ]
-        then
-            "$SCRIPT_RECHERCHE_ADDITIONNELLE" "$COMMANDE_RECHERCHEE"
-        else
-            echo -e "\nVous choisissez de quitter sans recherche additionnelle.\n"
-            exit 0
-        fi
-    else
-        "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" | less -I -p "$REGEX_RECHERCHE" # recherche du mot clef recherché dans la page du manuel dédiée
-        # less -I : insensitive à la casse
-        # less -p : demande à 'less' de débuter l'affichage à la première occurence du pattern.
-        # le REGEX du mot clef recherché est composé d'au moins un espace avant et 0 ou plusieurs espaces après.
-    fi
-}
 
 ##################################################################
 # Résumé script :
@@ -85,11 +31,11 @@ REGEX_RECHERCHE="[[:space:]]*$2[[:space:]]*"
 case $(type -t "$COMMANDE_RECHERCHEE") in
 # type -t : affiche le type de commande
 
-    "builtin" ) recherche_dans_documentation "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "help" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;;
-    "keyword" ) recherche_dans_documentation "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "help" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;;
+    "builtin" ) manuel_recherche_specifique_commande_ainsi_que_mot_clef "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "help" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;;
+    "keyword" ) manuel_recherche_specifique_commande_ainsi_que_mot_clef "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "help" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;;
     # file : dont commandes
-    "file" )    recherche_dans_documentation "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "man" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;; 
+    "file" )    manuel_recherche_specifique_commande_ainsi_que_mot_clef "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "man" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;; 
     # Dans tous les autres cas :
     # Similaire à 'file' (=commande) ci-dessus car certaines commandes de type "" (inconnu) non natives ont une page de manuel dédiée.
-    * )         recherche_dans_documentation "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "man" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;;    
+    * )         manuel_recherche_specifique_commande_ainsi_que_mot_clef "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "man" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;;    
 esac

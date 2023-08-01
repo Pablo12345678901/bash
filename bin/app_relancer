@@ -2,7 +2,7 @@
 source fonctions_personnelles
 
 declare -a TABLEAU_APP_OUVERTES
-remplissage_tableau_app_ouverte TABLEAU_APP_OUVERTES # cf fonction ci-dessus
+app_ouvertes_obtention_et_remplissage_tableau TABLEAU_APP_OUVERTES # cf fonction ci-dessus
 OPTION_SORTIE="Quitter"
 TABLEAU_APP_OUVERTES+=("$OPTION_SORTIE") # ajout option pour quitter
 DERNIERE_OPTION=${#TABLEAU_APP_OUVERTES[@]} # Obtention du nombre d'option pour les messages
@@ -81,7 +81,7 @@ else
     
     # Fermeture forcée si l'app refuse de fermer
     sleep 3 # met en pause pour X secondes le script pour éviter de trop rapidement obtenir le nom de apps ouvertes qui ne seraient pas encore fermées mais en cours de fermeture
-    remplissage_tableau_app_ouverte TABLEAU_APP_OUVERTES # récupération du nouveau tableau des apps après la tentative de fermeture
+    app_ouvertes_obtention_et_remplissage_tableau TABLEAU_APP_OUVERTES # récupération du nouveau tableau des apps après la tentative de fermeture
     for app in "${TABLEAU_APP_OUVERTES[@]}"
         do
             if [ "$app" == "$APP_A_FERMER" ] # si l'app à fermer ne la pas correctement été

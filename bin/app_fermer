@@ -7,7 +7,7 @@ MESSAGE_SELECT="Sélectionnez une app à fermer parmi la liste"
 MESSAGE_FERMETURE_ALL="Liste apps ouverte avant fermeture"
 MESSAGE_ANNULATION="Vous avez choisi de sortir sans quitter aucune app."
 TEMPS_D_ATTENTE_AVANT_FERMETURE_BRUTALE=2
-remplissage_tableau_app_ouverte TABLEAU_APP_OUVERTES
+app_ouvertes_obtention_et_remplissage_tableau TABLEAU_APP_OUVERTES
 
 QUESTION="Avez-vous sauvegardé les fichiers importants avant de lancer la fermeture des apps ? (Oo/Nn) "
 REPONSE=''
@@ -28,7 +28,7 @@ then
             NOM_APP="$CHOIX"
             app_fermer_normal NOM_APP
             sleep $TEMPS_D_ATTENTE_AVANT_FERMETURE_BRUTALE
-            remplissage_tableau_app_ouverte TABLEAU_APP_OUVERTES
+            app_ouvertes_obtention_et_remplissage_tableau TABLEAU_APP_OUVERTES
             for ELEMENT in "${TABLEAU_APP_OUVERTES[@]}"
             do
                 if [ "$ELEMENT" = "$NOM_APP" ]
@@ -55,7 +55,7 @@ then
 
             # Fermeture forcée si app toujours ouvertes après 3 secondes d'attente
             sleep $TEMPS_D_ATTENTE_AVANT_FERMETURE_BRUTALE # met en pause pour X secondes le script pour éviter de trop rapidement obtenir le nom de apps ouvertes qui ne seraient pas encore fermées mais en cours de fermeture
-            remplissage_tableau_app_ouverte TABLEAU_APP_OUVERTES # le deuxième paramètre sert à adapter le message affiché - optionnel
+            app_ouvertes_obtention_et_remplissage_tableau TABLEAU_APP_OUVERTES # le deuxième paramètre sert à adapter le message affiché - optionnel
             tableau_affichage_contenu_avec_message TABLEAU_APP_OUVERTES "$MESSAGE_FERMETURE_ALL forcée"
             if [ 0 -lt ${#TABLEAU_APP_OUVERTES[@]} ]
             then
@@ -83,7 +83,7 @@ then
                 NOM_APP="$CHOIX_FINAL"
                 app_fermer_normal NOM_APP
                 sleep $TEMPS_D_ATTENTE_AVANT_FERMETURE_BRUTALE
-                remplissage_tableau_app_ouverte TABLEAU_APP_OUVERTES
+                app_ouvertes_obtention_et_remplissage_tableau TABLEAU_APP_OUVERTES
                 for ELEMENT in "${TABLEAU_APP_OUVERTES[@]}"
                 do
                     if [ "$ELEMENT" = "$NOM_APP" ]

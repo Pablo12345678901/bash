@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Données test :
+TABLEAU_TEST=("Je suis" "un chat" 1 2 121 " et moi donc .")
+#MESSAGE_AVANT_PREMIER_ELEMENT_TABLEAU=""
+#MESSAGE_AVANT_CHAQUE_ELEMENT_TABLEAU=""
+MESSAGE_AVANT_PREMIER_ELEMENT_TABLEAU="\nCeci est un message "
+MESSAGE_AVANT_CHAQUE_ELEMENT_TABLEAU="x\nx x "
+tableau_affichage_contenu_avec_message TABLEAU_TEST "$MESSAGE_AVANT_PREMIER_ELEMENT_TABLEAU" "$MESSAGE_AVANT_CHAQUE_ELEMENT_TABLEAU"

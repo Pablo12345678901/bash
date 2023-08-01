@@ -1,0 +1,172 @@
+#!/usr/bin/env bash
+
+# Arguments du script
+# $1 : le REGEX -> fourni sous format REGEX (pas d'annulation de char spécial ici)
+# $2 : optionnel : le fichier/répertoire
+# $... : optionnel fichier/répertoire
+# $DERNIER : optionnel : '-s' pour indiquer un mode silencieux sans message à destination de l'utilisateur.
+
+############ AVERTISSEMENT ############
+# Ce script peut être long selon la taille (le nombre de fichier) du répertoire
+# dans lequel la commande 'find' effectue sa recherche.
+# Il n'affiche aucun message d'erreur.
+# Et pendant le chargement - rien n'est affiché.
+# Les résultats sont affichés par bloc est affiché en bloc.
+############ AVERTISSEMENT ############
+
+source fonctions_personnelles
+
+SYNTAXE="Syntaxe :\n\t$(basename $0)    REGEX    REPERTOIRE_DE_RECHERCHE [... [-s]]\n"
+REPERTOIRE_PAR_DEFAUT="$REPERTOIRE_DEVELOPPEMENT/bash"
+declare -a TABLEAU_FICHIERS
+MODE_SILENCIEUX="off"
+
+# Contrôle des arguments
+if [ -z "$1" ] # si pas d'argument fourni
+then
+    echo -e "\nERREUR : Aucun REGEX fourni en 1er argument."
+    echo -e "Aucune répertoire (optionnel) fourni en 2ème argument."
+    echo -e "$SYNTAXE"
+    exit 1
+else 
+    REGEX_RECHERCHE="[[:space:]]*$1[[:space:]]*"
+    if [ -z "$2" ] # si pas de répertoire
+    then
+        FICHIER_OU_REPERTOIRE="$REPERTOIRE_PAR_DEFAUT"
+        repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FICHIER_OU_REPERTOIRE"
+        echo -e "\nAucun fichier/répertoire fourni en 2ème argument."
+        echo -e "Comportement par défaut :"
+        # Continue le script avec le comportement par défaut
+    else
+        REGEX_DE_MARQUAGE_ARGUMENT_SPECIAL="LISTE_DE_FICHIER_SEPARES_PAR_DES_DOUBLES_POINTS"
+        if [[ "$2" =~ $REGEX_DE_MARQUAGE_ARGUMENT_SPECIAL ]] 
+        # si match regex spécial = transmission liste de path séparés par des ':'
+        then
+            LISTE_FICHIERS="$2"
+            # Retrait du regex de marquage spécial
+            LISTE_FICHIERS="${LISTE_FICHIERS#*:}"
+            tableau_depuis_string_spliter_selon_char_special_et_trier_ordre_alphabetique_pas_numero "$LISTE_FICHIERS" TABLEAU_FICHIERS ":"
+        # Sinon, fonctionnement 'normal' du script
+        else
+            if [[ -d "$2" || -f "$2" ]] # si le deuxième argument est un fichier/répertoire
+            then
+                FICHIER_OU_REPERTOIRE="$2"
+                if [ -d "$FICHIER_OU_REPERTOIRE" ]
+                then
+                    repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FICHIER_OU_REPERTOIRE"
+                else
+                    TABLEAU_FICHIERS+=("$FICHIER_OU_REPERTOIRE")
+                fi
+            else
+                echo -e "\nERREUR : l'argument fourni \"$FICHIER_OU_REPERTOIRE\" n'est pas un fichier/répertoire.\n"
+                echo -e "$SYNTAXE"
+                exit 1 
+            fi
+        fi
+    fi
+    NB_ARGUMENTS=$#
+    NB_ARGUMENT_MINIMUM=2 # dès le 3ème cela peut être des fichiers/répertoires ou l'option -s à la fin uniquement
+    if [ $NB_ARGUMENTS -gt $NB_ARGUMENT_MINIMUM ]
+    then
+        for ((i=$((NB_ARGUMENT_MINIMUM+1)); i<=$NB_ARGUMENTS; i++)) # +1 à cause du décalage des index qui débute à 0 et pas à 1 quand il y a 1 argument / raisonnement similaire pour le '<=NBARGUMENT'
+        do
+            if [[ $i = $NB_ARGUMENTS && "${!i}" = "-s" ]] # test si dernier argument = '-s'
+            then
+                MODE_SILENCIEUX="on"
+                break # sortie de boucle car c'est le dernier argument - il n'y en a pas d'autres
+            else
+                :
+            fi
+            # Si pas breaké avec le dernier argument qui vaut '-s'
+            # Alors test si fichier/répertoire et ajout ou exit avec erreur
+            FICHIER_OU_REPERTOIRE_ARG_SUIVANT="${!i}"
+            if [[ -d "${!i}" || -f "${!i}" ]] # si le 3ème argument est un fichier ou un répertoire = ok
+            then
+                # si fichier -> ajout au tableau
+                if [ -f "$FICHIER_OU_REPERTOIRE_ARG_SUIVANT" ]
+                then
+                    TABLEAU_FICHIERS+=("$FICHIER_OU_REPERTOIRE_ARG_SUIVANT")
+                else # donc forcément répertoire -> ajout des fichiers du répertoire au tableau
+                    repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FICHIER_OU_REPERTOIRE_ARG_SUIVANT"
+                fi
+            else
+                echo -e "\nERREUR : l'argument $i fourni \"$FICHIER_OU_REPERTOIRE_ARG_SUIVANT\" n'est pas un fichier / répertoire."
+                echo -e "Exit aussi s'il est suivi d'un fichier/répertoire car l'option '-s' ne peut venir (optionnel) qu'en dernier argument.\n"
+                echo -e "$SYNTAXE"
+                exit 1
+            fi
+        done
+    else
+        : # continue le script s'il y a exactement le nombre d'argument minimum.
+    fi
+fi
+
+# Affichage que si pas en mode silencieux
+if [ "$MODE_SILENCIEUX" = "on" ]
+then
+    : # pas d'affichage de message
+else
+    # Affichage de la liste de fichiers ou sera exécuté la recherche
+    MESSAGE_AVANT_CONTENU_TABLEAU="\nAffichage des fichiers contenant le REGEX \"$REGEX_RECHERCHE\" parmi les fichiers :"
+    MESSAGE_AVANT_CHAQUE_ELEMENT="-\t"
+    tableau_affichage_contenu_avec_message TABLEAU_FICHIERS "$MESSAGE_AVANT_CONTENU_TABLEAU" "$MESSAGE_AVANT_CHAQUE_ELEMENT"
+    echo -e "Ainsi que pour chaque fichiers qui matche : le nom du fichier, le numéro de ligne et son contenu.\n"
+fi
+
+# Affichage du résultat
+# Variable nécessaire pour l'affichage que si le répertoire / fichier a changé depuis la dernière ligne (match)
+REPERTOIRE_COURANT=""
+FICHIER_COURANT=""
+DERNIER_REPERTOIRE_AFFICHE=""
+DERNIER_FICHIER_AFFICHE=""
+# Pour chaque fichier, grep + affichage des lignes match.
+for CHAQUE_FICHIER in "${TABLEAU_FICHIERS[@]}"
+do
+    while read MATCH
+    do
+        # Récupération des éléments
+        PATH_FICHIER="$(echo "$MATCH" | awk -F ':' ' { print $1 }')"
+        # awk -F 'fieldseparateur'
+        NUM_LIGNE="$(echo "$MATCH" | awk -F ':' ' { print $2 }')"
+        CONTENU_LIGNE="$(echo "$MATCH" | awk -F ':' ' { for (i=3; i<=NF; i++) { printf ("%s", $i) } }')"
+        # Séparation du répertoire et du fichier seul
+        FICHIER_COURANT="${PATH_FICHIER##*/}" # récupération du bout de path après le dernier '/'
+        REPERTOIRE_COURANT="${PATH_FICHIER%/$FICHIER_COURANT}" # retirer le fichier du path
+        # Affichage du répertoire courant que si différent de celui du précédent match (ligne qui a matché)
+        if [ "$REPERTOIRE_COURANT" != "$DERNIER_REPERTOIRE_AFFICHE" ]
+        then
+            echo -e "\n$REPERTOIRE_COURANT"
+            DERNIER_REPERTOIRE_AFFICHE="$REPERTOIRE_COURANT" # puis adaptation du dernier répertoire affiché au répertoire courant
+        else
+            :
+        fi
+        # Affichage du fichier courant que si différent de celui du précédent match (ligne qui a matché)
+        if [ "$FICHIER_COURANT" != "$DERNIER_FICHIER_AFFICHE" ]
+        then
+            # Décalage de 1 tab
+            echo -e "\n\t$FICHIER_COURANT\n"
+            DERNIER_FICHIER_AFFICHE="$FICHIER_COURANT" # puis adaptation du dernier fichier affiché au fichier courant
+        else
+            :
+        fi
+        # Décalage de 2 tabs
+        echo -e "\t\t$NUM_LIGNE\t$CONTENU_LIGNE" # affichage de la ligne à chaque fois
+
+    # Obtention des lignes qui matchent parmi les fichiers.
+    done < <(grep -E -H -n "$REGEX_RECHERCHE" "$CHAQUE_FICHIER" 2>/dev/null)
+    # grep -E : extended regex
+    # grep -H : affiche toujours le nom du fichier qui a matché
+    # grep -n : affiche le numéro de ligne
+done
+
+# Message de fin de script (car peut être long)
+# Affichage que si pas en mode silencieux
+if [ "$MODE_SILENCIEUX" = "on" ]
+then
+    : # pas d'affichage de message
+else
+    # Affichage du type de recherche exécutée
+    echo -e "\nRecherche terminée." # pr indiquer quand la recherche est terminée
+fi
+
+echo "" # pour avoir une ligne d'espace avant le 'prompt'.

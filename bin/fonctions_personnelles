@@ -6,6 +6,7 @@
 # A
 
 function app_fermer_normal {
+# $1 : AP_FERM (valeur)
 if [ -z "$1" ]
 then
     echo "ERREUR : aucune app transmise en argument."
@@ -22,6 +23,7 @@ fi
 
 
 function app_fermer_brutal {
+# $1 : AP_FERM (valeur)
 if [ -z "$1" ]
 then
     echo "ERREUR : aucune app transmise en argument."
@@ -33,6 +35,34 @@ else
         exit 1 ;
     }
 fi
+}
+
+function app_ouvertes_obtention_et_remplissage_tableau {
+# A MODIFIER 'app_ouvertes_obtention_et_remplissage_tableau'
+local -n tableau=$1 # variable liée à la variable globale du tableau des app ouvertes
+
+# Osacript fonctionne sur Mac uniquement (non portable)
+LISTE_STRING_APP_OUVERTES=$(osascript -e 'set text item delimiters to ":"' -e 'tell application "System Events" to (name of every application process whose background only is false) as string' | sort )
+
+# Séparation des éléments par des ":" pour futur split avec ":"
+SPECIAL_CHAR_SEPARATOR=':'
+LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Terminal/} # Tout fermer sauf Terminal - retiré Terminal de la liste des apps à fermer
+# VS CODE, décommenter la ligne ci-dessous, sinon l'app se fermera.
+#LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Electron/} # et Vs Code pour coder
+# Microsoft Word, décommenter la ligne ci-dessous, sinon l'app se fermera.
+#LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Microsoft\ Word/} # et Word pour prendre des notes
+LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES//$SPECIAL_CHAR_SEPARATOR$SPECIAL_CHAR_SEPARATOR/$SPECIAL_CHAR_SEPARATOR} # remplacement du délimiteur double par un simple suite à la suppression de l'app Terminal de la liste des apps à fermer
+
+# Formatage du string à spliter : suppression des leading and trailing space, suppression des éventuels doubles points avant et après
+LISTE_STRING_APP_OUVERTES=$(sed -e 's/[[:space:]]*$//' <<< $LISTE_STRING_APP_OUVERTES)
+LISTE_STRING_APP_OUVERTES=$(sed -e 's/^[[:space:]]*//' <<< $LISTE_STRING_APP_OUVERTES)
+LISTE_STRING_APP_OUVERTES=$(sed -e 's/^://' <<< $LISTE_STRING_APP_OUVERTES)
+
+# Splitter le string en tableau selon un séparateur spécial
+OLDIFS=$IFS # conservation de la valeur d'origine du séparateur IFS
+IFS=: # le séparateur est désormais ":""
+TABLEAU_APP_OUVERTES=($LISTE_STRING_APP_OUVERTES) # split du string en tableau selon le nouveau séparateur
+IFS=$OLDIFS # remise de IFS à son ancienne valeur
 }
 
 # B
@@ -63,6 +93,61 @@ function calculatrice_appel_script {
 
 # M
 
+function manuel_recherche_specifique_commande_ainsi_que_mot_clef {
+    # $1 : la commande recherché
+    # $2 : le mot clef recherché
+    # $3 : le type de recherche "man" / "help"
+    # $4 : le script de recherche additionnelle
+    # Variables du script
+    COMMANDE_RECHERCHEE="$1"
+    MOT_CLE_RECHERCHE="$2"
+    # Backslash des éventuels char spéciaux via case du mot clef pour un REGEX
+    # Liste char spéciaux REGEX : besoin d'être anti-slasher dans le REGEX -> (‘^$|[]()\.*+?’)'" (pas sûr que liste complète)
+    # Liste char spéciaux PATTERN : besoin d'être anti-slasher pour case ci-dessous afin d'être matché -> ?*+@!()[]|\'"+ (pas sûr que liste complète)
+    case "$MOT_CLE_RECHERCHE" in
+    # ajout d'un backslash si char spécial selon REGEX
+    ^ | \| | \[ | \] | \( | \) | \\ | . | \* | \+ | \? | \) | \' | \" ) MOT_CLE_RECHERCHE="\\$MOT_CLE_RECHERCHE";;
+    $ ) ;; # rien pour pouvoir rechercher 'TOUT' avec '$' car sinon j'annule ce type de recherche et elle est pratique.
+    * ) ;; # rien sinon
+    esac
+    REGEX_RECHERCHE="[[:space:]]*$MOT_CLE_RECHERCHE[[:space:]]*"
+    # Affichage pour pouvoir contrôler après coup si la recherche n'a rien donné.
+    echo -e "\nREGEX RECHERCHE \"$REGEX_RECHERCHE\"\n" # Ceci n'est pas du débug - c'est un affichage volontaire.
+    TYPE_RECHERCHE="$3"
+    SCRIPT_RECHERCHE_ADDITIONNELLE="$4"
+    # Tentative de recherche
+    "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" >/dev/null && # s'il y a une page de manuel / help
+    "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" | # récupère la page
+    col -bx | # la formatte pr traitement
+    head -n 6 | # récupère les 6 première lignes (dont le titre (help) ou section NAME (man))
+    grep -c "$COMMANDE_RECHERCHEE" >/dev/null # contrôle que la commande recherchée figure bien dans le titre de la page de manuel
+    # car parfois la page de manuel contient une autre commande (ex : man ? -> ne redirige pas vers '?' mais vers 'man test')
+    ##########################################################################
+    # La tentative de recherche retourne 0 si grep à compter au moins un match
+    # Et retourne 1 si aucun résultat ou si grep n'a pas trouvé la commande dans le titre de la page manuel.
+    if (($?))
+    then
+        # Si pas de page manuel dédiée alors recherche avec man -k
+        echo -e "\nAucune page de manuel dédiée existante pour le mot \"$COMMANDE_RECHERCHEE\" de type \"$(type -t "$COMMANDE_RECHERCHEE")\"."
+        # Demande si souhait recherche générale via autre script
+        REPONSE=""
+        QUESTION="Voudriez-vous rechercher \"$COMMANDE_RECHERCHEE\" avec le script \"$SCRIPT_RECHERCHE_ADDITIONNELLE\" ? (YyOo/Nn) "
+        question_oui_non REPONSE QUESTION
+        if [ "$REPONSE" == "o" ]
+        then
+            "$SCRIPT_RECHERCHE_ADDITIONNELLE" "$COMMANDE_RECHERCHEE"
+        else
+            echo -e "\nVous choisissez de quitter sans recherche additionnelle.\n"
+            exit 0
+        fi
+    else
+        "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" | less -I -p "$REGEX_RECHERCHE" # recherche du mot clef recherché dans la page du manuel dédiée
+        # less -I : insensitive à la casse
+        # less -p : demande à 'less' de débuter l'affichage à la première occurence du pattern.
+        # le REGEX du mot clef recherché est composé d'au moins un espace avant et 0 ou plusieurs espaces après.
+    fi
+}
+
 function module_controle_si_present_sinon_installe {
     # $1 : module à installer par brew
     # La fonction retourne une valeur qui faut contrôler :
@@ -90,9 +175,11 @@ function module_controle_si_present_sinon_installe {
 # Q
 
 function question_oui_non {
+    # $1 : REP_UTILISATEUR (variable)
+    # $1 : QUE_POSEE (variable)
+    # Type réponse retournée : 'o' ou 'n'
     local -n REP_UTILISATEUR=$1
     local -n QUE_POSEE="$2"
-    # Type réponse retournée : 'o' ou 'n'
     echo "" # esthétique
     read -p "$QUE_POSEE" CHO
     case "$CHO" in
@@ -107,33 +194,22 @@ function question_oui_non {
 
 # R
 
-function remplissage_tableau_app_ouverte {
-local -n tableau=$1 # variable liée à la variable globale du tableau des app ouvertes
-
-# Osacript fonctionne sur Mac uniquement (non portable)
-LISTE_STRING_APP_OUVERTES=$(osascript -e 'set text item delimiters to ":"' -e 'tell application "System Events" to (name of every application process whose background only is false) as string' | sort )
-
-# Séparation des éléments par des ":" pour futur split avec ":"
-SPECIAL_CHAR_SEPARATOR=':'
-LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Terminal/} # Tout fermer sauf Terminal - retiré Terminal de la liste des apps à fermer
-# VS CODE, décommenter la ligne ci-dessous, sinon l'app se fermera.
-#LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Electron/} # et Vs Code pour coder
-# Microsoft Word, décommenter la ligne ci-dessous, sinon l'app se fermera.
-#LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Microsoft\ Word/} # et Word pour prendre des notes
-LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES//$SPECIAL_CHAR_SEPARATOR$SPECIAL_CHAR_SEPARATOR/$SPECIAL_CHAR_SEPARATOR} # remplacement du délimiteur double par un simple suite à la suppression de l'app Terminal de la liste des apps à fermer
-
-# Formatage du string à spliter : suppression des leading and trailing space, suppression des éventuels doubles points avant et après
-LISTE_STRING_APP_OUVERTES=$(sed -e 's/[[:space:]]*$//' <<< $LISTE_STRING_APP_OUVERTES)
-LISTE_STRING_APP_OUVERTES=$(sed -e 's/^[[:space:]]*//' <<< $LISTE_STRING_APP_OUVERTES)
-LISTE_STRING_APP_OUVERTES=$(sed -e 's/^://' <<< $LISTE_STRING_APP_OUVERTES)
-
-# Splitter le string en tableau selon un séparateur spécial
-OLDIFS=$IFS # conservation de la valeur d'origine du séparateur IFS
-IFS=: # le séparateur est désormais ":""
-TABLEAU_APP_OUVERTES=($LISTE_STRING_APP_OUVERTES) # split du string en tableau selon le nouveau séparateur
-IFS=$OLDIFS # remise de IFS à son ancienne valeur
+function repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find {
+    # $1 : le tableau où seront stockés les fichiers (variable)
+    # $2 : le répertoire dans lequel effectuer la recherche (valeur)
+    local -n TAB_FICHIER=$1
+    local REP="$2"
+    while read NOM_FICHIER
+    do
+        TAB_FICHIER+=("$NOM_FICHIER")
+    done < <(find -s "$REP" -path *.git -prune -o -path *.DS_Store -prune -o -type f -print0 2>/dev/null |
+    # find -s : recherche dans l'ordre alphabétique
+    # find -path *.git -prune -o : sans rentrer dans les répertoires .git
+    # find -type f : les fichiers uniquement
+    # 2>/dev/null : pas de message d'erreur
+    tr '\0' '\n')
+    # tr : mise à la ligne forcée entre les fichiers car certains ont des espaces
 }
-
 
 function retourne_choix_si_nb_correct_selon_select {
 local -n TABLEAU=$1
@@ -171,32 +247,30 @@ fi
 # S
 
 function select_parmi_liste {
-# arguments à fournir dans l'ordre :
-# $1 : TAB_D_OPTIONS
-# $2 : CH_UTILISATEUR
-# $3 : MES_AFFICHE -> avant d'afficher les choix
-# $4 : optionnel : OPT_POUR_ARRETER
+# $1 : TAB_D_OPTIONS (variable)
+# $2 : CH_UTILISATEUR (variable)
+# $3 : MES_AFFICHE -> avant d'afficher les choix (variable)
+# $4 : optionnel : OPT_POUR_ARRETER (variable)
 local -n TAB_D_OPTIONS=$1
 local -n CH_UTILISATEUR=$2
 local -n MES_AFFICHE=$3 # Message
-MESSAGE_BOUCLE=""
+MES_BOUCLE=""
 if [ -z "$4" ] # si le 4ème paramètre est défini = si options pour arrêter a été fournie
 then    
-    TABLEAU_CHOIX=("${TAB_D_OPTIONS[@]}") # copie du tableau original (à conserver)    
+    TAB_CHOIX=("${TAB_D_OPTIONS[@]}") # copie du tableau original (à conserver)    
 else
     local -n OPT_POUR_ARRETER=$4 # optionnel
-    TABLEAU_CHOIX=("${TAB_D_OPTIONS[@]}") # copie du tableau original car je vais y ajouter l'option de sortie
-    TABLEAU_CHOIX+=("$OPT_POUR_ARRETER") # ajout de l'option de sortie
-    DERNIERE_OPTION="${#TABLEAU_CHOIX[@]}"
-    MESSAGE_SI_OPTION_QUITTER="Tapez \"$DERNIERE_OPTION\" pour \"$OPT_POUR_ARRETER\"
+    TAB_CHOIX=("${TAB_D_OPTIONS[@]}") # copie du tableau original car je vais y ajouter l'option de sortie
+    TAB_CHOIX+=("$OPT_POUR_ARRETER") # ajout de l'option de sortie
+    DER_OPTION="${#TAB_CHOIX[@]}"
+    MES_SI_OPTION_QUITTER="Tapez \"$DER_OPTION\" pour \"$OPT_POUR_ARRETER\"
     " # inclus un retour à la ligne
 fi
-
 CH_UTILISATEUR=""
 until [ -n "$CH_UTILISATEUR" ] 
 do
-    echo -e "\n$MES_AFFICHE.\n$MESSAGE_SI_OPTION_QUITTER"
-    select CH_UTILISATEUR in "${TABLEAU_CHOIX[@]}"
+    echo -e "\n$MES_AFFICHE\n$MES_SI_OPTION_QUITTER"
+    select CH_UTILISATEUR in "${TAB_CHOIX[@]}"
     do
         break 
     done
@@ -204,34 +278,39 @@ do
     then
         :
     else
-        echo -e "ERREUR : votre saisie ne fait pas partie de la liste de choix.\n$MESSAGE_SI_OPTION_QUITTER"
+        echo -e "ERREUR : votre saisie ne fait pas partie de la liste de choix.\n$MES_SI_OPTION_QUITTER"
+        echo "DEBUG = \"${TAB_D_OPTIONS[*]}\" \"$CH_UTILISATEUR\" \"$MES_AFFICHE\" \"$OPT_POUR_ARRETER\" \"$REPLY\""
     fi
-done   
+done   </dev/tty
 
 }
 
 # T
 
 function tableau_affichage_contenu_avec_message {
+# $1 : Tableau (variable)
+# $2 : optionnel : message avant l'affichage du premier élément (valeur)
+# $3 : optionnel : message avant chaque élément (valeur)
 local -n TAB=$1
-MES="" # message
-if [ -z "$2" ]
+local MES_AVANT_PREMIER_ELEMENT_TABLEAU="${2:-""}"
+local MES_AVANT_CHAQUE_ELEMENT_TABLEAU="${3:-""}"
+if [ ${#MES_AVANT_PREMIER_ELEMENT_TABLEAU} -gt 0 ] # s'il y a un message avant le tableau (si longueur string > 0)
 then
-    :  
+    # affichage message avant le premier élément du tableau
+    echo -e "$MES_AVANT_PREMIER_ELEMENT_TABLEAU"
 else
-    MES="$2"
+    :  
 fi
 
 # Affichage du contenu tableau que s'il y a au moins un élément
 if [ 0 -lt ${#TAB[@]} ]
 then
     echo "" # retour à la ligne esthétique
-    echo -e "$2"
     for ELEMENT in "${TAB[@]}"
     do
-        echo "$ELEMENT"
+        echo -e "${MES_AVANT_CHAQUE_ELEMENT_TABLEAU}${ELEMENT}"
     done
-    echo ""
+    echo "" # retour à la ligne esthétique
 else
     :
 fi
@@ -297,27 +376,65 @@ function tableau_ajout_element_que_si_non_existant_sans_espaces {
     fi
 }
 
+function tableau_depuis_string_spliter_selon_char_special_et_trier_ordre_alphabetique_pas_numero {
+    # $1 : STR (valeur)
+    # $2 : TAB_VIDE (variable)
+    # $3 : CHA_SPECIAL (valeur) -> 1 seul char
+    local STR=$1
+    local -n TAB_VIDE=$2
+    local CHA_SPECIAL=$3
+    while read ELEMENT_TRIE
+    do
+        TAB_VIDE+=("$ELEMENT_TRIE")
+    done < <(   sort -f < <(    OLDIFS="$IFS" # récupération de la valeur de IFS
+                                IFS=$CHA_SPECIAL # Modification du char séparateur de base
+                # sort -f : ignore la casse
+                                for ELEMENT in $STR # split automatiquement le string via IFS donc via le char spécial
+                                do
+                                    echo "$ELEMENT"
+                                done
+                                IFS="$OLDIFS" # Remise de IFS à son ancienne valeur
+                            )) # double car d'abord j'affiche puis je trie -> et ensuite je remets dans le tableau
+}
+
+
+
 
 function tableau_supprimer_tous_les_occurences_d_un_element {
 #   $1 : le tableau
 #   $2 : l'élément à supprimer entre guillemets si nécessaire
     local -n TAB=$1
     local ELE="$2" # element à supprimer
-    echo "ELE $ELE"
     for ELEMENT in "${TAB[@]}"
     do
         for INDEX in "${!TAB[@]}" # besoin de l'index pour unset la variable
+        # ${!TAB[@]} = la liste des keys = des index
         do
             if [[ "${TAB[$INDEX]}" = "$ELE" ]]
             then
                 unset -v TAB[$INDEX]
-                echo "$?"
             fi
         done
     done
 }
 
 
+function tableau_trier_ordre_alphabetique_pas_numero {
+    # $1 : ANC_TABLEAU (variable)
+    # $2 : NOU_TABLEAU (variable)
+    local -n ANC_TABLEAU=$1
+    local -n NOU_TABLEAU=$2
+    while read ELEMENT_TRIE
+    do
+        NOU_TABLEAU+=("$ELEMENT_TRIE")
+    done < <(   sort -f < <(
+                # sort -f : ignore la casse
+                for ELEMENT in "${ANC_TABLEAU[@]}" 
+                do
+                    echo "$ELEMENT"
+                done
+                )) # double car d'abord j'affiche puis je trie -> et ensuite je remets dans le tableau
+}
 # U
  
 # V

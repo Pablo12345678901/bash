@@ -15,7 +15,6 @@ function tableau_supprimer_tous_les_occurences_d_un_element {
             if [[ "${TAB[$INDEX]}" = "$ELE" ]]
             then
                 unset -v TAB[$INDEX]
-                echo "$?"
             fi
         done
     done

@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 echo -e "\nCeci est la liste des choses améliorables pour bash\n"
 exit 0
-: <<HEREDOCUMENT
+: <<-"HEREDOCUMENT"
 
 La liste ci-dessous n'est pas triée par ordre de priorité :
 
 SCRIPTS
 - Finaliser le script qui remplace un pattern par un autre dans plusieurs fichiers
+- Afficher syntaxe fonctions / script en récupérant les 10 première lignes script (ou 10 lignes après nom fonction fichier fonction)
 - script qui met à jour la database sous forme d'un cron (intervalle régulier) incluant tous les fichiers (y.c. Desktop)
 - script qui recherche tous les fichiers modifiés depuis X date sur le disque dur externe (sans les répertoire avec '.repertoire') et qui les copie dans un autre disque dur au même chemin avec si nécessaire création des sous-répertoires dans lesquels ils seront - tester à petite échelle avant de lancer en blocs
 - Script app_ouvrir : obtenir la liste de toutes les apps disponibles sur le Mac et les proposer sous forme y/n + sélect à la fin de l'ouverture des apps de base
