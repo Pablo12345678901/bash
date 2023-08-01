@@ -49,7 +49,7 @@ NOM_FICHIER_DE_STOCKAGE_INFORMATIONS='commandes_bash_liste_et_description.txt'
 QUESTION="Voudriez-vous ouvrir le fichier (OoYy/Nn) ? "
 REPONSE=""
 
-question_oui_non REPONSE QUESTION
+question_oui_non REPONSE "$QUESTION"
 if [ $REPONSE = 'o' ]
 then
     PATH_DU_FICHIER="$REPERTOIRE_DES_COMMANDES_PERSO/$NOM_FICHIER_DE_STOCKAGE_INFORMATIONS"
@@ -64,7 +64,7 @@ fi
 QUESTION="Êtes-vous sûr de vouloir lancer ce (long) script pour recharger les données ?
 Il dure environ 5 minutes... (OoYy/Nn) ? "
 REPONSE=""
-question_oui_non REPONSE QUESTION
+question_oui_non REPONSE "$QUESTION"
 if [ $REPONSE = 'o' ]
 then
     echo ""

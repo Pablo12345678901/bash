@@ -31,11 +31,11 @@ REGEX_RECHERCHE="[[:space:]]*$2[[:space:]]*"
 case $(type -t "$COMMANDE_RECHERCHEE") in
 # type -t : affiche le type de commande
 
-    "builtin" ) manuel_recherche_specifique_commande_ainsi_que_mot_clef "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "help" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;;
-    "keyword" ) manuel_recherche_specifique_commande_ainsi_que_mot_clef "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "help" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;;
+    "builtin" ) man_recherche_specifique_commande_ainsi_que_mot_clef "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "help" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;;
+    "keyword" ) man_recherche_specifique_commande_ainsi_que_mot_clef "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "help" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;;
     # file : dont commandes
-    "file" )    manuel_recherche_specifique_commande_ainsi_que_mot_clef "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "man" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;; 
+    "file" )    man_recherche_specifique_commande_ainsi_que_mot_clef "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "man" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;; 
     # Dans tous les autres cas :
     # Similaire à 'file' (=commande) ci-dessus car certaines commandes de type "" (inconnu) non natives ont une page de manuel dédiée.
-    * )         manuel_recherche_specifique_commande_ainsi_que_mot_clef "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "man" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;;    
+    * )         man_recherche_specifique_commande_ainsi_que_mot_clef "$COMMANDE_RECHERCHEE" "$MOT_CLE_RECHERCHE" "man" "$SCRIPT_DE_RECHERCHE_ADDITIONNELLE" ;;    
 esac

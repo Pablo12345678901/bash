@@ -93,7 +93,7 @@ function calculatrice_appel_script {
 
 # M
 
-function manuel_recherche_specifique_commande_ainsi_que_mot_clef {
+function man_recherche_specifique_commande_ainsi_que_mot_clef {
     # $1 : la commande recherché
     # $2 : le mot clef recherché
     # $3 : le type de recherche "man" / "help"
@@ -132,7 +132,7 @@ function manuel_recherche_specifique_commande_ainsi_que_mot_clef {
         # Demande si souhait recherche générale via autre script
         REPONSE=""
         QUESTION="Voudriez-vous rechercher \"$COMMANDE_RECHERCHEE\" avec le script \"$SCRIPT_RECHERCHE_ADDITIONNELLE\" ? (YyOo/Nn) "
-        question_oui_non REPONSE QUESTION
+        question_oui_non REPONSE "$QUESTION"
         if [ "$REPONSE" == "o" ]
         then
             "$SCRIPT_RECHERCHE_ADDITIONNELLE" "$COMMANDE_RECHERCHEE"
@@ -176,12 +176,12 @@ function module_controle_si_present_sinon_installe {
 
 function question_oui_non {
     # $1 : REP_UTILISATEUR (variable)
-    # $1 : QUE_POSEE (variable)
+    # $2 : QUE_POSEE (valeur)
     # Type réponse retournée : 'o' ou 'n'
     local -n REP_UTILISATEUR=$1
-    local -n QUE_POSEE="$2"
+    local QUE_POSEE="$2"
     echo "" # esthétique
-    read -p "$QUE_POSEE" CHO
+    read -p "$QUE_POSEE" CHO </dev/tty
     case "$CHO" in
         [OoYy]  )   CHO='o';;
         [Nn]    )   CHO='n';;

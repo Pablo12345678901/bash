@@ -89,7 +89,7 @@ esac
 # choix y/n : afficher avec less ?
 REPONSE_LESS=""
 QUESTION_LESS="Voudriez-vous afficher ensuite le résultat avec less ? (YyOo/Nn) "
-question_oui_non REPONSE_LESS QUESTION_LESS
+question_oui_non REPONSE_LESS "$QUESTION_LESS"
 case "$REPONSE_LESS" in
 'o' )   # Avec less
         AVEC_LESS="| less" 
@@ -105,7 +105,7 @@ esac
 # choix y/n : avec message d'erreur et info sur l'avancement de la tâche ?
 REPONSE_MESSAGE_ERREUR=""
 QUESTION_MESSAGE_ERREUR="Voudriez-vous afficher les éventuels messages d'erreur ainsi que l'avancement de la tâche ? (YyOo/Nn) "
-question_oui_non REPONSE_MESSAGE_ERREUR QUESTION_MESSAGE_ERREUR
+question_oui_non REPONSE_MESSAGE_ERREUR "$QUESTION_MESSAGE_ERREUR"
 case "$REPONSE_MESSAGE_ERREUR" in
 'o' )   # Avec message
         MESSAGE_ERREUR=""

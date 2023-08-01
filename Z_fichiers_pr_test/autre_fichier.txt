@@ -1,7 +1,7 @@
 # Test ligne 
 
 # a # a -> OUI -> OK
-In this @@@@@@@@@@@@@@@ article # let us review 15 @@@@@@@@@@@@@@@ examples of Linux
+In this AAAAAAAAAAHERCHE article # let us review 15 AAAAAAAAAAHERCHE examples of Linux
 # In this MOT_RECHERCHE article # let us review 15 MOT_RECHERCHE examples of Linux
 
 # xyz # a -> NON -> OK
@@ -9,11 +9,11 @@ And this is # MOT_RECHERCHE last line.
 # And this is # MOT_RECHERCHE last line.
 
 # a # xyz -> OUI -> OK
-this line is @@@@@@@@@@@@@@@ 1st # lower case line in this file.
+this line is AAAAAAAAAAHERCHE 1st # lower case line in this file.
 # this line is MOT_RECHERCHE 1st # lower case line in this file.
 
 # a a -> OUI -> OK 
-First - create @@@@@@@@@@@@@@@ following demo_file that will be used in @@@@@@@@@@@@@@@
+First - create ZZZZZZZZZZHERCHE following demo_file that will be used in ZZZZZZZZZZHERCHE
 # First - create MOT_RECHERCHE following demo_file that will be used in MOT_RECHERCHE
 
 # Autre test :
@@ -22,5 +22,5 @@ First - create @@@@@@@@@@@@@@@ following demo_file that will be used in @@@@@@@@
 
 # Donnée normale avec mot clef
 # Ci-dessous -> OUI -> ok
-      Donnees bidon @@@@@@@@@@@@@@@
+      Donnees bidon AAAAAAAAAAHERCHE
 

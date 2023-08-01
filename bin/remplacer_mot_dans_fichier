@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 
+# Argument 
+# $1 : REGEX_RECHERCHE
+# $2 : STRING_REMPLACEMENT
+# $3 : FICHIER_OU_REPERTOIRE
+# ($...) : ...
+
 source fonctions_personnelles
 
-# Remarques : si je suis bloqué dans une boucle infinie :
-# -> Changing "done" to "done </dev/tty" could solve the problem > cf /dev/tty
 # Récupérer les éléments utiles dans mes notes après avoir rédigé ce script.
 # Amélioration potentielles :
 #   mode silencieux
 #   accepter les strings de plusieurs mots avec gestion des espaces
 #   accepter de remplacer un string par un string vide
 #   faire fonctionner le vidage de la corbeille depuis ce script
-
-
-
 
 declare -a TABLEAU_FICHIERS
 
@@ -23,29 +24,10 @@ PATH_FICHIER_OUTPUT_CORBEILLE=~/.Trash/${NOM_FICHIER_OUTPUT_CORBEILLE}
 # Contrôle qu'un argument a été fourni au script
 # Cette section doit être adaptée une fois les test avec données terminée
 if [[ -z "$1" || -z "$2" || -z "$3" ]]
-# $1 : REGEX_RECHERCHE
-# $2 : STRING_REMPLACEMENT
-# $3 : FICHIER_OU_REPERTOIRE
-# ($...) : ...
 then
-    ############################################################
-    ##############    DONNEES  TEST    #########################
-    ############################################################
-    # Cette section est à modifier quand les tests seront terminés.
-    # Incluant un contrôle des arguments.
-    REGEX_RECHERCHE="${1:-"wesh"}"
-    STRING_REMPLACEMENT="${2:-"bash"}"
-    FICHIER_OU_REPERTOIRE="${3:-"$REPERTOIRE_DEVELOPPEMENT/bash/Z_fichiers_pr_test/autre_fichier.txt"}"  # Fichier pr test
-    ############################################################
-    ##############    DONNEES  TEST    #########################
-    ############################################################
-
-    # Code prêt pour la suite
-    #echo -e "\nERREUR : il faut fournir au minimum 3 arguments à ce script."
-    #echo -e "Vous avez fourni les arguments suivants : \"$*\"."
-    #echo -e "$SYNTAXE"
-    #exit 1
-    echo "DEBUG SAISIR 3 ARGUMENT"
+    echo -e "\nERREUR : il faut fournir au minimum 3 arguments à ce script."
+    echo -e "Vous avez fourni les arguments suivants : \"$*\"."
+    echo -e "$SYNTAXE"
     exit 1
 else
     REGEX_RECHERCHE="$1"
@@ -274,13 +256,12 @@ done < <( while read LIGNE
     # grep -v : affiche les lignes qui ne matchent pas.
     tee "$PATH_FICHIER_OUTPUT_CORBEILLE" # double parethèse car après filtrage des lignes correcte, il faut vérifier si chaque répertoire contient au moins un fichier et si chaque fichier contient au moins une ligne avant de l'afficher.
     # envoi d'un doublon vers la corbeille car il se peut que s'il y a trop de match, il soient tronqués à l'écran.
-
+# Message indiquant qu'une copie de l'output a été placé dans la corbeille.
 echo -e "\nLes fichiers concernés et les matchs ont été affichés ci-dessus. Une copie de l'output a été placée dans la corbeille sous le nom de \"$NOM_FICHIER_OUTPUT_CORBEILLE\".\n"
-
-
+#######################
 REPONSE_LESS=""
 QUESTION_LESS="Voudriez-vous consulter cet output avec less ? (YyOo/Nn) "
-question_oui_non REPONSE_LESS QUESTION_LESS
+question_oui_non REPONSE_LESS "$QUESTION_LESS"
 if [ "$REPONSE_LESS" = 'o' ]
 then
     less $PATH_FICHIER_OUTPUT_CORBEILLE
@@ -353,18 +334,6 @@ else
         done < <(grep $ "$PATH_FICHIER_OUTPUT_CORBEILLE")
         echo -e "\nRemplacement terminé.\n"
     else
-
-
-
-
-
-
-
-
-
-
-
-
         # Choix fait : Passage en revue fichier par fichier
         # Récupération des données : elles sont déjà nettoyées il ne reste plus qu'à récupérer les éléments pour le remplacement.
         # récupérer les data du fichier dans la corbeille
@@ -397,8 +366,8 @@ else
                                     PATH_COURANT="${REPERTOIRE_COURANT}/${FICHIER_COURANT}"
                                     ;; # si débute par exactement 1x tab -> affichage avec 1x tab
                     [1-9]* )        TABLEAU_LIGNES+=("$LIGNE_FINALE") # Ajout de la ligne au tableau des lignes
-                                    NUMERO_LIGNE="$(echo "$LIGNE_COURANTE" | awk ' { print $1 } ' )"
-                                    TABLEAU_NUMERO_LIGNES+=($((NUMERO_LIGNE))) # Ajout du numéro de ligne au tableau des numéro de lignes.
+                                    NUMERO_LIGNE="$(echo "$LIGNE_FINALE" | awk ' { print $1 } ' )"
+                                    TABLEAU_NUMERO_LIGNES+=("$NUMERO_LIGNE") # Ajout du numéro de ligne au tableau des numéro de lignes.
                                     FLAG_LIGNE_A_AFFICHER="true" # passage du flag à true car il y a du contenu à afficher.
                                     # Dès qu'une ligne vide sera captée, le contenu sera affiché et le flag repassé à "false"
                                     ;; # si débute par un numéro de ligne
@@ -416,12 +385,8 @@ else
                                         # Remplacer tous les match du fichier en question ?
                                         # Les passer en revue un par un ?
                                         # Quitter
-                                        set -x
-                                        set -v
                                         select_parmi_liste TABLEAU_OPTIONS_SELECT CHOIX_CHOISI MESSAGE_MONTRE OPTION_POUR_STOP 
                                         echo "DEBUG : $REPLY"
-                                        set +v
-                                        set +x
                                         if [ "$CHOIX_CHOISI" = "$OPTION_POUR_ARRETER" ]
                                         then
                                             echo -e "\nVous décidez d'annuler le remplacement.\n"
@@ -432,8 +397,7 @@ else
                                             then
                                                 for NUMERO_LIGNE in "${TABLEAU_NUMERO_LIGNES[@]}"
                                                 do
-                                                    echo "DEBUG : sed -i '' $((NUMERO_LIGNE))s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g $PATH_COURANT"
-                                                    #sed -i '' "$((NUMERO_LIGNE))s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" $PATH_COURANT
+                                                    sed -i '' "${NUMERO_LIGNE}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" $PATH_COURANT
                                                     # sed -i '' : inline - sans fichier de back-up
                                                     # s/ : substitute
                                                     # g : remplace tous les matchs pas juste le premier
@@ -441,17 +405,21 @@ else
                                                 echo -e "\nRemplacement dans le fichier \"$FICHIER_COURANT\" situé $PATH_COURANT terminé.\n"
                                                 #
                                             else # passage en revue un par un
+                                                #
+                                                # DEBUG ICI
                                                 QUESTION_VALIDATION_REMPLACEMENT="Voulez-vous remplacer \"$REGEX_RECHERCHE\" par \"$STRING_REMPLACEMENT\" dans cette ligne du fichier \"$FICHIER_COURANT\" situé $PATH_COURANT ? (YyOn/Nn) "
                                                 for i in "${!TABLEAU_LIGNES[@]}"
                                                 do 
-                                                    echo "LIGNE : \"${TABLEAU_LIGNES[$i]}\""
+                                                    echo "LIGNE : \"${TABLEAU_LIGNES[$i]}\"" # 
                                                     # choix oui non
-                                                    REPONSE="" # réinitialisation de la réponse à chaque boucle
-                                                    question_oui_non REPONSE QUESTION_VALIDATION_REMPLACEMENT
-                                                    if [ "$REPONSE" = 'o' ]
+                                                    REPONSE_POUR_CHAQUE_LIGNE="" # réinitialisation de la réponse à chaque boucle
+                                                    question_oui_non REPONSE_POUR_CHAQUE_LIGNE "$QUESTION_VALIDATION_REMPLACEMENT"
+                                                    if [ "$REPONSE_POUR_CHAQUE_LIGNE" = "o" ]
                                                     then
+                                                        NUM_LIGNE_REMPLACEMENT=${TABLEAU_NUMERO_LIGNES[$i]}
+                                                        echo "$NUM_LIGNE_REMPLACEMENT"
                                                         echo "Ligne remplacée"
-                                                        echo "DEBUG : sed -i '' $((${TABLEAU_NUMERO_LIGNES[$i]}))/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g $PATH_COURANT"
+                                                        sed -i '' "${NUM_LIGNE_REMPLACEMENT}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" $PATH_COURANT
                                                         #sed -i '' "$((${TABLEAU_NUMERO_LIGNES[$i]}))/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" $PATH_COURANT
                                                         # sed -i '' : inline - sans fichier de back-up
                                                         # s/ : substitute
@@ -460,6 +428,7 @@ else
                                                         :
                                                     fi
                                                 done
+                                                echo "\nFin du remplacement.\n"
                                             fi
                                         fi
                                         FLAG_LIGNE_A_AFFICHER="false"
@@ -471,15 +440,6 @@ else
                                     ;; # match les lignes vides
                     esac
                 done < <(grep $ "$PATH_FICHIER_OUTPUT_CORBEILLE")
-
-
-
-
-
-
-
     fi
 fi
-
-exit 0
 

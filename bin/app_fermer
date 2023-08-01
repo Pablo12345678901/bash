@@ -11,7 +11,7 @@ app_ouvertes_obtention_et_remplissage_tableau TABLEAU_APP_OUVERTES
 
 QUESTION="Avez-vous sauvegardé les fichiers importants avant de lancer la fermeture des apps ? (Oo/Nn) "
 REPONSE=''
-question_oui_non REPONSE QUESTION
+question_oui_non REPONSE "$QUESTION"
 
 if [ "$REPONSE" == 'o' ]
 then
