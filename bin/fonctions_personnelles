@@ -79,6 +79,65 @@ function calculatrice_appel_script {
 
 # F
 
+function find_exclure_repertoire_retourne_string_a_inserer_ds_find {
+    # $1 : TAB (variable) -> le tableau dans lequel sera stocké ce qu'il faut ajouter à find. Doit être vide où seulement rempli par cette fonction.
+    # $2 : REP (valeur) : le répertoire à ne pas inclure dans la recherche de find -> celui-ci peut être inclus mais pas son niveau 1, 2, ..., n
+    # ATTENTION PLUSIEURS REMARQUES IMPORTANTES :
+    # Remarques 1 :
+    # Syntaxe : find "$REPERTOIRE_RECHERCHE" ${TABLEAU_CONTENANT_EXCLUSION_REPERTOIRE[*]} -print
+    # Le tableau contenant l'exclusion contient des string qu'il faut splitter avec ${TABLEAU_CONTENANT_EXCLUSION_REPERTOIRE[*]}
+    # IMPORTANT : Split non entouré de guillemets
+    # Remarque 2 :
+    # Il est OBLIGATOIRE de place la commande find entre ces 2 blocs de gestion du IFS sinon elle ne fonctionnera pas
+    ######### BLOC DEBUT #############
+    # Nécessaire pour la commande find
+    # cf fonction 'find_exclure...'
+    #OLDIFS="$IFS" # NE PAS SUPPRIMERR # Décommenter cette ligne
+    #IFS=: # NE PAS SUPPRIMERR ET CHOISIR -> peut être autre que ':' # Décommenter cette ligne
+    ######### BLOC DEBUT #############
+    # Placer la commande 'find' ICI    # Placer la commande find sur cette ligne
+    ######### BLOC FIN ###############
+    # Nécessaire pour la commande find
+    # cf fonction 'find_exclure...'
+    #IFS="$OLDIFS" # NE PAS SUPPRIMERR # Décommenter cette ligne
+    ######### BLOC FIN ###############
+    local -n TAB=$1
+    local REP="$2"
+    #############################################################################################
+    # Format appliqué - avec exemple
+    # Format souhaité : ( -path $REPERTOIRE_A_EXCLURE -o -path ./dir2 -o -path ./dir3 ) -prune -o
+    # Processus d'agrandissement du tableau
+    # Premier ajout :
+    #                   ( -path $REPERTOIRE_A_EXCLURE ) -prune -o
+    #                   0    1          2             3   4     5
+    # Deuxième ajout :
+    #                   ( -path $REPERTOIRE_A_EXCLURE -o -path ./dir2 ) -prune -o
+    #                   0    1          2              3   4     5    6   7     8
+    # Troisième ajout :
+    #                   ( -path $REPERTOIRE_A_EXCLURE -o -path ./dir2 -o -path ./dir3 ) -prune -o
+    #                   0    1          2              3   4     5     6   7     8    9    10   11
+    ##############################################################################################
+    if [ -z "${TAB[2]}" ]
+    then
+        TAB[0]="("
+        TAB[1]="-path"
+        TAB[2]="$REP"
+        TAB[3]=")"
+        TAB[4]="-prune"
+        TAB[5]="-o"
+    else
+        TAILLE_TABLEAU="${#TAB[@]}"
+        MULTIPLE="$(( TAILLE_TABLEAU / 3 ))"
+        INDEX_CORRECTION="$(( (MULTIPLE - 1) * 3 ))" # voir le raisonnement ci-dessus
+        TAB[((INDEX_CORRECTION++))]="-o"
+        TAB[((INDEX_CORRECTION++))]="-path"
+        TAB[((INDEX_CORRECTION++))]="$REP"
+        TAB[((INDEX_CORRECTION++))]=")"
+        TAB[((INDEX_CORRECTION++))]="-prune"
+        TAB[((INDEX_CORRECTION++))]="-o"
+    fi
+}
+
 # G
 
 # H
@@ -288,32 +347,32 @@ done   </dev/tty
 # T
 
 function tableau_affichage_contenu_avec_message {
-# $1 : Tableau (variable)
-# $2 : optionnel : message avant l'affichage du premier élément (valeur)
-# $3 : optionnel : message avant chaque élément (valeur)
-local -n TAB=$1
-local MES_AVANT_PREMIER_ELEMENT_TABLEAU="${2:-""}"
-local MES_AVANT_CHAQUE_ELEMENT_TABLEAU="${3:-""}"
-if [ ${#MES_AVANT_PREMIER_ELEMENT_TABLEAU} -gt 0 ] # s'il y a un message avant le tableau (si longueur string > 0)
-then
-    # affichage message avant le premier élément du tableau
-    echo -e "$MES_AVANT_PREMIER_ELEMENT_TABLEAU"
-else
-    :  
-fi
+    # $1 : Tableau (variable)
+    # $2 : optionnel : message avant l'affichage du premier élément (valeur)
+    # $3 : optionnel : message avant chaque élément (valeur)
+    local -n TAB=$1
+    local MES_AVANT_PREMIER_ELEMENT_TABLEAU="${2:-""}"
+    local MES_AVANT_CHAQUE_ELEMENT_TABLEAU="${3:-""}"
+    if [ ${#MES_AVANT_PREMIER_ELEMENT_TABLEAU} -gt 0 ] # s'il y a un message avant le tableau (si longueur string > 0)
+    then
+        # affichage message avant le premier élément du tableau
+        echo -e "$MES_AVANT_PREMIER_ELEMENT_TABLEAU"
+    else
+        :  
+    fi
 
-# Affichage du contenu tableau que s'il y a au moins un élément
-if [ 0 -lt ${#TAB[@]} ]
-then
+    # Affichage du contenu tableau que s'il y a au moins un élément
     echo "" # retour à la ligne esthétique
-    for ELEMENT in "${TAB[@]}"
-    do
-        echo -e "${MES_AVANT_CHAQUE_ELEMENT_TABLEAU}${ELEMENT}"
-    done
+    if [ 0 -lt ${#TAB[@]} ]
+    then
+        for ELEMENT in "${TAB[@]}"
+        do
+            echo -e "${MES_AVANT_CHAQUE_ELEMENT_TABLEAU}${ELEMENT}"
+        done
+    else
+        echo "Tableau vide"
+    fi
     echo "" # retour à la ligne esthétique
-else
-    :
-fi
 }
 
 
@@ -376,6 +435,21 @@ function tableau_ajout_element_que_si_non_existant_sans_espaces {
     fi
 }
 
+function tableau_contenu {
+    # $1 : TAB (variable)
+    local -n TAB=$1
+    # Affichage du contenu tableau que s'il y a au moins un élément
+    if [ 0 -lt ${#TAB[@]} ]
+    then
+        for ELEMENT in "${TAB[@]}"
+        do
+            echo "$ELEMENT"
+        done
+    else
+        echo "Tableau vide"
+    fi
+}
+
 function tableau_depuis_string_spliter_selon_char_special_et_trier_ordre_alphabetique_pas_numero {
     # $1 : STR (valeur)
     # $2 : TAB_VIDE (variable)
@@ -397,8 +471,44 @@ function tableau_depuis_string_spliter_selon_char_special_et_trier_ordre_alphabe
                             )) # double car d'abord j'affiche puis je trie -> et ensuite je remets dans le tableau
 }
 
+function tableau_suppression_doublon_et_tri_obligatoire_peut_contenir_string_sans_espace {
+    # $1 : ANC_TAB (variable)
+    # $2 : NVO_TAB (variable)
+    # $3 : CHA_SEP_NE_DOIT_JMS_ETRE_DS_STR_DU_TAB (valeur)
+    # Remarque IMPORTANTE :
+    # Il est nécessaire que l'utilisateur définisse le char spécial comme un char qui ne se verra
+    # jamais dans les strings du tableau.
+    # Cela ne peut pas être le char nul '\0' ni le retour à la ligne '\n'
+    local -n ANC_TAB=$1
+    local -n NVO_TAB=$2
+    local CHA_SEP_NE_DOIT_JMS_ETRE_DS_STR_DU_TAB="$3"
+    # Gestion d'IFS nécessaire pr séparer les morceaux séparés par le char spécial
+    OLDIFS="$IFS"
+    IFS=$CHA_SEP_NE_DOIT_JMS_ETRE_DS_STR_DU_TAB
+    while read ELEMENT_TRIE
+    do
+        NVO_TAB+=("$ELEMENT_TRIE")
+        #echo "'$ELEMENT_TRIE'"
+    done < <(echo "${ANC_TAB[*]}" | tr "$CHA_SEP_NE_DOIT_JMS_ETRE_DS_STR_DU_TAB" '\n' | sort -u )
+    # Gestion d'IFS nécessaire pr séparer les morceaux
+    IFS="$OLDIFS"
+}
 
+function tableau_suppression_doublon_et_tri_obligatoire_seulement_si_nb {
+    # $1 : ANC_TAB (variable)
+    # $2 : NVO_TAB (variable)
+    local -n ANC_TAB=$1
+    local -n NVO_TAB=$2
+    NVO_TAB=($(echo "${ANC_TAB[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+}
 
+function tableau_suppression_doublon_et_tri_obligatoire_seulement_si_string_sans_espace {
+    # $1 : ANC_TAB (variable)
+    # $2 : NVO_TAB (variable)
+    local -n ANC_TAB=$1
+    local -n NVO_TAB=$2
+    NVO_TAB=($(echo "${ANC_TAB[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+}
 
 function tableau_supprimer_tous_les_occurences_d_un_element {
 #   $1 : le tableau
@@ -418,6 +528,11 @@ function tableau_supprimer_tous_les_occurences_d_un_element {
     done
 }
 
+function tableau_taille {
+    # $1 : TAB_A_TESTER (variable)
+    local -n TAB_A_TESTER=$1
+    echo "${#TAB_A_TESTER[@]}"
+}
 
 function tableau_trier_ordre_alphabetique_pas_numero {
     # $1 : ANC_TABLEAU (variable)
@@ -434,6 +549,15 @@ function tableau_trier_ordre_alphabetique_pas_numero {
                     echo "$ELEMENT"
                 done
                 )) # double car d'abord j'affiche puis je trie -> et ensuite je remets dans le tableau
+}
+
+function tableau_trier_numeros_pas_ordre_alphabetique {
+    # $1 : ANC_TABLEAU (variable)
+    # $2 : NOU_TABLEAU (variable)
+    local -n ANC_TABLEAU=$1
+    local -n NOU_TABLEAU=$2
+    NOU_TABLEAU=( $( printf "%s\n" "${ANC_TABLEAU[@]}" | sort -n ) )
+    # sort -n
 }
 # U
  

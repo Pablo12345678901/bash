@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+# Ce script en appelle un autre plusieurs fois
+# Et selon les paramètres qu'ils lui fournit celui-ci va :
+# - lancer la mise à jour de la database publique
+# - lancer la mise à jour de la database utilisateur (privée)
+# - afficher un message final pour confirmer que terminé
+NB_PASSAGE_A_FAIRE=2
+for ((INDEX=0; $INDEX<$NB_PASSAGE_A_FAIRE; ((INDEX++)) ))
+do
+    if [ $INDEX -eq 0 ]
+    then
+        # Mise à jour de la DB fichiers publics
+        cd / # je me place où un utilisateur quelconque a accès (pas dans mon path privé)
+        { sudo updatedb &&
+        echo -e "\nMise à jour de la DB publique terminée.\n" ; 
+        } ||
+        { echo -e "\nERREUR : Échec de la mise à jour à l'index n°$INDEX.\n" &&
+        exit 1 ;
+        }
+    else 
+        # Mise à jour de mes fichiers perso
+        cd ~ # je me place dans mon path privé
+        export LOCATE_CONFIG="/etc/locate.users.rc"
+        { sudo updatedb &&
+        echo -e "\nMise à jour de la DB privée terminée.\n" ; 
+        } ||
+        { echo -e "\nERREUR : Échec de la mise à jour à l'index n°$INDEX.\n" &&
+        exit 1 ;
+        }
+    fi
+done
+
+echo -e "\nFin de la mise à jour.\n"

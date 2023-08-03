@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+
+
+# Test ok string avec espace
+: <<-"DEV"
+ANCIEN_TABLEAU=(
+"A B"  "A B"
+"a b" "a b"
+" str espace debut"
+" str espace debut"
+"str espace fin " "str espace fin "
+" str espace debut et fin " " str espace debut et fin "
+"   str espace multiples debut et fin     " "   str espace debut et fin     "
+)
+declare -a NVO_TABLEAU
+CHAR_SEPARATEUR_NE_DOIT_JAMAIS_ETRE_DS_STRINGS_DU_TABLEAU='§'
+tableau_suppression_doublon_et_tri_obligatoire_peut_contenir_string_sans_espace ANCIEN_TABLEAU NVO_TABLEAU "$CHAR_SEPARATEUR_NE_DOIT_JAMAIS_ETRE_DS_STRINGS_DU_TABLEAU"
+
+for ELEMENT in "${ANCIEN_TABLEAU[@]}"
+do
+    #echo "'$ELEMENT'"
+    :
+done
+#echo ""
+
+for ELEMENT_BIS in "${NVO_TABLEAU[@]}"
+do
+    #echo "'$ELEMENT_BIS'"
+    :
+done
+DEV
+
+
+
+
+
+
+# OK FONCTIONNE
+#ANCIEN_TABLEAU_NOMBRE=(1 2 3 3 2 1) # -> ok
+#declare -a NOUVEAU_TABLEAU_NOMBRE
+#tableau_suppression_doublon_et_tri_obligatoire_seulement_si_nb ANCIEN_TABLEAU_NOMBRE NOUVEAU_TABLEAU_NOMBRE
+#echo ""
+#tableau_contenu ANCIEN_TABLEAU_NOMBRE
+#echo ""
+#tableau_contenu NOUVEAU_TABLEAU_NOMBRE
+
+# OK FONCTIONNE
+#ANCIEN_TABLEAU_STR_SANS_ESPACE=("AB" "ab" "AB" "ab") # string sans espace -> ok
+#declare -a NOUVEAU_TABLEAU_STR_SANS_ESPACE
+#tableau_suppression_doublon_et_tri_obligatoire_seulement_si_string_sans_espace ANCIEN_TABLEAU_STR_SANS_ESPACE NOUVEAU_TABLEAU_STR_SANS_ESPACE
+#tableau_contenu ANCIEN_TABLEAU_STR_SANS_ESPACE
+#echo ""
+#tableau_contenu NOUVEAU_TABLEAU_STR_SANS_ESPACE

@@ -1,0 +1,266 @@
+#!/usr/bin/env bash
+
+# $1 : répertoire / fichier test
+# $2 et suivants : optionnel : répertoires à exclure
+
+# Fonctionnemen du script :
+# récupère les fichiers contenant des espaces dans leur nom de fichier.
+# Puis remplace les espaces par des underscores et renomme ainsi les fichier.
+# Puis répète l'opération avec les répertoires contenant des espaces.
+
+source fonctions_personnelles
+
+# NE PAS SUPPRIMER -> SUPER UTILE PR GERER DISQUE DUR EXTERNE
+: <<-"LISTEREPERTOIREANEPASPENETRERPREMIERNIVEAUDISQUEDUREXTERNE"
+##########################################################
+    # Dans l'ordre de 'find -s'
+    '/Volumes/Elements/$RECYCLE.BIN'
+    '/Volumes/Elements/.PKInstallSandboxManager'
+    '/Volumes/Elements/.Spotlight-V100'
+    '/Volumes/Elements/.TemporaryItems'
+    '/Volumes/Elements/.Trashes'
+    '/Volumes/Elements/._2 Hors-projet.rtf.sb-ac602eab-tgMo7r'
+    '/Volumes/Elements/._A Projet.rtf.sb-1f15287e-biv60k'
+    '/Volumes/Elements/._~$0 Programme 12.12.21.xlsx'
+    '/Volumes/Elements/._~$0 Programme et HP.xlsx'
+    '/Volumes/Elements/.fseventsd'
+    '/Volumes/Elements/~$0 Programme 12.12.21.xlsx'
+    '/Volumes/Elements/~$0 Programme et HP.xlsx'
+##########################################################
+LISTEREPERTOIREANEPASPENETRERPREMIERNIVEAUDISQUEDUREXTERNE
+
+function tableau_trier_speciale_ne_pas_copier_dans_fonctions_perso {
+    # $1 : ANC_TABLEAU (variable)
+    # $2 : NOU_TABLEAU (variable)
+    local -n ANC_TABLEAU=$1
+    local -n NOU_TABLEAU=$2
+    NOU_TABLEAU="$(echo "${ANC_TABLEAU[@]}" | tr ' ' '\n' | sort -n | tr '\n' ':' )"
+}
+
+source fonctions_personnelles
+
+SYNTAXE="\nSyntaxe :\n\t$(basename $0) REPERTOIRE_RECHERCHE [REPERTOIRE_A_EXCLURE [...]]\n"
+NB_ARGUMENTS_MINIMUM=1
+declare -a TABLEAU_D_EXCLUSION
+declare -a TABLEAU_DES_EVENTUELS_ECHEC_RENOMMAGE
+
+# Contrôle des arguments
+if [ -z "$1" ]
+then
+    echo -e "\nERREUR : aucun argument fourni."
+    echo -e "$SYNTAXE"
+    exit 1
+else
+    FICHIER_OU_REPERTOIRE="$1"
+    if [[ -d "$FICHIER_OU_REPERTOIRE" || -f "$FICHIER_OU_REPERTOIRE" ]] # Si l'argument fourni est un fichier ou répertoire
+    then
+        # Si d'autres arguments = répertoire à exclure
+        if [ $# -gt $NB_ARGUMENTS_MINIMUM ] 
+        then
+            # Boucle for
+            NB_ARGUMENTS=$#
+            for ((i=((NB_ARGUMENTS_MINIMUM+1)); i<=$NB_ARGUMENTS; i++)) # +1 à cause du décalage des index qui débute à 0 et pas à 1 quand il y a 1 argument / raisonnement similaire pour le '<=NBARGUMENT'
+            do
+                FICHIER_OU_REPERTOIRE_ARG_SUIVANT="${!i}"
+                # Contrôle si fichier ou répertoire -> sinon = erreur
+                if [[ -d "${!i}" || -f "${!i}" ]] 
+                then
+                    # Ajout au tableau des exclusion via fonction car spécial (cf fonction)
+                    find_exclure_repertoire_retourne_string_a_inserer_ds_find TABLEAU_D_EXCLUSION "$FICHIER_OU_REPERTOIRE_ARG_SUIVANT"
+                else
+                    echo -e "\nERREUR : l'argument $i fourni \"$FICHIER_OU_REPERTOIRE_ARG_SUIVANT\" n'est pas un fichier / répertoire."
+                    echo -e "$SYNTAXE"
+                    exit 1
+                fi
+            done
+        else
+            : # continue le script normalement
+        fi
+    else
+        echo -e "\nERREUR : l'argument fourni \"$FICHIER_OU_REPERTOIRE\" n'est pas un fichier / répertoire."
+        echo -e "$SYNTAXE"
+        exit 1
+    fi
+fi
+
+REGEX_PATH_CONTENANT_ESPACE=".*[[:space:]].*"
+REGEX_PATH_SE_TERMINANT_PAR_ESPACE="^.*[[:space:]]+$"
+# Besoin de travail dans l'ordre des niveaux sinon bug :
+# si le premier remplacement du nom des fichiers n'était pas fait, il contiendrait aussi
+# les fichiers contenant des espaces - voilà pourquoi dans l'ordre on remplace d'abord
+# les fichiers contenant des espaces puis les répertoires.
+# Sinon le 'path avec espace/fichier avec espace' serait remplacé par path_avec_espace/fichier_avec_espace'
+# Mais le nom du répertoire path_avec_espace n'existe pas encore donc ferait bugguer le script.
+# . : n'importe quel char
+# * : un nombre quelconque (dont 0) de fois
+# + : match une ou plusieurs fois
+
+# Obtention du nombre absolu de répertoire(s) contenu(s) dans le fichier/répertoire initialement fourni
+CHAR_SEPARATEUR_REPERTOIRE='/' # à adapter selon environnement
+NB_NIVEAU_PATH_ABSOLU="$(echo "$FICHIER_OU_REPERTOIRE" | awk -F $CHAR_SEPARATEUR_REPERTOIRE '{ print NF }')"
+# awk -F : field separator pour les mots traités par awk
+# NF : number of field de awk (les fields sont séparé par le char après '-F'
+
+######### BLOC DEBUT #############
+# Nécessaire pour la commande find
+# cf fonction 'find_exclure...'
+OLDIFS="$IFS" # NE PAS SUPPRIMERR # Décommenter cette ligne
+IFS=: # NE PAS SUPPRIMERR ET CHOISIR -> peut être autre que ':' # Décommenter cette ligne
+######### BLOC DEBUT #############
+
+# Obtention des niveaux concernés par la recherche de fichiers/répertoires avec espace(s)
+declare -a TABLEAU_NIVEAUX_CONCERNES_AVEC_DOUBLONS
+declare -a TABLEAU_NIVEAUX_CONCERNES
+while read PATH_REPERTOIRE
+do
+
+    NB_NIVEAU_PATH_COURANT="$(echo "$PATH_REPERTOIRE" | awk -F $CHAR_SEPARATEUR_REPERTOIRE '{ print NF }')"
+    NB_NIVEAU_RELATIF_PATH_COURANT="$((NB_NIVEAU_PATH_COURANT-NB_NIVEAU_PATH_ABSOLU))"
+    TABLEAU_NIVEAUX_CONCERNES_AVEC_DOUBLONS+=("$NB_NIVEAU_RELATIF_PATH_COURANT") # remplissage du tableau avec les niveaux relatifs
+
+done < <(find -E -s "$FICHIER_OU_REPERTOIRE" ${TABLEAU_D_EXCLUSION[*]} -regex "$REGEX_PATH_CONTENANT_ESPACE" -print0 | tr '\0' '\n')
+# ${TABLEAU_D_EXCLUSION[*]} : cf fonction 'find_exclure...'
+# find -E : extended REGEX
+# find -s : recherche par ordre alphabétique
+
+# Tri et suppression des doublons parmi les niveaux pour éviter de boucler inutilement dessus ensuite
+tableau_suppression_doublon_et_tri_obligatoire_seulement_si_nb TABLEAU_NIVEAUX_CONCERNES_AVEC_DOUBLONS TABLEAU_NIVEAUX_CONCERNES
+
+# Test si tableau vide et remplacement sinon
+TAILLE=$(tableau_taille TABLEAU_NIVEAUX_CONCERNES)
+if [ $TAILLE -gt 0 ]
+then
+    # Tri des éléments numérique du tableau des niveaux
+    tableau_trier_speciale_ne_pas_copier_dans_fonctions_perso TABLEAU_NIVEAUX_CONCERNES TABLEAU_NIVEAUX_CONCERNES_TRIES
+
+    ######### BLOC FIN ###############
+    # Nécessaire pour la commande find
+    # cf fonction 'find_exclure...'
+    IFS="$OLDIFS" # NE PAS SUPPRIMERR # Décommenter cette ligne
+    ######### BLOC FIN ###############   
+        
+    echo -e "\nRenommage...\n"
+    # Traitement et renommage niveau par niveau
+    COMPTEUR_FICHIER_RENOMME=0
+
+    ######### BLOC DEBUT #############
+    # Nécessaire pour la commande find
+    # cf fonction 'find_exclure...'
+    OLDIFS="$IFS" # NE PAS SUPPRIMERR # Décommenter cette ligne
+    IFS=: # NE PAS SUPPRIMERR ET CHOISIR -> peut être autre que ':' # Décommenter cette ligne
+    ######### BLOC DEBUT #############
+
+    for NIVEAU in ${TABLEAU_NIVEAUX_CONCERNES_TRIES[*]}
+    do
+        while read ANCIEN_PATH
+        # read -d DELIM : continue jusqu'à ce que le premier caractère de DELIM soit lu, au lieu du retour à la ligne
+        do  
+
+            # Test si le nom du path se termine par un espace auquel cas il faut le supprimer
+            if [[ "$ANCIEN_PATH" =~ $REGEX_PATH_SE_TERMINANT_PAR_ESPACE ]]
+            then
+                # Suppression de tous les espaces de fin de fichier
+                PATH_SANS_ESPACE_DE_FIN="$(echo "$ANCIEN_PATH" | sed -e 's/[[:space:]]*$//')"
+                NOUVEAU_PATH="$(echo "$PATH_SANS_ESPACE_DE_FIN" | tr ' ' '_' )"
+            else
+                NOUVEAU_PATH="$(echo "$ANCIEN_PATH" | tr ' ' '_' )"
+            fi
+            # Gestion d'un fichier/répertoire déjà existant avec le même nom
+            if [ -d "$NOUVEAU_PATH" ] || [ -f "$NOUVEAU_PATH" ]
+            then
+                # Si répertoire -> ajout d'un bis tout court
+                if [ -d "$NOUVEAU_PATH" ]
+                then
+                    NOUVEAU_PATH="${NOUVEAU_PATH}_bis"
+                else # Sinon, si fichier, ajout du bis AVANT l'extension
+                    PATH_COMPLET="$NOUVEAU_PATH"
+                    REPERTOIRE="${PATH_COMPLET%/*}"
+                    FICHIER="${PATH_COMPLET#$REPERTOIRE/}"
+                    FICHIER_SANS_EXTENSION="${FICHIER%.*}"
+                    EXTENSION="${FICHIER#$FICHIER_SANS_EXTENSION}"
+                    NOUVEAU_PATH="${REPERTOIRE}/${FICHIER_SANS_EXTENSION}_bis${EXTENSION}"
+                fi
+            else
+                :
+            fi
+            # tr : remplace les espaces par des underscores
+            # Renommage du fichier
+            # Bloc si réussite
+            { mv "$ANCIEN_PATH" "$NOUVEAU_PATH" &&
+            # mv : renomme le fichier
+            echo "\"$ANCIEN_PATH\" renommé en \"$NOUVEAU_PATH\"." &&
+            # Petie anecdote : si j'avais mis ((COMPTEUR_FICHIER_RENOMME++)) avec le ++ derrière,
+            # cela aurait déclenché le message d'erreur car ((0)) est interprêté comme si c'était
+            # une erreur cf if ((NB))
+            ((++COMPTEUR_FICHIER_RENOMME)) ;
+            } || # mise en bloc pour différencier du reste
+            # Bloc si échec
+            { echo -e "\nÉchec du renommage de \"$ANCIEN_PATH\".\n"
+            # Si erreur, exit du script
+            TABLEAU_DES_EVENTUELS_ECHEC_RENOMMAGE+=("$ANCIEN_PATH") ;
+            } # mise en bloc pour différencier du reste
+            
+        # Recherche les répertoires contenant au moins un espace dans le nom
+        done < <(find -E -s "$FICHIER_OU_REPERTOIRE" ${TABLEAU_D_EXCLUSION[*]} -maxdepth $NIVEAU -regex "$REGEX_PATH_CONTENANT_ESPACE" -print0 | tr '\0' '\n' )
+        # ${TABLEAU_D_EXCLUSION[*]} : cf fonction 'find_exclure...'
+        # find -E : extended REGEX
+        # find -s : recherche par ordre alphabétique
+        # find -maxdepth : descend au maximum jusqu'au niveau N (relatif) depuis le fichier
+    done
+
+######### BLOC FIN ###############
+# Nécessaire pour la commande find
+# cf fonction 'find_exclure...'
+IFS="$OLDIFS" # NE PAS SUPPRIMERR # Décommenter cette ligne
+######### BLOC FIN ###############
+
+    # Obtention du nb d'échec = taille tableau
+    COMPTEUR_FICHIER_ECHEC=${#TABLEAU_DES_EVENTUELS_ECHEC_RENOMMAGE[@]}
+    # Pr futur affichage message si erreur
+    FLAG_ERREUR="false" 
+    ACCORD_ECHEC="" 
+    # S'il y a au moins un élément
+    if [ $COMPTEUR_FICHIER_ECHEC -gt 0 ] 
+    then
+        FLAG_ERREUR="true"
+        # S'il y en a au moins 2 -> accord pluriel
+        if [ $COMPTEUR_FICHIER_ECHEC -gt 1 ]
+        then
+            ACCORD_ECHEC="s"
+        else
+            :  
+        fi
+        # Affichage des path échec :
+        echo -e "\nListe des fichiers dont le renommage n'a pas fonctionné :\n"
+        tableau_contenu TABLEAU_DES_EVENTUELS_ECHEC_RENOMMAGE
+        echo -e "\nTotal : $COMPTEUR_FICHIER_ECHEC fichier${ACCORD_ECHEC} non renommé${ACCORD_ECHEC}.\n"
+    else
+        :
+    fi
+
+    # S'il y a au moins un élément
+    if [ $COMPTEUR_FICHIER_RENOMME -gt 0 ] 
+    then
+        # S'il y en a au moins 2 -> accord pluriel
+        if [ $COMPTEUR_FICHIER_RENOMME -gt 1 ]
+        then
+            ACCORD_REUSSITE="s"
+        else
+            ACCORD_REUSSITE=""   
+        fi
+        echo -e "\nTotal : $COMPTEUR_FICHIER_RENOMME fichier${ACCORD_REUSSITE} renommé${ACCORD_REUSSITE}.\n"
+    else
+        :
+    fi
+
+    if [ $FLAG_ERREUR = "true" ]
+    then
+        echo -e "\nERREUR :\nIl y a eu $COMPTEUR_FICHIER_ECHEC fichier${ACCORD_ECHEC} qui ont posé problème.\nContrôler l'output ci-dessus.\n"
+    else
+        echo -e "\nTout est en ordre.\n"
+    fi
+
+    echo -e "\nFin du renommage...\n"
+else
+    echo -e "\nAucun fichier à renommer.\n"
+fi

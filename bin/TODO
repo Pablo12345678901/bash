@@ -5,10 +5,10 @@ exit 0
 
 La liste ci-dessous n'est pas triée par ordre de priorité :
 
-SCRIPTS
-- Finaliser le script qui remplace un pattern par un autre dans plusieurs fichiers
+SCRIPTS / FONCTIONS
 - Afficher syntaxe fonctions / script en récupérant les 10 première lignes script (ou 10 lignes après nom fonction fichier fonction)
-- script qui met à jour la database sous forme d'un cron (intervalle régulier) incluant tous les fichiers (y.c. Desktop)
+- fonctions de suppression doublons tableau -> 2 types : numérique ET string (alphabétique)
+- script qui met à jour la database sous forme d'un cron (intervalle régulier) incluant tous les fichiers (y.c. Desktop) -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
 - script qui recherche tous les fichiers modifiés depuis X date sur le disque dur externe (sans les répertoire avec '.repertoire') et qui les copie dans un autre disque dur au même chemin avec si nécessaire création des sous-répertoires dans lesquels ils seront - tester à petite échelle avant de lancer en blocs
 - Script app_ouvrir : obtenir la liste de toutes les apps disponibles sur le Mac et les proposer sous forme y/n + sélect à la fin de l'ouverture des apps de base
 - Script app_ouvrir permettre un argument du nom de l'app à ouvrir que grep recherche dans les apps disponibles sur le Mac puis ouvre (ex : app_ouvrir Chrome)

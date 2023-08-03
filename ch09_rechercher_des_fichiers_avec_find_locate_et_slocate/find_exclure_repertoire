@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+: <<-"DEV"
+function find_exclure_repertoire_retourne_string_a_inserer_ds_find {
+    # $1 : TAB (variable) -> le string dans lequel sera stocké ce qu'il faut ajouter à find. Doit être vide où seulement rempli par cette fonction.
+    # $2 : REP (valeur) : le répertoire à ne pas inclure dans la recherche de find -> celui-ci peut être inclus mais pas son niveau 1, 2, ..., n
+    # ATTENTION PLUSIEURS REMARQUES IMPORTANTES :
+    # Remarques 1 :
+    # Syntaxe : find "$REPERTOIRE_RECHERCHE" ${TABLEAU_CONTENANT_EXCLUSION_REPERTOIRE[*]} -print
+    # Le tableau contenant l'exclusion contient des string qu'il faut splitter avec ${TABLEAU_CONTENANT_EXCLUSION_REPERTOIRE[*]}
+    # IMPORTANT : Split non entouré de guillemets
+    # Remarque 2 :
+    # Il est OBLIGATOIRE de place la commande find entre ces 2 blocs de gestion du IFS sinon elle ne fonctionnera pas
+    ######### DEBUT BLOC #############
+    # Nécessaire pour la commande find
+    #IFS="$OLDIFS" # NE PAS SUPPRIMERR # Décommenter cette ligne
+    ##################################
+    # Placer la commande 'find' ICI    # Placer la commande find sur cette ligne
+    ##################################
+    # Nécessaire pour la commande find
+    #IFS="$OLDIFS" # NE PAS SUPPRIMERR # Décommenter cette ligne
+    ######### FIN BLOC ###############
+    local -n TAB=$1
+    local REP="$2"
+    ########################
+    # Format appliqué - avec exemple
+    # Format souhaité : ( -path $REPERTOIRE_A_EXCLURE -o -path ./dir2 -o -path ./dir3 ) -prune -o
+    # Processus d'agrandissement du tableau
+    # Premier ajout :
+    #                   ( -path $REPERTOIRE_A_EXCLURE ) -prune -o
+    #                   0    1          2             3   4     5
+    # Deuxième ajout :
+    #                   ( -path $REPERTOIRE_A_EXCLURE -o -path ./dir2 ) -prune -o
+    #                   0    1          2              3   4     5    6   7     8
+    # Troisième ajout :
+    #                   ( -path $REPERTOIRE_A_EXCLURE -o -path ./dir2 -o -path ./dir3 ) -prune -o
+    #                   0    1          2              3   4     5     6   7     8    9    10   11
+    if [ -z "${TAB[2]}"]
+    then
+        echo "Première fois"
+        TAB[0]="("
+        TAB[1]="-path"
+        TAB[2]="$REP"
+        TAB[3]=")"
+        TAB[4]="-prune"
+        TAB[5]="-o"
+    else
+        echo "Fois suivante"
+        TAILLE_TABLEAU="${#TAB[@]}"
+        MULTIPLE="$(( TAILLE_TABLEAU / 3 ))"
+        INDEX_CORRECTION="$(( (MULTIPLE - 1) * 3 ))" # voir le raisonnement ci-dessus
+        echo "$INDEX_CORRECTION"
+        TAB[((INDEX_CORRECTION++))]="-o"
+        TAB[((INDEX_CORRECTION++))]="-path"
+        TAB[((INDEX_CORRECTION++))]="$REP"
+        TAB[((INDEX_CORRECTION++))]=")"
+        TAB[((INDEX_CORRECTION++))]="-prune"
+        TAB[((INDEX_CORRECTION++))]="-o"
+    fi
+}
+DEV
+
+
+REPERTOIRE_RECHERCHE='/Users/pablo/Desktop/REP_TEST'
+
+REPERTOIRE_A_EXCLURE="/Users/pablo/Desktop/REP_TEST/TEST 1"
+REPERTOIRE_A_EXCLURE_INDIRECT="REPERTOIRE_A_EXCLURE"
+REPERTOIRE_A_EXCLURE_2="/Users/pablo/Desktop/REP_TEST/TEST"
+
+TABLEAU_ELEMENT=()
+find_exclure_repertoire_retourne_string_a_inserer_ds_find TABLEAU_ELEMENT "$REPERTOIRE_A_EXCLURE"
+find_exclure_repertoire_retourne_string_a_inserer_ds_find TABLEAU_ELEMENT "$REPERTOIRE_A_EXCLURE_2"
+
+# Section test ici :
+VAR_1="/Users/pablo/Desktop/REP_TEST"
+VAR_2="/Users/pablo/Desktop/REP_TEST/TEST 1"
+VAR_3="/Users/pablo/Desktop/REP_TEST/Brouillon_Word copie.docx"
+
+##################################
+# Nécessaire pour la commande find
+OLDIFS="$IFS" # NE PAS SUPPRIMER
+IFS= # NE PAS SUPPRIMER
+##################################
+find "$REPERTOIRE_RECHERCHE" ${TABLEAU_ELEMENT[*]} -print
+##################################
+# Nécessaire pour la commande find
+IFS="$OLDIFS" # NE PAS SUPPRIMERR
+##################################
