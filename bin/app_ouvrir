@@ -1,23 +1,11 @@
 #!/usr/bin/env bash
 
-function question_mettre_a_jour {
-    local -n reponse=$1
-    local QUESTION="Mettre à jour ? (Oo/Nn) "
-    echo "" # esthétique
-    read -p "$QUESTION" CHOIX
-    case "$CHOIX" in
-        [OoYy]  )   CHOIX='o';;
-        [Nn]    )   CHOIX='n';;
-        *       )   echo -e "\nERREUR : veuillez saisir une réponse parmi :\n\"OoYy\" pour \"Oui\"\n\"Nn\" pour \"Non\"\n" ;;
-    esac
-    reponse=$CHOIX
-}
+# Syntaxe :
+# - : pas d'argument nécessaires
 
-REPONSE='x'
-while [[ $REPONSE != 'o' && $REPONSE != 'n' ]] # boucle tant que la réponse n'est pas oui ou non 
-do
-    question_mettre_a_jour REPONSE
-done
+REPONSE=""
+QUESTION="Mettre à jour ? (Oo/Nn) "
+question_oui_non REPONSE "$QUESTION"
 
 if [ $REPONSE == 'o' ]
 then

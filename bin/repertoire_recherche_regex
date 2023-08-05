@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
-# Arguments du script
+# Syntaxe :
 # $1 : le REGEX -> fourni sous format REGEX (pas d'annulation de char spécial ici)
 # $2 : optionnel : le fichier/répertoire
 # $... : optionnel fichier/répertoire
 # $DERNIER : optionnel : '-s' pour indiquer un mode silencieux sans message à destination de l'utilisateur.
-
 ############ AVERTISSEMENT ############
 # Ce script peut être long selon la taille (le nombre de fichier) du répertoire
 # dans lequel la commande 'find' effectue sa recherche.

@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# $1 : CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES ou 'affichage' (pour un affichage détaillé du calcul)
+# $2 : CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES seulement si 'affichage' a été saisi en premier argument
+
 # Calculatrice supportant les floats
 # L'argument doit être transmis entre guillemets simples pour éviter l'erreur s'il contient des parenthèses.
 # Par contre il doit y avoir un opérateur entre un nombre de une parenthèse de début
 # sinon cela bug et donne des mauvais résultats sans informer l'utilisateur de l'erreur...
 
+SYNTAXE="\nSyntaxe :\n\t$(basename $0)    'CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES'\n"
 REGEX_CONTROLE_ARGUMENT="['('')']*[-+]?[0-9]+['('')']*[-+/*]['('')']*[-+]?[0-9]+['('')']*(['('')']*[-+/*]['('')']*[-+]?[0-9]+['('')']*)*[[:space:]]"
 # contrôle que la syntaxe est plus ou moins ok - ne couvre pas tous les bugs
 # ['('')']* : parenthèse optionnelles pas de nb maximum
@@ -13,16 +18,17 @@ REGEX_CONTROLE_ARGUMENT="['('')']*[-+]?[0-9]+['('')']*[-+/*]['('')']*[-+]?[0-9]+
 # [-+/*] : opérateur 1x
 if [ -z "$1" ]
 then
-    echo -e "\nSyntaxe :\n$(basename $0) 'calculenunblocsansespaceentreguillemetssimples'\n"
-    read -p "Quel calcul voudriez-vous effectuer ? " ARGUMENT
-    ARGUMENT="$( echo "$ARGUMENT" | tr -d ' ' | tr -d "'" ) "
-    if [[ "$ARGUMENT" =~ $REGEX_CONTROLE_ARGUMENT ]]
+    echo -e "$SYNTAXE"
+    read -p "Quel calcul voudriez-vous effectuer ? " CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES
+    CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES="$( echo "$CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES" | tr -d ' ' | tr -d "'" ) "
+    if [[ "$CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES" =~ $REGEX_CONTROLE_ARGUMENT ]]
     then
-        awk -v CALCUL="$ARGUMENT" "BEGIN{ print \"Calcul : \" CALCUL \"= \" $ARGUMENT }" ||
-        { echo -e "\nERREUR dans le calcul $ARGUMENT.\n" ; exit 1 ; }
+        awk -v CALCUL="$CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES" "BEGIN{ print \"Calcul : \" CALCUL \"= \" $CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES }" ||
+        { echo -e "\nERREUR dans le calcul $CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES.\n" ; exit 1 ; }
         exit 0
     else
-        echo -e "\nERREUR : $ARGUMENT\nSyntaxe :\n$(basename $0) 'calculenunblocsansespaceentreguillemetssimples'\n"
+        echo -e "\nERREUR : argument fourni incorrect \"$CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES\"."
+        echo -e "$SYNTAXE"
         exit 1
     fi
     # Conservation du calcul pour affichage
@@ -36,27 +42,27 @@ fi
 if [ "$1" == "affichage" ] # si le premier argument est "affichage"
 then
     shift 1 # suppression de l'argument 'affichage'
-    ARGUMENT="$(echo "$*" | tr -d ' ') "
-    if [[ "$ARGUMENT" =~ $REGEX_CONTROLE_ARGUMENT ]]
+    CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES="$(echo "$*" | tr -d ' ') "
+    if [[ "$CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES" =~ $REGEX_CONTROLE_ARGUMENT ]]
     then
-        awk -v CALCUL="$ARGUMENT" "BEGIN{ print \"Calcul : \" CALCUL \"= \" $ARGUMENT }" ||
-        { echo -e "\nERREUR dans le calcul $ARGUMENT.\n" ; exit 1 ; }
+        awk -v CALCUL="$CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES" "BEGIN{ print \"Calcul : \" CALCUL \"= \" $CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES }" ||
+        { echo -e "\nERREUR dans le calcul $CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES.\n" ; exit 1 ; }
         exit 0
     else
-        echo -e "\nERREUR : $ARGUMENT\nSyntaxe :\n$(basename $0) 'calculenunblocsansespaceentreguillemetssimples'\n"
+        echo -e "\nERREUR : $CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES\nSyntaxe :\n$(basename $0) 'calculenunblocsansespaceentreguillemetssimples'\n"
         exit 1
     fi
 else   
     #  sinon, fourni le résultat uniquement
     # pour utilisation dans des scripts
-    ARGUMENT="$(echo "$*" | tr -d ' ') "
-    if [[ "$ARGUMENT" =~ $REGEX_CONTROLE_ARGUMENT ]]
+    CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES="$(echo "$*" | tr -d ' ') "
+    if [[ "$CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES" =~ $REGEX_CONTROLE_ARGUMENT ]]
     then
-        awk "BEGIN{ print $ARGUMENT }" ||
-        { echo -e "\nERREUR dans le calcul $ARGUMENT.\n" ; exit 1 ; }
+        awk "BEGIN{ print $CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES }" ||
+        { echo -e "\nERREUR dans le calcul $CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES.\n" ; exit 1 ; }
         exit 0
     else
-        echo -e "\nERREUR : $ARGUMENT\nSyntaxe :\n$(basename $0) 'calculenunblocsansespaceentreguillemetssimples'\n"
+        echo -e "\nERREUR : $CALCUL_EN_UN_BLOC_SANS_ESPACE_ENTRE_GUILLEMETS_SIMPLES\nSyntaxe :\n$(basename $0) 'calculenunblocsansespaceentreguillemetssimples'\n"
         exit 1
     fi
 fi

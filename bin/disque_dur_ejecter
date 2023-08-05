@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'argument à fournir
+
 PATH_DES_DISQUES_DONT_APPAREILS_UBS="/Volumes" # à adapter si changement d'environnement
 
 # Tableaux de conservations des résultats avec les noms des appareils UBS / disques durs

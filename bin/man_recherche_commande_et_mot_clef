@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# $1 : COMMANDE_RECHERCHEE
+# $2 : MOT_CLE_RECHERCHE -> option ou mot-clef à rechercher dans le manuel
+
 source fonctions_personnelles # pour le choix oui/non
 
 ##################################################################

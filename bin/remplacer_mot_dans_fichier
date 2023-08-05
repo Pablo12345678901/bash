@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Argument 
+# Syntaxe
 # $1 : REGEX_RECHERCHE
 # $2 : STRING_REMPLACEMENT
 # $3 : FICHIER_OU_REPERTOIRE
@@ -278,7 +278,7 @@ TABLEAU_OPTIONS+=("$OPTIONS_2")
 CHOIX_SELECTIONNE=""
 MESSAGE_AFFICHE="\nQue décidez-vous pour la suite ? "
 OPTION_POUR_ARRETER="Quitter"
-select_parmi_liste TABLEAU_OPTIONS CHOIX_SELECTIONNE MESSAGE_AFFICHE OPTION_POUR_ARRETER
+select_parmi_liste TABLEAU_OPTIONS CHOIX_SELECTIONNE "$MESSAGE_AFFICHE" "$OPTION_POUR_ARRETER"
 if [ "$CHOIX_SELECTIONNE" = "$OPTION_POUR_ARRETER" ]
 then
     echo -e "\nVous décidez d'annuler le remplacement.\n"
@@ -385,7 +385,7 @@ else
                                         # Remplacer tous les match du fichier en question ?
                                         # Les passer en revue un par un ?
                                         # Quitter
-                                        select_parmi_liste TABLEAU_OPTIONS_SELECT CHOIX_CHOISI MESSAGE_MONTRE OPTION_POUR_STOP 
+                                        select_parmi_liste TABLEAU_OPTIONS_SELECT CHOIX_CHOISI "$MESSAGE_MONTRE" "$OPTION_POUR_STOP" 
                                         echo "DEBUG : $REPLY"
                                         if [ "$CHOIX_CHOISI" = "$OPTION_POUR_ARRETER" ]
                                         then

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'argument à fournir
+
 # Ce script en appelle un autre plusieurs fois
 # Et selon les paramètres qu'ils lui fournit celui-ci va :
 # - lancer la mise à jour de la database publique

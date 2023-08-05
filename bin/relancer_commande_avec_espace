@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# $1 : NB_LIGNE_ESPACE (optionnel)
+
 # Adapter ici le nombre de ligne vide par défaut si non défini.
 NB_LIGNE_ESPACE_PAR_DEFAUT=10
 

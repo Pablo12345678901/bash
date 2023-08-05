@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'argument à fournir
+
 bluetooth_connexion_souris
 app_ouvrir

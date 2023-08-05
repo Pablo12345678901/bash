@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Syntaxe :
+# $1 : INDEX_OU_ALL (optionnel) (valeur) (soit l'index du choix de sélect, soit '-all')
+
 source fonctions_personnelles
 
 declare -a TABLEAU_APP_OUVERTES
@@ -15,12 +19,13 @@ if [ -z "$1" ]
 then
     :
 else
-    if [[ $1 -gt 0 && $1 -le $DERNIERE_OPTION ]] # si choix compris dans la liste // -gt = greater than // -le = less than or equal to
+    INDEX_OU_ALL=$1
+    if [[ $INDEX_OU_ALL -gt 0 && $INDEX_OU_ALL -le $DERNIERE_OPTION ]] # si choix compris dans la liste // -gt = greater than // -le = less than or equal to
     then
-        index=$(($1-1)) # car les choix sélect débute à 1 et l'index à 0
+        index=$(($INDEX_DU_CHOIX-1)) # car les choix sélect débute à 1 et l'index à 0
         CHOIX="${TABLEAU_APP_OUVERTES[$index]}"
     else
-        if [ "$1" == "all" ]
+        if [ "$INDEX_OU_ALL" == "all" ]
         then
             app_fermer || { echo -e "Arrêt du redémarrage des apps sur votre demande.\n" ; exit 1 ; } # cf script
             GESTION_ERREUR=0
@@ -44,7 +49,7 @@ else
             done
             exit $GESTION_ERREUR # sortie avec ou sans erreur selon ce qu'il s'est passé
         else
-            echo -e "\nERREUR : votre saisie \"$1\" ne fait pas partie de la liste de choix.\nTapez \"$DERNIERE_OPTION\" pour \"$OPTION_SORTIE\""
+            echo -e "\nERREUR : votre saisie \"$INDEX_OU_ALL\" ne fait pas partie de la liste de choix.\nTapez \"$DERNIERE_OPTION\" pour \"$OPTION_SORTIE\""
         fi
     fi
 fi

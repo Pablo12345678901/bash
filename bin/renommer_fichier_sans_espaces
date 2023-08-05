@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
 # $1 : répertoire / fichier test
 # $2 et suivants : optionnel : répertoires à exclure
 

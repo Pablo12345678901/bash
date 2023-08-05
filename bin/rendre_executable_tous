@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# $1 : REPERTOIRE_DONT_LES_FICHIERS_SERONT_RENDUS_EXECUTABLES (optionnel) (par défaut, mon répertoire bin perso)
+
 # Il m'est possible de fourni un répertoire en argument de ce script.
 # Dans ce cas, tous ses fichiers vont (tenté d') être rendu exécutables.
 
@@ -8,12 +11,13 @@
 if [ -n "$1" ]
 # -n : si un argument a été fourni et longueur string > 0
 then
-    if [ -d "$1" ]
+    REPERTOIRE_DONT_LES_FICHIERS_SERONT_RENDUS_EXECUTABLES="$1"
+    if [ -d "$REPERTOIRE_DONT_LES_FICHIERS_SERONT_RENDUS_EXECUTABLES" ]
     # -d : si répertoire
     then
-        path_des_script_perso="$1"
+        :
     else
-        echo "ERREUR : l'argument fourni \"$1\" à \"$(basename $0)\" n'est pas un répertoire ou n'existe pas."
+        echo "ERREUR : l'argument fourni \"$REPERTOIRE_DONT_LES_FICHIERS_SERONT_RENDUS_EXECUTABLES\" à \"$(basename $0)\" n'est pas un répertoire ou n'existe pas."
         exit 1
     fi
 else

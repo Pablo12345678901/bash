@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
 # $1 : NOM_DU_POSTE (entre guilemets)
 # $2 : NOM_DE_LENTREPRISE (entre guillemets)
 # $3 : optionnel '-anglais' si recherche CV+LM en anglais + création répertoire avec 'EN' à la fin -> sachant que par défaut = recherche en français

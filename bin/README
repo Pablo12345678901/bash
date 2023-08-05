@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Syntaxe :
+# - : pas d'argument à fournir
+
 set -v # tous les commentaires ci-dessous seront affichés
 
 # Ce répertoire contiendra les commandes que je souhaite utiliser au quotidien.
@@ -14,6 +18,11 @@ set -v # tous les commentaires ci-dessous seront affichés
 #               Je peux les modifier puis les utiliser en saisissant :
 #                       bind -f $RACCOURCIS_CLAVIER
 #
+#       brew_liste_choses_installees.txt
+#               Ce fichier contient la liste des choses que brew à installée.
+#               Si je change d'environnement, je peux réutiliser son contenu pour tout réinstaller
+#               avec le script 'brew_reinstaller_formulaes_et_casks'.
+#
 #       commandes_bash_liste_et_description.txt
 #               Ce fichier contient un résumé de tous les mots utilisés par Bash
 #               Ainsi qu'un bref résumé pour chacun.
@@ -22,3 +31,14 @@ set -v # tous les commentaires ci-dessous seront affichés
 #       ne_pas_run_fichier_de_sauvegarde_du_contenu_bash_profil
 #               Ce fichier est une copie du profil bash.
 #               Si je change d'environnement, je peux copier son contenu pour le réutiliser.  
+#
+#       ne_pas_run_fichier_de_sauvegarde_du_contenu_bashrc
+#               Ce fichier est une copie du fichier bashrc.
+#               Si je change d'environnement, je peux copier son contenu pour le réutiliser.
+#
+#       README
+#               Ce fichier. Il contient les remarques sur les fichiers spéciaux (non purement script).
+#
+#       TODO
+#               Le fichier TODO contient des idées d'améliorations / de choses à développer / formation
+#               à entreprendre pour progresser.

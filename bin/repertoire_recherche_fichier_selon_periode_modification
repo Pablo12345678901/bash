@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-# Argument du script
+# Syntaxe :
 # $1 : optionnel : le répertoire
 # $2 : optionnel : la période -> si fournie doit être un nombre différent de 0 avec un signe +/-
 # $3 : optionnel : '-s : pour indiquer que mode silencieux : aucun message affiché (hormis résultat recherche). -> pour usage dans d'autre script
-
 ############ AVERTISSEMENT ############
 # Ce script peut être long selon la taille (le nombre de fichier) du répertoire
 # dans lequel la commande 'find' effectue sa recherche.

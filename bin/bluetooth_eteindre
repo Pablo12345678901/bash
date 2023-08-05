@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'argument à fournir
+
 # Comme l'utilitaire de blueutil n'est pas intégré d'office, je teste s'il l'est et sinon l'installe
 which blueutil > /dev/null # test de la commande si existe
 if (($?))

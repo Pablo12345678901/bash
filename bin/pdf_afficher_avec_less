@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# $1 : FICHIER_PDF
 ############ AVERTISSEMENT ############
 # Ce script est long car il convertit un PDF via OCR en texte.
 # Il n'affiche aucun message d'erreur.
@@ -64,7 +66,7 @@ TABLEAU_D_OPTIONS+=("$OPTION_4")
 CHOIX_SELECTIONNE=""
 MESSAGE_AFFICHE="Quel type d'output aimeriez-vous ? "
 OPTION_POUR_ARRETER="Quitter"
-select_parmi_liste TABLEAU_D_OPTIONS CHOIX_SELECTIONNE MESSAGE_AFFICHE OPTION_POUR_ARRETER
+select_parmi_liste TABLEAU_D_OPTIONS CHOIX_SELECTIONNE "$MESSAGE_AFFICHE" "$OPTION_POUR_ARRETER"
 # Adaptation du type d'output selon le choix
 # Mise des paths de fichier entre guillemets simples pour qu'il soient considérés comme des blocs par la commande finale.
 case "$CHOIX_SELECTIONNE" in

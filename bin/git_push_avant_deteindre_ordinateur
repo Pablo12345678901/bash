@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Syntaxe :
+# - : pas d'argument à fournir
+
 source fonctions_personnelles
 
 # Demande si souhait de push Git avant d'éteindre

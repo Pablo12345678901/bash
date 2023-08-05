@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
 # $1 : le path depuis lequel find effectue la recherche.
 
 # Description du script :

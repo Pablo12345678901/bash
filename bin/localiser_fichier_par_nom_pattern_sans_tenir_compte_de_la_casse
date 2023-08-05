@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# $1 : PATTERN_NOM_FICHIER_A_LOCALISER
+
 # Recommandation : fournir le pattern entre guillemets simples pour éviter toute expansion du shell
 
 if [ -n "$1" ]

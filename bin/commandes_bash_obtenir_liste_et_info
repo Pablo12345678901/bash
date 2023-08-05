@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Syntaxe :
+# - : pas d'argument à fournir
+
 source fonctions_personnelles
 
 # Ce script ouvrira l'app TextEditor de MacOs si je valide l'ouverture du fichier.

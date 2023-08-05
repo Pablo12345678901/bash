@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'argument à fournir
+
 echo -e "\nContenu de la variable \"\$PATH\" :\n"
 sort -f < <(    OLDIFS="$IFS" # récupération de la valeur de IFS
 # sort -f : ignore la casse

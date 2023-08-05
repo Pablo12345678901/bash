@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'argument à fournir
+
 source fonctions_personnelles
 
 FICHIER_AVEC_DONNEES_SAUVEGARDEES="brew_liste_choses_installees.txt"

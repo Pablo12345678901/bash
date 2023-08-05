@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'argument à fournir
+
 # Récupération de la liste des lignes avec titre fonctions
 declare -a TABLEAU_FONCTIONS
 

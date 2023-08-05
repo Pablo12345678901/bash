@@ -1,4 +1,9 @@
 #!/usr/bin/env bash
+
+# Syntaxe :
+# - : pas d'argument à fournir
+# Ceci est un fichier spécial -> voir le fichier 'README'
+
 echo -e "\nCeci est la liste des choses améliorables pour bash\n"
 exit 0
 : <<-"HEREDOCUMENT"
@@ -6,11 +11,15 @@ exit 0
 La liste ci-dessous n'est pas triée par ordre de priorité :
 
 SCRIPTS / FONCTIONS
-- script qui accroit à fond la priorité d'un processus avec ps -Al | grep NOM COMMANDE ARGUMENT1,2,3... > récupérer le PID > sudo renice -n -20 (par défaut ou autre) -p PID > ps -Al | grep COMMAND -> boucle jusqu'à ce que le NI soit à la valeur souhaitée
-- Afficher syntaxe fonctions / script en récupérant les 10 première lignes script (ou 10 lignes après nom fonction fichier fonction)
+- Accroitre à fond (ou à un certain niveau) la priorité d'une commande (et arguments) quelconque : processus avec ps -Al | grep NOM COMMANDE ARGUMENT1,2,3... > récupérer le PID > sudo renice -n -20 (par défaut ou autre) -p PID > ps -Al | grep COMMAND -> boucle jusqu'à ce que le NI soit à la valeur souhaitée
+- Obtenir la précédente commande et ses arguments
+- Accelerer précédente commande
 - script d'automatisation de rédaction CV et LM avec les stricts champs à modifier (CV : tire et 4 premiers atouts) (LM : date, nom entreprise, nom destinaire, adresse, date, ....)
-- script qui met à jour la database sous forme d'un cron (intervalle régulier) incluant tous les fichiers (y.c. Desktop) -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
 - script qui recherche tous les fichiers modifiés depuis X date sur le disque dur externe (sans les répertoire avec '.repertoire') et qui les copie dans un autre disque dur au même chemin avec si nécessaire création des sous-répertoires dans lesquels ils seront - tester à petite échelle avant de lancer en blocs
+- Afficher nb fichiers d'un répertoires
+- Afficher taille d'un répertoire
+- Afficher info générales sur un répertoire en combinant les autres scripts : (nb fichiers, taille, profondeur absolue et relative)
+- script qui met à jour la database sous forme d'un cron (intervalle régulier) incluant tous les fichiers (y.c. Desktop) -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
 - script qui trouve les noms disponibles de plus de X lettres (commençant par XYZ (débuter par 4 ou 5 lettres)) et qui les affiche (inclure le char '_' ) -> renommer mes commandes et gagner en rapidité lors de leur appel
 - Script app_ouvrir : obtenir la liste de toutes les apps disponibles sur le Mac et les proposer sous forme y/n + sélect à la fin de l'ouverture des apps de base
 - Script app_ouvrir permettre un argument du nom de l'app à ouvrir que grep recherche dans les apps disponibles sur le Mac puis ouvre (ex : app_ouvrir Chrome)
@@ -28,15 +37,8 @@ DEBUG
 APPRENTISSAGE :
 - bash - code source : Obtenir le code source de bash pour l'étudier
 - Historique Bash : Apprendre à ne pas sauvegarder l'historique des commandes de bash. # cf ce site : https://stackoverflow.com/questions/6475524/how-do-i-prevent-commands-from-showing-up-in-bash-history
-- Menu de sélection : Créer un menu de sélection pour des commandes. et pouvoir passer des argument éventuels à ces commandes
 - Portabilité slash-antislash : Apprendre comment rendre mes script portables VS les slashs / anti-slash des paths selon l'environnement
 - Proposition string : Apprendre à faire une proposition de string à l'utilisateur. Proposition qu'il peut modifier (effacer partiellement / tout) puis valider
-
-OPTIMISATION D'ECRITURE : 
-- Fonctions - optimisation : Rassembler les fonctions des fichiers (copier/coller) dans un fichier à part. Puis appeler les fonctions depuis les différents fichiers. Transformer les bouts de code en fonctions génériques pour réutilisation
-
-
-
 
 
 

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# $1 : MOT_SUR_LEQUEL_JE_SOUHAITERAIS_DE_L_INFORMATION
+
 # Contrôle qu'un argument a été fourni au script
 if [ -z "$1" ]
 then

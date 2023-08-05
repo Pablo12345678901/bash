@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'argument à fournir
+
 COMMANDE="${0##*/}" # nom du fichier = utile pour les messages d'erreur
 
 # Voir les script correspondants

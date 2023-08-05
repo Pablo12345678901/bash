@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'argument à fournir
+
 declare -a TABLEAU_FICHIERS # pour l'affichage initial
 declare -a TABLEAU_PATH # pour la suppression
 declare -a TABLEAU_FICHIERS_RESTANTS # pour l'affichage final

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'argument à fournir
+
 # Shows character codes while typing. More to the point, it also captures signals.
 # Utile pour savoir quel combinaison génère quel signal
 

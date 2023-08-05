@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+
+# Syntaxe :
+# $1 : INDEX_SELECT_DU_LOG_CHOISI (optionnel)
+
 source fonctions_personnelles
 
 # Données à adapter en cas de changement d'environnement
@@ -27,7 +31,7 @@ CHOIX_CHOIX=""
 if [ -z "$1" ]
 then
     MESSAGE_D_OUVERTURE="Veuillez sélectionnez le fichier des logs à ouvrir."
-    select_parmi_liste TABLEAU_FICHIERS_LOGS CHOIX_CHOIX MESSAGE_D_OUVERTURE OPTION_STOP
+    select_parmi_liste TABLEAU_FICHIERS_LOGS CHOIX_CHOIX "$MESSAGE_D_OUVERTURE" "$OPTION_STOP"
     if [ "$CHOIX_CHOIX" = "$OPTION_STOP" ]
     then
         echo -e "\nVous avez choisi de \"$OPTION_STOP\".\n"
@@ -45,7 +49,7 @@ else
     ARGUMENT_FOURNI="$1"
     MAX=$((${#TABLEAU_FICHIERS_LOGS[@]}+1)) # +1 car select débute à l'index 1
     MESSAGE_AVANT_RETOUR="Veuillez saisir un nombre compris entre 1 et $MAX"
-    retourne_choix_si_nb_correct_selon_select TABLEAU_FICHIERS_LOGS ARGUMENT_FOURNI CHOIX_CHOIX MESSAGE_AVANT_RETOUR OPTION_STOP || exit 1 # si erreur d'argument
+    retourne_choix_si_nb_correct_selon_select TABLEAU_FICHIERS_LOGS "$ARGUMENT_FOURNI" CHOIX_CHOIX "$MESSAGE_AVANT_RETOUR" "$OPTION_STOP" || exit 1 # si erreur d'argument
     if [ "$CHOIX_CHOIX" = "$OPTION_STOP" ]
     then
         echo -e "\nVous avez choisi de \"$OPTION_STOP\".\n"

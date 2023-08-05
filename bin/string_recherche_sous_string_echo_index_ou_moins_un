@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# $1 : STRING_RECHERCHE -> le sous-string recherché = variable avec contenu entre guillemets
+# $2 : BLOC -> le string = variable avec contenu entre guillemets
 # Ce script contrôle si un sous-string est inclus dans un string et retourne (avec echo) :
 #   L'index du début du sous-string dans le string s'il y est (echo "$INDEX_MATCH").
 #   -1 sinon : (echo "-1").
-#
-#
-# Les arguments à fournir au script sont :
-# $1 : le sous-string recherché = variable avec contenu entre guillemets
-# $2 : le string = variable avec contenu entre guillemets
 
 # Contrôle des 2 arguments
 if [ -z "$1" ] || [ -z "$2" ]

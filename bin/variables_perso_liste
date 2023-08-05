@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'argument à fournir
+
 #Remarque : la variable d'environnement $LISTE_VARIABLES_PERSO = La liste de mes variables perso provenant du fichier .profile de bash
 
 # Tri des éléments du tableau

@@ -1,78 +1,90 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'argument à fournir -> Ceci est le fichier contenant mes fonctions personnelles.
+# Remarques générales
 # Ranger par ordre alphabétique pour éviter doublons
 # Donner noms complexes pour éviter doublon avec fonction déjà dans bash
+# Chaque fonction doit être débutée par un paragraphe '# Syntaxe : ' qui se termine par une ligne vide.
 
 # A
 
 function app_fermer_normal {
-# $1 : AP_FERM (valeur)
-if [ -z "$1" ]
-then
-    echo "ERREUR : aucune app transmise en argument."
-    exit 1
-else
-    local -n APP=$1
-    osascript -e "quit app \"$APP\"" && # osascript est spécial et pour Apple - besoin de protéger le nom de l'app entre guillemets
-    echo "$APP fermée..." ||
-    {   echo -e "\nERREUR : l'application $APP n'a pas pu être fermée.\n" ;
-        exit 1 ;
-    }
-fi
+    # Syntaxe :
+    # $1 : AP_FERM (valeur)
+
+    if [ -z "$1" ]
+    then
+        echo "ERREUR : aucune app transmise en argument."
+        exit 1
+    else
+        local -n APP=$1
+        osascript -e "quit app \"$APP\"" && # osascript est spécial et pour Apple - besoin de protéger le nom de l'app entre guillemets
+        echo "$APP fermée..." ||
+        {   echo -e "\nERREUR : l'application $APP n'a pas pu être fermée.\n" ;
+            exit 1 ;
+        }
+    fi
 }
 
 
 function app_fermer_brutal {
-# $1 : AP_FERM (valeur)
-if [ -z "$1" ]
-then
-    echo "ERREUR : aucune app transmise en argument."
-    exit 1
-else
-    local -n APP=$1
-    pkill -x "$APP" && echo "$APP fermée de manière forcée..." ||
-    {   echo -e "\nERREUR : l'application $APP n'a pas pu être fermée de manière forcée.\n" ;
-        exit 1 ;
-    }
+    # Syntaxe :
+    # $1 : AP_FERM (valeur)
+
+    if [ -z "$1" ]
+    then
+        echo "ERREUR : aucune app transmise en argument."
+        exit 1
+    else
+        local -n APP=$1
+        pkill -x "$APP" && echo "$APP fermée de manière forcée..." ||
+        {   echo -e "\nERREUR : l'application $APP n'a pas pu être fermée de manière forcée.\n" ;
+            exit 1 ;
+        }
 fi
 }
 
 function app_ouvertes_obtention_et_remplissage_tableau {
-# A MODIFIER 'app_ouvertes_obtention_et_remplissage_tableau'
-local -n tableau=$1 # variable liée à la variable globale du tableau des app ouvertes
+    # Syntaxe :
+    # $1 : TAB_APP_OUV (variable)
 
-# Osacript fonctionne sur Mac uniquement (non portable)
-LISTE_STRING_APP_OUVERTES=$(osascript -e 'set text item delimiters to ":"' -e 'tell application "System Events" to (name of every application process whose background only is false) as string' | sort )
+    local -n TAB_APP_OUV=$1 # variable liée à la variable globale du tableau des app ouvertes
 
-# Séparation des éléments par des ":" pour futur split avec ":"
-SPECIAL_CHAR_SEPARATOR=':'
-LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Terminal/} # Tout fermer sauf Terminal - retiré Terminal de la liste des apps à fermer
-# VS CODE, décommenter la ligne ci-dessous, sinon l'app se fermera.
-#LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Electron/} # et Vs Code pour coder
-# Microsoft Word, décommenter la ligne ci-dessous, sinon l'app se fermera.
-#LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Microsoft\ Word/} # et Word pour prendre des notes
-LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES//$SPECIAL_CHAR_SEPARATOR$SPECIAL_CHAR_SEPARATOR/$SPECIAL_CHAR_SEPARATOR} # remplacement du délimiteur double par un simple suite à la suppression de l'app Terminal de la liste des apps à fermer
+    # Osacript fonctionne sur Mac uniquement (non portable)
+    LISTE_STRING_APP_OUVERTES=$(osascript -e 'set text item delimiters to ":"' -e 'tell application "System Events" to (name of every application process whose background only is false) as string' | sort )
 
-# Formatage du string à spliter : suppression des leading and trailing space, suppression des éventuels doubles points avant et après
-LISTE_STRING_APP_OUVERTES=$(sed -e 's/[[:space:]]*$//' <<< $LISTE_STRING_APP_OUVERTES)
-LISTE_STRING_APP_OUVERTES=$(sed -e 's/^[[:space:]]*//' <<< $LISTE_STRING_APP_OUVERTES)
-LISTE_STRING_APP_OUVERTES=$(sed -e 's/^://' <<< $LISTE_STRING_APP_OUVERTES)
+    # Séparation des éléments par des ":" pour futur split avec ":"
+    SPECIAL_CHAR_SEPARATOR=':'
+    LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Terminal/} # Tout fermer sauf Terminal - retiré Terminal de la liste des apps à fermer
+    # VS CODE, décommenter la ligne ci-dessous, sinon l'app se fermera.
+    #LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Electron/} # et Vs Code pour coder
+    # Microsoft Word, décommenter la ligne ci-dessous, sinon l'app se fermera.
+    #LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Microsoft\ Word/} # et Word pour prendre des notes
+    LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES//$SPECIAL_CHAR_SEPARATOR$SPECIAL_CHAR_SEPARATOR/$SPECIAL_CHAR_SEPARATOR} # remplacement du délimiteur double par un simple suite à la suppression de l'app Terminal de la liste des apps à fermer
 
-# Splitter le string en tableau selon un séparateur spécial
-OLDIFS=$IFS # conservation de la valeur d'origine du séparateur IFS
-IFS=: # le séparateur est désormais ":""
-TABLEAU_APP_OUVERTES=($LISTE_STRING_APP_OUVERTES) # split du string en tableau selon le nouveau séparateur
-IFS=$OLDIFS # remise de IFS à son ancienne valeur
+    # Formatage du string à spliter : suppression des leading and trailing space, suppression des éventuels doubles points avant et après
+    LISTE_STRING_APP_OUVERTES=$(sed -e 's/[[:space:]]*$//' <<< $LISTE_STRING_APP_OUVERTES)
+    LISTE_STRING_APP_OUVERTES=$(sed -e 's/^[[:space:]]*//' <<< $LISTE_STRING_APP_OUVERTES)
+    LISTE_STRING_APP_OUVERTES=$(sed -e 's/^://' <<< $LISTE_STRING_APP_OUVERTES)
+
+    # Splitter le string en tableau selon un séparateur spécial
+    OLDIFS=$IFS # conservation de la valeur d'origine du séparateur IFS
+    IFS=: # le séparateur est désormais ":""
+    TAB_APP_OUV=($LISTE_STRING_APP_OUVERTES) # split du string en tableau selon le nouveau séparateur
+    IFS=$OLDIFS # remise de IFS à son ancienne valeur
 }
 
 function argument_fournis_afficher_tous {
-        # $* : fournir tel quel les argument
-        echo -e "Liste des arguments fourni :"
-        for ((i=0; i<=$#; i++))
-        do
-            # Affichage entre guillemets simples
-            echo -n "'${!i}' "
-        done
+    # Syntaxe : 
+    # $* : fournir tel quel les argument (avec '$*' (sans guillemets))
+
+    echo -e "Liste des arguments fourni :"
+    for ((i=0; i<=$#; i++))
+    do
+        # Affichage entre guillemets simples
+        echo -n "'${!i}' "
+    done
 }
 
 # B
@@ -80,6 +92,10 @@ function argument_fournis_afficher_tous {
 # C
 
 function calculatrice_appel_script {
+    # Syntaxe : 
+    # $* : fournir tel quel les argument (avec '$*' (sans guillemets))
+    # Voir aussi le script 'calculatrice_avec_ou_sans_affichage'
+
     calculatrice_avec_ou_sans_affichage $*
 }
 
@@ -88,14 +104,18 @@ function calculatrice_appel_script {
 # E
 
 function espace_apres_supprimer {
+    # Syntaxe : 
     # $1 : STR (variable)
+
     local -n STR=$1
     STR="$(echo "$STR" | sed -e 's/[[:space:]]*$//' )"
     # sed remplace une fin de ligne composée d'un nombre quelconque d'espace(s) par rien (=suppression)
 }
 
 function espace_avant_supprimer {
+    # Syntaxe : 
     # $1 : STR (variable)
+
     local -n STR=$1
     STR="$(echo "$STR" | sed -e 's/^[[:space:]]*//' )"
     # sed remplace un début de ligne suivi par un nombre quelconque d'espace(s) par rien (=suppression)
@@ -104,9 +124,11 @@ function espace_avant_supprimer {
 # F
 
 function find_exclure_repertoire_retourne_string_a_inserer_ds_find {
+    # Syntaxe : 
     # $1 : TAB (variable) -> le tableau dans lequel sera stocké ce qu'il faut ajouter à find. Doit être vide où seulement rempli par cette fonction.
     # $2 : REP (valeur) : le répertoire à ne pas inclure dans la recherche de find -> celui-ci peut être inclus mais pas son niveau 1, 2, ..., n
-    # ATTENTION PLUSIEURS REMARQUES IMPORTANTES :
+    # ATTENTION PLUSIEURS REMARQUES IMPORTANTES (voir le fichier des fonctions pour le détail):
+    
     # Remarques 1 :
     # Syntaxe : find "$REPERTOIRE_RECHERCHE" ${TABLEAU_CONTENANT_EXCLUSION_REPERTOIRE[*]} -print
     # Le tableau contenant l'exclusion contient des string qu'il faut splitter avec ${TABLEAU_CONTENANT_EXCLUSION_REPERTOIRE[*]}
@@ -177,10 +199,12 @@ function find_exclure_repertoire_retourne_string_a_inserer_ds_find {
 # M
 
 function man_recherche_specifique_commande_ainsi_que_mot_clef {
+    # Syntaxe : 
     # $1 : la commande recherché
     # $2 : le mot clef recherché
     # $3 : le type de recherche "man" / "help"
     # $4 : le script de recherche additionnelle
+
     # Variables du script
     COMMANDE_RECHERCHEE="$1"
     MOT_CLE_RECHERCHE="$2"
@@ -232,10 +256,12 @@ function man_recherche_specifique_commande_ainsi_que_mot_clef {
 }
 
 function module_controle_si_present_sinon_installe {
+    # Syntaxe : 
     # $1 : module à installer par brew
     # La fonction retourne une valeur qui faut contrôler :
     # 0 : réussite de l'installation / déjà installé
     # 1 : échec de l'installation.
+
     MODULE_NECESSAIRE="$1"
     which "$MODULE_NECESSAIRE" >/dev/null # non affichage du résultat de la recherche
     if (($?))
@@ -258,9 +284,11 @@ function module_controle_si_present_sinon_installe {
 # Q
 
 function question_oui_non {
+    # Syntaxe : 
     # $1 : REP_UTILISATEUR (variable)
     # $2 : QUE_POSEE (valeur)
     # Type réponse retournée : 'o' ou 'n'
+
     local -n REP_UTILISATEUR=$1
     local QUE_POSEE="$2"
     echo "" # esthétique
@@ -278,8 +306,10 @@ function question_oui_non {
 # R
 
 function repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find {
+    # Syntaxe : 
     # $1 : le tableau où seront stockés les fichiers (variable)
     # $2 : le répertoire dans lequel effectuer la recherche (valeur)
+
     local -n TAB_FICHIER=$1
     local REP="$2"
     while read NOM_FICHIER
@@ -295,42 +325,51 @@ function repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_r
 }
 
 function retourne_choix_si_nb_correct_selon_select {
-local -n TABLEAU=$1
-local -n ARG_FOURNI=$2
-local -n CHOIX=$3
-local -n MESSAGE=$4 # Message pour expliquer l'argument à fournir ("range des choix entre 1 et MAX")
-# Argument optionnel $5 = option_quitter
-TABLEAU_COPIE=("${TABLEAU[@]}")             
-# Ajout de l'option quitter à la liste si fourni
-if [ -n "$5" ] 
-then
-    local -n OPTION_QUITTER=$5
-    TABLEAU_COPIE+=("$OPTION_QUITTER")
-else
-    :
-fi
+    # Syntaxe : 
+    # $1 : TAB (variable)
+    # $2 : ARG_FOURNI (valeur)
+    # $3 : CHX (variable)
+    # $4 : MESSAGE (valeur)
+    # $5 : OPT_QUITTER (valeur) (optionnel)
 
-NB_REGEX='^[0-9]+$' # Utile pour tester les index
-if [[ "$ARG_FOURNI" =~ $NB_REGEX ]]
-then
-    if [ "$ARG_FOURNI" -gt 0 -a "$ARG_FOURNI" -le ${#TABLEAU_COPIE[@]} ]
+    local -n TAB=$1
+    local ARG_FOURNI="$2"
+    local -n CHX=$3
+    local MSG="$4" # Message pour expliquer l'argument à fournir ("range des choix entre 1 et MAX")
+    # Argument optionnel $5 = option_quitter
+    TABLEAU_COPIE=("${TAB[@]}")             
+    # Ajout de l'option quitter à la liste si fourni
+    if [ -n "$5" ] 
     then
-        CHOIX="${TABLEAU_COPIE[(($ARG_FOURNI-1))]}" # décalage de l'index car les choix à select débutent à 1 et pas 0
+        local OPT_QUITTER="$5"
+        TABLEAU_COPIE+=("$OPT_QUITTER")
     else
-        echo -e "\nERREUR : le numéro fourni en argument \"$ARG_FOURNI\" ne fait pas partie de la liste des choix.\n"
+        :
+    fi
+
+    NB_REGEX='^[0-9]+$' # Utile pour tester les index
+    if [[ "$ARG_FOURNI" =~ $NB_REGEX ]]
+    then
+        if [ "$ARG_FOURNI" -gt 0 -a "$ARG_FOURNI" -le ${#TABLEAU_COPIE[@]} ]
+        then
+            CHX="${TABLEAU_COPIE[(($ARG_FOURNI-1))]}" # décalage de l'index car les choix à select débutent à 1 et pas 0
+        else
+            echo -e "\nERREUR : le numéro fourni en argument \"$ARG_FOURNI\" ne fait pas partie de la liste des choix.\n"
+            exit 1
+        fi
+    else
+        echo -e "\nL'argument \"$ARG_FOURNI\" n'est pas valable."
+        echo -e "$MSG\n"
         exit 1
     fi
-else
-    echo -e "\nL'argument \"$ARG_FOURNI\" n'est pas valable."
-    echo -e "$MESSAGE\n"
-    exit 1
-fi
 }
 
 # S
 
 function sed_preparation_pr_variable_utilisee_dans_sed_avec_slash_remplacement_en_antislash_slash {
+    # Syntaxe :
     # $1 : STR (variable)
+
     local -n STR=$1
     STR="$(echo "$STR" | sed -e 's/\//\\\//g' )"
     # sed -> remplace un slash ('\/') par un antislash ('\\') + slash ('\/') pour que sed le considère comme un simple slash.
@@ -338,49 +377,53 @@ function sed_preparation_pr_variable_utilisee_dans_sed_avec_slash_remplacement_e
 }
 
 function select_parmi_liste {
-# $1 : TAB_D_OPTIONS (variable)
-# $2 : CH_UTILISATEUR (variable)
-# $3 : MES_AFFICHE -> avant d'afficher les choix (variable)
-# $4 : optionnel : OPT_POUR_ARRETER (variable)
-local -n TAB_D_OPTIONS=$1
-local -n CH_UTILISATEUR=$2
-local -n MES_AFFICHE=$3 # Message
-MES_BOUCLE=""
-if [ -z "$4" ] # si le 4ème paramètre est défini = si options pour arrêter a été fournie
-then    
-    TAB_CHOIX=("${TAB_D_OPTIONS[@]}") # copie du tableau original (à conserver)    
-else
-    local -n OPT_POUR_ARRETER=$4 # optionnel
-    TAB_CHOIX=("${TAB_D_OPTIONS[@]}") # copie du tableau original car je vais y ajouter l'option de sortie
-    TAB_CHOIX+=("$OPT_POUR_ARRETER") # ajout de l'option de sortie
-    DER_OPTION="${#TAB_CHOIX[@]}"
-    MES_SI_OPTION_QUITTER="Tapez \"$DER_OPTION\" pour \"$OPT_POUR_ARRETER\"
-    " # inclus un retour à la ligne
-fi
-CH_UTILISATEUR=""
-until [ -n "$CH_UTILISATEUR" ] 
-do
-    echo -e "\n$MES_AFFICHE\n$MES_SI_OPTION_QUITTER"
-    select CH_UTILISATEUR in "${TAB_CHOIX[@]}"
-    do
-        break 
-    done
-    if [ -n "$CH_UTILISATEUR" ] # si le choix est correct
-    then
-        :
+    # Syntaxe :
+    # $1 : TAB_D_OPTIONS (variable)
+    # $2 : CH_UTILISATEUR (variable)
+    # $3 : MES_AFFICHE (valeur) -> avant d'afficher les choix
+    # $4 : OPT_POUR_ARRETER (optionnel) (valeur)
+
+    local -n TAB_D_OPTIONS=$1
+    local -n CH_UTILISATEUR=$2
+    local MES_AFFICHE="$3" # Message
+    MES_BOUCLE=""
+    if [ -z "$4" ] # si le 4ème paramètre est défini = si options pour arrêter a été fournie
+    then    
+        TAB_CHOIX=("${TAB_D_OPTIONS[@]}") # copie du tableau original (à conserver)    
     else
-        echo -e "ERREUR : votre saisie ne fait pas partie de la liste de choix.\n$MES_SI_OPTION_QUITTER"
+        local OPT_POUR_ARRETER="$4" # optionnel
+        TAB_CHOIX=("${TAB_D_OPTIONS[@]}") # copie du tableau original car je vais y ajouter l'option de sortie
+        TAB_CHOIX+=("$OPT_POUR_ARRETER") # ajout de l'option de sortie
+        DER_OPTION="${#TAB_CHOIX[@]}"
+        MES_SI_OPTION_QUITTER="Tapez \"$DER_OPTION\" pour \"$OPT_POUR_ARRETER\"
+        " # inclus un retour à la ligne
     fi
-done   </dev/tty
+    CH_UTILISATEUR=""
+    until [ -n "$CH_UTILISATEUR" ] 
+    do
+        echo -e "\n$MES_AFFICHE\n$MES_SI_OPTION_QUITTER"
+        select CH_UTILISATEUR in "${TAB_CHOIX[@]}"
+        do
+            break 
+        done
+        if [ -n "$CH_UTILISATEUR" ] # si le choix est correct
+        then
+            :
+        else
+            echo -e "ERREUR : votre saisie ne fait pas partie de la liste de choix.\n$MES_SI_OPTION_QUITTER"
+        fi
+    done   </dev/tty
 
 }
 
 # T
 
 function tableau_affichage_contenu_avec_message {
-    # $1 : Tableau (variable)
-    # $2 : optionnel : message avant l'affichage du premier élément (valeur)
-    # $3 : optionnel : message avant chaque élément (valeur)
+    # Syntaxe :
+    # $1 : TAB (variable)
+    # $2 : MES_AVANT_PREMIER_ELEMENT_TABLEAU (optionnel) (valeur)
+    # $3 : MES_AVANT_CHAQUE_ELEMENT_TABLEAU (optionnel) (valeur)
+
     local -n TAB=$1
     local MES_AVANT_PREMIER_ELEMENT_TABLEAU="${2:-""}"
     local MES_AVANT_CHAQUE_ELEMENT_TABLEAU="${3:-""}"
@@ -407,22 +450,25 @@ function tableau_affichage_contenu_avec_message {
 }
 
 
-# ajout_element_tableau : argument 1 = tableau / argument 2 = élément à ajouter
+
 function tableau_ajout_element_que_si_non_existant_avec_espaces {
-    # $1 : NOM_DE_LA_VARIABLE_TABLEAU
-    # $2 : STRING_ELEMENT_A_AJOUTER
+    # Syntaxe :
+    # $1 : TAB (variable)
+    # $2 : STR_ELEMENT_A_AJOUTER (valeur)
+
     if [[ -z "$1" || -z "$2" ]]
     then
         echo "ERREUR : les arguments \$1 : nom_du_tableau_en_string et \$2 : élément à ajouter au tableau n'ont pas été fourni tous les 2."
     else
         local -n TAB=$1
+        local STR_ELEMENT_A_AJOUTER="$2"
         # Contrôle si l'élément est déjà dans le tableau et ajout s'il n'y est pas.
         ELEMENT_DEJA_DANS_TABLEAU="false"
         # Comme les éléments peuvent contenir des espaces, besoin de boucler sur chacun
         # Et de les comparer un par un au string fourni pour ajout.
-        for element in "${TAB[@]}"
+        for ELEMENT in "${TAB[@]}"
         do
-            if [ "$element" == "$2" ]
+            if [ "$ELEMENT" == "$STR_ELEMENT_A_AJOUTER" ]
             then
                 # Si l'élément est dans le tableau, on change l'indicateur à 'true' et sort de la boucle.
                 ELEMENT_DEJA_DANS_TABLEAU="true"
@@ -444,28 +490,33 @@ function tableau_ajout_element_que_si_non_existant_avec_espaces {
 
 # ajout_element_tableau : argument 1 = tableau / argument 2 = élément à ajouter
 function tableau_ajout_element_que_si_non_existant_sans_espaces {
-    # $1 : NOM_DE_LA_VARIABLE_TABLEAU
-    # $2 : STRING_ELEMENT_A_AJOUTER
+    # Syntaxe :
+    # $1 : TAB (variable)
+    # $2 : STR_ELEMENT_A_AJOUTER (valeur)
+
     if [[ -z "$1" || -z "$2" ]]
     then
         echo "ERREUR : les arguments \$1 : nom_du_tableau_en_string et \$2 : élément à ajouter au tableau n'ont pas été fourni tous les 2."
     else
         local -n TAB=$1
+        local STR_ELEMENT_A_AJOUTER="$2"
         # Contrôle si l'élément est déjà dans le tableau et ajout s'il n'y est pas.
-        if [[ " ${TAB[*]} " =~ " ${2} " ]]
+        if [[ " ${TAB[*]} " =~ " ${STR_ELEMENT_A_AJOUTER} " ]]
         # Les éléments sont séparés par des espaces.
         # Sauf en début et fin.
         # Donc pour contrôler le REGEX, ajout d'espace avant et après.
         then
             : # si l'élément est déjà dans le tableau on ne le rajoute pas
         else
-            TAB+=("$2")
+            TAB+=("$STR_ELEMENT_A_AJOUTER")
         fi
     fi
 }
 
 function tableau_contenu {
+    # Syntaxe :
     # $1 : TAB (variable)
+
     local -n TAB=$1
     # Affichage du contenu tableau que s'il y a au moins un élément
     if [ 0 -lt ${#TAB[@]} ]
@@ -480,9 +531,11 @@ function tableau_contenu {
 }
 
 function tableau_depuis_string_spliter_selon_char_special_et_trier_ordre_alphabetique_pas_numero {
+    # Syntaxe :
     # $1 : STR (valeur)
     # $2 : TAB_VIDE (variable)
     # $3 : CHA_SPECIAL (valeur) -> 1 seul char
+
     local STR=$1
     local -n TAB_VIDE=$2
     local CHA_SPECIAL=$3
@@ -501,6 +554,7 @@ function tableau_depuis_string_spliter_selon_char_special_et_trier_ordre_alphabe
 }
 
 function tableau_suppression_doublon_et_tri_obligatoire_peut_contenir_string_sans_espace {
+    # Syntaxe :
     # $1 : ANC_TAB (variable)
     # $2 : NVO_TAB (variable)
     # $3 : CHA_SEP_NE_DOIT_JMS_ETRE_DS_STR_DU_TAB (valeur)
@@ -508,6 +562,7 @@ function tableau_suppression_doublon_et_tri_obligatoire_peut_contenir_string_san
     # Il est nécessaire que l'utilisateur définisse le char spécial comme un char qui ne se verra
     # jamais dans les strings du tableau.
     # Cela ne peut pas être le char nul '\0' ni le retour à la ligne '\n'
+
     local -n ANC_TAB=$1
     local -n NVO_TAB=$2
     local CHA_SEP_NE_DOIT_JMS_ETRE_DS_STR_DU_TAB="$3"
@@ -524,32 +579,38 @@ function tableau_suppression_doublon_et_tri_obligatoire_peut_contenir_string_san
 }
 
 function tableau_suppression_doublon_et_tri_obligatoire_seulement_si_nb {
+    # Syntaxe :
     # $1 : ANC_TAB (variable)
     # $2 : NVO_TAB (variable)
+
     local -n ANC_TAB=$1
     local -n NVO_TAB=$2
     NVO_TAB=($(echo "${ANC_TAB[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
 }
 
 function tableau_suppression_doublon_et_tri_obligatoire_seulement_si_string_sans_espace {
+    # Syntaxe :
     # $1 : ANC_TAB (variable)
     # $2 : NVO_TAB (variable)
+
     local -n ANC_TAB=$1
     local -n NVO_TAB=$2
     NVO_TAB=($(echo "${ANC_TAB[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
 }
 
 function tableau_supprimer_tous_les_occurences_d_un_element {
-#   $1 : le tableau
-#   $2 : l'élément à supprimer entre guillemets si nécessaire
+    # Syntaxe :
+    # $1 : TAB (variable)
+    # $2 : ELE_A_SUP (valeur) : l'élément à supprimer entre guillemets si nécessaire
+
     local -n TAB=$1
-    local ELE="$2" # element à supprimer
+    local ELE_A_SUP="$2" # element à supprimer
     for ELEMENT in "${TAB[@]}"
     do
         for INDEX in "${!TAB[@]}" # besoin de l'index pour unset la variable
         # ${!TAB[@]} = la liste des keys = des index
         do
-            if [[ "${TAB[$INDEX]}" = "$ELE" ]]
+            if [[ "${TAB[$INDEX]}" = "$ELE_A_SUP" ]]
             then
                 unset -v TAB[$INDEX]
             fi
@@ -558,14 +619,18 @@ function tableau_supprimer_tous_les_occurences_d_un_element {
 }
 
 function tableau_taille {
+    # Syntaxe :
     # $1 : TAB_A_TESTER (variable)
+
     local -n TAB_A_TESTER=$1
     echo "${#TAB_A_TESTER[@]}"
 }
 
 function tableau_trier_ordre_alphabetique_pas_numero {
+    # Syntaxe :
     # $1 : ANC_TABLEAU (variable)
     # $2 : NOU_TABLEAU (variable)
+
     local -n ANC_TABLEAU=$1
     local -n NOU_TABLEAU=$2
     while read ELEMENT_TRIE
@@ -581,8 +646,10 @@ function tableau_trier_ordre_alphabetique_pas_numero {
 }
 
 function tableau_trier_numeros_pas_ordre_alphabetique {
+    # Syntaxe :
     # $1 : ANC_TABLEAU (variable)
     # $2 : NOU_TABLEAU (variable)
+
     local -n ANC_TABLEAU=$1
     local -n NOU_TABLEAU=$2
     NOU_TABLEAU=( $( printf "%s\n" "${ANC_TABLEAU[@]}" | sort -n ) )
@@ -590,12 +657,14 @@ function tableau_trier_numeros_pas_ordre_alphabetique {
 }
 
 function texte_aligner_blocs {
+    # Syntaxe :
     # $1 : STR_FINAL (variable)
     # $2 : STR1 (valeur)
     # $3, $4 : N_CHAR_ALIGN_STR2, STR2 (valeur x2) -> N_CHAR_ALIGN_STR2 est le numéro de colonne du char où STR2 devrait débuter.
     # $n, $n+1 : par paire, STRN et N_CHAR_ALIGN_STRN
     # Remarques : suppression des espaces sur STR1 pour un meilleur design
     # Si le numéro du char calculé est plus petit que la fin du précédent string alors il sera égal à sa fin +1.
+
     local -n STR_FINAL=$1
     local STR1="$2"
     local STR_PROVISOIRE=""
@@ -655,8 +724,6 @@ function texte_aligner_blocs {
     fi
     STR_FINAL="$STR_PROVISOIRE"
 }
-
-
 
 # U
  

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# $1 : index de la commande du menu sélect (optionnel)
+
 # Récupération de la liste de commandes possibles
 declare -a LISTE_COMMANDE
 OPTION_SORTIE="Quitter"

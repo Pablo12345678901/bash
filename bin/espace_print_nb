@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# $1 : Nombre de lignes vides à afficher
+
 # Script pour espacer les commandes testée en ligne de commande.
 
 # Contrôle qu'un argument a été fourni au script

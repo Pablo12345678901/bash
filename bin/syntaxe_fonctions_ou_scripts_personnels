@@ -1,0 +1,141 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# $1 : FONCTION_DU_FICHIER_FONCTIONS_PERSONNELLES_OU_SCRIPT_DU_REPERTOIRE_BIN
+
+# Remarques : pour un bon fonctionnement, chaque script / fonctions personnelles doit disposer d'un
+# paragraphe débutant par '# Syntaxe : ' et se terminant par une ligne vide.
+
+# Fonctionnement :
+# Ce script teste le type d'un string fourni en argument et :
+#       s'il est une fonction -> regarde si une fonction dans mes fonctions personnelles du même nom existe
+#           si oui : recherche si une syntaxe existe
+#           si non : renvoie vers une recherche plus générale (via un autre script)
+#       s'il est une commande -> regarde si une commande du même nom figure dans mon répertoire bin personnel.
+#           si oui : recherche si une syntaxe existe
+#           si non : renvoie vers une recherche plus générale (via un autre script)        
+
+source fonctions_personnelles
+
+SYNTAXE="\nSyntaxe :\n\t$(basename $0)    FONCTION_DU_FICHIER_FONCTIONS_PERSONNELLES_OU_SCRIPT_DU_REPERTOIRE_BIN\n"
+# Contrôle des argument (min un argument):
+if [ -z "$1" ]
+then
+    echo -e "\nERREUR : aucun argument fourni."
+    echo -e "$SYNTAXE"
+    exit 1
+else
+    FONCTION_OU_SCRIPT_RECHERCHE="$1"
+fi
+
+REGEX_FICHIER_DU_REPERTOIRE_BIN="$REPERTOIRE_DES_COMMANDES_PERSO.*"
+REGEX_LIGNE_COMMENTAIRE_SYNTAXE="#.*Syntaxe"
+SCRIPT_RECHERCHE_ADDITIONNELLE="man_info_commande"
+FICHIER_DES_FONCTIONS_PERSONNELLES="fonctions_personnelles"
+FLAG_SYNTAXE_TROUVEE="false"
+NB_LIGNE_CONTEXTE=20
+
+# Obtention du type (file -> command / function / ou autre rien = msg erreur )
+TYPE="$(type -t "$FONCTION_OU_SCRIPT_RECHERCHE")"
+
+case "$TYPE" in
+function )          PATH_FICHIER_FONCTIONS_PERSONNELLES="$(which "$FICHIER_DES_FONCTIONS_PERSONNELLES")"
+                    # Contrôle que au moins un match dans le fichier des fonctions
+                    COMPTEUR_DE_MATCH=$(grep -c "function $FONCTION_OU_SCRIPT_RECHERCHE" "$PATH_FICHIER_FONCTIONS_PERSONNELLES")
+                    if [ $COMPTEUR_DE_MATCH -gt 0 ]
+                    then
+                        while read LIGNE
+                        do
+                            if [ $FLAG_SYNTAXE_TROUVEE = "false" ]
+                            then
+                                # Ligne d'introduction :
+                                echo -e "\nFonction : \"$FONCTION_OU_SCRIPT_RECHERCHE\" située \"$PATH_FICHIER_FONCTIONS_PERSONNELLES\"."
+                            else
+                                :
+                            fi
+                            echo "$LIGNE"
+                            FLAG_SYNTAXE_TROUVEE="true"
+                            # Récupération des 20 premières lignes de la fonction
+                        done < <(grep -A $NB_LIGNE_CONTEXTE "$FONCTION_OU_SCRIPT_RECHERCHE" "$PATH_FICHIER_FONCTIONS_PERSONNELLES" |
+                        # Desquelles je récupère le paragraphe de la syntaxe
+                        awk -v REGEX=$REGEX_LIGNE_COMMENTAIRE_SYNTAXE '$0 ~ REGEX { if (paragraphe == 0) { indic=1 ; } ; paragraphe=1 ; } { if (indic == 1 && paragraphe == 1) { print $0} } /^$/ { indic=0 }' )
+                        if [ $FLAG_SYNTAXE_TROUVEE = "true" ]
+                        then
+                            :
+                        else
+                            echo -e "\nAucune syntaxe trouvée pour la fonction \"$FONCTION_OU_SCRIPT_RECHERCHE\" située au path \"$PATH_FICHIER_FONCTIONS_PERSONNELLES\".\n"
+                        fi
+                        exit 0
+                    # Si aucun match dans le fichier des fonctions personnelles
+                    else
+                        echo -e "\nERREUR : la fonction recherchée \"$FONCTION_OU_SCRIPT_RECHERCHE\" ne fait pas partie du répertoire bin."
+                        echo -e "$SYNTAXE"
+                        # Demande si souhait recherche info dans manuel
+                        REPONSE=""
+                        QUESTION="Souhaiteriez-vous rechercher de l'information sur cette fonction \"$FONCTION_OU_SCRIPT_RECHERCHE\" avec le script \"$SCRIPT_RECHERCHE_ADDITIONNELLE\" ? (YyOo/Nn) "
+                        question_oui_non REPONSE "$QUESTION"
+                        if [ "$REPONSE" = "o" ]
+                        then
+                            "$SCRIPT_RECHERCHE_ADDITIONNELLE" "$FONCTION_OU_SCRIPT_RECHERCHE"
+                        else
+                            echo -e "\nArrêt de la recherche.\n"
+                            exit 0
+                        fi
+                    fi
+                    ;;
+file )              PATH_COMMANDE="$(which "$FONCTION_OU_SCRIPT_RECHERCHE")"
+                    if [[ "$PATH_COMMANDE" =~ $REGEX_FICHIER_DU_REPERTOIRE_BIN ]]
+                    then
+                        while read LIGNE
+                        do
+                            if [ $FLAG_SYNTAXE_TROUVEE = "false" ]
+                            then
+                                # Ligne d'introduction :
+                                echo -e "\nCommande : \"$FONCTION_OU_SCRIPT_RECHERCHE\" située \"$PATH_COMMANDE\"."
+                            else
+                                :
+                            fi
+                            echo "$LIGNE"
+                            FLAG_SYNTAXE_TROUVEE="true"
+                            # Récupération des 20 premières lignes du script
+                        done < <( head -n $NB_LIGNE_CONTEXTE "$PATH_COMMANDE" |
+                        # Desquelles je récupère le paragraphe de la syntaxe              
+                        awk -v REGEX=$REGEX_LIGNE_COMMENTAIRE_SYNTAXE '$0 ~ REGEX { if (paragraphe == 0) { indic=1 ; } ; paragraphe=1 ; } { if (indic == 1 && paragraphe == 1) { print $0} } /^$/ { indic=0 }' )
+                        # Test si résultat et sinon affichage message
+                        if [ $FLAG_SYNTAXE_TROUVEE = "true" ]
+                        then
+                            :
+                        else
+                            echo -e "\nAucune syntaxe trouvée pour la commande \"$FONCTION_OU_SCRIPT_RECHERCHE\" située au path \"$PATH_COMMANDE\".\n"
+                        fi
+                        exit 0
+                    else
+                        echo -e "\nERREUR : la commande recherchée \"$FONCTION_OU_SCRIPT_RECHERCHE\" ne fait pas partie du répertoire bin."
+                        echo -e "$SYNTAXE"
+                        # Demande si souhait recherche info dans manuel
+                        REPONSE=""
+                        QUESTION="Souhaiteriez-vous rechercher de l'information sur cette commande \"$FONCTION_OU_SCRIPT_RECHERCHE\" avec le script \"$SCRIPT_RECHERCHE_ADDITIONNELLE\" ? (YyOo/Nn) "
+                        question_oui_non REPONSE "$QUESTION"
+                        if [ "$REPONSE" = "o" ]
+                        then
+                            "$SCRIPT_RECHERCHE_ADDITIONNELLE" "$FONCTION_OU_SCRIPT_RECHERCHE"
+                        else
+                            echo -e "\nArrêt de la recherche.\n"
+                            exit 0
+                        fi
+                    fi
+                    ;;
+* )                 echo -e "\nERREUR : Le string recherché \"$FONCTION_OU_SCRIPT_RECHERCHE\" ne fait ni partie des commandes du répertoire bin ni des fonctions du fichiers des fonctions personnelles."
+                    echo -e "$SYNTAXE"
+                    REPONSE=""
+                    QUESTION="Souhaiteriez-vous rechercher de l'information sur ce string \"$FONCTION_OU_SCRIPT_RECHERCHE\" avec le script \"$SCRIPT_RECHERCHE_ADDITIONNELLE\" ? (YyOo/Nn) "
+                    question_oui_non REPONSE "$QUESTION"
+                    if [ "$REPONSE" = "o" ]
+                    then
+                        "$SCRIPT_RECHERCHE_ADDITIONNELLE" "$FONCTION_OU_SCRIPT_RECHERCHE"
+                    else
+                        echo -e "\nArrêt de la recherche.\n"
+                        exit 0
+                    fi
+                    ;;
+esac

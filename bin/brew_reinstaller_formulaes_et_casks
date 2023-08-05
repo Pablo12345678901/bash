@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'argument à fournir
+
 brew uninstall blueutil
 
 FICHIER_LISTE_CHOSES_INSTALLES_BREW="brew_liste_choses_installees.txt"
