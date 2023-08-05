@@ -7,15 +7,6 @@
 # Ainsi que de son niveau absolu et relatif par rapport au répertoire/fichier de recherche
 # Affichage du résumé à la fin.
 
-: <<-"RESULTATAVECLEPATHRACINEDELORDINATEUR"
-Anecdote -> voici les résultats pour le path '/' racine de l'ordinateur au 05.08.2023.
-Résultats de la recherche :
-Les recherches à partir du path "/" indiquent que le path le plus profond :
-- possède 44 niveaux en absolu.
-- possède 43 niveaux en relatif au path de recherche).
-- est : "/System/Volumes/Data/Users/pablo/Desktop/Developpement/python/0_projets_avances/2_Projets/7_App_kivy_mrbeat_with_APK_v2/test-app-android_mr_beat/mrbeat/.buildozer/android/platform/build-arm64-v8a_armeabi-v7a/build/other_builds/hostpython3/desktop/hostpython3/native-build/build/temp.macosx-13.2-x86_64-3.9/Users/alejandramt/PycharmProjects/test-app-android/mrbeat/.buildozer/android/platform/build-arm64-v8a_armeabi-v7a/build/other_builds/hostpython3/desktop/hostpython3/Modules/_decimal/libmpdec/basearith.o".
-RESULTATAVECLEPATHRACINEDELORDINATEUR
-
 # Contrôle des arguments 
 SYNTAXE="\nSyntaxe :\n\t$(basename $0)    FICHIER_OU_REPERTOIRE_DE_RECHERCHE\n"
 if [ -z "$1" ]
@@ -39,6 +30,7 @@ fi
 CHAR_SEPARATEUR_REPERTOIRE='/' # à adapter selon l'environnement = le char qui sépare les répertoires
 NIVEAU_INITIAL="$( echo "$REPERTOIRE_RECHERCHE" | awk -F "$CHAR_SEPARATEUR_REPERTOIRE" ' { print NF } ' ) "
 NIVEAU_MAX_ABSOLU=$NIVEAU_INITIAL
+NIVEAU_MAX_ABSOLU_COURANT=$NIVEAU_MAX_ABSOLU
 PATH_NIVEAU_MAX="$REPERTOIRE_RECHERCHE"
 NIVEAU_MAX_RELATIF=0 # Besoin pr boucler sur les niveaux
 NIVEAU_MAX_RELATIF_COURANT=0
@@ -58,12 +50,7 @@ do
         FLAG_NIVEAU_SUIVANT="true"
         break
     # Le niveau relatif s'adapte à chaque fois pour les recherche suivante afin de limiter les recherches au strict minimum.
-    done < <(find -s "$REPERTOIRE_RECHERCHE" -mindepth $NIVEAU_MAX_RELATIF_COURANT -print0 -quit 2>/dev/null | tr '\0' '\n')
-    # Envoi de STDERR vers /dev/null pour éviter les messages d'erreur = moche
-    echo -e "\nNiveau max relatif actuel : $NIVEAU_MAX_RELATIF."
-    echo -e "Path actuel le plus profond : \"$PATH_NIVEAU_MAX\"."
-    echo -e "Tentative d'aller plus profond...\n"
-
+    done < <(find -s "$REPERTOIRE_RECHERCHE" -mindepth $NIVEAU_MAX_RELATIF_COURANT -print0 -quit | tr '\0' '\n')
 done
 
 echo "$NIVEAU_MAX_RELATIF"

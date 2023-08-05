@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+
+
+
+FICHIER_TEST="/Users/pablo/Desktop/Developpement/bash/Z_fichiers_pr_test/travail_sur_le_texte"
+
+STRING_FINAL=""
+
+#argument_fournis_afficher_tous $*
+
+: <<-"DEV"
+STRING_TEST_TEST="     BLA BLA BLA      "
+echo "'$STRING_TEST_TEST'"
+espace_avant_supprimer STRING_TEST_TEST
+echo "'$STRING_TEST_TEST'"
+espace_apres_supprimer STRING_TEST_TEST
+echo "'$STRING_TEST_TEST'"
+DEV
+
+STRING_PREMIER="x/y/z/x/y/z/x/y/z/x/y/z/x/y/z/"
+echo "$STRING_PREMIER"
+STRING_SECOND="x/y/z"
+#STRING_TEST_DOUBLE_TEST="aabbcc/"
+echo "$STRING_SECOND"
+sed_preparation_pr_variable_utilisee_dans_sed_avec_slash_remplacement_en_antislash_slash STRING_SECOND
+echo "$STRING_SECOND"
+echo "$STRING_PREMIER" | sed -e "s/${STRING_SECOND}/w/g"
+
+: <<-"DEV"
+OLDIFS="$IFS"
+IFS=
+
+while read LIGNE
+do
+    STRING_FINAL=""
+    PREMIERE_PARTIE_LIGNE="$(echo "$LIGNE" | awk ' { print $1 } ' )"
+    DEUXIEME_PARTIE_LIGNE="$(echo "$LIGNE" | awk ' { for (i=2; i<=NF; i++) { printf ("%s ", $i) } } ' )"
+    texte_aligner_blocs STRING_FINAL "$PREMIERE_PARTIE_LIGNE" 15 "$DEUXIEME_PARTIE_LIGNE" 70  "$PREMIERE_PARTIE_LIGNE"
+    echo "$STRING_FINAL"
+done < <(cat "$FICHIER_TEST")
+
+IFS="$OLDIFS"
+DEV

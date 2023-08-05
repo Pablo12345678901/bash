@@ -6,7 +6,9 @@ exit 0
 La liste ci-dessous n'est pas triée par ordre de priorité :
 
 SCRIPTS / FONCTIONS
+- script qui accroit à fond la priorité d'un processus avec ps -Al | grep NOM COMMANDE ARGUMENT1,2,3... > récupérer le PID > sudo renice -n -20 (par défaut ou autre) -p PID > ps -Al | grep COMMAND -> boucle jusqu'à ce que le NI soit à la valeur souhaitée
 - Afficher syntaxe fonctions / script en récupérant les 10 première lignes script (ou 10 lignes après nom fonction fichier fonction)
+- script d'automatisation de rédaction CV et LM avec les stricts champs à modifier (CV : tire et 4 premiers atouts) (LM : date, nom entreprise, nom destinaire, adresse, date, ....)
 - script qui met à jour la database sous forme d'un cron (intervalle régulier) incluant tous les fichiers (y.c. Desktop) -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
 - script qui recherche tous les fichiers modifiés depuis X date sur le disque dur externe (sans les répertoire avec '.repertoire') et qui les copie dans un autre disque dur au même chemin avec si nécessaire création des sous-répertoires dans lesquels ils seront - tester à petite échelle avant de lancer en blocs
 - script qui trouve les noms disponibles de plus de X lettres (commençant par XYZ (débuter par 4 ou 5 lettres)) et qui les affiche (inclure le char '_' ) -> renommer mes commandes et gagner en rapidité lors de leur appel

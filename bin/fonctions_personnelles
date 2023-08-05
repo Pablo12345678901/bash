@@ -65,6 +65,16 @@ TABLEAU_APP_OUVERTES=($LISTE_STRING_APP_OUVERTES) # split du string en tableau s
 IFS=$OLDIFS # remise de IFS à son ancienne valeur
 }
 
+function argument_fournis_afficher_tous {
+        # $* : fournir tel quel les argument
+        echo -e "Liste des arguments fourni :"
+        for ((i=0; i<=$#; i++))
+        do
+            # Affichage entre guillemets simples
+            echo -n "'${!i}' "
+        done
+}
+
 # B
 
 # C
@@ -76,6 +86,20 @@ function calculatrice_appel_script {
 # D
 
 # E
+
+function espace_apres_supprimer {
+    # $1 : STR (variable)
+    local -n STR=$1
+    STR="$(echo "$STR" | sed -e 's/[[:space:]]*$//' )"
+    # sed remplace une fin de ligne composée d'un nombre quelconque d'espace(s) par rien (=suppression)
+}
+
+function espace_avant_supprimer {
+    # $1 : STR (variable)
+    local -n STR=$1
+    STR="$(echo "$STR" | sed -e 's/^[[:space:]]*//' )"
+    # sed remplace un début de ligne suivi par un nombre quelconque d'espace(s) par rien (=suppression)
+}
 
 # F
 
@@ -305,6 +329,14 @@ fi
 
 # S
 
+function sed_preparation_pr_variable_utilisee_dans_sed_avec_slash_remplacement_en_antislash_slash {
+    # $1 : STR (variable)
+    local -n STR=$1
+    STR="$(echo "$STR" | sed -e 's/\//\\\//g' )"
+    # sed -> remplace un slash ('\/') par un antislash ('\\') + slash ('\/') pour que sed le considère comme un simple slash.
+    # sed...'g' : remplace toute les occurences pas que la première
+}
+
 function select_parmi_liste {
 # $1 : TAB_D_OPTIONS (variable)
 # $2 : CH_UTILISATEUR (variable)
@@ -338,7 +370,6 @@ do
         :
     else
         echo -e "ERREUR : votre saisie ne fait pas partie de la liste de choix.\n$MES_SI_OPTION_QUITTER"
-        echo "DEBUG = \"${TAB_D_OPTIONS[*]}\" \"$CH_UTILISATEUR\" \"$MES_AFFICHE\" \"$OPT_POUR_ARRETER\" \"$REPLY\""
     fi
 done   </dev/tty
 
@@ -427,9 +458,7 @@ function tableau_ajout_element_que_si_non_existant_sans_espaces {
         # Donc pour contrôler le REGEX, ajout d'espace avant et après.
         then
             : # si l'élément est déjà dans le tableau on ne le rajoute pas
-            #DEBUG echo "PAS d'ajout car $2 déjà dans tableau".
         else
-            #DEBUG echo "Ajout car $2 pas encore dans tableau".
             TAB+=("$2")
         fi
     fi
@@ -559,6 +588,76 @@ function tableau_trier_numeros_pas_ordre_alphabetique {
     NOU_TABLEAU=( $( printf "%s\n" "${ANC_TABLEAU[@]}" | sort -n ) )
     # sort -n
 }
+
+function texte_aligner_blocs {
+    # $1 : STR_FINAL (variable)
+    # $2 : STR1 (valeur)
+    # $3, $4 : N_CHAR_ALIGN_STR2, STR2 (valeur x2) -> N_CHAR_ALIGN_STR2 est le numéro de colonne du char où STR2 devrait débuter.
+    # $n, $n+1 : par paire, STRN et N_CHAR_ALIGN_STRN
+    # Remarques : suppression des espaces sur STR1 pour un meilleur design
+    # Si le numéro du char calculé est plus petit que la fin du précédent string alors il sera égal à sa fin +1.
+    local -n STR_FINAL=$1
+    local STR1="$2"
+    local STR_PROVISOIRE=""
+    SYNTAXE="\nSyntaxe :\n\t$(basename $0)    STR_FINAL   STR1    [STR_N    N_CHAR_ALIGN_STR_N [...]]\n" 
+    # Si impair = ok
+    if [ $(($#/2)) -ne 0 ]
+    then
+        STR_PROVISOIRE=""
+        ARG_EST_UN_NB="false"
+        NUM_COLONNE_PROCHAIN_BLOC=${#STR_PROVISOIRE}
+        STR_ESPACE=""
+        REGEX_NB_POSITIF='^[1-9]+[0-9]*$'
+        # On débute avec $2 / on va jusqu'à $#-1 car le premier argument est $0
+        for ((i=2; i<=$(($#)); i++))
+        do
+            #echo "Boucle ${i}/$# argument ${!i}"
+            # Obtention du numéro selon le string actuel
+            NUM_COLONNE_ACTUELLE=${#STR_PROVISOIRE}
+            if [ $ARG_EST_UN_NB = "true" ]
+            then
+                # Test si bien un nombre
+                if [[ "${!i}" =~ $REGEX_NB_POSITIF ]]
+                then
+                    NUM_COLONNE_PROCHAIN_BLOC=${!i}
+                    if [ $NUM_COLONNE_PROCHAIN_BLOC -le $NUM_COLONNE_ACTUELLE ]
+                    then
+                        NUM_COLONNE_PROCHAIN_BLOC=$((NUM_COLONNE_ACTUELLE+1))
+                    else
+                        :
+                    fi
+                    NB_ESPACE_REQUIS=$((NUM_COLONNE_PROCHAIN_BLOC-NUM_COLONNE_ACTUELLE))
+                    # Remise à vide du nombre d'espace
+                    STR_ESPACE=""
+                    # Adaptation du nb d'espace
+                    for ((j=0; j<$NB_ESPACE_REQUIS; j++))
+                    do
+                        # Ajout d'un espace à chaque boucle
+                        STR_ESPACE="$STR_ESPACE "
+                    done
+                else
+                    echo -e "\nERREUR : l'argument n°$i fourni \"${!i}\" devrait être un nombre > 0."
+                    argument_fournis_afficher_tous $*
+                    echo -e "$SYNTAXE" 
+                    exit 1
+                fi
+                ARG_EST_UN_NB="false"
+            else
+                STR_PROVISOIRE="${STR_PROVISOIRE}${STR_ESPACE}${!i}"
+                ARG_EST_UN_NB="true"
+            fi
+        done
+    else
+        echo -e "\nERREUR : le nombre d'arguments fourni est pair."
+        argument_fournis_afficher_tous $*
+        echo -e "$SYNTAXE" 
+        exit 1
+    fi
+    STR_FINAL="$STR_PROVISOIRE"
+}
+
+
+
 # U
  
 # V
