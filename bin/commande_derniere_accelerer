@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# - : pas d'argument à fournir
+# Relance la dernière commande avec priorité max : nice -20
+
+source fonctions_personnelles
+
+DERNIERE_COMMANDE="$(commande_derniere_obtenir)"
+echo "$DERNIERE_COMMANDE"
+TABLEAU_ARGUMENT=($DERNIERE_COMMANDE)
+
+commande_accelerer ${TABLEAU_ARGUMENT[*]} -inc=-20

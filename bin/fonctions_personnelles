@@ -292,7 +292,7 @@ function question_oui_non {
     local -n REP_UTILISATEUR=$1
     local QUE_POSEE="$2"
     echo "" # esthétique
-    read -p "$QUE_POSEE" CHO </dev/tty
+    read -p "$QUE_POSEE" CHO
     case "$CHO" in
         [OoYy]  )   CHO='o';;
         [Nn]    )   CHO='n';;

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# - : pas d'argument nécessaires
+# Fonctionnement : 
+# Ce script retourne la dernière commande et ses arguments sous format d'un string (un bloc).
+
+############ AVERTISSEMENT ############
+# Ne pas modifier le code ci-dessous car le moindre décalage d'une ligne ferait exécuter une autre commande.
+#######################################
+# Récupération de la commande précédente
+set -o history # activer les fonctionnalité d'accès à l'historique
+history -r ~/.bash_history # charger l'historique depuis le fichier de l'historique
+# Ligne à rechercher dans l'historique
+LIGNE_A_RECHERCHER="# Ligne à rechercher dans l'historique" # Elle correspond à la ligne précédente
+LIGNE_AVEC_NUMERO_UNIQUE="$(grep -B 10 "$LIGNE_A_RECHERCHER" < <(history | tail -n 10) | # récupère les 10 dernières lignes de l'historique
+tail -n 1)" # y recherche la ligne la récupère -> elle est unique car elle possède un numéro unique devant
+# LIGNE CLEF CI-DESSOUS
+DERNIER_COMMANDE="$(grep -B5 "$LIGNE_AVEC_NUMERO_UNIQUE" < <(history | tail -n 10) | # recherche la ligne en question, affiche les NUM lignes d'avant (NUM = décalage exact = IMPORTANT) 
+# LIGNE CLEF CI-DESSUS
+head -n 1 | # récupère la ligne (commande + numéro)
+awk ' {for (i=2; i<=NF; i++) {printf $i " "} } END { print "" } ' )" # affiche la ligne complète sauf le premier mot (= le numéro de ligne)
+echo "$DERNIER_COMMANDE" #bash -c "$DERNIER_COMMANDE"
+############ AVERTISSEMENT ############
+# Ne pas modifier le code ci-dessus car le moindre décalage d'une ligne ferait exécuter une autre commande.
+#######################################

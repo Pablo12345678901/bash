@@ -29,6 +29,7 @@ else
 fi
 
 REGEX_FICHIER_DU_REPERTOIRE_BIN="$REPERTOIRE_DES_COMMANDES_PERSO.*"
+REGEX_FONCTION_DANS_FICHIER_FONCTION="^function[[:space:]]+$FONCTION_OU_SCRIPT_RECHERCHE.*$"
 REGEX_LIGNE_COMMENTAIRE_SYNTAXE="#.*Syntaxe"
 SCRIPT_RECHERCHE_ADDITIONNELLE="man_info_commande"
 FICHIER_DES_FONCTIONS_PERSONNELLES="fonctions_personnelles"
@@ -56,7 +57,7 @@ function )          PATH_FICHIER_FONCTIONS_PERSONNELLES="$(which "$FICHIER_DES_F
                             echo "$LIGNE"
                             FLAG_SYNTAXE_TROUVEE="true"
                             # Récupération des 20 premières lignes de la fonction
-                        done < <(grep -A $NB_LIGNE_CONTEXTE "$FONCTION_OU_SCRIPT_RECHERCHE" "$PATH_FICHIER_FONCTIONS_PERSONNELLES" |
+                        done < <(grep -E -A $NB_LIGNE_CONTEXTE "$REGEX_FONCTION_DANS_FICHIER_FONCTION" "$PATH_FICHIER_FONCTIONS_PERSONNELLES" |
                         # Desquelles je récupère le paragraphe de la syntaxe
                         awk -v REGEX=$REGEX_LIGNE_COMMENTAIRE_SYNTAXE '$0 ~ REGEX { if (paragraphe == 0) { indic=1 ; } ; paragraphe=1 ; } { if (indic == 1 && paragraphe == 1) { print $0} } /^$/ { indic=0 }' )
                         if [ $FLAG_SYNTAXE_TROUVEE = "true" ]
