@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+DATE_AVANT="$(date -I)"
+# date -I : Obtient la date au format AAAA-MM-JJ
+echo -e "\nAujourdhui : $DATE_AVANT"
+
+ANNEE="$(echo "$DATE_AVANT" | awk -F - ' { print $1 } ')"
+# obtient les 2 derniers chiffres de l'année
+ANNEE_SHORT_AUTRE_DOSSIER="${ANNEE:2:2}"
+MOIS_AUTRE_DOSSIER="$(echo "$DATE_AVANT" | awk -F - ' { print $2 } ')"
+JOUR_AUTRE_DOSSIER="$(echo "$DATE_AVANT" | awk -F - ' { print $3 } ')"
+
+ANNEE_MODIFIEE=2030
+MOIS_MODIFIE=12
+JOUR_MODIFIE=31
+DATE_2000="$(date -v${ANNEE_MODIFIEE}y +%F)"
+echo -e "\nMême date avec l'année à $ANNEE_MODIFIEE\n"
+
+echo ""
+echo ""
+date -v${ANNEE_MODIFIEE}y -v${MOIS_MODIFIE}m  # | date -v${MOIS_MODIFIE}m | date -v${JOUR_MODIFIE}d +%F
+
+echo ""
+echo ""
+sudo date -v${ANNEE_MODIFIEE}y  -v${MOIS_MODIFIE}m -v${JOUR_MODIFIE}d
+
+echo "DATE NORMALE SUISSE : $(date)"
+echo ""
+TZ=Chile/Continental date
+echo ""

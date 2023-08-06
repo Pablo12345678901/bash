@@ -198,7 +198,7 @@ function find_exclure_repertoire_retourne_string_a_inserer_ds_find {
 
 # M
 
-function man_recherche_specifique_commande_ainsi_que_mot_clef {
+function man_fonction_recherche_commande_et_mot_clef {
     # Syntaxe : 
     # $1 : la commande recherché
     # $2 : le mot clef recherché

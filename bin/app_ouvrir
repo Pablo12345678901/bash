@@ -3,6 +3,8 @@
 # Syntaxe :
 # - : pas d'argument nécessaires
 
+source fonctions_personnelles
+
 REPONSE=""
 QUESTION="Mettre à jour ? (Oo/Nn) "
 question_oui_non REPONSE "$QUESTION"

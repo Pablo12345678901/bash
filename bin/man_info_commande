@@ -50,7 +50,7 @@ case $(type -t "$1") in
                 if (($?))
                 then
                     # Si pas de page manuel dédiée alors recherche avec man -k
-                    echo -e "\nAucune page de manuel existante pour le mot \"$1\" de type $(type -t "$1")."
+                    echo -e "\nAucune page de manuel existante pour le mot \"$1\" de type \"$(type -t "$1")\"."
                     echo -e "\nRecherche avec man -k $1.\n"
                     man -k "$1"
                 else
