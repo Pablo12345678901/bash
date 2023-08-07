@@ -44,7 +44,7 @@ then
             done
         fi
     else
-        if [ "$1" = "all" ]
+        if [ "$1" = "-all" ]
         then
             echo -e "\nFermeture de toutes les applications...\n"
             declare -a TABLEAU_APP_OUVERTES

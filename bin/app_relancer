@@ -27,7 +27,7 @@ else
     else
         if [ "$INDEX_OU_ALL" == "all" ]
         then
-            app_fermer || { echo -e "Arrêt du redémarrage des apps sur votre demande.\n" ; exit 1 ; } # cf script
+            app_fermer -all || { echo -e "Arrêt du redémarrage des apps sur votre demande.\n" ; exit 1 ; } # cf script
             GESTION_ERREUR=0
             for app in "${TABLEAU_APP_OUVERTES[@]}"
             do
