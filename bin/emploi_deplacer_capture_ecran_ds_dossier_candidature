@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# $1 : REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE
+# $2 : TYPE_ANNONCE_OU_CONFIRMATION ('-annonce' ou '-confirmation')
+
+# Selon l'environnement, modifier ces données
+EXTENSION_CAPTURE_ECRAN=".png"
+EMPLACEMENT_DES_CAPTURES_D_ECRAN=~/Desktop
+# Temps à partir duquel je considère qu'un fichier de l'extension est une capture d'écran.
+FICHIER_DATANT_DE="-5m" # ici datant de moins de 5 minutes
+ARGUMENT_ANNONCE="-annonce"
+ARGUMENT_CONFIRMATION="-confirmation"
+DEBUT_NOM_FICHIER_ANNONCE="A_"
+DEBUT_NOM_FICHIER_CONFIRMATION="C_"
+
+# Contrôle des arguments
+SYNTAXE="\nSyntaxe :\n\t$(basename $0)    REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE    $ARGUMENT_ANNONCE | $ARGUMENT_CONFIRMATION\n"
+if [ -z "$1" ]
+then
+    echo -e "\nERREUR : aucun argument fourni."
+    echo -e "$SYNTAXE"
+    exit 1
+else
+    REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE="$1"
+    if [ -d "$REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE" ] # ok répertoire
+    then
+        if [ -z "$2" ]
+        then
+            echo -e "\nERREUR : le deuxième argument n'a été fourni."
+            echo -e "$SYNTAXE"
+            exit 1
+        else
+            TYPE_ANNONCE_OU_CONFIRMATION="$2"
+            if [[ "$TYPE_ANNONCE_OU_CONFIRMATION" = "$ARGUMENT_ANNONCE" || "$TYPE_ANNONCE_OU_CONFIRMATION" = "$ARGUMENT_CONFIRMATION" ]]
+            then
+                :
+            else
+                echo -e "\nERREUR : le deuxième argument est incorrect. Il doit être '-annonce' ou '-confirmation'."
+                echo -e "$SYNTAXE"
+                exit 1
+            fi
+        fi
+    else
+        echo -e "\nERREUR : le premier argument \"$REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE\" n'est pas un répertoire."
+        echo -e "$SYNTAXE"
+        exit 1
+    fi
+fi
+
+# Adaptation selon le type de captures d'écran : string du message, nom du fichier.
+if [ "$TYPE_ANNONCE_OU_CONFIRMATION" = "$ARGUMENT_ANNONCE" ]
+then
+    STRING_TYPE_ANNONCE_OU_CONFIRMATION_PR_MESSAGE="de l'annonce"
+    NOM_RENOMME_CAPTURE_ECRAN="$DEBUT_NOM_FICHIER_ANNONCE"
+else
+    STRING_TYPE_ANNONCE_OU_CONFIRMATION_PR_MESSAGE="de la confirmation d'avoir postulé"
+    NOM_RENOMME_CAPTURE_ECRAN="$DEBUT_NOM_FICHIER_CONFIRMATION"
+fi
+
+# Message pour mettre en pause le script en attendant que l'utilisateur
+# ait fait les captures d'écran.
+MESSAGE="
+Tapez enter après avoir effectué les captures d'écran $STRING_TYPE_ANNONCE_OU_CONFIRMATION_PR_MESSAGE (extension \"$EXTENSION_CAPTURE_ECRAN\").
+Attention : elles doivent dater de $FICHIER_DATANT_DE.
+
+Elles seront ensuites déplacées depuis \"$EMPLACEMENT_DES_CAPTURES_D_ECRAN\" vers le dossier de candidature situé \"$REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE\".
+"
+read -p "$MESSAGE" VALEUR_BIDON
+
+# Gestion de IFS pour obtenir les noms tels quels avec éventuels espaces
+OLDIFS="$IFS"
+IFS=
+COMPTEUR=0
+FLAG_CAPTURE_D_ECRAN="false"
+while read PATH_FICHIER
+do
+
+    ((COMPTEUR++))
+    NVO_PATH_FICHIER="$REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE/${NOM_RENOMME_CAPTURE_ECRAN}${COMPTEUR}${EXTENSION_CAPTURE_ECRAN}"
+    # Déplace et renomme les captures d'écran
+    mv "$PATH_FICHIER" "$NVO_PATH_FICHIER"
+    FLAG_CAPTURE_D_ECRAN="true"
+
+    # Recherche tous les fichiers sur le bureau qui sont d'une certaine extension et qui ont été créé il y a X temps maximum
+done < <(find -s -E "$EMPLACEMENT_DES_CAPTURES_D_ECRAN" -type f -maxdepth 1 -mtime "$FICHIER_DATANT_DE" -regex ".*$EXTENSION_CAPTURE_ECRAN")
+# Gestion de IFS pour obtenir les noms tels quels avec éventuels espaces
+IFS="$OLDIFS"
+
+# Vérification s'il y avait effectivement au moins une capture d'écran.
+if [ $FLAG_CAPTURE_D_ECRAN = "false" ]
+then
+    echo -e "\nERREUR : aucune capture d'écran n'a été détectée à l'emplacement \"$EMPLACEMENT_DES_CAPTURES_D_ECRAN\".\n"
+else
+    :
+fi

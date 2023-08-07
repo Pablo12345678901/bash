@@ -28,7 +28,7 @@ then
     echo -e "$SYNTAXE"
     exit 1
 else 
-    REGEX_RECHERCHE="[[:space:]]*$1[[:space:]]*"
+    REGEX_RECHERCHE="$1"
     if [ -z "$2" ] # si pas de répertoire
     then
         FICHIER_OU_REPERTOIRE="$REPERTOIRE_PAR_DEFAUT"

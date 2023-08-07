@@ -10,36 +10,40 @@ exit 0
 
 La liste ci-dessous n'est pas triée par ordre de priorité :
 
-SCRIPTS / FONCTIONS
-- script d'automatisation de rédaction CV et LM avec les stricts champs à modifier (CV : tire et 4 premiers atouts) (LM : date, nom entreprise, nom destinaire, adresse, date, ....)
-- script qui recherche tous les fichiers modifiés depuis X date sur le disque dur externe (sans les répertoire avec '.repertoire') et qui les copie dans un autre disque dur au même chemin avec si nécessaire création des sous-répertoires dans lesquels ils seront - tester à petite échelle avant de lancer en blocs
-- Afficher nb fichiers d'un répertoires
-- Afficher taille d'un répertoire
-- Afficher info générales sur un répertoire en combinant les autres scripts : (nb fichiers, taille, profondeur absolue et relative)
-- script qui met à jour la database sous forme d'un cron (intervalle régulier) incluant tous les fichiers (y.c. Desktop) -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
-- script qui trouve les noms disponibles de plus de X lettres (commençant par XYZ (débuter par 4 ou 5 lettres)) et qui les affiche (inclure le char '_' ) -> renommer mes commandes et gagner en rapidité lors de leur appel
-- Script app_ouvrir : obtenir la liste de toutes les apps disponibles sur le Mac et les proposer sous forme y/n + sélect à la fin de l'ouverture des apps de base
-- Script app_ouvrir permettre un argument du nom de l'app à ouvrir que grep recherche dans les apps disponibles sur le Mac puis ouvre (ex : app_ouvrir Chrome)
-- Dock : Supprimer du dock automatiquement les apps à droite de la barre
-- Finaliser le script du decalage des char (cryptage message)
-- Historique navigateurs : Créer un script pour supprimer l'historique / cache / tout des navigateur Chrome / Firefox / Safari
+DEVELOPPEMENT
 
-CONFIG
+    DEBUG
+    - empêcher les apps fermée via la commande app_fermer de se réouvrir automatiquement au redémarrage de l'ordi - c'est génant
+
+    CREATION FONCTIONNALITE
+    - script d'automatisation de rédaction CV et LM avec les stricts champs à modifier (CV : tire et 4 premiers atouts) (LM : date, nom entreprise, nom destinaire, adresse, date, ....)
+    - script qui recherche tous les fichiers modifiés depuis X date sur le disque dur externe (sans les répertoire avec '.repertoire') et qui les copie dans un autre disque dur au même chemin avec si nécessaire création des sous-répertoires dans lesquels ils seront - tester à petite échelle avant de lancer en blocs
+    - Afficher nb fichiers d'un répertoires
+    - Afficher taille d'un répertoire
+    - Afficher info générales sur un répertoire en combinant les autres scripts : (nb fichiers, taille, profondeur absolue et relative)
+    - script qui met à jour la database sous forme d'un cron (intervalle régulier) incluant tous les fichiers (y.c. Desktop) -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
+    - script qui trouve les noms disponibles de plus de X lettres (commençant par XYZ (débuter par 4 ou 5 lettres)) et qui les affiche (inclure le char '_' ) -> renommer mes commandes et gagner en rapidité lors de leur appel
+    - Encrypter les fichiers sensibles de mon disque dur OU trouver un moyen qu'ils soient inaccessible (que par moi et avec MDP)
+    
+    AMELIORATION SCRIPT EXISTANT
+    - Script app_ouvrir : obtenir la liste de toutes les apps disponibles sur le Mac et les proposer sous forme y/n + sélect à la fin de l'ouverture des apps de base
+    - Script app_ouvrir permettre un argument du nom de l'app à ouvrir que grep recherche dans les apps disponibles sur le Mac puis ouvre (ex : app_ouvrir Chrome)
+    - Finaliser le script du decalage des char (cryptage message)
+
+    OPTIMISATION DE FONCTIONNALITES DEJA EXISTANTE
+    - Similaire au Finder ms depuis le terminal et avec select : Déplacement dans les répertoires avec sélect qui affiche le contenu à chaque niveau puis : au choix : si choisi fichier -> ouvrir / si choisi répertoire -> s'y rendre / se déplacer dans le répertoire courant (cd) / revenir un niveau en arrière / quitter
+    - Dock : Supprimer du dock automatiquement les apps à droite de la barre
+    - Historique navigateurs : Créer un script pour supprimer l'historique / cache / tout des navigateur Chrome / Firefox / Safari
+
+CONFIGURATION
 - me donner l'autorisation de modifier bashrc
 - créer et configurer le fichier .inputrc cf section 8 de la documentation bash officielle
-- Encrypter les fichiers sensibles de mon disque dur OU trouver un moyen qu'ils soient inaccessible (que par moi et avec MDP)
-
-DEBUG
-- empêcher les apps fermée via la commande app_fermer de se réouvrir automatiquement au redémarrage de l'ordi - c'est génant
 
 APPRENTISSAGE :
 - bash - code source : Obtenir le code source de bash pour l'étudier
 - Historique Bash : Apprendre à ne pas sauvegarder l'historique des commandes de bash. # cf ce site : https://stackoverflow.com/questions/6475524/how-do-i-prevent-commands-from-showing-up-in-bash-history
 - Portabilité slash-antislash : Apprendre comment rendre mes script portables VS les slashs / anti-slash des paths selon l'environnement
 - Proposition string : Apprendre à faire une proposition de string à l'utilisateur. Proposition qu'il peut modifier (effacer partiellement / tout) puis valider
-
-
-
 
 
 HEREDOCUMENT

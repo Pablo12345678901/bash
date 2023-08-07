@@ -3,24 +3,37 @@
 # Syntaxe :
 # - : pas d'argument nécessaires
 # Fonctionnement : 
-# Ce script retourne la dernière commande et ses arguments sous format d'un string (un bloc).
+# Ce script retourne la dernière commande et ses arguments avec 'echo'.
+# Elle peut ainsi être réutilisée tel quel par un autre programme.
 
-############ AVERTISSEMENT ############
-# Ne pas modifier le code ci-dessous car le moindre décalage d'une ligne ferait exécuter une autre commande.
-#######################################
-# Récupération de la commande précédente
+# Obtenir le décalage de la ligne recherchée dans l'historique.
+# Principe : Compter le nb de lignes entre le début de l'historique et la ligne
+# qui effectue la recherche dans l'historique (celle-ci faisant elle-même partie de l'historique).
+# Les lignes vides sont déduites ensuite car elles ne sont pas affichées dans l'historique.
+# Finalement, +1 ligne car le décalage doit inclure la ligne qui a été écrite dans l'historique juste avant 
+# C'est-à-dire la ligne de la dernière commande.
+REGEX_LIGNE_DEBUT_HISTORIQUE="^history -r ~/.bash_history.*"
+LIGNE_DEBUT_HISTORIQUE="$(grep -E -n "$REGEX_LIGNE_DEBUT_HISTORIQUE" "$0")"
+NUM_LIGNE_DEBUT_HISTORIQUE="$(echo "$LIGNE_DEBUT_HISTORIQUE" | awk -F : ' { print $1} ' )"
+REGEX_LIGNE_QUI_EFFECTUE_RECHERCHE="^LIGNE_AVEC_DERNIERE_COMMANDE.*"
+LIGNE_QUI_EFFECTUE_RECHERCHE="$(grep -E -n "$REGEX_LIGNE_QUI_EFFECTUE_RECHERCHE" "$0")"
+NUM_LIGNE_QUI_EFFECTUE_RECHERCHE="$(echo "$LIGNE_QUI_EFFECTUE_RECHERCHE" | awk -F : ' { print $1} ' )"
+NB_LIGNES_ENTRE_DEUX=$((NUM_LIGNE_QUI_EFFECTUE_RECHERCHE-NUM_LIGNE_DEBUT_HISTORIQUE)) # le décalage compte le nb de ligne depuis l'activation de l'historique
+NB_LIGNES_VIDE=$(grep -A $NB_LIGNES_ENTRE_DEUX "$REGEX_LIGNE_DEBUT_HISTORIQUE" "$0" | grep -c "^$")
+DECALAGE=$((NB_LIGNES_ENTRE_DEUX-NB_LIGNES_VIDE+1))
+# '+1' car on doit aussi récupérer la ligne qui précède = elle est la précédente commande.
+# '-NB_LIGNES_VIDE' car elles ne sont pas affichées dans l'historique
+
+# Activation de l'historique et configuration de son contenu sur la base du fichier bash_history
 set -o history # activer les fonctionnalité d'accès à l'historique
 history -r ~/.bash_history # charger l'historique depuis le fichier de l'historique
-# Ligne à rechercher dans l'historique
-LIGNE_A_RECHERCHER="# Ligne à rechercher dans l'historique" # Elle correspond à la ligne précédente
-LIGNE_AVEC_NUMERO_UNIQUE="$(grep -B 10 "$LIGNE_A_RECHERCHER" < <(history | tail -n 10) | # récupère les 10 dernières lignes de l'historique
-tail -n 1)" # y recherche la ligne la récupère -> elle est unique car elle possède un numéro unique devant
-# LIGNE CLEF CI-DESSOUS
-DERNIER_COMMANDE="$(grep -B5 "$LIGNE_AVEC_NUMERO_UNIQUE" < <(history | tail -n 10) | # recherche la ligne en question, affiche les NUM lignes d'avant (NUM = décalage exact = IMPORTANT) 
-# LIGNE CLEF CI-DESSUS
-head -n 1 | # récupère la ligne (commande + numéro)
-awk ' {for (i=2; i<=NF; i++) {printf $i " "} } END { print "" } ' )" # affiche la ligne complète sauf le premier mot (= le numéro de ligne)
-echo "$DERNIER_COMMANDE" #bash -c "$DERNIER_COMMANDE"
-############ AVERTISSEMENT ############
-# Ne pas modifier le code ci-dessus car le moindre décalage d'une ligne ferait exécuter une autre commande.
-#######################################
+# Recherche de la ligne de la dernière commande dans l'historique (avec le numéro)
+LIGNE_AVEC_DERNIERE_COMMANDE="$(history | tail -n $DECALAGE | head -n 1)" # récupère les X dernières lignes de l'historique
+# La première du bloc est celle de la dernière commande avant ce script.
+
+# Suppression du numéro (dû à l'historique) devant la ligne de la dernière commande.
+DERNIERE_COMMANDE="$(echo "$LIGNE_AVEC_DERNIERE_COMMANDE" | awk ' {for (i=2; i<=NF; i++) {printf ("%s ",$i) } } END { print "" } ')"
+
+# Affichage de la dernière commande avec echo.
+# Elle peut ainsi être réutilisée par un autre programme.
+echo "$DERNIERE_COMMANDE"
