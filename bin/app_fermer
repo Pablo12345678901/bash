@@ -8,7 +8,7 @@ source fonctions_personnelles
 OPTION_SORTIE="Quitter"
 CHOIX=""
 MESSAGE_SELECT="Sélectionnez une app à fermer parmi la liste"
-MESSAGE_FERMETURE_ALL="Liste apps ouverte avant fermeture"
+MESSAGE_FERMETURE_ALL="Liste apps ouvertes avant fermeture"
 MESSAGE_ANNULATION="Vous avez choisi de sortir sans quitter aucune app."
 TEMPS_D_ATTENTE_AVANT_FERMETURE_BRUTALE=2
 app_ouvertes_obtention_et_remplissage_tableau TABLEAU_APP_OUVERTES
@@ -48,29 +48,35 @@ then
         then
             echo -e "\nFermeture de toutes les applications...\n"
             declare -a TABLEAU_APP_OUVERTES
-            tableau_affichage_contenu_avec_message TABLEAU_APP_OUVERTES "$MESSAGE_FERMETURE_ALL"
-
-            for app in "${TABLEAU_APP_OUVERTES[@]}"
-            do
-                NOM_APP="$app" 
-                app_fermer_normal NOM_APP
-            done
-            echo ""
-
-            # Fermeture forcée si app toujours ouvertes après 3 secondes d'attente
-            sleep $TEMPS_D_ATTENTE_AVANT_FERMETURE_BRUTALE # met en pause pour X secondes le script pour éviter de trop rapidement obtenir le nom de apps ouvertes qui ne seraient pas encore fermées mais en cours de fermeture
-            app_ouvertes_obtention_et_remplissage_tableau TABLEAU_APP_OUVERTES # le deuxième paramètre sert à adapter le message affiché - optionnel
-            tableau_affichage_contenu_avec_message TABLEAU_APP_OUVERTES "$MESSAGE_FERMETURE_ALL forcée"
-            if [ 0 -lt ${#TABLEAU_APP_OUVERTES[@]} ]
+            app_ouvertes_obtention_et_remplissage_tableau TABLEAU_APP_OUVERTES
+            if [ ${#TABLEAU_APP_OUVERTES[@]} -gt 0 ]
             then
+                # Affichage contenu tableau avec un message
+                tableau_affichage_contenu_avec_message TABLEAU_APP_OUVERTES "$MESSAGE_FERMETURE_ALL"
+                # Fermeture normale des apps du tableau
                 for app in "${TABLEAU_APP_OUVERTES[@]}"
                 do
-                    NOM_APP="$app"
-                    app_fermer_brutal NOM_APP || exit 1
+                    NOM_APP="$app" 
+                    app_fermer_normal NOM_APP
                 done
                 echo ""
+                # Fermeture forcée si app toujours ouvertes après 3 secondes d'attente
+                sleep $TEMPS_D_ATTENTE_AVANT_FERMETURE_BRUTALE # met en pause pour X secondes le script pour éviter de trop rapidement obtenir le nom de apps ouvertes qui ne seraient pas encore fermées mais en cours de fermeture
+                app_ouvertes_obtention_et_remplissage_tableau TABLEAU_APP_OUVERTES # le deuxième paramètre sert à adapter le message affiché - optionnel
+                tableau_affichage_contenu_avec_message TABLEAU_APP_OUVERTES "$MESSAGE_FERMETURE_ALL forcée"
+                if [ ${#TABLEAU_APP_OUVERTES[@]} -gt 0 ]
+                then
+                    for app in "${TABLEAU_APP_OUVERTES[@]}"
+                    do
+                        NOM_APP="$app"
+                        app_fermer_brutal NOM_APP || exit 1
+                    done
+                    echo ""
+                else
+                    echo -e "\nLes apps ont correctement été fermées.\n"
+                fi
             else
-                :
+                echo -e "\nAucune app à fermer.\n"
             fi
         else
             # gestion des autres cas (valeur non égale à "all")
