@@ -8,7 +8,7 @@ COMMANDE="${0##*/}" # nom de la commande utile pour les messages d'erreur
 # Voir les script correspondants
 git_push_avant_deteindre_ordinateur
 disque_dur_ejecter || { echo -e "\nArrêt de la commande \"$COMMANDE\".\n" ; exit 1 ; }
-app_fermer || { echo -e "\nArrêt de la commande \"$COMMANDE\" sur demande de l'utilisateur.\n" ; exit 1 ; }
+app_fermer -all || { echo -e "\nArrêt de la commande \"$COMMANDE\" sur demande de l'utilisateur.\n" ; exit 1 ; }
 corbeille_vider
 bluetooth_eteindre
 
