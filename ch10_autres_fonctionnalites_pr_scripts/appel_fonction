@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+echo ""
+echo "$LINENO"
+echo ""
+
+texte_aligner_blocs

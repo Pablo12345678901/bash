@@ -85,6 +85,7 @@ function argument_fournis_afficher_tous {
         # Affichage entre guillemets simples
         echo -n "'${!i}' "
     done
+    echo "" # retour à la ligne final esthétique
 }
 
 # B
@@ -281,6 +282,21 @@ function module_controle_si_present_sinon_installe {
 
 # P
 
+function processus_kill_ts_de_session_terminal {
+    # Syntaxe :
+    # $1 : (optionnel) le signal à envoyer (valeur) (numéro / nom / nom avec SIG devant)
+    # Remarques importantes :
+    # Le signal par défaut est 9 (KILL) (=brutal) - sinon celui transmis
+    # STDOUT et STDERR sont envoyés vers /dev/null pour éviter l'affichage de message d'erreur si tentative de killer un processus terminé.
+    # Pour débugguer, mettre en commentaire la redirection de STDOUT et STDERR '>/dev/null 2>&1'
+
+    SIGNAL=${1:-9}
+    while read PROCESSUS_ID
+    do
+        kill -9 "$PROCESSUS_ID"
+    done < <(jobs -p)
+} >/dev/null 2>&1 # STDOUT et STDERR sont envoyé vers /dev/null (=ignorés)
+
 # Q
 
 function question_oui_non {
@@ -415,6 +431,88 @@ function select_parmi_liste {
     done   </dev/tty
 
 }
+
+function signal_affiche_selon_code_sortie {
+    # Syntaxe
+    # $1 : le code d'exit du script fourni via '$?'
+
+    CODE_EXIT=$1
+    CODE_SIGNAL=$((CODE_EXIT-128))
+    REGEX_DU_SIGNAL="^$CODE_SIGNAL).*"
+    # Débute par un début de ligne puis le n° du signal puis la parenthèse
+    # C'est le format d'affichage de 'trap -l'
+    NOM_SIG_SIGNAL="$(trap -l |
+    tr '\t' ' ' | # remplace les tabs par des espaces
+    tr ' ' '\n' | # remplace les espaces par des newlines
+    grep -E -A 1 "$REGEX_DU_SIGNAL" | # récupère la ligne du numéro du signal + 1
+    tail -n 1 )" # récupère le nom du signal ave SIG
+    NOM_SIGNAL="${NOM_SIG_SIGNAL#SIG}" # Retrait du SIG
+    echo -e "\n\nLe signal attrapé a été : $CODE_SIGNAL) ${NOM_SIG_SIGNAL} (=$NOM_SIGNAL)\n"
+}
+
+function signaux_avec_numero_et_sig_affichage_brut_avec_retour_a_la_ligne {
+    # Syntaxe
+    # - : pas d'argument requis
+
+    trap -l | # récupération de tous les signaux
+    awk ' { for (i=1;i<=NF; i++) { if ( i%2 == 0 ) { printf ("%s\n", $i) } else { printf ("%s ", $i) } } } '
+    # awk : affichage des signaux avec leur numéro respectif et retour à la ligne à chacun
+}
+
+function signaux_avec_sig_dans_tableau {
+    # Syntaxe
+    # $1 : TAB_SIG (variable)
+
+    local -n TAB_SIG=$1
+    while read SIGNAL_SIGNAL
+    do
+        TAB_SIG+=("$SIGNAL_SIGNAL")
+    done < <(signaux_avec_numero_et_sig_affichage_brut_avec_retour_a_la_ligne |
+    awk ' {print $2} ' | # récupération du signal (suppression du numéro)
+    sort ) # tri alphabétique
+}
+
+function signaux_sans_sig_dans_tableau {
+    # Syntaxe
+    # $1 : TAB_SIG (variable)
+
+    local -n TAB_SIG=$1
+    while read SIGNAL_SIGNAL
+    do
+        SIGNAL_SANS_SIG="${SIGNAL_SIGNAL#SIG}"
+        TAB_SIG+=("$SIGNAL_SANS_SIG")
+    done < <(signaux_avec_numero_et_sig_affichage_brut_avec_retour_a_la_ligne |
+    awk ' {print $2} ' | # récupération du signal (suppression du numéro)
+    sort ) # tri alphabétique
+}
+
+function syntaxe_afficher_si_erreur {
+    # Syntaxe :
+    # $1 : le nom de la fonction/script d'appel (valeur)
+    # $2, ... : les arguments (valeur)
+    # Remarques importante : doit être appelé avec printf / echo -e pr permettre
+    # les retours à la ligne adéquats.
+    
+    local SYN_MES="\nSyntaxe :\n\t"
+    # Ci-dessous, nb d'espace entre chaque argument
+    NB_ESPACES=4
+    STR_ESPACE=""
+    for ((i=0; i<$NB_ESPACES; i++))
+    do
+        STR_ESPACE="$STR_ESPACE "
+    done
+    NB_ARGUMENT_TOTAL=$#
+    for ((i=1; i<$#; i++))
+    do
+        # Ajout de l'argument + des espaces
+        SYN_MES="${SYN_MES}${!i}${STR_ESPACE}"
+    done
+    # Ajout du dernier argument sans espace et avec un retour à la ligne final
+    SYN_MES="${SYN_MES}${!NB_ARGUMENT_TOTAL}\n"
+    # Affichage de la syntaxe :
+    printf "%s" "$SYN_MES"
+}
+
 
 # T
 
@@ -668,7 +766,7 @@ function texte_aligner_blocs {
     local -n STR_FINAL=$1
     local STR1="$2"
     local STR_PROVISOIRE=""
-    SYNTAXE="\nSyntaxe :\n\t$(basename $0)    STR_FINAL   STR1    [STR_N    N_CHAR_ALIGN_STR_N [...]]\n" 
+    SYNTAXE="$(syntaxe_afficher_si_erreur "${FUNCNAME[0]}" "STR_FINAL" "STR1" "[STR_N" "N_CHAR_ALIGN_STR_N" "[...]]")" 
     # Si impair = ok
     if [ $(($#/2)) -ne 0 ]
     then

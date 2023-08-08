@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Plusieurs commandes lancées en démon :
+find / 0>&- >/dev/null 2>&1 &
+#echo "Nouveau processus"
+#jobs -ln
+#echo ""
+
+find /usr 0>&- >/dev/null 2>&1 &
+#echo "Nouveau processus"
+#jobs -ln
+#echo ""
+
+find /Library 0>&- >/dev/null 2>&1 &
+#echo "Nouveau processus"
+#jobs -ln
+#echo ""
+
+echo "AVANT"
+jobs -l
+echo ""
+
+sleep 5
+#echo ""
+processus_kill_ts_de_session_terminal
+echo "Fin fonction."
+
+#echo "APRES"
+#jobs -l
+#echo ""
+
+#echo "Check"
+#ps -Al | grep 'find /'
+#echo ""

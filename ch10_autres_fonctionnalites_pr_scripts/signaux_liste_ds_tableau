@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+
+
+
+
+declare -a TABLEAU_SIGNAUX
+declare -a TABLEAU_SIGNAUX_SANS_SIG
+
+signaux_avec_sig_dans_tableau TABLEAU_SIGNAUX
+tableau_contenu TABLEAU_SIGNAUX
+tableau_taille TABLEAU_SIGNAUX
+echo ""
+echo ""
+
+echo ""
+echo ""
+signaux_sans_sig_dans_tableau TABLEAU_SIGNAUX_SANS_SIG
+tableau_contenu TABLEAU_SIGNAUX_SANS_SIG
+tableau_taille TABLEAU_SIGNAUX_SANS_SIG
+echo ""
+: <<-"DEVENCOURS"
+DEVENCOURS
+
+#signaux_avec_sig_affichage_brut_avec_retour_a_la_ligne

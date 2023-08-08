@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+: <<-"LISTESIGNAUXENVIRONNEMENTMAC"
+ 1) SIGHUP       2) SIGINT       3) SIGQUIT      4) SIGILL       5) SIGTRAP
+ 6) SIGABRT      7) SIGEMT       8) SIGFPE       9) SIGKILL     10) SIGBUS
+11) SIGSEGV     12) SIGSYS      13) SIGPIPE     14) SIGALRM     15) SIGTERM
+16) SIGURG      17) SIGSTOP     18) SIGTSTP     19) SIGCONT     20) SIGCHLD
+21) SIGTTIN     22) SIGTTOU     23) SIGIO       24) SIGXCPU     25) SIGXFSZ
+26) SIGVTALRM   27) SIGPROF     28) SIGWINCH    29) SIGINFO     30) SIGUSR1
+31) SIGUSR2
+LISTESIGNAUXENVIRONNEMENTMAC
+
+function signal_affiche_nom_sans_sig {
+    # Syntaxe :
+    # $1 : le numéro de sortie du script fourni avec '$?'
+
+    kill -l $1
+}
+# Appel d'une fonction puis exit si rencontre les signaux : HUP INT QUIT ABRT TSTP
+trap ' signal_affiche_nom_sans_sig $? ; exit ' HUP INT QUIT ABRT TSTP
+# HUP = si quitte terminal
+# INT = ^C
+# QUIT = ^\
+# TSTP = ^Z
+
+# Commande longue a exécuter pour donner le temps de lancer un signal
+find /

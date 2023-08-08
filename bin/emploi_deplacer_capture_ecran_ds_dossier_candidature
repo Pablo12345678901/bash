@@ -4,6 +4,8 @@
 # $1 : REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE
 # $2 : TYPE_ANNONCE_OU_CONFIRMATION ('-annonce' ou '-confirmation')
 
+source fonctions_personnelles
+
 # Selon l'environnement, modifier ces données
 EXTENSION_CAPTURE_ECRAN=".png"
 EMPLACEMENT_DES_CAPTURES_D_ECRAN=~/Desktop
@@ -15,7 +17,7 @@ DEBUT_NOM_FICHIER_ANNONCE="A_"
 DEBUT_NOM_FICHIER_CONFIRMATION="C_"
 
 # Contrôle des arguments
-SYNTAXE="\nSyntaxe :\n\t$(basename $0)    REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE    $ARGUMENT_ANNONCE | $ARGUMENT_CONFIRMATION\n"
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE" "$ARGUMENT_ANNONCE | $ARGUMENT_CONFIRMATION")"
 if [ -z "$1" ]
 then
     echo -e "\nERREUR : aucun argument fourni."
@@ -27,7 +29,7 @@ else
     then
         if [ -z "$2" ]
         then
-            echo -e "\nERREUR : le deuxième argument n'a été fourni."
+            echo -e "\nERREUR : le deuxième argument n'a pas été fourni."
             echo -e "$SYNTAXE"
             exit 1
         else
