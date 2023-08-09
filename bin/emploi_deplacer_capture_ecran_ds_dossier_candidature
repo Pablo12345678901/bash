@@ -81,7 +81,8 @@ do
     ((COMPTEUR++))
     NVO_PATH_FICHIER="$REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE/${NOM_RENOMME_CAPTURE_ECRAN}${COMPTEUR}${EXTENSION_CAPTURE_ECRAN}"
     # Déplace et renomme les captures d'écran
-    mv "$PATH_FICHIER" "$NVO_PATH_FICHIER"
+    mv "$PATH_FICHIER" "$NVO_PATH_FICHIER" &&
+    echo -e "\"${PATH_FICHIER##*/}\" renommé en \"${NVO_PATH_FICHIER##*/}\" et déplacé dans le répertoire \"$REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE\"."
     FLAG_CAPTURE_D_ECRAN="true"
 
     # Recherche tous les fichiers sur le bureau qui sont d'une certaine extension et qui ont été créé il y a X temps maximum
@@ -94,5 +95,5 @@ if [ $FLAG_CAPTURE_D_ECRAN = "false" ]
 then
     echo -e "\nERREUR : aucune capture d'écran n'a été détectée à l'emplacement \"$EMPLACEMENT_DES_CAPTURES_D_ECRAN\".\n"
 else
-    :
+    echo "" # retour à la ligne esthétique
 fi

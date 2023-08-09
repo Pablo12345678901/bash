@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# $1 : FICHIER_TAR
+
+source fonctions_personnelles
+
+NOM_DU_FICHIER_OUTPUT="$(basename $0)_output.txt"
+PATH_OUTPUT="$CORBEILLE_PATH/$NOM_DU_FICHIER_OUTPUT"
+
+# Contrôle des argument
+SYNTAXE=""
+if [ -z "$1" ]
+then
+    echo -e "\nERREUR : aucun argument fourni."
+    echo -e "$SYNTAXE"
+    exit 1
+else
+    # Test si fichier de n'importe quel type
+    FICHIER_TAR="$1"
+    REGEX_EXTENSION_TAR="^.*\.tar$"
+    REGEX_EXTENSION_TAR_GZ="^.*\.tar.gz$"
+    if [ -e "$FICHIER_TAR" ] && [[ "$FICHIER_TAR" =~ $REGEX_EXTENSION_TAR  || "$FICHIER_TAR" =~ $REGEX_EXTENSION_TAR_GZ ]]
+    then
+        : # ok
+    else
+        echo -e "\nERREUR : l'argument fourni \"$FICHIER_TAR\" n'est pas un fichier tar (extension .tar) ou tar.gz (extension tar.gz)."
+        echo -e "$SYNTAXE"
+        exit 1
+    fi
+fi
+
+# Placé dans un bloc pour envoyer STDOUT et STDERR vers un fichier d'output
+{
+# Message
+echo -e "\nVoici la liste des répertoires situés au premier niveau du fichier tar :\n"
+
+# Affichage des répertoires du premier niveau triés par ordre alphabétique.
+tar -tf "$FICHIER_TAR" |
+# tar -t : liste les archives sur STDOUT
+# tar -f : lit (ou écrit mais ici, lit) depuis le fichier
+awk -F / '{ print $1 }' | 
+# awk -F : field separator = '/'
+# affiche du premier mot (selon séparateur) de chaque ligne donc répertoire de base du fichier
+sort -u
+# sort -u : suppression des doublons et tri (et sort les trie par ordre alphabétique)
+echo "" # esthétique
+
+echo -e "\nVoici la liste des fichiers contenu dans le fichier tar \"$FICHIER_TAR\" :\n"
+tar -tf "$FICHIER_TAR" | sort -u
+echo "" # esthétique
+} >"$PATH_OUTPUT" 2>&1 # envoi de STDOUT et STDERR vers un fichier d'output
+
+# Message final
+TEMPS_D_ATTENTE_AVANT_AFFICHAGE=5
+echo -e "\nUne copie de l'output a été placée au path \"$PATH_OUTPUT\"."
+echo -e "Elle va être affichée avec 'less' dans $TEMPS_D_ATTENTE_AVANT_AFFICHAGE secondes.\n"
+sleep $TEMPS_D_ATTENTE_AVANT_AFFICHAGE
+less "$PATH_OUTPUT"
+
+# Demande si suppression du fichier d'output après fin lecture
+REPONSE=""
+QUESTION="Souhaiteriez-vous supprimer le fichier d'output situé \"$PATH_OUTPUT\" ? (YyOo/Nn) "
+question_oui_non REPONSE "$QUESTION"
+if [ "$REPONSE" = "o" ]
+then
+    rm -rf "$PATH_OUTPUT" &&
+    echo -e "\nLe fichier \"$NOM_DU_FICHIER_OUTPUT\" a été supprimé.\n" ||
+    {   echo -e "\nERREUR : le fichier situé \"$PATH_OUTPUT\" n'a pas pu être supprimé.\n" &&
+        exit 1
+    }
+else
+    :
+fi
+

@@ -116,6 +116,9 @@ export BASH_PROFILE_PATH
 # Path du fichier bashrc
 BASHRC_PATH='/etc/bashrc'
 export BASHRC_PATH
+# Path de la corbeille 
+CORBEILLE_PATH="/Users/pablo/.Trash"
+export CORBEILLE_PATH
 
 # Tableau des variables personnelles 
 declare -a TABLEAU_VARIABLES_PERSO # tableau des paths à ajouter manuellement
@@ -127,7 +130,8 @@ ajout_au_tableau TABLEAU_VARIABLES_PERSO 'DB_LOCALE'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'RACCOURCIS_CLAVIER'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'BASH_PROFILE_PATH'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'BASHRC_PATH'
-LISTE_VARIABLES_PERSO=$( IFS=: ; printf '%s' "${TABLEAU_VARIABLES_PERSO[*]}" ) # transformation du tableau en string séparé par des ":" via la définition de IFS dans un sous-shell
+ajout_au_tableau TABLEAU_VARIABLES_PERSO 'CORBEILLE_PATH'
+LISTE_VARIABLES_PERSO=$( IFS=: ; printf "%s" "${TABLEAU_VARIABLES_PERSO[*]}" ) # transformation du tableau en string séparé par des ":" via la définition de IFS dans un sous-shell
 # car impossible de transmettre un tableau en tant que variable d'environnement
 export LISTE_VARIABLES_PERSO # pour affichage sur demande via script correspondant
 

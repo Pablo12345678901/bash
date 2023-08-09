@@ -16,7 +16,6 @@ DEVELOPPEMENT
     - empêcher les apps fermée via la commande app_fermer de se réouvrir automatiquement au redémarrage de l'ordi - c'est génant
 
     CREATION FONCTIONNALITE
-    - script d'automatisation de rédaction CV et LM avec les stricts champs à modifier (CV : tire et 4 premiers atouts) (LM : date, nom entreprise, nom destinaire, adresse, date, ....)
     - script qui recherche tous les fichiers modifiés depuis X date sur le disque dur externe (sans les répertoire avec '.repertoire') et qui les copie dans un autre disque dur au même chemin avec si nécessaire création des sous-répertoires dans lesquels ils seront - tester à petite échelle avant de lancer en blocs
     - Afficher nb fichiers d'un répertoires
     - Afficher taille d'un répertoire
@@ -26,12 +25,19 @@ DEVELOPPEMENT
     - Encrypter les fichiers sensibles de mon disque dur OU trouver un moyen qu'ils soient inaccessible (que par moi et avec MDP)
     
     AMELIORATION SCRIPT EXISTANT
+    - emploi :
+        -> script d'automatisation de rédaction CV et LM avec les stricts champs à modifier (CV : tire et 4 premiers atouts) (LM : date, nom entreprise, nom destinaire, adresse, date, ....)
+        -> conversion du word en PDF (en renommant sans le FR ou EN)
+        -> remplissage de l'excel emploi avec les données de l'entreprise (nom / tél / ...)
+        -> remplissage du formulaire sur JobRoom (connexion / remplissage)
+        -> éventuellement : remplissage du formulaire si postulation via Jobup / via autre site
     - Script app_ouvrir : obtenir la liste de toutes les apps disponibles sur le Mac et les proposer sous forme y/n + sélect à la fin de l'ouverture des apps de base
     - Script app_ouvrir permettre un argument du nom de l'app à ouvrir que grep recherche dans les apps disponibles sur le Mac puis ouvre (ex : app_ouvrir Chrome)
     - Finaliser le script du decalage des char (cryptage message)
 
     OPTIMISATION DE FONCTIONNALITES DEJA EXISTANTE
     - Similaire au Finder ms depuis le terminal et avec select : Déplacement dans les répertoires avec sélect qui affiche le contenu à chaque niveau puis : au choix : si choisi fichier -> ouvrir / si choisi répertoire -> s'y rendre / se déplacer dans le répertoire courant (cd) / revenir un niveau en arrière / quitter
+    - renommer fichiers : menu select qui les listes -> choix d'un fichier -> donner nvo nom -> renommer -> puis menu select à nouveau
     - Dock : Supprimer du dock automatiquement les apps à droite de la barre
     - Historique navigateurs : Créer un script pour supprimer l'historique / cache / tout des navigateur Chrome / Firefox / Safari
 
@@ -40,7 +46,6 @@ CONFIGURATION
 - créer et configurer le fichier .inputrc cf section 8 de la documentation bash officielle
 
 APPRENTISSAGE :
-- bash - code source : Obtenir le code source de bash pour l'étudier
 - Historique Bash : Apprendre à ne pas sauvegarder l'historique des commandes de bash. # cf ce site : https://stackoverflow.com/questions/6475524/how-do-i-prevent-commands-from-showing-up-in-bash-history
 - Portabilité slash-antislash : Apprendre comment rendre mes script portables VS les slashs / anti-slash des paths selon l'environnement
 - Proposition string : Apprendre à faire une proposition de string à l'utilisateur. Proposition qu'il peut modifier (effacer partiellement / tout) puis valider

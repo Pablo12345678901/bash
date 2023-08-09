@@ -17,8 +17,8 @@ TABLEAU_VARIABLES_PERSO=($STRING_LISTE_TRIEE_VARIABLES_PERSO)
 
 # Affichage des variables et de leur valeur
 echo -e "\nListe des variables personnelles créées par moi :\n"
-for variable_perso in "${TABLEAU_VARIABLES_PERSO[@]}"
+for VARIABLE_PERSO in "${TABLEAU_VARIABLES_PERSO[@]}"
 do
-    echo "$variable_perso=${!variable_perso}"
+    echo "$VARIABLE_PERSO=${!VARIABLE_PERSO}"
 done
 echo "" # esthétique
