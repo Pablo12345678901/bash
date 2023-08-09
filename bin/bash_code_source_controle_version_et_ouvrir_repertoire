@@ -1,0 +1,152 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# - : aucun argument requis.
+# Fonctionnement :
+# Ce script contrôle le nom du répertoire du code source et le compare
+# avec la version de bash locale (supposée à jour).
+# Si elle n'est pas à jour : le répertoire actuel est supprimé
+# et le site de téléchargement s'ouvre.
+
+source fonctions_personnelles
+
+REPERTOIRE_CODE_SOURCE="$REPERTOIRE_DEVELOPPEMENT/bash/bash_code_source"
+URL_DU_SITE_DE_TELECHARGEMENT="https://mirror.metanet.ch/gnu/bash/"
+TEMPS_ATTENTE_AVANT_OUVERTURE_SITE=10
+PATH_DE_TELECHARGEMENT="$BUREAU_PATH"
+PATH_DU_REPERTOIRE_CODE_SOURCE_FINAL=""
+
+# Obtention d'un string contenant (mais pas que) la version de bash de l'environnement actuel
+STRING_VERSION="$(bash --version | awk ' \
+{ \
+{ \
+for (i=1; i<=NF; i++) \
+{ \
+if ($i ~ "version" ) { compteur=1; affichage++; } \
+else if (compteur == 1 && affichage == 1) { print $i ; affichage++;  } \
+} \
+} \
+}'
+)" # awk récupère le contenu du premier mot après la première apparition de 'version'
+
+# Obtention du numéro de version sur la base du string obtenue ci-dessus
+LONGUEUR_STRING_VERSION=${#STRING_VERSION}
+NUMERO_VERSION_LA_PLUS_RECENTE="" # chaîne initiée à vide
+REGEX_CHAR_NUM_VERSION="[0-9]|[.]"
+for ((i=0; i<$LONGUEUR_STRING_VERSION; i++))
+do
+    # Obtention du char courant (index i : longueur 1)
+    CHAR_COURANT="${STRING_VERSION:i:1}"
+    if [[ "$CHAR_COURANT" =~ $REGEX_CHAR_NUM_VERSION ]]
+    then
+        # Ajout du char au numéro de version
+        NUMERO_VERSION_LA_PLUS_RECENTE="${NUMERO_VERSION_LA_PLUS_RECENTE}${CHAR_COURANT}"
+    else
+        # Fin de boucle dès la rencontre du premier char non valide
+        break 
+    fi
+done
+
+# Recherche du path du répertoire code source local.
+REGEX_REPERTOIRE_VERSION_BASH="^.*/bash-[0-9]+.*$"
+# ^$ : Début et fin de ligne
+# .* : n'importe quel string
+# [0-9]+ : un ou plusieurs nombres
+# Trouve le répertoire contenant le code source
+PATH_REPERTOIRE_CODE_SOURCE_BASH_ACTUEL="$(find -E "$REPERTOIRE_CODE_SOURCE" -d 1 -maxdepth 1 -type d -regex "$REGEX_REPERTOIRE_VERSION_BASH")"
+# find :
+#   E : regex
+#   -d : débute la recherche au niveau NUM
+#   -maxdepth : profondeur max de la recherche
+#   -type d : que les répertoires
+#   -regex : le regex du path
+
+# Contrôle si le répertoire du code source actuel est de la même version que la version de bash locale.
+NOM_DU_REPERTOIRE_CODE_SOURCE_ACTUEL="${PATH_REPERTOIRE_CODE_SOURCE_BASH_ACTUEL##*/}"
+if [ "$NOM_DU_REPERTOIRE_CODE_SOURCE_ACTUEL" = "bash-$NUMERO_VERSION_LA_PLUS_RECENTE" ]
+then
+    echo -e "\nLa version du code source est à jour (version ${NUMERO_VERSION_LA_PLUS_RECENTE}, idem que version bash locale)."
+    PATH_DU_REPERTOIRE_CODE_SOURCE_FINAL="$PATH_REPERTOIRE_CODE_SOURCE_BASH_ACTUEL"
+else
+    
+    if [ -z "$PATH_REPERTOIRE_CODE_SOURCE_BASH_ACTUEL" ]
+    then
+        # Affichage message erreur
+        echo -e "\nERREUR : aucune version du code source n'est disponible. Elle devrait être ${NUMERO_VERSION_LA_PLUS_RECENTE}, idem que version bash locale."
+    else
+        # Affichage message erreur
+        VERSION_CODE_SOURCE_LOCALE="${NOM_DU_REPERTOIRE_CODE_SOURCE_ACTUEL#bash-}"
+        echo -e "\nERREUR : la version du code source actuelle $VERSION_CODE_SOURCE_LOCALE n'est pas à jour. Elle devrait être ${NUMERO_VERSION_LA_PLUS_RECENTE}, idem que version bash locale."
+        
+        # Suppression de la version actuelle
+        echo -e "\nSuppression du répertoire bash code source (version obsolète)..."
+        rm -rf "$PATH_REPERTOIRE_CODE_SOURCE_BASH_ACTUEL" &&
+        echo -e "\nSuppression du répertoire \"$NOM_DU_REPERTOIRE_CODE_SOURCE_ACTUEL\" terminée.\n" ||
+        {   echo -e "\nERREUR : La suppression du répertoire situé \"$PATH_REPERTOIRE_CODE_SOURCE_BASH_ACTUEL\" a échoué.\n" &&
+            exit 1
+        }
+    fi
+
+    # Ouverture du site de téléchargement (téléchargement manuel)
+    VERSION_A_TELECHARGER="bash-$NUMERO_VERSION_LA_PLUS_RECENTE.tar.gz"
+    echo -e "\nVeuillez télécharger la version $NUMERO_VERSION_LA_PLUS_RECENTE depuis le site : \"$URL_DU_SITE_DE_TELECHARGEMENT\".\n"
+    echo -e "\nElle devrait s'appeler \"$VERSION_A_TELECHARGER\".\n"
+    MESSAGE="\nOuverture du site \"$URL_DU_SITE_DE_TELECHARGEMENT\" dans $TEMPS_ATTENTE_AVANT_OUVERTURE_SITE secondes.\n"
+    sleep_et_affiche_message $TEMPS_ATTENTE_AVANT_OUVERTURE_SITE "$MESSAGE"
+    #sleep $TEMPS_ATTENTE_AVANT_OUVERTURE_SITE
+    open "$URL_DU_SITE_DE_TELECHARGEMENT"
+
+    REPONSE=""
+    QUESTION="Avez-vous téléchargé le fichier \"$VERSION_A_TELECHARGER\" au path \"$PATH_DE_TELECHARGEMENT\" ? (YyOo/Nn) "
+    question_oui_non REPONSE "$QUESTION"
+    if [ "$REPONSE" = "o" ]
+    then
+        PATH_NOUVEAU_CODE_SOURCE="$PATH_DE_TELECHARGEMENT/$VERSION_A_TELECHARGER"
+        # Contrôle s'il y a effectivement un fichier du bon nom (et extension .tar.gz)
+        REGEX_EXTENSION_TAR="^.*\.tar$"
+        REGEX_EXTENSION_TAR_GZ="^.*\.tar.gz$"
+        if [ -e "$PATH_NOUVEAU_CODE_SOURCE" ] && [[ "$PATH_NOUVEAU_CODE_SOURCE" =~ $REGEX_EXTENSION_TAR || "$PATH_NOUVEAU_CODE_SOURCE" =~ $REGEX_EXTENSION_TAR_GZ ]]
+        then
+            
+            # Déplacement
+            NVO_PATH_CODE_SOURCE_GZ="${REPERTOIRE_CODE_SOURCE}/${VERSION_A_TELECHARGER}"
+            mv "$PATH_NOUVEAU_CODE_SOURCE" "$NVO_PATH_CODE_SOURCE_GZ"
+            
+            # Décompression 
+            # La décompression du fichier tar se fait dans le répertoire courtant.
+            # Donc déplacement avant (aller) à l'emplacement du décompressement
+            # puis retour à l'emplacement initial après.
+            # Déplacement aller
+            cd "$REPERTOIRE_CODE_SOURCE"
+            tar -xzf "$NVO_PATH_CODE_SOURCE_GZ"
+            # tar -x : uncompress (extract)
+            # tar -z : fichier gzip
+            # tar -f : fichier -> récupère les fichiers
+            # Déplacement retour
+            cd "$OLDPWD"
+            
+            # Suppression du répertoire temporaire dans lequel était le fichier tar
+            rm -rf "$NVO_PATH_CODE_SOURCE_GZ" &&
+            echo -e "\nSuppression du fichier tar \"$VERSION_A_TELECHARGER\" terminée.\n" ||
+            {  echo -e "\nERREUR : La suppression du fichier tar situé \"$NVO_PATH_CODE_SOURCE_GZ\" a échoué.\n" &&
+               exit 1
+            }
+            
+            # Affichage emplacement final
+            PATH_DU_REPERTOIRE_CODE_SOURCE_FINAL="${REPERTOIRE_CODE_SOURCE}/bash-${NUMERO_VERSION_LA_PLUS_RECENTE}"
+            echo -e "\nLe répertoire du code source version $NUMERO_VERSION_LA_PLUS_RECENTE est désormais situé au path \"${PATH_DU_REPERTOIRE_CODE_SOURCE_FINAL}\"."
+
+        else
+            echo -e "\nERREUR : il n'y a aucun fichier nommé \"$VERSION_A_TELECHARGER\" au path \"$PATH_DE_TELECHARGEMENT\"."
+            echo -e "Téléchargez le fichier \"$VERSION_A_TELECHARGER\" au path \"$PATH_DE_TELECHARGEMENT\" puis relancez ce script.\n"
+            exit 1
+        fi
+    else
+        echo -e "\nAlors faites-le maintenant puis relancez le script !\n"
+        exit 1
+    fi
+fi
+
+# Ouverture du répertoire code source :
+echo -e "\nOuverture du répertoire du code source de bash...\n"
+open "$PATH_DU_REPERTOIRE_CODE_SOURCE_FINAL"

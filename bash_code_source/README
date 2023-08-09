@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+: <<-"COMMENTAIREPERSO"
+
+Ce répertoire contient le code source de bash à des fins éducatives.
+
+Lancer le script (le nom peut avoir été modifié entre temps):
+
+bash_code_source_controle_version_et_ouvrir_repertoire
+
+pour contrôler si la version du code source est à jour.
+
+Si elle n'est pas à jour, le site de téléchargement s'ouvrira.
+
+COMMENTAIREPERSO

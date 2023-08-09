@@ -486,6 +486,37 @@ function signaux_sans_sig_dans_tableau {
     sort ) # tri alphabétique
 }
 
+
+function sleep_et_affiche_message {
+    # Syntaxe :
+    # $1 : TMP_ATTENTE_EN_SEC
+    # $2 : MSG
+    # Remarques : peut être remplacé par 2 lignes :
+    #   echo -e "$MESSAGE"
+    #   sleep $TMP_ATTENTE_EN_SEC
+    
+    local TMP_ATTENTE=$1
+    local MSG="$2"
+    REGEX_TMP_ATTENTE_EN_SEC="^[0-9]+$"
+    SYNTAXE=""
+    if [[ -z "$1" || -z "$2" ]]
+    then
+        echo -e "\nERREUR : aucun argument transmis.\n"
+        echo -e "$SYNTAXE"
+        exit 1
+    else
+        if [[ "$TMP_ATTENTE" =~ $REGEX_TMP_ATTENTE_EN_SEC ]]
+        then
+            echo -e "$MSG"
+            sleep $TMP_ATTENTE
+        else
+            echo -e "\nERREUR : le premier argument transmis n'est pas un nombre >=0 (sans le signe '+').\n"
+            echo -e "$SYNTAXE"
+            exit 1
+        fi
+    fi
+}
+
 function syntaxe_afficher_si_erreur {
     # Syntaxe :
     # $1 : le nom de la fonction/script d'appel (valeur)
