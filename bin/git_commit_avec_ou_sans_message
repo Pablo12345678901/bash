@@ -4,7 +4,9 @@
 # $1 : REPERTOIRE_PARMI_LES_REPERTOIRES_GIT_SANS_LE_PATH_COMPLET (optionnel)
 # $2 : MESSAGE_AVEC_LE_GIT_PUSH (optionnel)
 
-# L'adaptation du path du répertoire Git à push se fait en fonction du paramètre fourni en ligne de commande.
+CHOIX="" # besoin de ce paramètre plus tard pour le message d'affichage final.
+
+# Contrôle des arguments
 if [ -z $1 ] # si aucun argument n'est fourni avec la commande, je demande le nom du dossier à push.
 then
     # Obtention de la liste des répertoires git potentiellement pushables
@@ -19,7 +21,6 @@ then
     DERNIERE_OPTION=${#LISTE_REPERTOIRES_GIT[@]}
 
     # Sélection du répertoire à push au sein du répertoire de développement
-    CHOIX=""
     until [ -n "$CHOIX" ] # Boucler tant que le choix n'est pas correct = tant que choix n'est pas un string > 1char
     do
         echo -e "\nChoisissez le répertoire git à push :\n"
@@ -53,9 +54,6 @@ cd $REPERTOIRE_GIT_A_PUSH ||
     echo -e "\nDébugguer avec pwd dans le script et/ou relire la saisie.\n"
     exit 1 ; }
 
-#DEBUG pwd # DEBUG
-#DEBUG open $PWD
-
 # Spécificité avec le répertoire Bash avec Git qui ne push pas le script car il le run.
 if [ $PWD == "$REPERTOIRE_DEVELOPPEMENT/bash" ] # Uniquement pour mon répertoire Git Bash
 then
@@ -75,6 +73,6 @@ fi
     else
         git commit -m "$MESSAGE_AVEC_LE_GIT_PUSH"
     fi &&
-    git push  && echo -e "\nCommit du répertoire \"$REPERTOIRE_PARMI_LES_REPERTOIRES_GIT_SANS_LE_PATH_COMPLET\" = OK\n" ; } || echo -e "\nLe commit du répertoire \"$REPERTOIRE_PARMI_LES_REPERTOIRES_GIT_SANS_LE_PATH_COMPLET\" n'a pas pu être correctement fait OU il n'y avait rien à push."
+    git push  && echo -e "\nCommit du répertoire \"$CHOIX\" = OK\n" ; } || echo -e "\nLe commit du répertoire \"$REPERTOIRE_PARMI_LES_REPERTOIRES_GIT_SANS_LE_PATH_COMPLET\" n'a pas pu être correctement fait OU il n'y avait rien à push."
 
 cd $OLDPWD
