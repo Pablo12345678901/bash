@@ -10,4 +10,4 @@ DERNIERE_COMMANDE="$(commande_derniere_obtenir)"
 echo "$DERNIERE_COMMANDE"
 TABLEAU_ARGUMENT=($DERNIERE_COMMANDE)
 
-commande_accelerer ${TABLEAU_ARGUMENT[*]} -inc=-20
+commande_accelerer_en_arriere_plan ${TABLEAU_ARGUMENT[*]} -inc=-20
