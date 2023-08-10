@@ -13,7 +13,7 @@ else
     :
 fi
 
-# Résumé script :
+# Résumé recherche de la commande :
 # Le mot sur lequel je recherche de l'information peut être dans :
 #       - builtins
 #       - man

@@ -14,9 +14,6 @@
 # Un fois la commande runnée, il va en modifier la priorité.
 # Si elle doit être accru, il faudra sudo et donc saisir le mot de passe.
 
-# Améliorations possibles :
-# Accepter plusieurs commandes avec des points virgules (ils font bugguer d'autres commandes perso).
-
 source fonctions_personnelles
 
 SYNTAXE="\nSyntaxe :\n\t$(basename $0)    COMMANDE    [ARGUMENT_OPTIONNELS ...]    [-inc=PLUS_OU_MOINS_INCREMENT]\n"

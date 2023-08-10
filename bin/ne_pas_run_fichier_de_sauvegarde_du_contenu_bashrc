@@ -17,11 +17,22 @@ fi
 if [ -z "$PS1" ]; then
    return
 fi
+# Prompt 1
+#       d'origine
+#PS1='\h:\W \u\$ ' 
+#       Les miens :
+PS1='\u: \t \w \$ '
+# Rappel (trié par ordre alphabétique):
+# \h : hostname jusqu'au premier '.'
+# \t : The time, in 24-hour HH:MM:SS format.
+# \u : username du current user
+# \w : $PWD avec $HOME abrégé par '~'
+# \W : basename du PWD avec $HOME abrégé par '~'
+# \$ : if uid = 0 -> '#'' / sinon '$'
 
-PS1='\h:\W \u\$ '
 # Make bash check its window size after a process completes
 shopt -s checkwinsize
-shopt -s histappend # Ajout de l'historique de toutes les sessions -> pas clair...
+shopt -s histappend # Ajout de l'historique de toutes les sessions interractives
 
 # Prompt_command est exécuté avant chaque commande
 PROMPT_COMMAND="history -a; history -c; history -r; $PROMPT_COMMAND"

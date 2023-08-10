@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+sudo vim "$BASHRC_PATH" &&
+{   echo -e "\nModification du fichier \"$(basename $BASHRC_PATH)\" terminée." &&
+    # Resourcer le fichier après modification
+    echo -e "\nVeuillez ressourcer le fichier modifié en tapant la commande :\n\nsource \"\$BASHRC_PATH\"\n"
+}   ||
+{   echo -e "\nERREUR : La modification n'a pas pu avoir lieu correctement.\nVeuillez modifier manuellement le fichier situé \"$BASHRC_PATH\".\n" &&
+    exit 1
+}
+
+

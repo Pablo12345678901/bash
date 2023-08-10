@@ -8,13 +8,6 @@
 
 source fonctions_personnelles
 
-# Récupérer les éléments utiles dans mes notes après avoir rédigé ce script.
-# Amélioration potentielles :
-#   mode silencieux
-#   accepter les strings de plusieurs mots avec gestion des espaces
-#   accepter de remplacer un string par un string vide
-#   faire fonctionner le vidage de la corbeille depuis ce script
-
 declare -a TABLEAU_FICHIERS
 
 SYNTAXE="Syntaxe :\n\t$(basename $0)    STRING_RECHERCHE    STRING_REMPLACEMENT    FICHIER_OU_REPERTOIRE [...]\n"

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+
+echo "AVANT"
+gdate -Ins
+DATE_HEURE_ACTUELLE="$(gdate -Ins)"
+echo "$DATE_HEURE_ACTUELLE"
+
+#echo "Modif"
+#sudo gdate -s '2023-08-11'
+
+#echo "APRES"
+#gdate -Ins
+
+echo "Modif retour départ"
+#sudo gdate -s '2023-08-10'
+
+#echo "Finalement"
+#gdate -Ins
+

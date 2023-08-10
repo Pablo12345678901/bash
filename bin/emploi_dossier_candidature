@@ -13,11 +13,6 @@
 # La recherche est faite par ordre décronologique.
 # Finalement, le CV et LM sont ouverts pour modification. Le répertoire lui aussi est ouvert.
 
-# Améliorations possibles :
-# Éventuels messages d'erreurs si bug (étapes : création répertoire, copie fichiers)
-# Acceptation de passer en revue plusieurs répertoires pour la même date s'il y a (comportement actuel : un seul répertoire par date avec 'find -quit' )
-# Si dossier existant, rechercher CV + LM et ouvrir si existant ou rechercher -> copier/coller puis ouvrir sinon
-
 source fonctions_personnelles
 
 # Gestion des répertoires concernés
