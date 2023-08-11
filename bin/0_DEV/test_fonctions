@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+#repertoire_ou_fichier_deplacer "$CORBEILLE_PATH" '/Volumes/Elements/2_Taf_et_hospice/0_Recherche_emploi/0_OCE-ORP/1_Recherche_d_emploi/0_Preuves_des_recherches/Z_11_Employé_de_commerce_M._Ducret_SA copie'
+
+#fichiers_renommer_sans_espace '/Users/pablo/Desktop/LM Pablo ZAMORA.pdf'
+
+test_si_repertoire_ou_fichier '/Users/pablo/.Trash/Z_11_Employé_de_commerce_M._Ducret_SA copie'
+if (($?))
+then
+    echo "PAS OK"
+else
+    echo "OK"
+fi

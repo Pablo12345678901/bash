@@ -18,13 +18,33 @@ DEVELOPPEMENT
         ##################################################################################
         
         DEBUG
+        - Finaliser les fichiers en chantier (contrôler si fonctionnel et retravailler sinon)
+                        -> TODO
+                        -> commande_accelerer_en_arriere_plan
+                        -> commande_derniere_accelerer_en_arriere_plan
+                        -> commande_derniere_obtenir
+                        -> corbeille_vider
+                        -> emploi_dossier_candidature
+                        -> fonctions_personnelles
+                                -> contrôler le fonctionnement des fonctions une par une
+                        -> ne_pas_run_fichier_de_sauvegarde_du_contenu_bash_profil
+                        -> ne_pas_run_fichier_de_sauvegarde_du_contenu_bashrc
+                        -> ordi_eteindre
+                        -> relancer_commande_avec_espace
+                        -> repertoire_nb_niveaux_max_absolu_et_relatif_et_path_max
+                        -> syntaxe_fonctions_ou_scripts_personnels
         - empêcher les apps fermée via la commande app_fermer de se réouvrir automatiquement au redémarrage de l'ordi - c'est génant
         - script de mise à jour de la DB :
                 -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
-        - script corbeille vider : fonction tableau_taille affiche plus de fichier qu'il n'y en a dans un tableau (cf script vider corbeille)
+        - script corbeille vider : ne fonctionne plus - souhait d'ajouter la corbeille du disque dur aussi (dans dossier dev)
+        - script renommer_fichier_sans_espaces bug qd j'essaye de renommer les fichiers placé dans la corbeille du disque dur
         ##################################################################################
         
         CREATION FONCTIONNALITE
+        - fonctions ajout ts les path de find a un tableau
+        - fonction ajout des basename pas avec basename mais avec ${##*/} à un tableau sur base de paths
+        - créer equivalence fonction tableau pr fonction qui affiche (sans tableau) car pas forcément besoin de tableau
+        - créer équivalence fonction pr ttes fonctions -> sans var globale juste avec affichage car pas forcément besoin de la valeur (parfois juste de l'afficher)
         - fonction qui kill un processus sur base de son PID
         - fonction qui test si processus existant basé sur PID
         - fonction qui retourne la ligne correspondant au PID d'un processus :
