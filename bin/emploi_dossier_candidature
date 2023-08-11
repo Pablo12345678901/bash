@@ -45,6 +45,16 @@ REGEX_TITRE_LM_ANGLAIS="Resume.*\.docx"
 # Conservation du répertoire d'avant commande
 POSITION_AVANT_COMMANDE="$PWD"
 
+# Test si le disque dur est connecté (et par conséquent accès au répertoire de recherche d'emploi)
+if [ -d "$REPERTOIRE_GENERAL_RECHERCHE_EMPLOI" ]
+then
+    :
+else
+    echo -e "\nERREUR : il n'y a pas d'accès au répertoire de recherche d'emploi situé \"$REPERTOIRE_GENERAL_RECHERCHE_EMPLOI\"."
+    echo -e "\nVeuillez vérifier que le disque dur est correctement connecté puis ré-essayez.\n"
+    exit 1
+fi
+
 # Contrôle des arguments :
 SYNTAXE="\nSyntaxe :\n\t$(basename $0)    NOM_DU_POSTE    NOM_DE_LENTREPRISE    [-anglais]\n"
 if [[ -z "$1" && -z "$2" ]]
@@ -233,4 +243,5 @@ else
     :
 fi
 
-echo -e "\nFin de la gestion du dossier de candidature.\n"
+echo -e "\nFin de la gestion du dossier de candidature."
+echo -e "\nPensez à noter votre postulation dans JobRoom si vous êtes au chômage.\n"

@@ -21,7 +21,7 @@ DEVELOPPEMENT
         - empêcher les apps fermée via la commande app_fermer de se réouvrir automatiquement au redémarrage de l'ordi - c'est génant
         - script de mise à jour de la DB :
                 -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
-
+        - script corbeille vider : fonction tableau_taille affiche plus de fichier qu'il n'y en a dans un tableau (cf script vider corbeille)
         ##################################################################################
         
         CREATION FONCTIONNALITE
@@ -76,6 +76,13 @@ DEVELOPPEMENT
                 -> permettre un argument du nom de l'app à ouvrir que grep recherche dans les apps disponibles sur le Mac puis ouvre (ex : app_ouvrir Chrome)
         - Finaliser le script du decalage des char (cryptage message)
         - commandes accélérer en arrière plan :
+                -> tester si le script accepte les char commandes entourées de '()' '{}' et avec des redirections
+                                -> si ça fonctionne ET si ts les processus correspondant sont accélérés
+                                -> si pas ok :
+                                                -> mettre un avertissement que en cours de dév + question oui non qui affiche la commande et demande de vérifier si conforme avant de continuer
+                                                -> dev pr acceptation des commandes entre '()'
+                                                -> dev pr acceptation des commandes entre '{}'
+                                                -> dev pr acceptation des redirection (ttes)
                 -> accepter les char spéciaux car REGEX peut bugguer
         - pdf_afficher_avec_less :
                 -> optimiser la vitesse pour une exécution plus rapide
