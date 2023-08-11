@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 
 # Syntaxe :
-# $1 : COMMANDE : string éventuellement (si requis) arguments entre guillemets simples/doubles
-# $... : ARGUMENT_OPTIONNELS (optionnel) string éventuellement (si requis) arguments entre guillemets simples/doubles
-# $DERNIER : '-inc=PLUS_OU_MOINS_INCREMENT' (optionnel) '-inc' suivi de '=' suivi d'un nombre entre -20 et +19
+# $1 : COMMANDE_ET_ARGS_ENTRE_GUILLEMETS_SIMPLES : string entre guillemets simples pr neutraliser les éventuels char spéciaux
+# $2 : '-inc=PLUS_OU_MOINS_INCREMENT' (optionnel) '-inc' suivi de '=' suivi d'un nombre entre -20 et +19
 # Remarques :
 # Pour accélérer un processus, il faut lui faire passer un incrément négatif.
 # Le maximum d'accélération est -20. Le minimum est +19.
@@ -16,9 +15,8 @@
 
 source fonctions_personnelles
 
-SYNTAXE="\nSyntaxe :\n\t$(basename $0)    COMMANDE    [ARGUMENT_OPTIONNELS ...]    [-inc=PLUS_OU_MOINS_INCREMENT]\n"
 NOM_OUTPUT_CORBEILLE="$(basename $0)_output.txt"
-FICHIER_OUTPUT_CORBEILLE=~/.Trash/$NOM_OUTPUT_CORBEILLE
+FICHIER_OUTPUT_CORBEILLE="${CORBEILLE_PATH}/${NOM_OUTPUT_CORBEILLE}"
 # Gestion des regexs utilisé pour vérifié si le dernier argument est syntaxé comme un incrément
 # et si c'est le cas si sa dernière partie (après le 'égal') contient un nombre
 # Ici nb entier inclus entre -29 et +29
@@ -28,9 +26,8 @@ REGEX_INCREMENT_EGAL_NB="^-inc=[+-]?[0-2]{1}[0-9]?$"
 # ? : match 0 ou 1 fois
 # {1} : match exactement une fois
 
-
 # Contrôle des arguments
-declare -a TABLEAU_ARGUMENT
+SYNTAXE="$(syntaxe_afficher_si_erreur $(basename $0) 'COMMANDE_ET_ARGS_ENTRE_GUILLEMETS_SIMPLES' '[-inc=PLUS_OU_MOINS_INCREMENT]') "
 # Test si au moins un argument.
 if [ -z "$1" ]
 then
@@ -38,104 +35,168 @@ then
     echo -e "$SYNTAXE"
     exit 1
 else
-    # Stockage des argument dans un tableau sauf le dernier pour lequel
-    # Il faut contrôler s'il est syntaxé comme un incrément, sinon il sera considéré comme un argument de plus.
-    NB_ARGUMENT=$#
-    INDEX_DERNIER_ARGUMENT=$((NB_ARGUMENT))
-    DERNIER_ARGUMENT="${!INDEX_DERNIER_ARGUMENT}"
-    for ((i=1; i<$((NB_ARGUMENT)); i++))
-    do
-        TABLEAU_ARGUMENTS+=("${!i}")
-    done
-    
-    # Si dernier argument match '-increment=NB' alors considéré comme increment.
-    # Sinon considéré comme un argument.
-    if [[ "$DERNIER_ARGUMENT" =~ $REGEX_INCREMENT_EGAL_NB ]]
+    COMMANDE_ET_ARGS_ENTRE_GUILLEMETS_SIMPLES="$1"
+    # Contrôle de la syntaxe du deuxième argument que s'il y en a un
+    if [ -z "$2" ]
     then
-        INCREMENT="$(echo "$DERNIER_ARGUMENT" | awk -F = ' { print $2} ')"
-        # Si un incrément est présent, il doit matcher le REGEX (nombre entre -29 et +29)
-        if [[ "$INCREMENT" =~ $REGEX_NB_ENTIER_POSITIF_OU_NEGATIF ]] &&
-        # Et s'il matche, contrôle s'il est inclus entre les extremums (-20 et +19)
-        [[ $((INCREMENT)) -ge -20 && $((INCREMENT)) -le 19 ]]
+        # Par défaut, si pas précisé, l'incrément est -20 (priorisation maximum).
+        INCREMENT="-20"
+    else
+        DEUXIEME_ARGUMENT="$2"
+        # Contrôle de la syntaxe de l'incrément si fourni en tant que deuxième argument
+        if [[ "$DEUXIEME_ARGUMENT" =~ $REGEX_INCREMENT_EGAL_NB ]]
         then
-            : # OK continue script
+            INCREMENT="$(echo "$DEUXIEME_ARGUMENT" | awk -F = ' { print $2} ')"
+            # Si un incrément est présent, il doit matcher le REGEX (nombre entre -29 et +29)
+            if [[ "$INCREMENT" =~ $REGEX_NB_ENTIER_POSITIF_OU_NEGATIF ]] &&
+            # Et s'il matche, contrôle s'il est inclus entre les extremums (-20 et +19)
+            [[ $((INCREMENT)) -ge -20 && $((INCREMENT)) -le 19 ]]
+            then
+                : # OK continue script
+            else
+                echo -e "\nERREUR : le deuxième argument \"$INCREMENT\" n'est pas un nombre inclus entre -20 et +19 (avec signe éventuel)."
+                echo -e "$SYNTAXE"
+                exit 1
+            fi
         else
             echo -e "\nERREUR : le deuxième argument \"$INCREMENT\" n'est pas un nombre inclus entre -20 et +19 (avec signe éventuel)."
             echo -e "$SYNTAXE"
             exit 1
         fi
-    else
-        # Sinon, le dernier argument est considéré comme un argument et non comme un incrément
-        # Par défaut, si pas précisé, l'incrément est -20 (priorisation maximum).
-        INCREMENT="-20"
-        TABLEAU_ARGUMENTS+=("$DERNIER_ARGUMENT")
     fi
 fi
 
-# Préparation de la commande en concaténant les arguments.
+##########################################################################################################################################################
 # Conservation de la commande réelement typée (COMMANDE) et celle qui sera dans les processus (COMMANDE_TRANSFORMEE).
 # Car si dans la commande, une commande personnelle est appelé, elle sera remplacé par son path.
-COMMANDE=""
+# De plus, conservation dans un tableau des tronçons de la commande si elle est une pipeline car les processus splite les pipelines en plusieurs.
+##########################################################################################################################################################
+
+# Suppression des guillemets et conservation valeur dans une autre variable
+COMMANDE_SANS_GUILLEMETS="$COMMANDE_ET_ARGS_ENTRE_GUILLEMETS_SIMPLES"
+COMMANDE_SANS_GUILLEMETS="$(echo "$COMMANDE_SANS_GUILLEMETS" | sed -e "s/'$//" )"
+COMMANDE_SANS_GUILLEMETS="$(echo "$COMMANDE_SANS_GUILLEMETS" | sed -e "s/^'//" )"
+
+# Gestion de la commande transformée selon que le path ou la commande simple est appelée
 COMMANDE_TRANSFORMEE=""
-for ELEMENT in "${TABLEAU_ARGUMENTS[@]}"
+
+# Et conservation de la commande splitée en pipeline pour se couvrir d'une éventuelle pipeline
+# Chaque split du tableau contient des tronçons de commande entre les '|' mais sans les '|'
+declare -a TABLEAU_COMMANDE_SPLITEE_SI_PIPELINE
+COMMANDE_COURANTE_SPLITEE_SI_PIPELINE=""
+COMMANDE_COURANTE_SPLITEE_SI_PIPELINE_ELEMENTS_SANS_GUILLEMETS_EVENTUELS=""
+REGEX_BARRE_OBLIQUE_SI_PIPELINE="^\|$" # match que si exactement '|' matchera pas si "'|'"
+
+# Adaptation de la commande transformée selon qu'elle fait appelle à des commandes du répertoire personnel ou pas
+# Car si elle fait appel à des commandes du répertoire personnel, dans les processus, le nom de la commande sera remplacé par son path.
+# Et remplissage du tableau splité avec les éléments
+for ELEMENT in ${COMMANDE_SANS_GUILLEMETS[*]}
 do
+
     # Contrôle pour chaque élément si c'est une commande du répertoire personnel
     # Car dans les processus, ce sera le path de la commande qui y sera
     # et son la commande elle-même.
-    PATH_ELEMENT="$(which "$ELEMENT")"
+    PATH_ELEMENT="$(which "$ELEMENT" 2>/dev/null )" # ignore les message d'erreur des éventuels options/paramètres positionnels/autre passés en ligne de commande
     # Si c'est une commande 'personnelle'
     if [[ "$PATH_ELEMENT" =~ $REPERTOIRE_DES_COMMANDES_PERSO ]]
     then
         # Je la remplace par son path.
         ELEMENT_TRANSFORME="$PATH_ELEMENT"
     else
+        # Sinon je la conserve tel quel
         ELEMENT_TRANSFORME="$ELEMENT"
     fi
+    # Gestion commande transformée
     # Puis ajout des éléments séparés par un espace
-    COMMANDE="${COMMANDE}${ELEMENT} "
     COMMANDE_TRANSFORMEE="${COMMANDE_TRANSFORMEE}${ELEMENT_TRANSFORME} "
-done
 
+    # Gestion commande splitée
+    # Remplissage du tableau des commandes splitées si pipeline
+    # Contrôle si l'élément courant est la barre oblique et adaptation du comportement selon
+    if [[ "$ELEMENT_TRANSFORME" =~ $REGEX_BARRE_OBLIQUE_SI_PIPELINE ]]
+    then
+        # Suppression de l'espace artificiel de fin
+        COMMANDE_COURANTE_SPLITEE_SI_PIPELINE="$(echo "$COMMANDE_COURANTE_SPLITEE_SI_PIPELINE" | sed -e 's/[[:space:]]*$//' )"
+        COMMANDE_COURANTE_SPLITEE_SI_PIPELINE_ELEMENTS_SANS_GUILLEMETS_EVENTUELS="$(echo "$COMMANDE_COURANTE_SPLITEE_SI_PIPELINE_ELEMENTS_SANS_GUILLEMETS_EVENTUELS" | sed -e 's/[[:space:]]*$//' )"
+        # Ajout des commandes courantes au tableau
+        TABLEAU_COMMANDE_SPLITEE_SI_PIPELINE+=("$COMMANDE_COURANTE_SPLITEE_SI_PIPELINE")
+        TABLEAU_COMMANDE_SPLITEE_SI_PIPELINE+=("$COMMANDE_COURANTE_SPLITEE_SI_PIPELINE_ELEMENTS_SANS_GUILLEMETS_EVENTUELS")
+        # Remise à vide des commandes courantes ensuite
+        COMMANDE_COURANTE_SPLITEE_SI_PIPELINE=""
+        COMMANDE_COURANTE_SPLITEE_SI_PIPELINE_ELEMENTS_SANS_GUILLEMETS_EVENTUELS=""
+    else
+        # Ajout de l'élément courant aux commandes courantes
+        COMMANDE_COURANTE_SPLITEE_SI_PIPELINE="${COMMANDE_COURANTE_SPLITEE_SI_PIPELINE}${ELEMENT_TRANSFORME} "
+        # Et ajout retrait des guillemets de début et fin pour ajout à le seconde commande courante qui couvre
+        # les cas où certains éléments sont entourés de guillemets simples (retirés à l'exécution par les processus)
+        ELEMENT_TRANSFORME_SANS_GUILLEMETS_DEBUT_NI_FIN="$ELEMENT_TRANSFORME"
+        ELEMENT_TRANSFORME_SANS_GUILLEMETS_DEBUT_NI_FIN="$(echo "$ELEMENT_TRANSFORME_SANS_GUILLEMETS_DEBUT_NI_FIN" | sed -e "s/^'//" )"
+        ELEMENT_TRANSFORME_SANS_GUILLEMETS_DEBUT_NI_FIN="$(echo "$ELEMENT_TRANSFORME_SANS_GUILLEMETS_DEBUT_NI_FIN" | sed -e "s/'$//" )"
+        COMMANDE_COURANTE_SPLITEE_SI_PIPELINE_ELEMENTS_SANS_GUILLEMETS_EVENTUELS="${COMMANDE_COURANTE_SPLITEE_SI_PIPELINE_ELEMENTS_SANS_GUILLEMETS_EVENTUELS}${ELEMENT_TRANSFORME_SANS_GUILLEMETS_DEBUT_NI_FIN} "
+    fi
+
+done
+# Gestion de la commande transformée
 # Suppression du dernier espace ajouté artificiellement
-COMMANDE="$(echo "$COMMANDE" | sed -e 's/[[:space:]]*$//' )"
 COMMANDE_TRANSFORMEE="$(echo "$COMMANDE_TRANSFORMEE" | sed -e 's/[[:space:]]*$//' )"
 
+# Gestion des commandes splitées
+# Suppression du dernier espace ajouté artificiellement
+COMMANDE_COURANTE_SPLITEE_SI_PIPELINE="$(echo "$COMMANDE_COURANTE_SPLITEE_SI_PIPELINE" | sed -e 's/[[:space:]]*$//' )"
+COMMANDE_COURANTE_SPLITEE_SI_PIPELINE_ELEMENTS_SANS_GUILLEMETS_EVENTUELS="$(echo "$COMMANDE_COURANTE_SPLITEE_SI_PIPELINE_ELEMENTS_SANS_GUILLEMETS_EVENTUELS" | sed -e 's/[[:space:]]*$//' )"
+# Ajout des 2 derniers tronçons au tableau car la commande ne se terminera jamais par '|' donc déclenchement de l'ajout forcé
+TABLEAU_COMMANDE_SPLITEE_SI_PIPELINE+=("$COMMANDE_COURANTE_SPLITEE_SI_PIPELINE")
+TABLEAU_COMMANDE_SPLITEE_SI_PIPELINE+=("$COMMANDE_COURANTE_SPLITEE_SI_PIPELINE_ELEMENTS_SANS_GUILLEMETS_EVENTUELS")
+
 # Lancement de la commande en arrière plan pour permettre le reste du script de fonctionner
-TEMPS_D_ATTENTE_ENTRE_MESSAGE_ET_LANCEMENT=1
-echo -e "\nLancement de la commande \"$COMMANDE\" dans $TEMPS_D_ATTENTE_ENTRE_MESSAGE_ET_LANCEMENT secondes.\n"
+TEMPS_D_ATTENTE_ENTRE_MESSAGE_ET_LANCEMENT=5
+echo -e "\nLancement de la commande \"$COMMANDE_SANS_GUILLEMETS\" dans $TEMPS_D_ATTENTE_ENTRE_MESSAGE_ET_LANCEMENT secondes.\n"
 echo -e "Une copie de l'output de la commande a été placée dans la corbeille sous le nom de \"$NOM_OUTPUT_CORBEILLE\".\n"
 sleep $TEMPS_D_ATTENTE_ENTRE_MESSAGE_ET_LANCEMENT
 
-# Sortie redirigée vers le fichier de la corbeille
-$COMMANDE_TRANSFORMEE > $FICHIER_OUTPUT_CORBEILLE 2>&1 & # l'output placé dans un fichier dans la corbeille
+# Sortie redirigée vers le fichier d'output dans la corbeille
+eval ${COMMANDE_TRANSFORMEE[*]} > $FICHIER_OUTPUT_CORBEILLE 2>&1 & # l'output placé dans un fichier dans la corbeille
 # car sinon, je ne peux pas sudo en fournissant le MDP et donc je ne peux pas modifier la priorité (l'améliorer.)
 
-# Recherche du numéro de processus (PID) correspondant à la commande lancée
-# Récupère le PID de la commande
-REGEX_COMMANDE="^.*$COMMANDE_TRANSFORMEE.*$"
-REGEX_DE_RECHERCHE_PAR_GREP="^.*grep -E.*$REGEX_COMMANDE.*$" # Doit être adapté si l'appel de grep ci-dessous venait à changer
-
-# Remplissage du tableau des processus (PID) concerné
-# Il peut en avoir plusieurs si un processus en lance d'autres.
+# Pour chacune des commandes du tableau (plusieurs si pipeline)
+# je récupère les PID des processus à accélérer sur base du nom de la commande dans un tableau
+# Non trié et avec doublon d'abord
+# Puis je trie et retire les doublons et place le résultat dans un autre tableau
 declare -a TABLEAU_PROCESSUS_A_ACCELERER
-while read LIGNE_PROCESSUS
-do
-    PID_COMMANDE="$(echo "$LIGNE_PROCESSUS" | awk ' { print $2 } ' )" # la deuxième colonne est le PID
-    TABLEAU_PROCESSUS_A_ACCELERER+=("$PID_COMMANDE")
-done < <(   ps -Al |
-            # ps -A : obtient la liste de tous les processus
-            # ps -l : liste les processus avec les principales colonnes
-            grep -E "$REGEX_COMMANDE" | # recherche des lignes qui contiennent la commande
-            # grep -E : extended regex
-            grep -E -v "$REGEX_DE_RECHERCHE_PAR_GREP" ) # supprime éventuellement la recherche par grep effectué ci-dessus et ici
+declare -a TABLEAU_PROCESSUS_A_ACCELERER_SANS_DOUBLON
+for COMMANDE_SPLITEE in "${TABLEAU_COMMANDE_SPLITEE_SI_PIPELINE[@]}"
+do 
+    # Gestion des REGEX
+    REGEX_COMMANDE="^.*$COMMANDE_SPLITEE.*$"
+    REGEX_DE_RECHERCHE_PAR_GREP="^.*grep -E.*$COMMANDE_SPLITEE.*$" # Doit être adapté si l'appel de grep ci-dessous venait à changer
+
+    # Remplissage du tableau des processus (PID) concerné
+    # Il peut en avoir plusieurs si un processus en lance d'autres.
+    while read LIGNE_PROCESSUS
+    do
+        # Récupère le PID de la commande
+        PID_COMMANDE="$(echo "$LIGNE_PROCESSUS" | awk ' { print $2 } ' )" # la deuxième colonne est le PID
+        TABLEAU_PROCESSUS_A_ACCELERER+=("$PID_COMMANDE")
+        # Recherche des lignes correspondantes à la commande lancée
+    done < <(   ps -Al |
+                # ps -A : obtient la liste de tous les processus
+                # ps -l : liste les processus avec les principales colonnes
+                grep -E "$REGEX_COMMANDE" | # recherche des lignes qui contiennent la commande
+                # grep -E : extended regex
+                grep -E -v "$REGEX_DE_RECHERCHE_PAR_GREP" ) # supprime éventuellement la recherche par grep effectué ci-dessus et ici
+done
+
+# Tri du tableau et suppression des éventuels doublons
+tableau_suppression_doublon_et_tri_obligatoire_seulement_si_nb TABLEAU_PROCESSUS_A_ACCELERER TABLEAU_PROCESSUS_A_ACCELERER_SANS_DOUBLON
 
 # Test s'il y a effectivement toujours ce processus actif (le tableau peut être vide si la commande grep n'a rien trouvé 
-if [ ${#TABLEAU_PROCESSUS_A_ACCELERER[@]} -eq 0 ]
+if [ ${#TABLEAU_PROCESSUS_A_ACCELERER_SANS_DOUBLON[@]} -eq 0 ]
 then
-    echo -e "\nLa commande :\n$COMMANDE\nest déjà terminée. Il n'est plus nécessaire de modifier sa priorité.\n"
+    echo -e "\nLa commande :\n$COMMANDE_SANS_GUILLEMETS\nest déjà terminée. Il n'est plus nécessaire de modifier sa priorité.\n"
 else
+
     declare -a TABLEAU_FLAG_ETAT_REUSSITE
-    for CHAQUE_PID in "${TABLEAU_PROCESSUS_A_ACCELERER[@]}"
+    for CHAQUE_PID in "${TABLEAU_PROCESSUS_A_ACCELERER_SANS_DOUBLON[@]}"
     do
         # Adaptation de la priorité du processus
         if [ $((INCREMENT)) -lt 0 ]
@@ -143,29 +204,23 @@ else
             # Pour une diminution (priorisation du processus), besoin d'être root sinon c'est refusé.
             sudo renice -n "$INCREMENT" "$CHAQUE_PID" 2>/dev/null && # redirection des messages d'erreur éventuel car je les gère différemment
             # Récupération de l'état pour chaque processus
-            TABLEAU_FLAG_ETAT_REUSSITE+=("true") &&
-            echo -e "$MESSAGE_REUSSITE" ||
+            TABLEAU_FLAG_ETAT_REUSSITE+=("true") ||
             TABLEAU_FLAG_ETAT_REUSSITE+=("false")
         else
             # Pour une augmentation (dé-priorisation du processus), pas besoin d'être root.
             renice -n "$INCREMENT"  "$CHAQUE_PID" 2>/dev/null && # redirection des messages d'erreur éventuel car je les gère différemment
-            # Récupération de l'état pour chaque processus + affichage message si ok
-            TABLEAU_FLAG_ETAT_REUSSITE+=("true") &&
-            echo -e "$MESSAGE_REUSSITE" ||
+            # Récupération de l'état pour chaque processus
+            TABLEAU_FLAG_ETAT_REUSSITE+=("true") ||
             TABLEAU_FLAG_ETAT_REUSSITE+=("false")
         fi
-        
     done
 
-    # Affichage des messages réussite / échec que si les processus sont encore là
-    MESSAGE_REUSSITE="\nLa priorité (niceness) de la commande :\n\t$COMMANDE\n\tPID : $PID_PROCESSUS_COURANT\na été modifiée de $INCREMENT.\n"
-    MESSAGE_ECHEC="\nÉCHEC : La priorité (niceness) de la commande :\n\t$COMMANDE\n\tPID : $PID_PROCESSUS_COURANT\nn'a pas pu être modifiée de $INCREMENT.\n"
     # Conservation des lignes des PID qui sont encore actifs pour affichage final
     declare -a TABLEAU_LIGNES_A_AFFICHER
     COMPTEUR_D_ERREUR=0
-    for INDEX in "${!TABLEAU_PROCESSUS_A_ACCELERER[@]}"
+    for INDEX in "${!TABLEAU_PROCESSUS_A_ACCELERER_SANS_DOUBLON[@]}"
     do
-        PID_PROCESSUS_COURANT="${TABLEAU_PROCESSUS_A_ACCELERER[$INDEX]}"
+        PID_PROCESSUS_COURANT="${TABLEAU_PROCESSUS_A_ACCELERER_SANS_DOUBLON[$INDEX]}"
         LIGNE_A_AFFICHER=""
         while read LIGNE
         do
@@ -175,12 +230,12 @@ else
             then
                 # Conservation des lignes des PID qui sont encore actifs pour affichage final
                 TABLEAU_LIGNES_A_AFFICHER+=("$LIGNE")
-                # TEST flag
+                # TEST flag et affichage message réussite / échec
                 if [ "${TABLEAU_FLAG_ETAT_REUSSITE[$INDEX]}" = "true" ]
                 then
-                    echo -e "$MESSAGE_REUSSITE"
+                    echo -e "\nLa priorité (niceness) de la commande :\n\t$COMMANDE_SANS_GUILLEMETS\n\tPID : $PID_PROCESSUS_COURANT\na été modifiée de $INCREMENT.\n"
                 else
-                    echo -e "$MESSAGE_ECHEC"
+                    echo -e "\nÉCHEC : La priorité (niceness) de la commande :\n\t$COMMANDE_SANS_GUILLEMETS\n\tPID : $PID_PROCESSUS_COURANT\nn'a pas pu être modifiée de $INCREMENT.\n"
                     ((COMPTEUR_D_ERREUR++))
                 fi
                 break # passage au prochain PID
@@ -212,17 +267,30 @@ else
     else
         echo -e "\nTout est en ordre !\n"
     fi
-
-    # Lecture optionnel de l'output de la commande avec 'less'
-    REPONSE=""
-    QUESTION="Souhaiteriez-vous ouvrir l'output avec 'less' ? (YyOo/Nn) "
-    question_oui_non REPONSE "$QUESTION"
-    if [ "$REPONSE" = "o" ]
-    then
-        less "$FICHIER_OUTPUT_CORBEILLE"
-    else
-        :
-    fi
 fi
 
+# Lecture optionnel de l'output de la commande avec 'less'
+REPONSE=""
+QUESTION="Souhaiteriez-vous ouvrir le fichier d'output \"$NOM_OUTPUT_CORBEILLE\" avec 'less' ? (YyOo/Nn) "
+question_oui_non REPONSE "$QUESTION"
+if [ "$REPONSE" = "o" ]
+then
+    less "$FICHIER_OUTPUT_CORBEILLE"
+else
+    :
+fi
 
+# Suppression optionnelle du fichier d'output
+REPONSE_SUPPRESSION=""
+QUESTION_SUPPRESSION="Souhaiteriez-vous supprimer le fichier d'output \"$NOM_OUTPUT_CORBEILLE\"
+de la corbeille (path : \"$FICHIER_OUTPUT_CORBEILLE\") ? (YyOo/Nn) "
+question_oui_non REPONSE_SUPPRESSION "$QUESTION_SUPPRESSION"
+if [ "$REPONSE_SUPPRESSION" = "o" ]
+then
+    echo -e "\nSuppression en cours...\n"
+    rm -rf "$FICHIER_OUTPUT_CORBEILLE" &&
+    echo -e "\nSuppression de \"$NOM_OUTPUT_CORBEILLE\" terminée\n" ||
+    echo -e "\nERREUR : le fichier situé \"$FICHIER_OUTPUT_CORBEILLE\" n'a pas pu être supprimé.\n"
+else
+    :
+fi

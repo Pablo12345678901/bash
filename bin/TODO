@@ -25,6 +25,7 @@ DEVELOPPEMENT
         ##################################################################################
         
         CREATION FONCTIONNALITE
+        - fonction qui kill un processus sur base de son PID
         - fonction qui test si processus existant basé sur PID
         - fonction qui retourne la ligne correspondant au PID d'un processus :
                 -> besoin afficher les lignes qui match puis trier celle dont la colonne = le PID car il peut y avoir le PID ailleurs (PPID, commande)
@@ -34,6 +35,12 @@ DEVELOPPEMENT
                 -> à partir d'une ligne et jusqu'à une autre ligne :
                         -> afficher chaque fois qu'une variable a sa valeur modifiée
                         -> trouver une combine pour les boucle for / while / until
+        - fonction qui traduit un string en REGEX en protégeant les char spéciaux
+                -> les lister
+                -> double checker la liste
+        - fonction qui traduit un string en PATTERN en protégeant les char spéciaux
+                -> les lister
+                -> double checker la liste
         - script qui recherche tous les fichiers modifiés depuis X date d'un répertoire et les copie ailleurs
                 -> sur le disque dur externe (sans les répertoire avec '.repertoire') et qui les copie dans un autre disque dur au même chemin avec si nécessaire création des sous-répertoires dans lesquels ils seront
                 -> tester à petite échelle avant de lancer en blocs
@@ -69,7 +76,7 @@ DEVELOPPEMENT
                 -> permettre un argument du nom de l'app à ouvrir que grep recherche dans les apps disponibles sur le Mac puis ouvre (ex : app_ouvrir Chrome)
         - Finaliser le script du decalage des char (cryptage message)
         - commandes accélérer en arrière plan :
-                -> Accepter plusieurs commandes avec des points virgules (ils font bugguer d'autres commandes perso).
+                -> accepter les char spéciaux car REGEX peut bugguer
         - pdf_afficher_avec_less :
                 -> optimiser la vitesse pour une exécution plus rapide
         - repertoire_recherche_fichier_selon_periode_modification

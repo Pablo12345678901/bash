@@ -30,7 +30,8 @@ fi
 
 REGEX_FICHIER_DU_REPERTOIRE_BIN="$REPERTOIRE_DES_COMMANDES_PERSO.*"
 REGEX_FONCTION_DANS_FICHIER_FONCTION="^function[[:space:]]+$FONCTION_OU_SCRIPT_RECHERCHE.*$"
-REGEX_LIGNE_COMMENTAIRE_SYNTAXE="#.*Syntaxe"
+REGEX_LIGNE_COMMENTAIRE_SYNTAXE="^.*#.*Syntaxe.*$"
+REGEX_LIGNE_VIDE_OU_AVEC_ESPACE="^[[:space:]]*$"
 SCRIPT_RECHERCHE_ADDITIONNELLE="man_info_commande"
 FICHIER_DES_FONCTIONS_PERSONNELLES="fonctions_personnelles"
 FLAG_SYNTAXE_TROUVEE="false"
@@ -59,7 +60,8 @@ function )          PATH_FICHIER_FONCTIONS_PERSONNELLES="$(which "$FICHIER_DES_F
                             # Récupération des 20 premières lignes de la fonction
                         done < <(grep -E -A $NB_LIGNE_CONTEXTE "$REGEX_FONCTION_DANS_FICHIER_FONCTION" "$PATH_FICHIER_FONCTIONS_PERSONNELLES" |
                         # Desquelles je récupère le paragraphe de la syntaxe
-                        awk -v REGEX=$REGEX_LIGNE_COMMENTAIRE_SYNTAXE '$0 ~ REGEX { if (paragraphe == 0) { indic=1 ; } ; paragraphe=1 ; } { if (indic == 1 && paragraphe == 1) { print $0} } /^$/ { indic=0 }' )
+                        awk -v REGEX=$REGEX_LIGNE_COMMENTAIRE_SYNTAXE -v REGEX_LIGNE_VIDE=$REGEX_LIGNE_VIDE_OU_AVEC_ESPACE '$0 ~ REGEX { if (paragraphe == 0) { indic=1 ; } ; paragraphe=1 ; } { if (indic == 1 && paragraphe == 1) { print $0} } $0 ~ REGEX_LIGNE_VIDE { indic=0 }' )
+                        # Test si résultat et sinon affichage message
                         if [ $FLAG_SYNTAXE_TROUVEE = "true" ]
                         then
                             :
@@ -101,7 +103,7 @@ file )              PATH_COMMANDE="$(which "$FONCTION_OU_SCRIPT_RECHERCHE")"
                             # Récupération des 20 premières lignes du script
                         done < <( head -n $NB_LIGNE_CONTEXTE "$PATH_COMMANDE" |
                         # Desquelles je récupère le paragraphe de la syntaxe              
-                        awk -v REGEX=$REGEX_LIGNE_COMMENTAIRE_SYNTAXE '$0 ~ REGEX { if (paragraphe == 0) { indic=1 ; } ; paragraphe=1 ; } { if (indic == 1 && paragraphe == 1) { print $0} } /^$/ { indic=0 }' )
+                        awk -v REGEX=$REGEX_LIGNE_COMMENTAIRE_SYNTAXE -v REGEX_LIGNE_VIDE=$REGEX_LIGNE_VIDE_OU_AVEC_ESPACE '$0 ~ REGEX { if (paragraphe == 0) { indic=1 ; } ; paragraphe=1 ; } { if (indic == 1 && paragraphe == 1) { print $0} } $0 ~ REGEX_LIGNE_VIDE { indic=0 }' )
                         # Test si résultat et sinon affichage message
                         if [ $FLAG_SYNTAXE_TROUVEE = "true" ]
                         then

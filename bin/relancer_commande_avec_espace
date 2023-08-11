@@ -37,7 +37,10 @@ espace_print_nb $NB_LIGNE_ESPACE
 
 # Obtention de la dernière commande
 DERNIERE_COMMANDE="$(commande_derniere_obtenir)"
+# Retrait des guillemets de début et fin
+DERNIERE_COMMANDE="$(echo "$DERNIERE_COMMANDE" | sed -e "s/'$//" )"
+DERNIERE_COMMANDE="$(echo "$DERNIERE_COMMANDE" | sed -e "s/^'//" )"
 
-# Réexécution de la commande en splitant ses arguments
+# Run de la dernière commande
 eval ${DERNIERE_COMMANDE[*]}
 

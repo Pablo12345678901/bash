@@ -523,7 +523,7 @@ function syntaxe_afficher_si_erreur {
     # $2, ... : les arguments (valeur)
     # Remarques importante : doit être appelé avec printf / echo -e pr permettre
     # les retours à la ligne adéquats.
-    
+
     local SYN_MES="\nSyntaxe :\n\t"
     # Ci-dessous, nb d'espace entre chaque argument
     NB_ESPACES=4
