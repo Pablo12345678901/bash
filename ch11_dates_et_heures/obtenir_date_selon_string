@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+gdate -d 'Last Saturday 12:00:00' '+%Y.%m.%d'
+gdate -d 'Saturday 12:00:00' '+%Y.%m.%d'
+gdate -d 'Next year 12:00:00' '+%Y.%m.%d'
+gdate -d 'Next 2 Monday 12:00:00' '+%Y.%m.%d'
+gdate -d 'Monday 12:00:00' '+%Y.%m.%d'
+gdate -d '2 Monday ago 12:00:00' '+%Y.%m.%d'
+gdate -d 'This month' '+%b'
+echo ""
+echo ""
+echo ""
+
+# Obtenir ts les lundi du mois
+for x in $(seq 0 9)
+do
+    gdate -d "$x monday 5 week ago" "+%Y.%m.%d"
+done | awk -F . -v mois=08 ' { if ($2 == mois) { printf ("%s\n",$0) } } ' 
+echo ""
+echo ""
+echo ""
+
+ANNEE_COURANTE=$(date "+%Y")
+N_WEEK_COURANTE=$(date "+%V")
+NB_WEEK_MAX=53
+
+# Obtenir ts les lundi de l'année
+for x in $(seq 1 $NB_WEEK_MAX)
+do
+    gdate -d "$x monday $N_WEEK_COURANTE week ago" "+%Y.%m.%d"
+done | awk -F . -v annee=$ANNEE_COURANTE ' { if ($1 == annee) { printf ("%s\n",$0) } } ' 
+
+
+echo ""
+echo ""
+echo ""
+# Nb seconde depuis EPOCH (1970)
+NB_SECONDE_MAINTENANT=$(date "+%s")
+NB_SECONDE_NAISSANCE=$(gdate -d "1996-04-18 21:00:00 +02:00" "+%s")
+NB_SECONDE_TOTALE=$((NB_SECONDE_MAINTENANT-NB_SECONDE_NAISSANCE))
+
+echo "$NB_SECONDE_MAINTENANT -  $NB_SECONDE_NAISSANCE = $NB_SECONDE_TOTALE"
+
+STR_NB_ANNEE="$(calculatrice_appel_script "($NB_SECONDE_TOTALE/(60*60*24*365))")"
+STR_NB_ANNEE="$(echo "$STR_NB_ANNEE" | tr ',' '.' )"
+echo "$STR_NB_ANNEE"
+NB_SECONDE_PAR_AN=$((60*60*24*365))
+AN=$((NB_SECONDE_TOTALE/NB_SECONDE_PAR_AN))
+echo "$AN"
+MOIS_PRECIS="$(bc -l <<< "($STR_NB_ANNEE-$AN)*12")"
+echo "Âge approximatif : $AN ans et $MOIS_PRECIS mois"
+echo ""
+echo ""
+echo ""
+
+
+echo "date actuelle : $(gdate)"
+NB_SECONDE_DEPUIS_ORIGINE="$(date "+%s")"
+gdate -d "1970-01-01 UTC $NB_SECONDE_DEPUIS_ORIGINE seconds" "+%Y-%m-%d %T %z"
+
+: <<-"DEV"
+DEV
+
+echo "$((24*60*60)) secondes = 24h*60min*sec = 1 jour"

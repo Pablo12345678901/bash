@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Syntaxe :
-# $1 : REPERTOIRE_RECHERCHE = le path depuis lequel find effectue la recherche.
+# $1 : le path depuis lequel find effectue la recherche.
 
 # Description du script :
 # Obtention du fichier/répertoire le plus profond d'un path
@@ -64,6 +64,7 @@ do
     echo -e "\nNiveau max relatif actuel : $NIVEAU_MAX_RELATIF."
     echo -e "Path actuel le plus profond : \"$PATH_NIVEAU_MAX\"."
     echo -e "Tentative d'aller plus profond...\n"
+
 done
 
 echo "$NIVEAU_MAX_RELATIF"

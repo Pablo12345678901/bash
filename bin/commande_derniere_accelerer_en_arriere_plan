@@ -7,6 +7,7 @@
 source fonctions_personnelles
 
 DERNIERE_COMMANDE="$(commande_derniere_obtenir)"
+echo "$DERNIERE_COMMANDE"
+TABLEAU_ARGUMENT=($DERNIERE_COMMANDE)
 
-# Retransmission sans modification de la commande à l'autre script (déjà entre guillemets simples)
-commande_accelerer_en_arriere_plan "$DERNIERE_COMMANDE" -inc=-20
+commande_accelerer_en_arriere_plan ${TABLEAU_ARGUMENT[*]} -inc=-20

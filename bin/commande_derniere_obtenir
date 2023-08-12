@@ -4,25 +4,7 @@
 # - : pas d'argument nécessaires
 # Fonctionnement : 
 # Ce script retourne la dernière commande et ses arguments avec 'echo'.
-# La commande est retournée entre guillemets simples.
-# Pour l'utiliser, il faut les retirer avec sed (guillemet début + fin)
-# Puis faire :
-#       eval ${DERNIERE_COMMANDE[*]}
 # Elle peut ainsi être réutilisée tel quel par un autre programme.
-# Pr un exemple d'utilisation - cf le script.
-
-# Exemple d'utilisation de ce script pr run la commande :
-# Obtention de la dernière commande
-#       DERNIERE_COMMANDE="$(commande_derniere_obtenir)"
-# Retrait des guillemets de début et fin
-#       DERNIERE_COMMANDE="$(echo "$DERNIERE_COMMANDE" | sed -e "s/'$//" )"
-#       DERNIERE_COMMANDE="$(echo "$DERNIERE_COMMANDE" | sed -e "s/^'//" )"
-# Run de la dernière commande
-#       eval ${DERNIERE_COMMANDE[*]}
-# Exemple de retransmission tel quel à un autre script pr qu'il run la commande :
-#       DERNIERE_COMMANDE="$(commande_derniere_obtenir)"
-#       echo "$DERNIERE_COMMANDE"
-# pas besoin de remettre entre guillemets simples car ils sont conservés.
 
 # Obtenir le décalage de la ligne recherchée dans l'historique.
 # Principe : Compter le nb de lignes entre le début de l'historique et la ligne
@@ -51,12 +33,7 @@ LIGNE_AVEC_DERNIERE_COMMANDE="$(history | tail -n $DECALAGE | head -n 1)" # réc
 
 # Suppression du numéro (dû à l'historique) devant la ligne de la dernière commande.
 DERNIERE_COMMANDE="$(echo "$LIGNE_AVEC_DERNIERE_COMMANDE" | awk ' {for (i=2; i<=NF; i++) {printf ("%s ",$i) } } END { print "" } ')"
-# Suppression des éventuels espaces de fin
-DERNIERE_COMMANDE="$(echo "$DERNIERE_COMMANDE" | sed -e 's/[[:space:]]*$//' )"
 
 # Affichage de la dernière commande avec echo.
-# La commande est transmise entre guillemets simple car elle peut contenir
-# des caractères spéciaux dont il faut annuler la valeur
-# tel que '|' dans les pipelines.
 # Elle peut ainsi être réutilisée par un autre programme.
-echo "'${DERNIERE_COMMANDE}'"
+echo "$DERNIERE_COMMANDE"

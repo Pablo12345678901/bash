@@ -27,6 +27,7 @@ function app_fermer_normal {
     fi
 }
 
+
 function app_fermer_brutal {
     # Syntaxe :
     # $1 : AP_FERM (valeur)
@@ -122,122 +123,6 @@ function espace_avant_supprimer {
 }
 
 # F
-
-function fichiers_lister {
-    # Syntaxe :
-    # $1 : REP_OU_FICH (valeur)
-
-    local REP_OU_FICH="$1"
-    SYNTAXE="$(syntaxe_afficher_si_erreur "${FUNCNAME[0]}" "REP_OU_FICH")"
-    test_si_repertoire_ou_fichier "$REP_OU_FICH"
-    if (($?))
-    then
-        echo "\nERREUR : \"$REP_OU_FICH\" n'est pas un fichier/répertoire.\n"
-        echo -e "$SYNTAXE"
-        exit 1
-    else
-        find -s "$REP_OU_FICH" -print0 | tr '\0' '\n'
-    fi
-}
-
-function fichiers_lister_a_partir_niveau {
-    # Syntaxe :
-    # $1 : REP_OU_FICH (valeur)
-    # $2 : NB_NIV_DEBUT_RECHERCHE (valeur)
-
-    echo "en cours de dev"
-    exit 0
-
-    local REP_OU_FICH="$1"
-    local NB_NIV_DEBUT_RECHERCHE="$2"
-    SYNTAXE="$(syntaxe_afficher_si_erreur "${FUNCNAME[0]}" "REP_OU_FICH" "NB_NIV_DEBUT_RECHERCHE")"
-    test_si_argument_vide "$REP_OU_FICH"
-    if (($?))
-    then
-        test_si_repertoire_ou_fichier "$REP_OU_FICH"
-        if (($?))
-        then
-            echo "\nERREUR : \"$REP_OU_FICH\" n'est pas un fichier/répertoire.\n"
-            echo -e "$SYNTAXE"
-            exit 1
-        else
-            test_si_argument_vide "$NB_NIV_DEBUT_RECHERCHE"
-            if (($?))
-            then
-                REGEX_NB_POSITIF="^[0-9]+$"
-                if [[ "$NB_NIV_DEBUT_RECHERCHE" =~ $REGEX_NB_POSITIF ]]
-                then
-                    find -s "$REP_OU_FICH" -mindepth "$NB_NIV_DEBUT_RECHERCHE" -print0 | tr '\0' '\n'
-                else
-                    echo -e "\nERREUR : le deuxième argument n'est pas un nombre.\n"
-                    echo -e "$SYNTAXE"
-                    exit 1
-                fi
-            else
-                echo -e "\nERREUR : le deuxième argument n'a pas été fourni.\n"
-                echo -e "$SYNTAXE"
-                exit 1
-            fi
-        fi
-    else
-        echo "\nERREUR : aucun argument transmis.\n"
-        echo -e "$SYNTAXE"
-        exit 1
-    fi
-}
-
-function fichiers_renommer_sans_espace {
-    # Syntaxe :
-    # $1 : REP_OU_FICH (valeur)
-
-    local REP_OU_FICH="$1"
-    SYNTAXE="$(syntaxe_afficher_si_erreur "${FUNCNAME[0]}" "REP_OU_FICH")"
-    test_si_argument_vide "$REP_OU_FICH"
-    if (($?))
-    then
-        test_si_repertoire_ou_fichier "$REP_OU_FICH"
-        if (($?))
-        then
-            echo -e "\nERREUR : \"$REP_OU_FICH\" n'est pas un fichier/répertoire.\n"
-            echo -e "$SYNTAXE"
-            exit 1
-        else
-            test_si_string_contient_espace "$REP_OU_FICH"
-            if (($?))
-            then
-                # Pas de modification à faire
-                NVO_PATH="$REP_OU_FICH"
-            else
-                # Renommer
-                NVO_PATH="$(echo "$REP_OU_FICH" | tr ' ' '_' )"
-                mv "$REP_OU_FICH" "$NVO_PATH"
-            fi
-            # Transmission du nouveau path via echo
-            echo "$NVO_PATH"
-        fi
-    else
-        echo -e "\nERREUR : le premier argument n'a pas été fourni.\n"
-        echo -e "$SYNTAXE"
-        exit 1
-    fi
-}
-
-function fichiers_uniquement_lister {
-    # Syntaxe :
-    # $1 : REP_OU_FICH (valeur)
-
-    local REP_OU_FICH="$1"
-    SYNTAXE="$(syntaxe_afficher_si_erreur "${FUNCNAME[0]}" "REP_OU_FICH")"
-    test_si_repertoire_ou_fichier "$REP_OU_FICH"
-    if (($?))
-    then
-        echo "\nERREUR : \"$REP_OU_FICH\" n'est pas un fichier/répertoire.\n"
-        echo -e "$SYNTAXE"
-        exit 1
-    else
-        find -s "$REP_OU_FICH" -type f -print0 | tr '\0' '\n'
-    fi
-}
 
 function find_exclure_repertoire_retourne_string_a_inserer_ds_find {
     # Syntaxe : 
@@ -436,115 +321,6 @@ function question_oui_non {
 
 # R
 
-function repertoire_niveau_max_relatif {
-    # Syntaxe :
-    # $1 : REP
-    
-    local REP="$1"
-
-    # Contrôle des arguments
-    SYNTAXE="$(syntaxe_afficher_si_erreur "${FUNCNAME[0]}"  "REP")"
-    test_si_argument_vide "$REP"
-    if (($?))
-    then
-        REP="$1"
-        test_si_repertoire_ou_fichier "$REP"
-        if (($?))
-        then
-            echo -e "\nERREUR : le premier argument fourni n'est pas un répertoire/fichier.\n"
-            argument_fournis_afficher_tous $*
-            echo -e "$SYNTAXE"
-            exit 1
-        else
-            echo "$REP"
-            repertoire_nb_niveaux_max_absolu_et_relatif_et_path_max "$REP" #| grep 'absolu' # grep "en relatif au path de recherche" # awk
-        fi
-    else
-        echo -e "\nERREUR : aucun argument fourni.\n"
-        argument_fournis_afficher_tous $*
-        echo -e "$SYNTAXE"
-        exit 1
-    fi
-}
-
-function repertoire_ou_fichier_deplacer {
-    # Syntaxe :
-    # $1 : REP_CIBLE (valeur)
-    # $2 : FICH_OU_REP_SOURCE (valeur)
-    
-    local REP_CIBLE="$1"
-    local FICH_OU_REP_SOURCE="$2"
-    # Contrôle des arguments
-    SYNTAXE="$(syntaxe_afficher_si_erreur "${FUNCNAME[0]}"  "REP_CIBLE" "FICH_OU_REP_SOURCE")"
-    test_si_argument_vide "$REP_CIBLE"
-    if (($?))
-    then
-        REP_CIBLE="$1"
-        test_si_repertoire_ou_fichier "$REP_CIBLE"
-        if (($?))
-        then
-            echo -e "\nERREUR : le premier argument fourni n'est pas un répertoire/fichier.\n"
-            argument_fournis_afficher_tous $*
-            echo -e "$SYNTAXE"
-            exit 1
-        else
-            test_si_argument_vide "$FICH_OU_REP_SOURCE"
-            if (($?))
-            then
-                test_si_repertoire_ou_fichier "$FICH_OU_REP_SOURCE"
-                if (($?))
-                then
-                    echo -e "\nERREUR : le deuxième argument fourni n'est pas un répertoire/fichier.\n"
-                    argument_fournis_afficher_tous $*
-                    echo -e "$SYNTAXE"
-                    exit 1   
-                else
-                    # Test si c'est un fichier spécial (débutant par un point)
-                    NOM_FICHIER="${FICH_OU_REP_SOURCE##*/}"
-                    REGEX_FICHIER_COMMENCANT_AVEC_POINT="^\..*$"
-                    if [[ "$NOM_FICHIER" =~ $REGEX_FICHIER_COMMENCANT_AVEC_POINT ]]
-                    then
-                        :
-                    else
-                        # Déplacement du fichier / répertoire
-                        NVO_PATH="${REP_CIBLE}/${NOM_FICHIER}"
-                        mv "$FICH_OU_REP_SOURCE" "$NVO_PATH"
-                    fi
-                fi
-            else
-                echo -e "\nERREUR : le deuxième argument n'a pas été fourni.\n"
-                argument_fournis_afficher_tous $*
-                echo -e "$SYNTAXE"
-                exit 1
-            fi
-        fi
-    else
-        echo -e "\nERREUR : aucun argument fourni.\n"
-        echo -e "$SYNTAXE"
-        exit 1
-    fi    
-}
-
-function repertoires_parcourir_par_niveau_croissant {
-    # Syntaxe :
-    # $1 : REP_OU_FICH (valeur)
-    
-    echo -e "en cours de dév"
-    exit 0
-
-    local REP_OU_FICH="$1"
-    SYNTAXE="$(syntaxe_afficher_si_erreur "${FUNCNAME[0]}" "REP_OU_FICH")"
-    test_si_repertoire_ou_fichier "$REP_OU_FICH"
-    if (($?))
-    then
-        echo "\nERREUR : \"$REP_OU_FICH\" n'est pas un fichier/répertoire.\n"
-        echo -e "$SYNTAXE"
-        exit 1
-    else
-        find -s "$REP_OU_FICH" -type d -print0 | tr '\0' '\n'
-    fi
-}
-
 function repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find {
     # Syntaxe : 
     # $1 : le tableau où seront stockés les fichiers (variable)
@@ -562,23 +338,6 @@ function repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_r
     # 2>/dev/null : pas de message d'erreur
     tr '\0' '\n')
     # tr : mise à la ligne forcée entre les fichiers car certains ont des espaces
-}
-
-function repertoires_uniquement_lister {
-    # Syntaxe :
-    # $1 : REP_OU_FICH (valeur)
-
-    local REP_OU_FICH="$1"
-    SYNTAXE="$(syntaxe_afficher_si_erreur "${FUNCNAME[0]}" "REP_OU_FICH")"
-    test_si_repertoire_ou_fichier "$REP_OU_FICH"
-    if (($?))
-    then
-        echo "\nERREUR : \"$REP_OU_FICH\" n'est pas un fichier/répertoire.\n"
-        echo -e "$SYNTAXE"
-        exit 1
-    else
-        find -s "$REP_OU_FICH" -type d -print0 | tr '\0' '\n'
-    fi
 }
 
 function retourne_choix_si_nb_correct_selon_select {
@@ -764,7 +523,7 @@ function syntaxe_afficher_si_erreur {
     # $2, ... : les arguments (valeur)
     # Remarques importante : doit être appelé avec printf / echo -e pr permettre
     # les retours à la ligne adéquats.
-
+    
     local SYN_MES="\nSyntaxe :\n\t"
     # Ci-dessous, nb d'espace entre chaque argument
     NB_ESPACES=4
@@ -960,10 +719,12 @@ function tableau_suppression_doublon_et_tri_obligatoire_seulement_si_nb {
 
 function tableau_suppression_doublon_et_tri_obligatoire_seulement_si_string_sans_espace {
     # Syntaxe :
-    # $1 : TAB (variable)
+    # $1 : ANC_TAB (variable)
+    # $2 : NVO_TAB (variable)
 
-    local -n TAB=$1
-    TAB=($(echo "${TAB[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+    local -n ANC_TAB=$1
+    local -n NVO_TAB=$2
+    NVO_TAB=($(echo "${ANC_TAB[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
 }
 
 function tableau_supprimer_tous_les_occurences_d_un_element {
@@ -996,23 +757,17 @@ function tableau_taille {
 
 function tableau_trier_ordre_alphabetique_pas_numero {
     # Syntaxe :
-    # $1 : TAB (variable)
+    # $1 : ANC_TABLEAU (variable)
+    # $2 : NOU_TABLEAU (variable)
 
-    local -n TAB=$1
-    # Copie du tableau dans un tableau provisoire
-    local TAB_PROVISOIRE
-    for ELEMENT in "${TAB[@]}"
-    do
-        TAB_PROVISOIRE+=("$ELEMENT")
-    done
-    # Mise à vide du tableau initial
-    TAB=()
+    local -n ANC_TABLEAU=$1
+    local -n NOU_TABLEAU=$2
     while read ELEMENT_TRIE
     do
-        TAB+=("$ELEMENT_TRIE")
+        NOU_TABLEAU+=("$ELEMENT_TRIE")
     done < <(   sort -f < <(
                 # sort -f : ignore la casse
-                for ELEMENT in "${TAB_PROVISOIRE[@]}" 
+                for ELEMENT in "${ANC_TABLEAU[@]}" 
                 do
                     echo "$ELEMENT"
                 done
@@ -1028,95 +783,6 @@ function tableau_trier_numeros_pas_ordre_alphabetique {
     local -n NOU_TABLEAU=$2
     NOU_TABLEAU=( $( printf "%s\n" "${ANC_TABLEAU[@]}" | sort -n ) )
     # sort -n
-}
-
-function test_si_argument_vide {
-    # Syntaxe :
-    # $1 : ARG (valeur)
-    # Retourne 0 si vrai 1 si faux
-
-    local ARG="$1"
-    if [ -z "$ARG" ]
-    then
-        return 0
-    else
-        return 1
-    fi
-}
-
-function test_si_fichier_meme_special {
-    # Syntaxe :
-    # $1 : REP_OU_FICH (valeur)
-    # Retourne 0 si vrai 1 si faux
-
-    local REP_OU_FICH="$1"
-     # Contrôle des arguments
-    test_si_argument_vide "$REP_OU_FICH"
-    if (($?))
-    then
-        # Test si fichier de n'importe quel type
-        if [[ -e "$REP_OU_FICH" ]]
-        then
-            return 0
-        else
-            return 1
-        fi
-    else
-        echo -e "\nERREUR : aucun argument transmis.\n"
-        echo -e "$SYNTAXE"
-        exit 1
-    fi
-}
-
-function test_si_repertoire_ou_fichier {
-    # Syntaxe :
-    # $1 : REP_OU_FICH (valeur)
-    # Retourne 0 si vrai 1 si faux
-
-    local REP_OU_FICH="$1"
-    # Contrôle des arguments
-    test_si_argument_vide "$REP_OU_FICH"
-    if (($?))
-    then
-        # Test si fichier / répertoire
-        if [[ -d "$REP_OU_FICH" || -f "$REP_OU_FICH" ]]
-        then
-            return 0
-        else
-            return 1
-        fi
-    else
-        echo -e "\nERREUR : aucun argument transmis.\n"
-        echo -e "$SYNTAXE"
-        exit 1
-    fi
-}
-
-function test_si_string_contient_espace {
-    # Syntaxe :
-    # $1 : STR (valeur)
-    # Retourne 0 si vrai 1 si faux
-
-    local STR="$1"
-
-    SYNTAXE="$(syntaxe_afficher_si_erreur "${FUNCNAME[0]}" "STR")"
-    # Contrôle des arguments
-    test_si_argument_vide "$STR"
-    if (($?))
-    then
-        # Contrôle du regex
-        REGEX_AVEC_ESPACE="^.*[[:space:]].*$"
-        if [[ "$STR" =~ $REGEX_AVEC_ESPACE ]]
-        then
-            return 0
-        else
-            return 1
-        fi
-    else
-        echo -e "\nERREUR : aucun argument transmis.\n"
-        echo -e "$SYNTAXE"
-        exit 1
-    fi
 }
 
 function texte_aligner_blocs {

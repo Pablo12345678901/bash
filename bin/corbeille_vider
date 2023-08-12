@@ -3,123 +3,60 @@
 # Syntaxe :
 # - : pas d'argument à fournir
 
-source fonctions_personnelles
-
-declare -a TABLEAU_PATH_NON_TRIES # pour la suppression (non trié)
-declare -a TABLEAU_PATH # pour la suppression (trié)
-declare -a TABLEAU_FICHIERS_NON_TRIES # pour l'affichage initial (non trié)
 declare -a TABLEAU_FICHIERS # pour l'affichage initial
+declare -a TABLEAU_PATH # pour la suppression
 declare -a TABLEAU_FICHIERS_RESTANTS # pour l'affichage final
 
-PATH_CORBEILLE=$CORBEILLE_PATH/*
+PATH_CORBEILLE=$HOME/.Trash/*
 
-# Si disque dur est connecté, (et donc le fichier de la corbeille existant)
-# déplacement des fichiers depuis la corbeille du disque dur vers la corbeille
-CORBEILLE_DISQUE_DUR="/Volumes/Elements/.Trashes/501"
-#REGEX_FICHIER_DEBUTANT_PAR_UN_POINT="^\..*$"
-if [ -e "$CORBEILLE_DISQUE_DUR" ]
-then
-    declare -a TABLEAU_FICHIER_CORBEILLE_DISQUE_DUR
-    repertoire_niveau_max_relatif "$CORBEILLE_DISQUE_DUR"
-    exit 0
-    while read PATH_FICHIER
-    do
-        
-        renommer_fichier_sans_espaces "$PATH_FICHIER" >/dev/null 2>&1 
-    done < <(fichiers_lister_a_partir_niveau "$CORBEILLE_DISQUE_DUR" 1)
-    
-    
-    
-    # Renommer ts les fichiers sans espaces
-    while read PATH_FICHIER
-    do
-        renommer_fichier_sans_espaces "$PATH_FICHIER" >/dev/null 2>&1 
-    done < <(fichiers_lister_a_partir_niveau "$CORBEILLE_DISQUE_DUR" 1)
-
-    # Renommer ts les fichiers sans espaces
-    while read PATH_FICHIER
-    do 
-        repertoire_ou_fichier_deplacer "$CORBEILLE_PATH" "$PATH_FICHIER"
-    done < <(fichiers_lister_a_partir_niveau "$CORBEILLE_DISQUE_DUR" 1)
-    
-else
-    : # ne rien faire si pas connecté
-fi
-
-exit 0   
-
-
-
-
-
-
-
-
-# Obtention de la liste des fichiers initiaux (corbeille)
+# Obtention de la liste des fichiers initiaux
 while read OUTPUT
 do
-    TABLEAU_PATH_NON_TRIES=( "${TABLEAU_PATH_NON_TRIES[@]}" "$OUTPUT" ) # ajoute la nouvelle valeur à la suite des valeurs actuelles
-    TABLEAU_FICHIERS_NON_TRIES=( "${TABLEAU_FICHIERS_NON_TRIES[@]}" "$(basename "$OUTPUT")" ) # ajoute la nouvelle valeur à la suite des valeurs actuelles
-done < <(find -s $PATH_CORBEILLE -print0 2>/dev/null | tr '\0' '\n' )
+  TABLEAU_PATH=( "${TABLEAU_PATH[@]}" "$OUTPUT" ) # ajoute la nouvelle valeur à la suite des valeurs actuelles
+done < <(find $PATH_CORBEILLE -print 2>/dev/null | xargs -0 )
 
-# Tri par ordre alphabétique - pr un affichage esthétique ensuite
-tableau_trier_ordre_alphabetique_pas_numero TABLEAU_PATH_NON_TRIES TABLEAU_PATH
-tableau_trier_ordre_alphabetique_pas_numero TABLEAU_FICHIERS_NON_TRIES TABLEAU_FICHIERS
-
-# Besoin d'une gestion du message corbeille vide ou liste fichier
-if [ ${#TABLEAU_FICHIERS[@]} -eq 0 ]
+# Exit si tableau vide
+if [ ${#TABLEAU_PATH[@]} -eq 0 ] 
 then
     echo -e "\nLa corbeille est déjà vide...\n"
     exit 0
 else
+    # Récupération noms de fichiers et affichage
     echo -e "\nListe des fichiers dans la corbeille :"
-    tableau_contenu TABLEAU_FICHIERS
-    echo "" # retour à la ligne esthétique
+    while read OUTPUT
+    do
+        echo "$OUTPUT"
+        TABLEAU_FICHIERS=( "${TABLEAU_FICHIERS[@]}" "$OUTPUT" ) # ajoute la nouvelle valeur à la suite des valeurs actuelles
+    done < <(find $PATH_CORBEILLE -print0 2>/dev/null | xargs -0 basename )
 fi
 
-# Vidage corbeille et comptage des fichiers supprimés
-COMPTEUR_FICHIER_SUPPRIMES=0
+# Vidage corbeille
 echo -e "\nVidage de la corbeille..."
-for FILE in "${TABLEAU_PATH[@]}"
+for file in "${TABLEAU_PATH[@]}"
 do
-    FILENAME="${FILE##*/}"
+    filename="${file##*/}"
     # Tentative de suppression
-    rm -rf "$FILE" &&
-    ((++COMPTEUR_FICHIER_SUPPRIMES)) &&
+    rm -fr "$file" ||
+    { echo -e "\nERREUR : le fichier \"$filename\" n'a pas pu être supprimé.\n" && continue ; }
     # Affichage du fichier que si supprimé
-    echo "$FILENAME" ||
-    echo -e "\nERREUR : le fichier \"$FILENAME\" n'a pas pu être supprimé.\n"
+    echo "$filename"
 done
 
 # Obtention de la liste des fichiers finaux
 while read OUTPUT; do
   TABLEAU_FICHIERS_RESTANTS=( "${TABLEAU_FICHIERS_RESTANTS[@]}" "$OUTPUT" ) # ajoute la nouvelle valeur à la suite des valeurs actuelles
-done < <(find -s "$PATH_CORBEILLE" -print0 2>/dev/null | tr '\0' '\n' )
+done < <(find $PATH_CORBEILLE -print0 2>/dev/null | xargs -0 basename )
 
-# Gestion du pluriel dans le message final
-ACCORD=""
-# Si au moins 2 fichiers supprimés
-if [ ${#COMPTEUR_FICHIER_SUPPRIMES[@]} -gt 1 ]
-then
-    ACCORD="s"
-else
-    :
-fi
-
-# Affichage du message réussite / échec + nb fichier supprimé
-# + si échec liste fichier à supprimer manuellement
 if [ ${#TABLEAU_FICHIERS_RESTANTS[@]} -eq 0 ]
 then
     echo -e "\nLa corbeille a été vidée.\n"
-    echo -e "\nTotal : $COMPTEUR_FICHIER_SUPPRIMES fichier${ACCORD} supprimé${ACCORD}.\n"
     exit 0
 else
     echo -e "\nERREUR : La corbeille n'a pas pu être vidée.\n"
-    echo -e "\nTotal : $COMPTEUR_FICHIER_SUPPRIMES fichier${ACCORD} supprimé${ACCORD}.\n"
     echo -e "Voici la liste des fichiers à supprimer manuellement (ou contrôler le script) :"
-    for ELEMENT in "${TABLEAU_FICHIERS_RESTANTS[@]}"
+    for element in "${TABLEAU_FICHIERS_RESTANTS[@]}"
     do
-        echo "\"$ELEMENT\""
+        echo "\"$element\""
     done
     echo ""
     exit 1
