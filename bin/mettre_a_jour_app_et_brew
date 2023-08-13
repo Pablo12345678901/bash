@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# $1 : '-s' optionnel pr mode silencieux
+
+source fonctions_personnelles
+
+# Gestion du mode silencieux
+FLAG_MODE_SILENCIEUX="false" # conservation pour une éventuelle évolution future du script
+if [ "$1" = "-s" ]
+then
+    FLAG_MODE_SILENCIEUX="true" # conservation pour une éventuelle évolution future du script
+    brew_mettre_a_jour -s
+    app_mettre_a_jour -s
+else
+    brew_mettre_a_jour
+    app_mettre_a_jour
+fi

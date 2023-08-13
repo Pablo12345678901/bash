@@ -57,7 +57,7 @@ cd $REPERTOIRE_GIT_A_PUSH ||
 # Spécificité avec le répertoire Bash avec Git qui ne push pas le script car il le run.
 if [ $PWD == "$REPERTOIRE_DEVELOPPEMENT/bash" ] # Uniquement pour mon répertoire Git Bash
 then
-    git add $0 # comme je run ce fichier "$0" il semblerait que Git ne le prenne pas d'office.
+    git add "$0" # comme je run ce fichier "$0" il semblerait que Git ne le prenne pas d'office.
     #DEBUG echo "Rép bash" # DEBUG
 else
     :
@@ -67,12 +67,18 @@ fi
 {   git add . &&
     git status &&
     MESSAGE_AVEC_LE_GIT_PUSH="$2"
-    if [ -z $MESSAGE_AVEC_LE_GIT_PUSH ]
-    then
-        git commit -m "-"
-    else
-        git commit -m "$MESSAGE_AVEC_LE_GIT_PUSH"
-    fi &&
+    while [ ${#MESSAGE_AVEC_LE_GIT_PUSH} -eq 0 ]
+    do
+        read -rp "Quelle message voudriez-vous joindre avec le push ? " MESSAGE_AVEC_LE_GIT_PUSH
+        # -r : ne permet pas au barre oblique de se comporter comme des char spéciaux
+        if [ ${#MESSAGE_AVEC_LE_GIT_PUSH} -eq 0 ]
+        then
+            echo -e "\nERREUR : Veuillez saisir un message d'au moins 1 char.\n"
+        else
+            :
+        fi
+    done
+    git commit -m "$MESSAGE_AVEC_LE_GIT_PUSH" &&
     git push  && echo -e "\nCommit du répertoire \"$CHOIX\" = OK\n" ; } || echo -e "\nLe commit du répertoire \"$REPERTOIRE_PARMI_LES_REPERTOIRES_GIT_SANS_LE_PATH_COMPLET\" n'a pas pu être correctement fait OU il n'y avait rien à push."
 
 cd $OLDPWD

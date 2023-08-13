@@ -9,9 +9,11 @@
 # Ainsi je peux appeler les fonctions depuis n'importe quel terminal / fichier.
 # Toutefois, je dois continuer de sourcer le fichiers dans mes scripts.
 : ${REPERTOIRE_DES_COMMANDES_PERSO:="/Users/pablo/Desktop/Developpement/bash/bin"} # fixe la variable si pas définie
-. $REPERTOIRE_DES_COMMANDES_PERSO/fonctions_personnelles
+. $REPERTOIRE_DES_COMMANDES_PERSO/fonctions_personnelles # source les fonctions personnelles
 
 
+# Source le fichier bashrc si existant
+if [ -f "/etc/bashrc" ]; then . "/etc/bashrc"; fi
 
 
 

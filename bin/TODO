@@ -25,6 +25,9 @@ DEVELOPPEMENT
         ##################################################################################
         
         CREATION FONCTIONNALITE
+        - transformer les fonctions en fonctions d'affichages - ne plus traiter avec des variables globales
+                -> afficher les valeurs et ensuite l'implémentation décide ce qu'elle en fait
+                -> exception = fonction de modification de tableau
         - fonction qui test si processus existant basé sur PID
         - fonction qui retourne la ligne correspondant au PID d'un processus :
                 -> besoin afficher les lignes qui match puis trier celle dont la colonne = le PID car il peut y avoir le PID ailleurs (PPID, commande)

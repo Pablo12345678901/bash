@@ -8,18 +8,11 @@ source fonctions_personnelles
 REPONSE=""
 QUESTION="Mettre à jour ? (Oo/Nn) "
 question_oui_non REPONSE "$QUESTION"
-
 if [ $REPONSE == 'o' ]
 then
-    echo -e "\nMise à jour des apps..."
-    echo -e "\nBrew :\n"
-    brew update &&
-    brew upgrade  &&
-    echo -e "\nBrew est à jour." || echo -e "\nLa mise à jour de brew n'a pas fonctionné.\n"
-    echo -e "\nSoftwares :\n"
-    softwareupdate -i -a && echo -e "\nLes softwares sont à jour.\n" || echo -e "\nLa mise à jour des softwares n'a pas fonctionné.\n"
+    mettre_a_jour_app_et_brew
 else
-    echo -e "\nVous avez refusé de mettre à jour les apps.\n"
+    echo -e "\nVous avez refusé de mettre à jour brew et les apps.\n"
 fi
 
 echo -e "Ouverture des apps...\n"
@@ -27,7 +20,7 @@ open -j -a "Finder" >&2 &
 # open -j : ouvrir de manière hidden = cachée
 open -a "Microsoft Excel" >&2 &
 # open -g : ouvrir l'app en arrière plan - NE pas la ramener au premier plan
-open -a "Microsoft Word" >&2 &
+#open -a "Microsoft Word" >&2 &
 open -a "Google Chrome" >&2 &
 # open -a "Firefox" >&2 &
 # open -a "Activity Monitor" >&2 &

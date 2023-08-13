@@ -1,0 +1,38 @@
+#!/usr/bin/env bash    
+
+# Syntaxe :
+# $1 : '-s' optionnel pr mode silencieux
+
+# Gestion du mode silencieux
+FLAG_MODE_SILENCIEUX="false"
+if [ "$1" = "-s" ]
+then
+    FLAG_MODE_SILENCIEUX="true"
+else
+    :
+fi
+
+# Affichage du message que si pas en mode silencieux
+if [ $FLAG_MODE_SILENCIEUX = "true" ]
+then
+    softwareupdate -i -a >/dev/null 2>&1 # pas d'output
+else
+    echo -e "\nMise à jour des Softwares :\n"
+    softwareupdate -i -a
+fi
+
+# Conservation du résultat de l'opération pr affichage message réussite / échec
+RESULTAT_DERNIER_OPERATION=$?
+
+# Affichage du message que si pas en mode silencieux
+if [ $FLAG_MODE_SILENCIEUX = "true" ]
+then
+    :
+else
+    if ((RESULTAT_DERNIER_OPERATION))
+    then
+        echo -e "\nLa mise à jour des softwares n'a pas fonctionné.\n"
+    else
+        echo -e "\nLes softwares sont à jour.\n"
+    fi
+fi
