@@ -14,7 +14,7 @@ if [ $REPONSE == 'o' ]
 then
     while [ $REPONSE == 'o' ]
     do
-        git_commit_avec_ou_sans_message
+        git_commit_avec_message
         QUESTION="Y a-t-il d'autre répertoire à push ? (Oo/Nn) "
         REPONSE=''
         question_oui_non REPONSE "$QUESTION"
