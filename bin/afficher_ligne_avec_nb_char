@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+
+# Syntaxe
+# $1 : -t=TAILLE (optionnel) par défaut = 72
+# $2 : -c=CHAR (optionnel) par défaut '=' -> recommandation de le placer entre guillemets simple pr éviter sens spécial
+# Ils peuvent être fourni l'un et/ou l'autre et pas forcément dans cet ordre
+
+source fonctions_personnelles
+
+# Par défaut - peut être modifié selon les arguments fournis
+TAILLE=72
+CHAR="="
+
+# Contrôle des argument
+FLAG_ARG_FOURNI_CHAR="false"
+REGEX_CHAR="^-c=.+$"
+FLAG_ARG_FOURNI_TAILLE="false"
+REGEX_TAILLE="^-t=[1-9]+[0-9]*$"
+NEWLINE=$'\n'
+REGEX_NEWLINE="^.*$NEWLINE.*$"
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "[-t=TAILLE]" "[-c=CHAR]")"
+if [ -z "$1" ]
+then
+    :
+else
+    if [[ "$1" =~ $REGEX_CHAR || "$1" =~ $REGEX_TAILLE ]]
+    then
+        if [[ "$1" =~ $REGEX_CHAR ]]
+        then
+            ARG_FOURNI_CHAR="$1"
+            CHAR="${ARG_FOURNI_CHAR#-c=}"
+            FLAG_ARG_FOURNI_CHAR="true"
+            if [[ "$CHAR" =~ $REGEX_NEWLINE ]]
+            then
+                echo -e "\nERREUR : le caractère fourni ne peut pas contenir un newline."
+                echo -e "$SYNTAXE"
+                exit 1
+            else
+                :
+            fi
+        else
+            ARG_FOURNI_TAILLE="$1"
+            TAILLE="${ARG_FOURNI_TAILLE#-t=}"
+            FLAG_ARG_FOURNI_TAILLE="true"
+        fi
+        if [ -z "$2" ]
+        then
+            :
+        else
+            if [ $FLAG_ARG_FOURNI_CHAR = "true" ]
+            then
+                if [[ "$2" =~ $REGEX_TAILLE ]]
+                then
+                    ARG_FOURNI_TAILLE="$2"
+                    TAILLE="${ARG_FOURNI_TAILLE#-t=}"
+                else
+                    echo -e "\nERREUR : le deuxième argument fourni est incorrect. Cela devrait être '-t=TAILLE'."
+                    echo -e "$SYNTAXE"
+                    exit 1
+                fi
+            else
+                if [ $FLAG_ARG_FOURNI_TAILLE = "true" ]
+                then
+                    if [[ "$2" =~ $REGEX_CHAR ]]
+                    then
+                        ARG_FOURNI_CHAR="$2"
+                        CHAR="${ARG_FOURNI_CHAR#-c=}"
+                        if [[ "$CHAR" =~ $REGEX_NEWLINE ]]
+                        then
+                            echo -e "\nERREUR : le caractère fourni ne peut pas contenir un newline."
+                            echo -e "$SYNTAXE"
+                            exit 1
+                        else
+                            :
+                        fi
+                    else
+                        echo -e "\nERREUR : le deuxième argument fourni est incorrect. Cela devrait être '-c=CHAR'."
+                        echo -e "$SYNTAXE"
+                        exit 1
+                    fi
+                else
+                    : # Je n'arriverai jamais ici car si je contrôle l'argument 2
+                    #   C'est que l'argument 1 était correct et donc un des flag était juste.
+                fi
+            fi
+        fi
+    else
+        echo -e "\nERREUR : le premier argument fourni est incorrect."
+        echo -e "$SYNTAXE"
+        exit 1
+    fi
+fi
+
+STRING_A_AFFICHER=""
+for ((i=0; i<$TAILLE; i++))
+do
+    STRING_A_AFFICHER="${STRING_A_AFFICHER}${CHAR}"
+done
+
+# Affichage de la ligne
+printf "%s\n" "$STRING_A_AFFICHER"
