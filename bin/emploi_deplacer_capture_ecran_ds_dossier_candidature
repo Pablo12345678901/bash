@@ -82,7 +82,7 @@ do
     NVO_PATH_FICHIER="$REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE/${NOM_RENOMME_CAPTURE_ECRAN}${COMPTEUR}${EXTENSION_CAPTURE_ECRAN}"
     # Déplace et renomme les captures d'écran
     mv "$PATH_FICHIER" "$NVO_PATH_FICHIER" &&
-    echo -e "\"${PATH_FICHIER##*/}\" renommé en \"${NVO_PATH_FICHIER##*/}\" et déplacé dans le répertoire \"$REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE\"."
+    echo -e "${COMPTEUR}. \"${PATH_FICHIER##*/}\" renommé en \"${NVO_PATH_FICHIER##*/}\" et déplacé dans le répertoire \"$REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE\".\n"
     FLAG_CAPTURE_D_ECRAN="true"
 
     # Recherche tous les fichiers sur le bureau qui sont d'une certaine extension et qui ont été créé il y a X temps maximum
