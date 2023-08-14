@@ -87,6 +87,6 @@ fi
         fi
     done
     git commit -m "$MESSAGE_AVEC_LE_GIT_PUSH" &&
-    git push  && echo -e "\nCommit du répertoire \"$CHOIX\" = OK\n" ; } || echo -e "\nLe commit du répertoire \"$REPERTOIRE_PARMI_LES_REPERTOIRES_GIT_SANS_LE_PATH_COMPLET\" n'a pas pu être correctement fait OU il n'y avait rien à push."
+    git push  && echo -e "\nCommit du répertoire \"$CHOIX\" = OK\n" ; } || echo -e "\nLe commit du répertoire \"$CHOIX\" n'a pas pu être correctement fait OU il n'y avait rien à push."
 
 cd "$OLDPWD"
