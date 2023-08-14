@@ -1,0 +1,223 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# $1 et $2 : -ri PATH_REPERTOIRE_PHOTO_INPUT > Le répertoire d'où proviennent les photos
+# $3 et $4 : -ro PATH_REPERTOIRE_PHOTO_OUTPUT > Le path du répertoire d'output sans le nom du répertoire d'output
+# $5 et $6 : -n NOM_NOUVEAU_REPERTOIRE > Le nom du répertoire d'output
+# pas forcément dans cet ordre
+
+# Le script récupère les photos (cf REGEX_NOM_PHOTO pr les extensions couvertes) sur la base d'une répertoire,
+# et place l'output dans un autre (le crée si non existant).
+# Cela va créer des pages html que je peux ouvrir via un navigateur.
+# Ces pages contiennent des hyperliens vers la photo (première / précédente / suivante / dernière).
+
+source fonctions_personnelles
+
+# REGEX avec les extensions couvertes
+REGEX_NOM_PHOTO="^.*\.(jpg|jpeg|png)$"
+
+# Messages d'erreur
+ERROUT()
+{
+    printf "%b" "$*"
+} >&2 # Affichage des message d'erreur sur STDERR
+
+# Syntaxe
+USAGE()                                     
+{
+    printf "%b" "$(syntaxe_afficher_si_erreur "$(basename $0)" "-ri PATH_REPERTOIRE_PHOTO_INPUT" "-ro PATH_REPERTOIRE_PHOTO_OUTPUT" "-n NOM_NOUVEAU_REPERTOIRE" )"
+} >&2 # Affichage de la syntaxe sur STDERR
+
+# Générer les pages HTML pour chaque photo
+# EMIT(thisph, startph, prevph, nextph, lastph)
+EMIT()                       
+{
+    # Actuelle (THISPH = this path)
+    PATH_THISPH="$1"
+    # Gestion du titre de la photo (=nom fichier) = joli sans le path
+    THISPH_SANS_LE_PATH="${PATH_THISPH##*/}"
+    # Création du nom de fichier html en retirant l'extension de la photo + ajouter l'extension HTML
+    THISPH="${THISPH_SANS_LE_PATH%.*}.html"
+
+    # Première image (STRTPH = start path)
+    PATH_STRTPH="$2"
+    STRTPH_SANS_LE_PATH="${PATH_STRTPH##*/}"
+    STRTPH="${STRTPH_SANS_LE_PATH%.*}.html"
+    # Précédente (PREVPH = previous path)
+    PATH_PREVPH="$3"
+    PREVPH_SANS_LE_PATH="${PATH_PREVPH##*/}"
+    PREVPH="${PREVPH_SANS_LE_PATH%.*}.html"
+    # Suivante (NEXTPH = next path)
+    PATH_NEXTPH="$4"
+    NEXTPH_SANS_LE_PATH="${PATH_NEXTPH##*/}"
+    NEXTPH="${NEXTPH_SANS_LE_PATH%.*}.html"
+    # Dernière image (LASTPH = last path)
+    PATH_LASTPH="$5"
+    LASTPH_SANS_LE_PATH="${PATH_LASTPH##*/}"
+    LASTPH="${LASTPH_SANS_LE_PATH%.*}.html"
+
+# Gestion du format et contenu de la page HTML dans un HEREFILE
+# Par mis entre guillemets car besoin de l'expansion des valeurs des variables
+cat <<-EOF                                       
+<HTML>
+<HEAD><TITLE>Nom : $THISPH</TITLE></HEAD>
+<BODY>
+  <H2>$THISPH</H2>
+<TABLE WIDTH="25%">
+  <TR>
+  <TD> <A HREF="$STRTPH"> Première </A> </TD>
+  <TD> <A HREF="$PREVPH"> Précédente </A> </TD>
+  <TD> <A HREF="$NEXTPH"> Suivante </A> </TD>
+  <TD> <A HREF="$LASTPH"> Dernière </A> </TD>
+  <TD> <A HREF="$PATH_THISPH"> Source </A> </TD>
+  </TR>
+</TABLE>
+  <IMG SRC="$PATH_THISPH" alt="$THISPH"
+   BORDER="1" VSPACE="4" HSPACE="4"
+   />
+</BODY>
+</HTML>
+EOF
+}
+# WIDTH="800" HEIGHT="600"
+# Pour fixer la taille de l'image (elle se déforme) ajouter ceci (ci-dessus) à la fin de la balise IMG
+
+# Contrôle des arguments
+LISTE_ARGUMENT_FOURNI=""
+if [ $# -lt 6 ]
+then
+    ERROUT "\nERREUR : il doit y avoir au moins 6 arguments.\n"
+    USAGE
+    exit 1
+else
+    LISTE_ARGUMENT_FOURNI="$*"
+    while [ $# -gt 0 ]
+    do
+        # Gestion des arguments peut importe l'ordre avec case
+        case "$1" in
+        -n )    shift 1
+                NOM_NOUVEAU_REPERTOIRE="$1"
+                shift 1
+                ;;
+        -ri )   shift 1
+                if [ -d "$1" ]
+                then
+                    PATH_REPERTOIRE_PHOTO_INPUT="$1"
+                    shift 1
+                else
+                    ERROUT "\nERREUR : l'argument \"$1\"(répertoire input) n'est pas un répertoire."
+                    USAGE
+                    exit 2
+                fi
+                ;;
+        -ro )   shift 1
+                if [ -d "$1" ]
+                then
+                    PATH_REPERTOIRE_PHOTO_OUTPUT="$1"
+                    shift 1
+                else
+                    ERROUT "\nERREUR : l'argument \"$1\" (répertoire output) n'est pas un répertoire."
+                    USAGE
+                    exit 3
+                fi
+                ;;
+        * )     ERROUT "\nERREUR : l'argument \"$1\" est incorrect."
+                USAGE
+                exit 4
+                ;;
+        esac
+    done
+fi
+
+# Création du nouveau répertoire ou quitter
+NOUVEAU_REPERTOIRE="${PATH_REPERTOIRE_PHOTO_OUTPUT}/${NOM_NOUVEAU_REPERTOIRE}"
+if [ -d "${NOUVEAU_REPERTOIRE}" ]
+then
+    #ERROUT "Directory [%s] already exists.\n" ${ALBUM} # version originale
+    ERROUT "Le répertoire \"${NOUVEAU_REPERTOIRE}\" existe déjà.\n" # ma version
+    REPONSE=""
+    QUESTION_SUR_DY_METTRE_LOUTPUT="Êtes-vous certain de vouloir y mettre l'output ? (YyOo/Nn) "
+    question_oui_non REPONSE "$QUESTION_SUR_DY_METTRE_LOUTPUT"
+    if [ "$REPONSE" = "o" ]
+    then
+        :
+    else
+        USAGE
+        exit 5
+    fi
+else
+    mkdir "$NOUVEAU_REPERTOIRE"
+fi
+# Aller dans le nouveau répertoire
+cd "$NOUVEAU_REPERTOIRE"
+
+# Récupération des photos dans un tableau sur base de la recherche find
+# Besoin du tableau car besoin de connaître la première et la dernière photo.
+# J'ai préféré faire comme cela que de conserver le nom de la première photo et de la dernière.
+# puis de reboucler sur tous les fichiers (2x find VS find + tableau).
+# Comme je considère que la création d'un album peut contenir max 100 fichiers - je prends la décision
+# que de conserver un tableau de 100 path en mémoire est mieux que de boucler 2x sur 100 éléments avec find.
+# Si ce script venait à traiter davantage de photo, cela vaudrait la peine de les traiter à flux tendu :
+# avec un find pour obtenir la première et dernière photo (plus conservation du nombre total de photo)
+# et avec un autre find pr créer les pages HTML.
+declare -a TABLEAU_PHOTO
+while read PHOTO
+do
+    TABLEAU_PHOTO+=("$PHOTO")
+done < <(find -s -E "$PATH_REPERTOIRE_PHOTO_INPUT" -depth 1 -maxdepth 1 -type f -iregex "$REGEX_NOM_PHOTO" -print0 | tr '\0' '\n')
+# La recherche se fait sur la base du regex au niveau 1 uniquement = le contenu du répertoire
+
+# Test si au moins une photo trouvée - sinon quitter
+if [ ${#TABLEAU_PHOTO[@]} -eq 0 ]
+then
+    echo -e "\nERREUR : aucune photo dans le répertoire d'input \"$PATH_REPERTOIRE_PHOTO_INPUT\"."
+    exit 6
+else
+    :
+fi
+
+# Récupération du first et last qui seront fixes pour chaque fichier HTML
+TAILLE_TABLEAU="$(tableau_taille TABLEAU_PHOTO)"
+INDEX_MAX=$((TAILLE_TABLEAU-1))
+echo "INDEX_MAX $INDEX_MAX"
+
+PATH_FIRST="${TABLEAU_PHOTO[0]}"
+FIRST_SANS_LE_PATH="${PATH_FIRST##*/}"
+FIRST="${FIRST_SANS_LE_PATH%.*}.html"
+PATH_COMPLET_FIRST="${NOUVEAU_REPERTOIRE}/${FIRST}" # Pour ouverture en fin de script
+PATH_LAST="${TABLEAU_PHOTO[$INDEX_MAX]}"
+LAST_SANS_LE_PATH="${PATH_LAST##*/}"
+LAST="${LAST_SANS_LE_PATH%.*}.html"
+
+# Création des pages HTML en gérant correctement les liens (first / prev / next / last)
+for ((i=0; i<$TAILLE_TABLEAU; i++))
+do
+    CURRENT="${TABLEAU_PHOTO[$i]}"
+    # Suppression du path - conservation nom fichier pour création fichier html du nom du fichier
+    PHILE=${CURRENT##*/}
+    # Gestion spéciale à la première boucle car prev = current
+    # Ainsi qu'à la dernière boucle car next = current
+    if [ $i -eq 0 ]
+    then
+        # La première boucle
+        PREV="$CURRENT" # prev = current
+        NEXT="${TABLEAU_PHOTO[((i+1))]}" # next = next = normal
+    else
+        PREV="${TABLEAU_PHOTO[((i-1))]}" # prev = prev = normal
+        if [ $i -eq $INDEX_MAX ]
+        then
+            # La dernière boucle
+            NEXT="${TABLEAU_PHOTO[$i]}" # next = current
+        else
+            # Cas classique
+            NEXT="${TABLEAU_PHOTO[((i+1))]}"
+        fi        
+    fi
+    # Transmission des noms de fichiers à la fonction pr création des pages HTML
+    NOM_FICHIER_OUTPUT_HTML="${PHILE%.*}.html" # couper l'extension puis mettre l'extension HTML
+    EMIT "$CURRENT" "$FIRST" "$PREV" "$NEXT" "$LAST" > "$NOM_FICHIER_OUTPUT_HTML" # redirection de l'output de la fonction vers le fichier d'output HTML correspondant
+    #     # THISPH / STRTPH / PREVPH / NEXTPH / LASTPH    # <- Syntaxe de la fonction
+done
+
+echo -e "\nOuverture de la première image en ligne...\n"
+open "$PATH_COMPLET_FIRST"

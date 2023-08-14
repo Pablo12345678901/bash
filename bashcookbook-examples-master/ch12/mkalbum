@@ -9,20 +9,21 @@
 # An album page is the HTML to display one photo, with
 # a title that is the filename of the photo, along with
 # hyperlinks to the first, previous, next, and last photos.
-#
-# ERROUT
-ERROUT()                                        # <2>
-{
-    printf "%b" "$@"
-} >&2                                           # <3>
 
-#
-# USAGE
+# Affichage des message d'erreur sur STDERR
+ERROUT()
+{
+    printf "%b" "$*"
+} >&2
+
+# Affichage de la syntaxe sur STDERR
 USAGE()                                         # <4>
 {
-    ERROUT "usage: %s <newdir>\n" ${0##*/}      # <5>
-}
+    printf "%b" "usage: ${0##*/} <newdir>\n"
+} >&2
 
+
+# Générer les pages HTML pour chaque photo
 # EMIT(thisph, startph, prevph, nextph, lastph)
 EMIT()                                          # <6>
 {
@@ -43,7 +44,7 @@ EMIT()                                          # <6>
     else
         NEXTLINE='<TD> <A HREF="'$NEXTPH'"> Next </A> </TD>'
     fi
-cat <<EOF                                       # <7>
+cat <<-EOF                                       # <7>
 <HTML>
 <HEAD><TITLE>$THISPH</TITLE></HEAD>
 <BODY>
@@ -72,7 +73,8 @@ fi
 ALBUM="$1"
 if [ -d "${ALBUM}" ]
 then
-    ERROUT "Directory [%s] already exists.\n" ${ALBUM}
+    #ERROUT "Directory [%s] already exists.\n" ${ALBUM} # version originale
+    ERROUT "Directory \"${ALBUM}\" already exists.\n" # ma version
     USAGE
     exit -2
 else
@@ -86,7 +88,7 @@ LAST="last"
 
 while read PHOTO
 do
-    # prime the pump
+    # Premier traitement (uniquement la première fois)
     if [ -z "${CURRENT}" ]
     then
         CURRENT="$PHOTO"
@@ -95,7 +97,7 @@ do
     fi
 
     PHILE=${CURRENT##*/}    # remove any leading path
-    EMIT "$CURRENT" "$FIRST" "$PREV" "$PHOTO" "$LAST" > "${PHILE%.*}.html"
+    EMIT "$CURRENT" "$FIRST" "$PREV" "$PHOTO" "$LAST" > "${PHILE%.*}.html" # couper l'extension puis mettre l'extension HTML
 
     # set up for next iteration
     PREV="$CURRENT"
@@ -103,9 +105,11 @@ do
 
 done
 
+# Après la dernière boucle = ajout final
 PHILE=${CURRENT##*/}   # remove any leading pathname
 EMIT "$CURRENT" "$FIRST" "$PREV" "" "$LAST" > "${PHILE%.*}.html"
 
+# Création de symlink pour la dernière image ainsi que pour l'index HTML
 # make the symlink for "last"
 ln -s "${PHILE%.*}.html" ./last.html            # <8>
 
