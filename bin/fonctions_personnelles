@@ -75,6 +75,36 @@ function app_ouvertes_obtention_et_remplissage_tableau {
     IFS=$OLDIFS # remise de IFS à son ancienne valeur
 }
 
+function app_ouvrir_avec_nom {
+    # Syntaxe :
+    # $* : APP_A_OUVRIR (entre guillemets si nécessaire)
+
+    # Contrôle des arguments
+    SYNTAXE="$(syntaxe_afficher_si_erreur "${FUNCNAME[0]}" "[APP_A_OUVRIR ...]")"
+    if [ $# -gt 0 ]
+    then
+        # Ouverture des apps
+        echo -e "Ouverture des apps...\n"
+        while [ $# -gt 0 ]
+        do
+            APP_A_OUVRIR="$1"
+            shift 1
+            { open -a "$APP_A_OUVRIR" &&
+            echo -e "Ouverture de \"$APP_A_OUVRIR\"...\n"
+            } ||
+            # Bloc si échec
+            {   echo -e "\nERREUR : \"$APP_A_OUVRIR\" n'est pas une app ou n'a pas pu être ouverte." &&
+                echo -e "$SYNTAXE" &&
+                exit 1
+            }
+        done
+    else
+        echo -e "\nERREUR : aucun argument transmis."
+        echo -e "$SYNTAXE"
+        exit 2
+    fi
+}
+
 function argument_fournis_afficher_tous {
     # Syntaxe : 
     # $* : fournir tel quel les argument (avec '$*' (sans guillemets))
