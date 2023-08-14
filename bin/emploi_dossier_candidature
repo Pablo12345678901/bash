@@ -4,6 +4,8 @@
 # $1 : NOM_DU_POSTE (entre guilemets)
 # $2 : NOM_DE_LENTREPRISE (entre guillemets)
 # $3 : optionnel '-anglais' si recherche CV+LM en anglais + création répertoire avec 'EN' à la fin -> sachant que par défaut = recherche en français
+# $4 : optionnel '-vrai' si recherche réelle et pas bidon -> adapte le nom du dossier créé et recherché
+
 # Fonctionnement :
 # À partir de la date, l'année (AA) et le mois (MM) sont récupérés.
 # Il est recherché si un répertoire AAMM existe déjà et sinon il est créé.
@@ -17,7 +19,10 @@ source fonctions_personnelles
 
 # Gestion des répertoires concernés
 REPERTOIRE_GENERAL_RECHERCHE_EMPLOI="/Volumes/Elements/2_Taf_et_hospice/0_Recherche_emploi/0_OCE-ORP/1_Recherche_d_emploi"
-REPERTOIRE_DE_BASE="${REPERTOIRE_GENERAL_RECHERCHE_EMPLOI}/0_Preuves_des_recherches"
+REPERTOIRE_CHOMAGE="0_Preuves_des_recherches"
+REPERTOIRE_RECHERCHE_NON_CHOMAGE="00_Recherches_reelles"
+REPERTOIRE_DE_BASE="${REPERTOIRE_GENERAL_RECHERCHE_EMPLOI}/${REPERTOIRE_CHOMAGE}"
+FLAG_POSTULATION_CHOMAGE="true" # Par défaut - modifié si nécessaire selon les arguments fournis
 PATH_REPERTOIRE_CERTIFICATS_DE_TRAVAIL_ET_DIPLOMES="${REPERTOIRE_GENERAL_RECHERCHE_EMPLOI}/3_Autres_documents"
 # Variable crée avant toute boucle / if pr être accessible partout
 RERTOIRE_MOIS_EN_COURS=""
@@ -44,9 +49,11 @@ REGEX_TITRE_LM_ANGLAIS="Resume.*\.docx"
 
 # Conservation du répertoire d'avant commande
 POSITION_AVANT_COMMANDE="$PWD"
+TYPE_POSTULATION="" # pr gérer les postulation bidons ou les vraies postulations
 
 # Contrôle des arguments :
 SYNTAXE="\nSyntaxe :\n\t$(basename $0)    NOM_DU_POSTE    NOM_DE_LENTREPRISE    [-anglais]\n"
+ARG_FOURNI_TOUS="$*"
 if [[ -z "$1" && -z "$2" ]]
 then
     echo -e "\nERREUR : aucun argument fourni."
@@ -55,34 +62,41 @@ then
 elif [ -z "$2" ]
 then
     echo -e "\nERREUR : le deuxième argument (nom de l'entreprise) n'a pas été fourni."
-    echo -e "Argument fourni : \"$*\"."
+    echo -e "Argument fourni : \"$ARG_FOURNI_TOUS\"."
     echo -e "$SYNTAXE"
     exit 1
 else
     # Définition du nom du poste et de l'entreprise
     NOM_DU_POSTE="$1"
     NOM_DE_LENTREPRISE="$2" 
+    shift 2
 fi
 
-if [ -z "$3" ]
-then
-    : # comportement par défaut en français
-elif [ "$3" = "-anglais" ]
-then
-    # Parmétrisation de la recherche en anglais ici
-    TITRE_CV="$TITRE_CV_ANGLAIS"
-    TITRE_LM="$TITRE_LM_ANGLAIS"
-    TITRE_CERTIFICATS_DE_TRAVAIL="$TITRE_CERTIFICATS_DE_TRAVAIL_ANGLAIS"
-    TITRE_DIPLOMES="$TITRE_DIPLOMES_ANGLAIS"
-    REGEX_TITRE_CV="$REGEX_TITRE_CV_ANGLAIS"
-    REGEX_TITRE_LM="$REGEX_TITRE_LM_ANGLAIS"
-    FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE="_EN"
-else
-    echo -e "\nERREUR : le troisième argument (optionnel '-anglais') n'est pas correct."
-    echo -e "Argument fourni : \"$3\"."
-    echo -e "$SYNTAXE"
-    exit 1
-fi
+# Gestion des autres arguments - autre que nom du poste et nom entreprise
+while [[ $# -gt 0 ]]
+do
+    case "$1" in
+    -anglais )      # Parmétrisation de la recherche en anglais ici
+                    TITRE_CV="$TITRE_CV_ANGLAIS"
+                    TITRE_LM="$TITRE_LM_ANGLAIS"
+                    TITRE_CERTIFICATS_DE_TRAVAIL="$TITRE_CERTIFICATS_DE_TRAVAIL_ANGLAIS"
+                    TITRE_DIPLOMES="$TITRE_DIPLOMES_ANGLAIS"
+                    REGEX_TITRE_CV="$REGEX_TITRE_CV_ANGLAIS"
+                    REGEX_TITRE_LM="$REGEX_TITRE_LM_ANGLAIS"
+                    FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE="_EN"
+                    shift 1
+                    ;; 
+    -vrai )         REPERTOIRE_DE_BASE="${REPERTOIRE_GENERAL_RECHERCHE_EMPLOI}/${REPERTOIRE_RECHERCHE_NON_CHOMAGE}"
+                    FLAG_POSTULATION_CHOMAGE="false"
+                    shift 1
+                    ;;
+    * )             echo -e "\nERREUR : l'argument fourni \"$1\" est invalide."
+                    echo -e "Tous les arguments fournis : \"$ARG_FOURNI_TOUS\"."
+                    echo -e "$SYNTAXE"
+                    exit 1
+                    ;;
+    esac
+done
 
 # Obtention de la date
 DATE_AJD="$(date -I)"
@@ -139,7 +153,18 @@ else
         ANNEE_SHORT_AUTRE_DOSSIER="${ANNEE_AUTRE_DOSSIER:2:2}"
         MOIS_AUTRE_DOSSIER="$(echo "$NOUVELLE_DATE" | awk -F - ' { print $2 } ')"
         JOUR_AUTRE_DOSSIER="$(echo "$NOUVELLE_DATE" | awk -F - ' { print $3 } ')"
-        REGEX_NOM_DE_L_AUTRE_DOSSIER="${REPERTOIRE_DE_BASE}/${ANNEE_SHORT_AUTRE_DOSSIER}${MOIS_AUTRE_DOSSIER}/${JOUR_AUTRE_DOSSIER}.*${FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE}"
+        
+        # Adaptation du regex du nom du répertoire recherché
+        # car si pas en anglais alors ne doit absolument pas se terminer par '_EN'
+        if [ -z "$FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE" ] 
+        then
+            # si fin du répertoire anglais est vide = pas recherche en anlais
+            REGEX_NOM_DE_L_AUTRE_DOSSIER="${REPERTOIRE_DE_BASE}/${ANNEE_SHORT_AUTRE_DOSSIER}${MOIS_AUTRE_DOSSIER}/${JOUR_AUTRE_DOSSIER}.*[^-][^E][^N]"
+        else
+            # sinon = recherche en anglais avec l'extension normale
+            REGEX_NOM_DE_L_AUTRE_DOSSIER="${REPERTOIRE_DE_BASE}/${ANNEE_SHORT_AUTRE_DOSSIER}${MOIS_AUTRE_DOSSIER}/${JOUR_AUTRE_DOSSIER}.*${FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE}"
+        fi
+        
         # Recherche d'un dossier AAMMM (année-mois)
         while read PATH_AUTRE_DOSSIER
         do 
@@ -230,6 +255,17 @@ if [ "$REPONSE_SI_CONFIRMATION" = "o" ]
 then
     emploi_deplacer_capture_ecran_ds_dossier_candidature "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" "-confirmation"
 else 
+    :
+fi
+
+# Affichage du message et attent de la validation de l'utilisateur QUE si postulation chômage
+if [ $FLAG_POSTULATION_CHOMAGE = "true" ]
+then
+    MESSAGE_FINAL="
+Veuillez saisir la postulation sur JobRoom puis tapez enter pour valider la fin du script.
+"
+    read -p "$MESSAGE_FINAL"
+else
     :
 fi
 
