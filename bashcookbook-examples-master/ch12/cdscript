@@ -14,6 +14,7 @@ fi
 SRCDIR=$1
 # your device might be "ATAPI:0,0,0" or other digits
 CDDEV=${2:-"ATAPI:0,0,0"}
+# Construction d'une image temporaire avec le numéro du processus du shell courant '??' ainsi elle sera unique
 ISOIMAGE=/tmp/cd$$.iso                                # <1>
 
 echo "building ISO image..."
@@ -31,11 +32,11 @@ then
     exit $STATUS
 fi
 
-echo "ISO image built; burning to cd..."
+echo "ISO image built; burning to cd..." # burn = graver
 #
 # burn the CD
 #
-SPD=8
+SPD=8 # speed
 OPTS="-eject -v fs=64M driveropts=burnproof"
 cdrecord $OPTS -speed=$SPD dev=${CDDEV} $ISOIMAGE
 STATUS=$?                                             # <3>
