@@ -98,6 +98,15 @@ do
     esac
 done
 
+# Contrôle si disque dur connecté (=si le répertoire existe) - quitte sinon
+if [ -d "$REPERTOIRE_GENERAL_RECHERCHE_EMPLOI" ]
+then
+    :
+else
+    echo -e "\nERREUR : le répertoire :\n\"$REPERTOIRE_GENERAL_RECHERCHE_EMPLOI\"\nn'est pas existant.\nIl est possible que le disque dur ne soit pas connecté.\n"
+    exit 1
+fi
+
 # Obtention de la date
 DATE_AJD="$(date -I)"
 # date -I : Obtient la date au format AAAA-MM-JJ
