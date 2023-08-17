@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-a" "-b ARG_B")"
+
+# Remarques :
+# le script ne fonctionne avec des options '+' que si les options sont séparées (par exemple '+ab' ne fonctionnera pas)
+# Pour une alternative bien plus efficace, utiliser le 'getopt' (sans 'S') de GNU : 'brew install gnu-getopt' et
+# le placer dans au tout début de $PATH pour court-circuiter la commande du même nom de MacOs.
+
+# Par défaut = -1 /// RAPPEL : 1 = on / 0 = off / -1 = non mentionné (défaut)
+aflag=-1
+bflag=-1
+
+declare -a TABLEAU_FLAG
+declare -a TABLEAU_ARGUMENTS
+TABLEAU_ARGUMENTS=($*) # récupération des arguments tels que passés au script
+
+# Récupération des signes +/- dans un tableau pour activer / désactiver les options
+# Transformation des options avec '+' en options avec '-' pr traitement par getopts
+# Car 'getopts' ne traite que les options avec un '-' devant
+for ((i=1; i<=$#; i++))
+do
+    if [ "${!i:0:1}" == "-" ]
+    then
+        TABLEAU_FLAG[$i]=1 # 1 = on
+    elif [ "${!i:0:1}" == "+" ]
+    then
+        TABLEAU_FLAG[$i]=0 # 0 = off
+        ARGUMENT_BRUT="${TABLEAU_ARGUMENTS[$((i-1))]}" # i-1 car le tableau des arguments débute à 0 alors qu'ils débutent à $1
+        ARGUMENT_SANS_LE_SIGNE_PLUS="${ARGUMENT_BRUT#+}"
+        ARGUMENT_AVEC_SIGNE_MOINS="-${ARGUMENT_SANS_LE_SIGNE_PLUS}"
+        TABLEAU_ARGUMENTS[$((i-1))]="$ARGUMENT_AVEC_SIGNE_MOINS" # i-1 car le tableau des arguments débute à 0 alors qu'ils débutent à $1
+    else
+        TABLEAU_FLAG[$i]=-1 # -1 = rien
+    fi
+done
+
+# Renvoie des options après avoir remplacé les signes
+set -- ${TABLEAU_ARGUMENTS[*]}
+
+# Gestion des options
+# Besoin de débuter à l'index 1 car le premier flag a été placé à l'index 1 (correspondant à l'argument $1)
+INDEX=1 
+while getopts ':ab:h' OPTION
+do
+    case $OPTION in
+        a ) aflag=${TABLEAU_FLAG[$INDEX]}
+            ((INDEX++))
+            ;;
+        b ) bflag=${TABLEAU_FLAG[$INDEX]}
+            ((INDEX++))
+            bval="$OPTARG"
+            ((INDEX++))
+            ;;
+        h ) printf "%b\n" "$SYNTAXE"
+            exit 0
+            ;;
+        \: ) printf "\nERREUR : Argument manquant pour l'option -%s \n" $OPTARG # les ':'' signifie que la valeur de l'argument n'a pas été trouvée = argument manquant
+            printf "%b\n" "$SYNTAXE"
+            exit 2
+            ;;
+        \? ) printf "ERREUR : Option inconnue : -%s\n" "$OPTARG"
+            printf "%b\n" "$SYNTAXE"
+            exit 2
+            ;;
+    esac >&2
+done
+# Décalage du nombre d'options et arguments récupérés
+shift $(($OPTIND - 1))
+
+# Affchage des resultats pour chaque option
+# RAPPEL : 1 = on / 0 = off / -1 = non mentionné (défaut)
+# Option A
+if [ $aflag -eq 1 ]
+then
+    printf 'Option a activée\n'
+elif [ $aflag -eq 0 ]
+then
+    printf 'Option a désactivée\n'
+else
+    printf 'Option a non mentionnée.\n'
+fi
+# Option B
+if [ $bflag -eq 1 ]
+then
+    printf 'Option b "%s" activée\n' "$bval"
+elif [ $bflag -eq 0 ]
+then
+    printf 'Option b "%s" désactivée\n' "$bval"
+else
+    printf 'Option b non mentionnée.\n'
+fi
+
+# Affchage des arguments finaux s'il y a
+if (($# > 0))
+then
+    printf '\nArguments restant "%s".\n' "$*"
+else
+    printf "\nPas d'autres arguments.\n"
+fi
