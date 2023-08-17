@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+REPERTOIRE='/Users/pablo/Desktop/Developpement/bash/Z_fichiers_pr_test'
+TAILLE_DU_TEST=$(ls -l -1 "$REPERTOIRE" | grep -c '$')
+
+while read -d $'\0' PATH_FICHIER
+do
+    TABLEAU+=("$PATH_FICHIER")
+done < <(ls -l -1 "$REPERTOIRE" | tr '\n' '\0' )
+
+#tableau_contenu TABLEAU
+#tableau_taille TABLEAU
+
+TAILLE_DU_TABLEAU="$(tableau_taille TABLEAU)"
+echo "$TAILLE_DU_TABLEAU"
+if [ $TAILLE_DU_TABLEAU -eq $TAILLE_DU_TEST ]
+then
+    echo -e "\nOK : TAILLE_DU_TABLEAU : $TAILLE_DU_TABLEAU VS TAILLE_DU_TEST : $TAILLE_DU_TEST\n"
+else
+    echo -e "\nERREUR : TAILLE_DU_TABLEAU : $TAILLE_DU_TABLEAU VS TAILLE_DU_TEST : $TAILLE_DU_TEST\n"
+fi

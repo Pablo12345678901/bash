@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Quasi-fonctionnel
+# des fois l'url est sans le https
+# Et d'autres fois : la balise <a> se termine par </> et pas par </a> donc peut bugguer.
+
+DEBUT_URL="https://"
+SITE_WEB="https://formulae.brew.sh/formula/gnu-getopt"
+#SITE_WEB="https://google.com"
+DOMAINE_WEB_SANS_HTTPS="${SITE_WEB#$DEBUT_URL}"
+DOMAINE_WEB="${DOMAINE_WEB_SANS_HTTPS%%/*}"
+
+CONTENU_HTML_SITE_WEB="$(curl -s -L "$SITE_WEB" )"
+# curl -L : location : si la page a changé de lieu, elle sera récupéré au nouveau lieu
+# curl -s : sans barre de chargement (silent)
+
+# Récupération des urls (balise '<a></a>') de la page HTML
+TABLEAU_SITES=($(cat <<< "$CONTENU_HTML_SITE_WEB" |
+tr '\n' ' ' |
+sed -e 's/>/>\
+/g' | sed -e 's/</\
+</g' |
+grep '<a' |
+awk ' { for (i=1; i<=NF; i++) { if ($i ~ /href/) {printf ("%s\n",$i) } } } ' |
+cut -d '"' -f 2 ))
+
+REGEX_URL="^$DEBUT_URL.*$"
+for SITE in "${TABLEAU_SITES[@]}"
+do
+    if [[ "$SITE" =~ $REGEX_URL ]]
+    then
+        echo "$SITE"
+        open "$SITE"
+    else
+        SITE="${DEBUT_URL}${DOMAINE_WEB}${SITE}"
+        echo "$SITE"
+        open "$SITE"
+    fi
+done
