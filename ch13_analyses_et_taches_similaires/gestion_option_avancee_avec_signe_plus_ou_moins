@@ -5,6 +5,7 @@ source fonctions_personnelles
 # Syntaxe
 SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-a" "-b ARG_B")"
 
+#
 # Remarques :
 # le script ne fonctionne avec des options '+' que si les options sont séparées (par exemple '+ab' ne fonctionnera pas)
 # Pour une alternative bien plus efficace, utiliser le 'getopt' (sans 'S') de GNU : 'brew install gnu-getopt' et

@@ -5,6 +5,7 @@ source fonctions_personnelles
 # Syntaxe
 SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-f FICHIER_OU_REPERTOIRE" "-r REGEX_RECHERCHE" "-s STRING_REMPLACEMENT" )"
 
+#
 FLAG_OPTION_F= # FICHIER_OU_REPERTOIRE
 FLAG_OPTION_R= # REGEX_RECHERCHE
 FLAG_OPTION_S= # STRING_REMPLACEMENT

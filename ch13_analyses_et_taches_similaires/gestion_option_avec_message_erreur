@@ -5,6 +5,7 @@ source fonctions_personnelles
 # Syntaxe
 SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-a" "-b ARG_B")"
 
+#
 aflag=
 bflag=
 
