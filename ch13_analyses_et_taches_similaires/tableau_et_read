@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+REPERTOIRE_TEST='/Users/pablo/Desktop/Developpement/bash/Z_fichiers_pr_test'
+
+ls -l "$REPERTOIRE_TEST"
+espace_print_nb 10
+
+declare -a TABLEAU
+while read -a TABLEAU
+do
+    tableau_taille TABLEAU
+    tableau_contenu TABLEAU
+done < <(ls -l "$REPERTOIRE_TEST") 
+
+

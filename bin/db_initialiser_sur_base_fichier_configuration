@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+# Syntaxe
+# - : pas d'arguments requis.
+# Fonctionnement
+# Initialise les databases depuis un fichier standard.
+# Pour une création répétée de DB.
+# Permet aussi de réinitialiser des DB pour les remettre à neufs pr tests.
+
+FICHIER_D_INITIALISATION_COMMUN="a_adapter.sql" # A adapter
+
+# Récupération des databases existantes
+DBLIST=$(mysql -p -e "SHOW DATABASES;" |
+# mysql -p : request password from tty if not provided
+# mysql -e : exécute le statement puis quitte -> ici montre les databases
+tail -n +2) # retire la première ligne d'entête de l'output (débute à la 2ème ligne)
+
+# Select qui affiche les DB existante + une option de création
+OPTION_CREATION="Créer DB"
+select DB in $DBLIST "$OPTION_CREATION" # ajout de l'option création en fin des options
+do
+    # Contrôle si souhait de créer une nouvelle DB
+    if [[ $DB == "$OPTION_CREATION" ]]
+    then
+        MESSAGE_DMD_NOM_NVLE_DB="Nom de la nouvelle db -> "
+        read -p "$$MESSAGE_DMD_NOM_NVLE_DB" DB rest # Conservation du premier mot en tant que DB - jette le reste
+        echo "Création d'un nouvelle database $DB (si non existant uniquement)..."
+        mysql -p -e "CREATE DATABASE IF NOT EXISTS $DB;"
+    fi
+    # Test si longueur du string est non-zéro
+    if [ -n "$DB" ]
+    then
+        echo "Initialisation de la database: $DB"
+        mysql -p $DB < "$FICHIER_D_INITIALISATION_COMMUN"
+    fi
+done
