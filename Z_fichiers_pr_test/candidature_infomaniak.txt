@@ -1,0 +1,39 @@
+I) Please answer the following questions in a new text document:
+
+    - What is the list of ips present in infomanihack.ch SPF (*) ?
+        ip4:185.181.161.85
+        ip6:2001:1600:4:9:f816:3eff:fe65:6827
+        I found this answer by writing a bash script with information on the below webpage and also on man page of 'nslookup'.
+        "How to check and read a Sender Policy Framework record for a domain :" https://support.mailessentials.gfi.com/hc/en-us/articles/360015116520-How-to-check-and-read-a-Sender-Policy-Framework-record-for-a-domain
+
+    - Where can you usually find DNS information on a Linux system ?
+        On the file located at /etc/resolv.conf. Can be found by showing information with :
+        cat -> cat /etc/resolv.conf (copy to STDOUT file content)
+        less -> less /etc/resolv.conf (show file content)
+        grep -> grep "nameserver" /etc/resolv.conf (the line containing 'nameserver' has the information about DNS)
+        On recent Linux distributions, can also be found with :
+        systemd-resolve -> systemd-resolve --status | grep "DNS Servers"
+
+    - What is the abuse address of the 185.181.161.0/24 range (*) ?  
+    The abuse adresse of this range is 'abuse@infomaniak.ch'.
+    I found this result by writing a bash script with this the help of the below website showing how to use whois to get the abuse adress from domain and also with the man page of 'whois'.
+    https://stackoverflow.com/questions/28439221/ip-address-owner
+
+    - Do you prefer using Vim or Emacs ?
+    I am used to both as I modify configuration files (ex : 'bashrc' / 'bash_profile') through 'bash' with 'vim' command but the default keybinds of my 'bash' terminal is Emacs.
+
+    * please specify how you found the answer
+
+II) Please write a small script that solves the first part:
+
+    - Gather the Candidate Id
+    "NedApcifBosAdAzCiend"
+
+    - Call https://candiharvest.infomanihack.ch with the right Candidate Id
+    Done throught script.
+
+    NB: You can use any of the following languages: Bash, Python, Perl, PHP
+
+III) Upload your answers, script, CV to this URL:
+
+    https://drive.infomaniak.com/app/collaborate/100338/86bf3915-2440-4625-a154-d1abbdd752dc

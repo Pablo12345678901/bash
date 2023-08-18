@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+# Data to resolve exercice - script could be enhanced with data to be passed as arguments to script.
+WEBSITE="https://candiharvest.infomanihack.ch/"
+IP_RANGE="185.181.161.0/24"
+
+# GET THE CANDIDATE ID AND CALL THE WEBSITE WITH IT
+DOMAIN="${WEBSITE#https://}" # suppression du 'https://'
+DOMAIN="${DOMAIN%/}" # suppression du slash final
+OUTPUT_HOST="$(host -t TXT "$DOMAIN")" # result : candiharvest.infomanihack.ch descriptive text "NedApcifBosAdAzCiend"
+CANDIDATE_ID="$(echo "$OUTPUT_HOST" | cut -d '"' -f 2)"
+curl --header "X-Candidate-Id:$CANDIDATE_ID" "$WEBSITE"
+
+# GET THE LIST OF SPF IPS ADRESSES FROM DOMAIN 'infomanihack.ch'
+DOMAIN="infomanihack.ch"
+# Get the list of SPF ips adresses into an array
+declare -a ARRAY_SPF_IP
+while read IP_ADRESS
+do
+    ARRAY_SPF_IP+=("$IP_ADRESS")
+done < <(nslookup -type=txt "$DOMAIN" | # output : v=spf1 include:spf.infomaniak.ch ip4:185.181.161.85 ip6:2001:1600:4:9:f816:3eff:fe65:6827 ?all
+awk ' { for (i=1; i<=NF; i++) { if ( $i ~ /ip/ ) { print $i } } }') # get only the word beggining with 'ip'
+
+# Showing the result
+echo -e "\nThose are the SPF ips adresses :"
+for IP_AD in "${ARRAY_SPF_IP[@]}"
+do
+   echo -e "\t$IP_AD"
+done
+echo "" # Esthetic only
+
+# GET THE ABUSE ADRESS FROM IP RANGE
+# Get the IP except the last part
+IP_BEGINNING="$(echo "$IP_RANGE" | awk -F '.' '{ for (i=1; i<NF; i++) {printf ("%s.",$i) } } ')"
+# Get the range
+RANGE="$(echo "$IP_RANGE" | awk -F '.' '{ printf $NF } ')"
+RANGE_START="$(echo "$RANGE" | cut -d '/' -f 1)"
+RANGE_END="$(echo "$RANGE" | cut -d '/' -f 2)"
+
+# get the abuse_adress found within the range
+ABUSE_ADRESS=""
+for ((i=$RANGE_START; i<=$RANGE_END; i++))
+do
+    IP_CURRENT="${IP_BEGINNING}${i}"
+    OUTPUT_OF_ABUSE_ADRESS_SEARCH="$(whois "$IP_CURRENT" | grep -i 'abuse')" # insensitive to case
+    REGEX_EMAIL_ADRESSE="^.*\@.*\..*$" # Start by any string, then litteral '@' then any string then litteral '.'' then any string.
+    ABUSE_ADRESS="$(echo "$OUTPUT_OF_ABUSE_ADRESS_SEARCH" | awk -v REGEX="$REGEX_EMAIL_ADRESSE" ' { for (i=1; i<=NF; i++) { if ( $i ~ REGEX ) {printf ("%s", $i) } } } ')"
+    # Test if adress is null
+    if [ -z "$ABUSE_ADRESS" ]
+    then
+        : # continue until it finds the adress
+    else 
+        break # break the loop if adress found
+    fi
+done
+# Output the result
+printf "The abuse adress is : \"%s\".\n" "$ABUSE_ADRESS"
+echo "" # Esthetic only

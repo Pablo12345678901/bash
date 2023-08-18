@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Please specify header X-Candidate-Id !!
+# Wrong X-Candidate-Id, keep searching (HINT : DNS might help you 😉 )!!
+SITE="https://candiharvest.infomanihack.ch/"
+DOMAINE="candiharvest.infomanihack.ch"
+
+host -t TXT "$DOMAINE"
+# result : candiharvest.infomanihack.ch descriptive text "NedApcifBosAdAzCiend"
+# -t : type
+# ns : le nom du type = NS
+# curl --header "X-Candidate-Id:NedApcifBosAdAzCiend" "$SITE"
