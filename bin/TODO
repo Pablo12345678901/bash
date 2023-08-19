@@ -25,6 +25,7 @@ DEVELOPPEMENT
         ##################################################################################
         
         CREATION FONCTIONNALITE
+        - finaliser le script de création DB : db_creation...
         - transformer les fonctions en fonctions d'affichages - ne plus traiter avec des variables globales
                 -> afficher les valeurs et ensuite l'implémentation décide ce qu'elle en fait
                 -> exception = fonction de modification de tableau

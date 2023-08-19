@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
 
+# Syntaxe :
+# - : pas d'arguments.
+
 # Liste des lignes avec Début / fin (3 lignes)
 # Liste des arrêts sur une ligne
 # Liste des horaires d'une ligne pour les passages sur un arrêt
 # Chemin pour un bus (début avec 3 lignes) + nom du conducteur
 # Liste des conducteurs
 # COMMENTAIRE
+
+echo -e "Script en cours de développement -> exit.\n"
+exit 0
+
 
 NOM_DB="TPG_TEST_DEV"
 NOM_TABLE_LIGNE_BUS="LISTE_LIGNES"
