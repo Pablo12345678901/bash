@@ -7,7 +7,7 @@
 # Pour une création répétée de DB.
 # Permet aussi de réinitialiser des DB pour les remettre à neufs pr tests.
 
-FICHIER_D_INITIALISATION_COMMUN="a_adapter.sql" # A adapter
+FICHIER_D_INITIALISATION_COMMUN="${REPERTOIRE_DEVELOPPEMENT}/ch13_analyses_et_taches_similaires/fichier_d_initialisation_table.sql" # A adapter
 
 # Récupération des databases existantes
 DBLIST=$(mysql -p -e "SHOW DATABASES;" |
