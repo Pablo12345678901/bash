@@ -10,7 +10,7 @@
 # Liste des conducteurs
 # COMMENTAIRE
 
-echo -e "Script en cours de développement -> exit.\n"
+echo -e "Script en cours de développement -> exit."
 exit 0
 
 
@@ -48,31 +48,36 @@ INSERTIONDATADSTABLE
 
 done
 
+# Récupération des datas ligne par ligne et champs par champs
+NB_COLONNE_TABLE=3
+STR_MARQUANT_LA_FIN_DE_LIGNE=$'\n'
+STR_SEPARATEUR_DE_CHAMPS=$'\b' # le char nul ne fonctionne pas
+SEPARATEUR_CHAMPS_A_L_AFFICHAGE="\t\t" # ou $'\0'
+NB_LIGNE_A_NE_PAS_AFFICHER=2 # évite d'afficher l'entête
 # Affichage des datas
-mysql "$NOM_DB" <<AFFICHAGEDATA
-SELECT NUMERO_LIGNE, ARRET_DEBUT, TERMINUS from $NOM_TABLE_LIGNE_BUS 
+while read -r LIGNE || [ -n "$LIGNE" ]
+do
+  if [ $NB_LIGNE_A_NE_PAS_AFFICHER -eq 0 ]
+  then
+    STRING_AFFICHAGE="" # remise à vide à chaque lecture d'une nouvelle ligne
+    for ((i=0; i<$NB_COLONNE_TABLE; i++))
+    do
+      # Récupération de chaque champs via son numéro de field selon le séparateur précisé ci-dessus.
+      VALEUR="$(echo "$LIGNE" | gawk -v INDEX=$((i+1)) -F $STR_SEPARATEUR_DE_CHAMPS '{ printf ("%s",$INDEX) } ')"
+      # Ajout du champs à l'affichage avec un séparateur.
+      STRING_AFFICHAGE="${STRING_AFFICHAGE}${VALEUR}${SEPARATEUR_CHAMPS_A_L_AFFICHAGE}"
+    done
+    echo -e "$STRING_AFFICHAGE"
+  else 
+    ((NB_LIGNE_A_NE_PAS_AFFICHER--))
+  fi
+  # Obtention des datas séparées par des chars spéciaux pour pouvoir les récupérer
+  # et travailler dessus (ou sur leur affichage) ensuite.
+done < <(
+# Utilisation de printf "%b" pour 'décoder' le char spéciaux injectés entre les champs et en fin de ligne (non interprêtés sinon). 
+printf "%b" "$(mysql "$NOM_DB" <<AFFICHAGEDATA
+SELECT GROUP_CONCAT(NUMERO_LIGNE, '$STR_SEPARATEUR_DE_CHAMPS', ARRET_DEBUT, '$STR_SEPARATEUR_DE_CHAMPS', TERMINUS SEPARATOR '$STR_MARQUANT_LA_FIN_DE_LIGNE') 
+FROM $NOM_TABLE_LIGNE_BUS;
 AFFICHAGEDATA
-
-
-
-# Ci-dessous - autres exemples
-
-# OK - SELECT GROUP_CONCAT( NUMERO_LIGNE, 0x1D, ARRET_DEBUT, 0x1D, TERMINUS SEPARATOR 0x1D ) from $NOM_TABLE_LIGNE_BUS 
-
-: <<"OK"
-mysql "$NOM_DB" <<OBTENTIONNOMCOLONNE
-select column_name 
-  from information_schema.columns 
- where table_schema = '$NOM_DB' 
-   and table_name = '$NOM_TABLE_LIGNE_BUS'
-OBTENTIONNOMCOLONNE
-OK
-
-: <<"DEVIDEV"
-mysql "$NOM_DB" <<OBTENTIONNOMCOLONNE
-select column_name 
-  from information_schema.columns 
- where table_schema = '$NOM_DB' 
-   and table_name = '$NOM_TABLE_LIGNE_BUS'
-OBTENTIONNOMCOLONNE
-DEVIDEV
+)"
+)
