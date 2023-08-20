@@ -41,6 +41,7 @@ DEVELOPPEMENT
         - script qui recherche tous les fichiers modifiés depuis X date d'un répertoire et les copie ailleurs
                 -> sur le disque dur externe (sans les répertoire avec '.repertoire') et qui les copie dans un autre disque dur au même chemin avec si nécessaire création des sous-répertoires dans lesquels ils seront
                 -> tester à petite échelle avant de lancer en blocs
+        - DB : script qui test si DB existe et retourne 0 ou 1
         - Afficher nb fichiers d'un répertoires
         - Afficher taille d'un répertoire
         - Afficher info générales sur un répertoire en combinant les autres scripts :

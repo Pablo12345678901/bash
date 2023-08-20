@@ -547,6 +547,19 @@ function sleep_et_affiche_message {
     fi
 }
 
+function STDERR_afficher_message {
+    # Syntaxe :
+    # $1 : MSG_A_AFFICHER (valeur)
+
+    # Affiche message que s'il y en a un
+    if [ ! -z "$*" ]
+    then
+        printf "%b\n" "$*"
+    else
+        :
+    fi
+} >&2 # envoi sur STDERR de tout l'output de cette fonction
+
 function syntaxe_afficher_si_erreur {
     # Syntaxe :
     # $1 : le nom de la fonction/script d'appel (valeur)

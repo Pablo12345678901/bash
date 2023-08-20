@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Syntaxe :
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-d NOM_DB" "-t NOM_TABLE" )"
+
+#echo -e "Script en cours de développement -> exit."
+#exit 0
+
+# Ancienne données test
+#NOM_DB="TPG_TEST_DEV"
+#NOM_TABLE="LISTE_LIGNES"
+STR_MARQUANT_LA_FIN_DE_LIGNE=$'\n'
+STR_SEPARATEUR_DE_CHAMPS=$'\b' # le char nul ne fonctionne pas
+SEPARATEUR_CHAMPS_A_L_AFFICHAGE="\t\t" # ou $'\0'
+
+# Contrôle des arguments
+FLAG_OPTION_D= # non défini par défaut pr test après lecture des options
+FLAG_OPTION_T= 
+while getopts ':d:t:' OPTION # le résultat de getopts à chaque boucle est stocké dans $OPTION
+do
+    case $OPTION in
+        d )     FLAG_OPTION_D=1
+                NOM_DB="$OPTARG"
+                ;;
+        t )     FLAG_OPTION_T=1
+                NOM_TABLE="$OPTARG"
+                ;;
+        \: )    STDERR_afficher_message "\nERREUR : Argument manquant pour l'option -$OPTARG.\n" # les ':'' signifie que la valeur de l'argument n'a pas été trouvée = argument manquant
+                STDERR_afficher_message "$SYNTAXE"
+                exit 2
+                ;;
+        \? )    STDERR_afficher_message "ERREUR : Option inconnue : -$OPTARG\n"
+                STDERR_afficher_message "$SYNTAXE"
+                exit 2
+                ;;
+    esac
+done
+shift $(($OPTIND - 1)) # décalage en supprimant les options acquises
+
+# Test si l'option F a été fourni (=test si flag défini)
+if [ ! -z "$FLAG_OPTION_D" ] && [ ! -z "$FLAG_OPTION_T" ]
+then
+    # Test si d'autres darguments = en trop (=test si $1 défini)
+    if [ ! -z "$1" ]
+    then
+        STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
+        STDERR_afficher_message "$SYNTAXE"
+        exit 2 
+    else
+        : # ok
+    fi
+else
+    STDERR_afficher_message "\nERREUR : Vous devez fournir les arguments -d et -t avec leurs arguments respectifs.\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 2 
+fi
+
+
+
+
+
+
+# Récupération des datas ligne par ligne et champs par champs
+
+
+
+
+
+NB_COLONNE_TABLE=3 # --> Besoin d'obtenir cette données dynamiquement
+NB_LIGNE_A_NE_PAS_AFFICHER=2 # évite d'afficher l'entête # -> Besoin d'obtenir cette donnée dynamiquement
+
+
+# Affichage des datas
+while read -r LIGNE || [ -n "$LIGNE" ]
+do
+  if [ $NB_LIGNE_A_NE_PAS_AFFICHER -eq 0 ]
+  then
+    STRING_AFFICHAGE="" # remise à vide à chaque lecture d'une nouvelle ligne
+    for ((i=0; i<$NB_COLONNE_TABLE; i++))
+    do
+      # Récupération de chaque champs via son numéro de field selon le séparateur précisé ci-dessus.
+      VALEUR="$(echo "$LIGNE" | gawk -v INDEX=$((i+1)) -F $STR_SEPARATEUR_DE_CHAMPS '{ printf ("%s",$INDEX) } ')"
+      # Ajout du champs à l'affichage avec un séparateur.
+      STRING_AFFICHAGE="${STRING_AFFICHAGE}${VALEUR}${SEPARATEUR_CHAMPS_A_L_AFFICHAGE}"
+    done
+    echo -e "$STRING_AFFICHAGE"
+  else 
+    ((NB_LIGNE_A_NE_PAS_AFFICHER--))
+  fi
+  # Obtention des datas séparées par des chars spéciaux pour pouvoir les récupérer
+  # et travailler dessus (ou sur leur affichage) ensuite.
+done < <(
+# Utilisation de printf "%b" pour 'décoder' le char spéciaux injectés entre les champs et en fin de ligne (non interprêtés sinon). 
+printf "%b" "$(mysql "$NOM_DB" <<AFFICHAGEDATA
+SELECT GROUP_CONCAT(NUMERO_LIGNE, '$STR_SEPARATEUR_DE_CHAMPS', ARRET_DEBUT, '$STR_SEPARATEUR_DE_CHAMPS', TERMINUS SEPARATOR '$STR_MARQUANT_LA_FIN_DE_LIGNE') 
+FROM $NOM_TABLE;
+AFFICHAGEDATA
+)"
+)
