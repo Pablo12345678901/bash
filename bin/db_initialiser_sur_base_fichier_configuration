@@ -3,22 +3,59 @@
 source fonctions_personnelles
 
 # Syntaxe
-SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "FICHIER_D_INITIALISATION_SQL" )"
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-f FICHIER_D_INITIALISATION_SQL" )"
 # Fonctionnement
 # Initialise les databases depuis un fichier standard.
 # Pour une création répétée de DB.
 # Permet aussi de réinitialiser des DB pour les remettre à neufs pr tests.
  
- # Regex extension sql non-case sensititve
-REGEX_FICHIER_AVEC_EXTENSION_SQL="^.*\.(s|S)(q|Q)(l|L)$"
-# Test si $1 fourni + si fichier + si extension sql
-if [ ! -z "$1" ] && [ -f "$1" ] && [[ "$1" =~ $REGEX_FICHIER_AVEC_EXTENSION_SQL ]]
+# Contrôle des arguments
+FLAG_OPTION_F= # non défini par défaut pr test après lecture des options
+while getopts ':f:' OPTION # le résultat de getopts à chaque boucle est stocké dans $OPTION
+do
+    case $OPTION in
+        f )     FLAG_OPTION_F=1
+                FICHIER_D_INITIALISATION_SQL="$OPTARG"
+                # Regex extension sql non-case sensititve
+                REGEX_FICHIER_AVEC_EXTENSION_SQL="^.*\.(s|S)(q|Q)(l|L)$"
+                # Test si $1 fourni + si fichier + si extension sql
+                if [ ! -z "$FICHIER_D_INITIALISATION_SQL" ] && [ -f "$FICHIER_D_INITIALISATION_SQL" ] && [[ "$FICHIER_D_INITIALISATION_SQL" =~ $REGEX_FICHIER_AVEC_EXTENSION_SQL ]]
+                then
+                    :
+                else
+                    echo -e "\nERREUR : argument non fourni / argument n'est pas un fichier / argument ne possède pas l'extension sql.\n" >&2
+                    echo -e "$SYNTAXE" >&2
+                    exit 1
+                fi
+                ;;
+        \: )    printf "\nERREUR : Argument manquant pour l'option -%s.\n" $OPTARG # les ':'' signifie que la valeur de l'argument n'a pas été trouvée = argument manquant
+                printf "%b\n" "$SYNTAXE"
+                exit 2
+                ;;
+        \? )    printf "ERREUR : Option inconnue : -%s\n" "$OPTARG"
+                printf "%b\n" "$SYNTAXE"
+                exit 2
+                ;;
+    esac
+done
+shift $(($OPTIND - 1)) # décalage en supprimant les options acquises
+
+# Test si l'option F a été fourni (=test si flag défini)
+if [ ! -z "$FLAG_OPTION_F" ]
 then
-    FICHIER_D_INITIALISATION_SQL="$1"
+    # Test si d'autres darguments = en trop (=test si $1 défini)
+    if [ ! -z "$1" ]
+    then
+        printf "\nERREUR : argument(s) en trop : \"$*\".\n"
+        printf "%b\n" "$SYNTAXE"
+        exit 2 
+    else
+        : # ok
+    fi
 else
-    echo -e "\nERREUR : argument non fourni / argument n'est pas un fichier / argument ne possède pas l'extension sql.\n" >&2
-    echo -e "$SYNTAXE" >&2
-    exit 1
+    printf "\nERREUR : Vous devez fournir un fichier avec l'option -f.\n"
+    printf "%b\n" "$SYNTAXE"
+    exit 2 
 fi
 
 # Récupération des databases existantes
