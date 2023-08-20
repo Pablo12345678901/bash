@@ -3,34 +3,61 @@
 source fonctions_personnelles
 
 # Syntaxe :
-SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-d NOM_DB" "-t NOM_TABLE" )"
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-d NOM_DB" "-t NOM_TABLE" "[-f CHAR_MARQUANT_LA_FIN_DE_LIGNE]" "[-s CHAR_SEPARATEUR_DE_CHAMPS]" ) "
+# Par défaut :
+CHAR_MARQUANT_LA_FIN_DE_LIGNE=$'\n'
+CHAR_SEPARATEUR_DE_CHAMPS=$'\t' # le char nul ne fonctionne pas
+# Remarque importante :
+# Le char séparateur ne doit pas être modifié manuellement car il n'est pas au point.
+# Le script fonctionne avec un char de fin de ligne '\n' et un char séparateur '\t'
+# Pourvu que les data ne contiennent pas ces char, sinon cela bug.
 
-#echo -e "Script en cours de développement -> exit."
-#exit 0
-
-# Ancienne données test
+# Données pr test
 #NOM_DB="TPG_TEST_DEV"
 #NOM_TABLE="LISTE_LIGNES"
-STR_MARQUANT_LA_FIN_DE_LIGNE=$'\n'
-STR_SEPARATEUR_DE_CHAMPS=$'\b' # le char nul ne fonctionne pas
-SEPARATEUR_CHAMPS_A_L_AFFICHAGE="\t\t" # ou $'\0'
+#CHAR_MARQUANT_LA_FIN_DE_LIGNE=$'\n'
+#CHAR_SEPARATEUR_DE_CHAMPS=$'\t' # le char nul ne fonctionne pas
 
 # Contrôle des arguments
 FLAG_OPTION_D= # non défini par défaut pr test après lecture des options
 FLAG_OPTION_T= 
-while getopts ':d:t:' OPTION # le résultat de getopts à chaque boucle est stocké dans $OPTION
+while getopts ':d:f:s:t:' OPTION # le résultat de getopts à chaque boucle est stocké dans $OPTION
 do
     case $OPTION in
         d )     FLAG_OPTION_D=1
                 NOM_DB="$OPTARG"
                 ;;
+        f )     CHAR_MARQUANT_LA_FIN_DE_LIGNE="$OPTARG"
+                # Vérification qu'il s'agit d'un seul char
+                if [ ${#CHAR_MARQUANT_LA_FIN_DE_LIGNE} -le 1 ]
+                then
+                    :
+                else
+                    STDERR_afficher_message "\nERREUR : Le char marquant la fin de ligne doit être de longueur exactement 1.\n"
+                    STDERR_afficher_message "$SYNTAXE"
+                    exit 2
+                fi
+                ;;
+        s )     CHAR_SEPARATEUR_DE_CHAMPS="$OPTARG"
+                # Vérification qu'il s'agit d'un seul char
+                if [ ${#CHAR_SEPARATEUR_DE_CHAMPS} -eq 1 ]
+                then
+                    :
+                else
+                    STDERR_afficher_message "\nERREUR : Le char séparant les champs doit être de longueur exactement 1.\n"
+                    STDERR_afficher_message "$SYNTAXE"
+                    exit 2
+                fi
+                ;;
         t )     FLAG_OPTION_T=1
                 NOM_TABLE="$OPTARG"
                 ;;
+        # Argument manquant
         \: )    STDERR_afficher_message "\nERREUR : Argument manquant pour l'option -$OPTARG.\n" # les ':'' signifie que la valeur de l'argument n'a pas été trouvée = argument manquant
                 STDERR_afficher_message "$SYNTAXE"
                 exit 2
                 ;;
+        # Option inconnue
         \? )    STDERR_afficher_message "ERREUR : Option inconnue : -$OPTARG\n"
                 STDERR_afficher_message "$SYNTAXE"
                 exit 2
@@ -49,7 +76,14 @@ then
         STDERR_afficher_message "$SYNTAXE"
         exit 2 
     else
-        : # ok
+        if [ "$CHAR_MARQUANT_LA_FIN_DE_LIGNE" = "$CHAR_SEPARATEUR_DE_CHAMPS" ]
+        then
+            STDERR_afficher_message "\nERREUR : le char de fin de ligne et celui séparateur des champs ne peuvent pas être identiques.\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 2 
+        else
+            :
+        fi
     fi
 else
     STDERR_afficher_message "\nERREUR : Vous devez fournir les arguments -d et -t avec leurs arguments respectifs.\n"
@@ -57,45 +91,79 @@ else
     exit 2 
 fi
 
-
-
-
+# Obtention de la valeur des char séparateur et de fin de ligne en ascii pour les utiliser avec mysql
+VALEUR_ASCII_CHAR_FIN_LIGNE="$(echo -n "$CHAR_MARQUANT_LA_FIN_DE_LIGNE" | od -An -t uC)"
+# od -An : no adeess input base
+# od -t uC : type unsigned char
+VALEUR_ASCII_CHAR_SEPARATEUR_DE_CHAMPS="$(echo -n "$CHAR_SEPARATEUR_DE_CHAMPS" | od -An -t uC)"
 
 
 # Récupération des datas ligne par ligne et champs par champs
+# Récupération du nombre de colonne de manière dynamique
+STR_NB_COLONNE_TABLE="$(tail -n 1 < <(mysql "$NOM_DB" <<OBTENTIONNBCOLONNES
+SELECT COUNT(*) AS NB_COLONNE FROM INFORMATION_SCHEMA.COLUMNS
+WHERE table_schema = "$NOM_DB" AND table_name = "$NOM_TABLE";
+OBTENTIONNBCOLONNES
+)
+)"
+NB_COLONNE_TABLE=$((STR_NB_COLONNE_TABLE)) # --> Besoin d'obtenir cette données dynamiquement
+#exit 0
 
-
-
-
-
-NB_COLONNE_TABLE=3 # --> Besoin d'obtenir cette données dynamiquement
-NB_LIGNE_A_NE_PAS_AFFICHER=2 # évite d'afficher l'entête # -> Besoin d'obtenir cette donnée dynamiquement
-
+# Obtention du nombre de lignes (d'entête) à ne pas afficher
+# Depuis la ligne du début de la query
+# Jusqu'à la ligne finale
+# + le nombre de retour à la ligne 'CHAR(10)'
+# - 1 car la requête s'arrête avant 'FROM'
+NUM_LIGNE_DEBUT=$(grep -n "<<AFFICHAGEDATA" "$0" |
+tail -n 1 | # récupération du dernier résultat
+cut -d ':' -f 1) # récupération du numéro de ligne
+NUM_LIGNE_FIN=$(grep -E -n "^AFFICHAGEDATA.*$" "$0" |
+tail -n 1 | # récupération du dernier résultat
+cut -d ':' -f 1) # récupération du numéro de ligne
+# Calcul du nombre de lignes à ne pas afficher
+DIFFERENCE=$((NUM_LIGNE_FIN-NUM_LIGNE_DEBUT))
+NB_RETOUR_LIGNE="$(tail -n +$((NUM_LIGNE_DEBUT)) "$0" | head -n $DIFFERENCE | grep -c "CHAR(10)" )"
+NB_LIGNE_A_NE_PAS_AFFICHER=$((DIFFERENCE+NB_RETOUR_LIGNE-3)) # - 3 car
+# la requête débute après '<<AFFICHAGEDATA' qui marque le début du heredoc
+# et s'arrête avant 'FROM' et avant 'AFFICHAGEDATA' qui marque la fin du heredoc.
 
 # Affichage des datas
-while read -r LIGNE || [ -n "$LIGNE" ]
+while read -d "$CHAR_MARQUANT_LA_FIN_DE_LIGNE" -r LIGNE || [ -n "$LIGNE" ] 
 do
-  if [ $NB_LIGNE_A_NE_PAS_AFFICHER -eq 0 ]
-  then
-    STRING_AFFICHAGE="" # remise à vide à chaque lecture d'une nouvelle ligne
-    for ((i=0; i<$NB_COLONNE_TABLE; i++))
-    do
-      # Récupération de chaque champs via son numéro de field selon le séparateur précisé ci-dessus.
-      VALEUR="$(echo "$LIGNE" | gawk -v INDEX=$((i+1)) -F $STR_SEPARATEUR_DE_CHAMPS '{ printf ("%s",$INDEX) } ')"
-      # Ajout du champs à l'affichage avec un séparateur.
-      STRING_AFFICHAGE="${STRING_AFFICHAGE}${VALEUR}${SEPARATEUR_CHAMPS_A_L_AFFICHAGE}"
-    done
-    echo -e "$STRING_AFFICHAGE"
-  else 
-    ((NB_LIGNE_A_NE_PAS_AFFICHER--))
-  fi
-  # Obtention des datas séparées par des chars spéciaux pour pouvoir les récupérer
-  # et travailler dessus (ou sur leur affichage) ensuite.
+    if [ $NB_LIGNE_A_NE_PAS_AFFICHER -eq 0 ]
+    then
+        STRING_AFFICHAGE="" # remise à vide à chaque lecture d'une nouvelle ligne
+        for ((i=0; i<$NB_COLONNE_TABLE; i++))
+        do
+        # Récupération de chaque champs via son numéro de field selon le séparateur précisé ci-dessus.
+        VALEUR="$(echo "$LIGNE" | gawk -v INDEX=$((i+1)) -F "$CHAR_SEPARATEUR_DE_CHAMPS" '{ printf ("%s",$INDEX) } ')"
+        # Ajout du champs à l'affichage avec un séparateur.
+        STRING_AFFICHAGE="${STRING_AFFICHAGE}${VALEUR}${CHAR_SEPARATEUR_DE_CHAMPS}"
+        done
+        # Couper le dernier char séparateur car ajouté artificiellement = pas compris dans le champ
+        STRING_AFFICHAGE="${STRING_AFFICHAGE}${CHAR_SEPARATEUR_DE_CHAMPS}" 
+        # Affichage des datas
+        echo -e "$STRING_AFFICHAGE"
+        
+        # DEBUG DEV
+        #break # DEBUG après une boucle d'affichage
+
+    else 
+        ((NB_LIGNE_A_NE_PAS_AFFICHER--))
+    fi
+
+    # Obtention des datas séparées par des chars spéciaux pour pouvoir les récupérer
+    # et travailler dessus (ou sur leur affichage) ensuite.
 done < <(
+# Requête des data
 # Utilisation de printf "%b" pour 'décoder' le char spéciaux injectés entre les champs et en fin de ligne (non interprêtés sinon). 
 printf "%b" "$(mysql "$NOM_DB" <<AFFICHAGEDATA
-SELECT GROUP_CONCAT(NUMERO_LIGNE, '$STR_SEPARATEUR_DE_CHAMPS', ARRET_DEBUT, '$STR_SEPARATEUR_DE_CHAMPS', TERMINUS SEPARATOR '$STR_MARQUANT_LA_FIN_DE_LIGNE') 
+SELECT REPLACE(
+        GROUP_CONCAT(NUMERO_LIGNE, CHAR($((VALEUR_ASCII_CHAR_SEPARATEUR_DE_CHAMPS))), ARRET_DEBUT, CHAR($((VALEUR_ASCII_CHAR_SEPARATEUR_DE_CHAMPS))), TERMINUS SEPARATOR 'SEPARATEUR_AU_BOL1234%&§°'), 
+        'SEPARATEUR_AU_BOL1234%&§°',
+        CHAR(10)
+    )
 FROM $NOM_TABLE;
 AFFICHAGEDATA
 )"
-)
+) # CHAR(10) = '\n'

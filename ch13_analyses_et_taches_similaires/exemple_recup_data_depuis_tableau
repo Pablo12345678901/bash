@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+while read LIGNE
+do
+    echo "$LIGNE" | cut -d $'\t' -f 1
+    echo "$LIGNE" | cut -d $'\t' -f 2
+    echo "$LIGNE" | cut -d $'\t' -f 3
+done < <('/Users/pablo/Desktop/Developpement/bash/bin/db_recuperer_data_table_avec_separateur_special' -d "TPG_TEST_DEV" -t "LISTE_LIGNES")

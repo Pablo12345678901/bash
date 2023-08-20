@@ -13,7 +13,6 @@
 echo -e "Script en cours de développement -> exit."
 exit 0
 
-
 NOM_DB="TPG_TEST_DEV"
 NOM_TABLE_LIGNE_BUS="LISTE_LIGNES"
 

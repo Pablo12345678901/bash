@@ -59,6 +59,10 @@ DEVELOPPEMENT
                 ->   accepter les strings de plusieurs mots avec gestion des espaces
                 ->   accepter de remplacer un string par un string vide
                 ->   faire fonctionner le vidage de la corbeille depuis ce script
+        - db_recuperer_data...
+                -> Séparer les données par un autre char que '\t'
+                -> Fin de ligne par un autre char que '\0'
+                -> car sinon si les données contiennent les char '\t' ou '\n' cela bug...
         - emploi :
                 -> script d'automatisation de rédaction CV et LM avec les stricts champs à modifier (CV : tire et 4 premiers atouts) (LM : date, nom entreprise, nom destinaire, adresse, date, ....)
                 -> conversion du word en PDF (en renommant sans le FR ou EN)
