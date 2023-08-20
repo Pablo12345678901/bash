@@ -8,7 +8,7 @@ SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-f FICHIER_D_INITIALISAT
 # Initialise les databases depuis un fichier standard.
 # Pour une création répétée de DB.
 # Permet aussi de réinitialiser des DB pour les remettre à neufs pr tests.
- 
+
 # Contrôle des arguments
 FLAG_OPTION_F= # non défini par défaut pr test après lecture des options
 while getopts ':f:' OPTION # le résultat de getopts à chaque boucle est stocké dans $OPTION
@@ -59,8 +59,7 @@ else
 fi
 
 # Récupération des databases existantes
-DBLIST=$(mysql -p -e "SHOW DATABASES;" |
-# mysql -p : request password from tty if not provided
+DBLIST=$(mysql -e "SHOW DATABASES;" |
 # mysql -e : exécute le statement puis quitte -> ici montre les databases
 tail -n +2) # retire la première ligne d'entête de l'output (débute à la 2ème ligne)
 
@@ -72,14 +71,14 @@ do
     if [[ $DB == "$OPTION_CREATION" ]]
     then
         MESSAGE_DMD_NOM_NVLE_DB="Nom de la nouvelle db -> "
-        read -p "$$MESSAGE_DMD_NOM_NVLE_DB" DB rest # Conservation du premier mot en tant que DB - jette le reste
+        read -p "$MESSAGE_DMD_NOM_NVLE_DB" DB rest # Conservation du premier mot en tant que DB - jette le reste
         echo "Création d'un nouvelle database $DB (si non existant uniquement)..."
-        mysql -p -e "CREATE DATABASE IF NOT EXISTS $DB;"
+        mysql -e "CREATE DATABASE IF NOT EXISTS $DB;"
     fi
     # Test si longueur du string est non-zéro
     if [ -n "$DB" ]
     then
         echo "Initialisation de la database: $DB"
-        mysql -p $DB < "$FICHIER_D_INITIALISATION_SQL"
+        mysql $DB < "$FICHIER_D_INITIALISATION_SQL"
     fi
 done
