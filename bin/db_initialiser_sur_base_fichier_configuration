@@ -1,13 +1,25 @@
 #!/usr/bin/env bash
 
+source fonctions_personnelles
+
 # Syntaxe
-# - : pas d'arguments requis.
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "FICHIER_D_INITIALISATION_SQL" )"
 # Fonctionnement
 # Initialise les databases depuis un fichier standard.
 # Pour une création répétée de DB.
 # Permet aussi de réinitialiser des DB pour les remettre à neufs pr tests.
-
-FICHIER_D_INITIALISATION_COMMUN="${REPERTOIRE_DEVELOPPEMENT}/ch13_analyses_et_taches_similaires/fichier_d_initialisation_table.sql" # A adapter
+ 
+ # Regex extension sql non-case sensititve
+REGEX_FICHIER_AVEC_EXTENSION_SQL="^.*\.(s|S)(q|Q)(l|L)$"
+# Test si $1 fourni + si fichier + si extension sql
+if [ ! -z "$1" ] && [ -f "$1" ] && [[ "$1" =~ $REGEX_FICHIER_AVEC_EXTENSION_SQL ]]
+then
+    FICHIER_D_INITIALISATION_SQL="$1"
+else
+    echo -e "\nERREUR : argument non fourni / argument n'est pas un fichier / argument ne possède pas l'extension sql.\n" >&2
+    echo -e "$SYNTAXE" >&2
+    exit 1
+fi
 
 # Récupération des databases existantes
 DBLIST=$(mysql -p -e "SHOW DATABASES;" |
@@ -31,6 +43,6 @@ do
     if [ -n "$DB" ]
     then
         echo "Initialisation de la database: $DB"
-        mysql -p $DB < "$FICHIER_D_INITIALISATION_COMMUN"
+        mysql -p $DB < "$FICHIER_D_INITIALISATION_SQL"
     fi
 done
