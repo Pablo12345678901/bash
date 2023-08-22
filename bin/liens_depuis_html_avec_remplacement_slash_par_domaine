@@ -54,7 +54,11 @@ else
     exit 5 
 fi
 
-DOMAINE="$(domaine_depuis_url -u "$URL")"
-AVANT_DOMAINE="${URL%%$DOMAINE*}"
-URL_JUSQUAU_DOMAINE="${AVANT_DOMAINE}${DOMAINE}"
-echo "$URL_JUSQUAU_DOMAINE"
+# Obtention de l'url jusqu'au domaine
+URL_JUSQUAU_DOMAINE="$(url_debut_jusquau_domaine -u "$URL")"
+
+# Remplacement des slashs par anti-slash / slash pour un traitement correct par SED
+URL_PR_SED="$(sed_preparation_pr_variable_utilisee_dans_sed_avec_slash_remplacement_en_antislash_slash "$URL_JUSQUAU_DOMAINE" )"
+
+# Remplacement d'un lien débutant par '/' par le début de l'url
+liens_de_page_html -u "$URL" | sed -e "s/^\//$URL_PR_SED\//"
