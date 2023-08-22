@@ -2,7 +2,8 @@
 
 source fonctions_personnelles
 
-URL="https://comptedemoettests.pythonanywhere.com/"
+URL_BRUTTE="https://comptedemoettests.pythonanywhere.com/"
+URL="${URL_BRUTTE%/}" # suppression du slash final s'il y a
 # Récupération du domaine depuis l'url
 DOMAINE="$(domaine_depuis_url -u "$URL")"
 REGEX_DEBUT_URL="http(s)?://(www\.)?"
@@ -54,9 +55,7 @@ do
             echo "$URL_TROUVE_SUR_BASE_DOMAINE" >> "$LISTE_URL_A_CRAWLER"
         fi
         # Crawl sur base de l'url courante
-    done < <(curl -s "$URL_COURANTE" \
-    | grep -E "<a href=[^>]*>" \
-    | sed -E 's/<a href="([^"]*)".*>/\1/' \
+    done < <(liens_de_page_html -u "$URL_COURANTE"
     | grep -o -E "$REGEX_DEBUT_URL.*\..*" \
     | grep "$DOMAINE" \
     | sort -u )

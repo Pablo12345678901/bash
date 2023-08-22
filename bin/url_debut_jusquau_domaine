@@ -4,7 +4,6 @@ source fonctions_personnelles
 
 # Syntaxe
 SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-u URL" )"
-# Coeur du script copié ici : https://www.cyberciti.biz/faq/get-extract-domain-name-from-url-in-linux-unix-bash/
 
 # Contrôle des arguments
 FLAG_OPTION_U= # non défini par défaut pr test après lecture des options
@@ -50,25 +49,12 @@ then
         :
     fi
 else
-    STDERR_afficher_message "\nERREUR : Vous devez fournir les arguments -u avec son argument.\n"
+    STDERR_afficher_message "\nERREUR : Vous devez fournir l'option -u avec son argument.\n"
     STDERR_afficher_message "$SYNTAXE"
     exit 5 
 fi
 
-## Remove protocol part of url  ##
-URL="${URL#http://}"
-URL="${URL#https://}"
-URL="${URL#URLtp://}"
-URL="${URL#scp://}"
-URL="${URL#scp://}"
-URL="${URL#sURLtp://}"
-
-## Remove username and/or username:password part of URL  ##
-URL="${URL#*:*@}"
-URL="${URL#*@}"
- 
-## Remove rest of urls ## dont le dernier slash
-URL=${URL%%/*}
-
-## Show domain name only ##
-echo "$URL"
+DOMAINE="$(domaine_depuis_url -u "$URL")"
+AVANT_DOMAINE="${URL%%$DOMAINE*}"
+URL_JUSQUAU_DOMAINE="${AVANT_DOMAINE}${DOMAINE}"
+echo "$URL_JUSQUAU_DOMAINE"

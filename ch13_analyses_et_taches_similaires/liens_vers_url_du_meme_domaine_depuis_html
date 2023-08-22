@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+#URL_BRUTTE="https://comptedemoettests.pythonanywhere.com/"
+#URL_BRUTTE="https://www.gnu.org/software/bash/manual/bash.html#Pattern-Matching"
+URL_BRUTTE="https://www.w3schools.com/sql/sql_syntax.asp"
+URL="${URL_BRUTTE%/}" # suppression du slash final s'il y a
+
+#URL_PR_SED="$(echo "$URL" | sed -e "s/\//\\//g")"
+DOMAINE="$(domaine_depuis_url -u "$URL")"
+AVANT_DOMAINE="${URL%%$DOMAINE*}"
+URL_JUSQUAU_DOMAINE="${AVANT_DOMAINE}${DOMAINE}"
+echo "$URL_JUSQUAU_DOMAINE"
+exit 0
+URL_PR_SED="$(sed_preparation_pr_variable_utilisee_dans_sed_avec_slash_remplacement_en_antislash_slash "$URL" )"
+
+# Remplacement d'un lien débutant par '/' par le début de l'url
+liens_de_page_html -u "$URL" | sed -e "s/^\//$URL_PR_SED\//" # | grep -o -E "$REGEX_DEBUT_URL.*\..*"
+
+# if first char is '/' replace by 
