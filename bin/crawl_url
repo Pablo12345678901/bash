@@ -2,8 +2,60 @@
 
 source fonctions_personnelles
 
-URL_BRUTTE="https://comptedemoettests.pythonanywhere.com/"
-URL="${URL_BRUTTE%/}" # suppression du slash final s'il y a
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-u URL" )"
+
+# Contrôle des arguments
+FLAG_OPTION_U= # non défini par défaut pr test après lecture des options
+while getopts ':u:' OPTION # le résultat de getopts à chaque boucle est stocké dans $OPTION
+do
+    case $OPTION in
+        u )     FLAG_OPTION_U=1
+                URL="$OPTARG"
+                # Test si url existe
+                if [ $(url_test_si_existe -u "$URL" ) -eq 0 ]
+                then
+                    :
+                else
+                    STDERR_afficher_message "\nERREUR : L'url \"$URL\" n'existe pas ou est déviée.\n"
+                    STDERR_afficher_message "$SYNTAXE"
+                    exit 1
+                fi
+                ;;
+        # Argument manquant
+        \: )    STDERR_afficher_message "\nERREUR : Argument manquant pour l'option -$OPTARG.\n" # les ':'' signifie que la valeur de l'argument n'a pas été trouvée = argument manquant
+                STDERR_afficher_message "$SYNTAXE"
+                exit 2
+                ;;
+        # Option inconnue
+        \? )    STDERR_afficher_message "ERREUR : Option inconnue : -$OPTARG\n"
+                STDERR_afficher_message "$SYNTAXE"
+                exit 3
+                ;;
+    esac
+done
+shift $(($OPTIND - 1)) # décalage en supprimant les options acquises
+
+# Test si l'option F a été fourni (=test si flag défini)
+if [ ! -z "$FLAG_OPTION_U" ]
+then
+    # Test si d'autres darguments = en trop (=test si $1 défini)
+    if [ ! -z "$1" ]
+    then
+        STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
+        STDERR_afficher_message "$SYNTAXE"
+        exit 4 
+    else
+        :
+    fi
+else
+    STDERR_afficher_message "\nERREUR : Vous devez fournir l'option -u avec son argument.\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 5 
+fi
+
+# Suppression du slash final s'il y a
+URL="${URL%/}" 
 # Récupération du domaine depuis l'url
 DOMAINE="$(domaine_depuis_url -u "$URL")"
 REGEX_DEBUT_URL="http(s)?://(www\.)?"
@@ -26,6 +78,13 @@ do
         # Sinon passe à l'url suivante.
         while [ ${#URL_COURANTE} -eq 0 ]
         do
+            # Test à chaque boucle si fichier vide (car suppression d'une ligne à chaque fois)
+            if [ -s "$LISTE_URL_A_CRAWLER" ]
+            then
+                :
+            else
+                break 2
+            fi
             # récupération d'une ligne du fichier des url à crawler
             URL_RECUPEREE="$(head -n 1 "$LISTE_URL_A_CRAWLER")"
             # Suppression de cette ligne
@@ -42,7 +101,7 @@ do
         : # Url courante non vide
     fi
     
-    echo "DEBUG $URL_COURANTE"
+    echo -e "Url en cours de crawlage : \"$URL_COURANTE\""
     
     # Ajout des url au fichier
     while read URL_TROUVE_SUR_BASE_DOMAINE
@@ -55,7 +114,7 @@ do
             echo "$URL_TROUVE_SUR_BASE_DOMAINE" >> "$LISTE_URL_A_CRAWLER"
         fi
         # Crawl sur base de l'url courante
-    done < <(liens_de_page_html -u "$URL_COURANTE"
+    done < <(liens_depuis_html_avec_remplacement_slash_par_domaine -u "$URL_COURANTE" \
     | grep -o -E "$REGEX_DEBUT_URL.*\..*" \
     | grep "$DOMAINE" \
     | sort -u )

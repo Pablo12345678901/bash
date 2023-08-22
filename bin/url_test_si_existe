@@ -50,13 +50,15 @@ fi
 
 # récupération du header de l'url
 # récupération de la première ligne (contient le code de retour)
-# récupère uniquement le nombre 200 s'il y a - sinon url n'existe pas (ou déviation)
+# récupère uniquement le code de retour
 CODE_RETOUR=$(curl -s --head "$URL" \
 | head -n 1 \
-| grep -o '200'
+| grep -E -o '[0-9]{3}'
+# Récupération du code de retour à trois chiffres
 )
 
-if [ $CODE_RETOUR -eq 200 ]
+# Si le code est 404 alors l'url n'existe pas.
+if [ $CODE_RETOUR -ne 404 ]
 then
     echo "0"
 else
