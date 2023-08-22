@@ -416,8 +416,8 @@ function sed_preparation_pr_variable_utilisee_dans_sed_avec_slash_remplacement_e
     # Syntaxe :
     # $1 : STR (variable)
 
-    local -n STR=$1
-    STR="$(echo "$STR" | sed -e 's/\//\\\//g' )"
+    local STR="$1"
+    echo "$STR" | sed -e 's/\//\\\//g'
     # sed -> remplace un slash ('\/') par un antislash ('\\') + slash ('\/') pour que sed le considère comme un simple slash.
     # sed...'g' : remplace toute les occurences pas que la première
 }

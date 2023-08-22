@@ -1,45 +1,105 @@
 #!/usr/bin/env bash
 
+source fonctions_personnelles
 
-# My shell variable 
-f="https://www.cyberciti.biz/faq/copy-command/"
-f="https://becash.ch/"
- 
-## Remove protocol part of url  ##
-f="${f#http://}"
-f="${f#https://}"
-f="${f#ftp://}"
-f="${f#scp://}"
-f="${f#scp://}"
-f="${f#sftp://}"
- 
-## Remove username and/or username:password part of URL  ##
-f="${f#*:*@}"
-f="${f#*@}"
- 
-## Remove rest of urls ##
-f=${f%%/*}
- 
-## Show domain name only ##
-echo "$f"
+URL="https://comptedemoettests.pythonanywhere.com/"
+# Récupération du domaine depuis l'url
+DOMAINE="$(domaine_depuis_url -u "$URL")"
+REGEX_DEBUT_URL="http(s)?://(www\.)?"
 
+# Gestion des fichiers output
+LISTE_URL_A_CRAWLER=~/Desktop/$(basename $0)_LISTE_URL_A_CRAWLER.txt
+echo "$URL" > "$LISTE_URL_A_CRAWLER" # création du fichier (ou suppression du contenu si exsitant)
+LISTE_URL_DEJA_CRAWLEES=~/Desktop/$(basename $0)_LISTE_URL_DEJA_CRAWLEES.txt
+echo -n "" > "$LISTE_URL_DEJA_CRAWLEES" # création du fichier (ou suppression du contenu si existant)
 
+# Tant que le fichier des urls à crawler a une taille >0 -> crawl 
+while [ -s "$LISTE_URL_A_CRAWLER" ]
+do
+    # Test si url courante est vide -> remise à vide à chaque boucle
+    if [ ${#URL_COURANTE} -eq 0 ]
+    then
+        # Tant que l'url courante est vide
+        # -> récupération de la première ligne du fichier des urls à crawler
+        # Et contrôle que pas déjà crawler en contrôlant si elle fait partie du fichier des urls déjà crawlées.
+        # Sinon passe à l'url suivante.
+        while [ ${#URL_COURANTE} -eq 0 ]
+        do
+            # récupération d'une ligne du fichier des url à crawler
+            URL_RECUPEREE="$(head -n 1 "$LISTE_URL_A_CRAWLER")"
+            # Suppression de cette ligne
+            # Copie du fichier sauf la première ligne dans un fichier temporaire puis remplacement du fichier initial par ce nouveau fichier
+            tail -n +2 "$LISTE_URL_A_CRAWLER" > "$LISTE_URL_A_CRAWLER.tmp" && mv "$LISTE_URL_A_CRAWLER.tmp" "$LISTE_URL_A_CRAWLER"
+            # Si l'url récupérée n'est pas déjà dans le fichier des urls crawlées alors je la conserve
+            # Sinon je passe à la prochain url (étant donné que la première ligne du fichier a été supprimée)
+            if [ $(grep -c -m 1 "$URL_RECUPEREE" "$LISTE_URL_DEJA_CRAWLEES") -eq 0 ]
+            then
+                URL_COURANTE="$URL_RECUPEREE"
+            fi
+        done
+    else
+        : # Url courante non vide
+    fi
+    
+    echo "DEBUG $URL_COURANTE"
+    
+    # Ajout des url au fichier
+    while read URL_TROUVE_SUR_BASE_DOMAINE
+    do
+        # Contrôle l'url est déjà dans le fichier
+        # grep Check si un match - puis s'arrête si oui et retourne 1 (test si déjà dans un des 2 fichiers d'output)
+        if [ $(grep -c -m 1 "$URL_TROUVE_SUR_BASE_DOMAINE" "$LISTE_URL_A_CRAWLER") -eq 0 ] && [ $(grep -c -m 1 "$URL_TROUVE_SUR_BASE_DOMAINE" "$LISTE_URL_DEJA_CRAWLEES") -eq 0 ]
+        then
+            # Ajout dans le fichier d'output si dans aucun des 2 fichiers
+            echo "$URL_TROUVE_SUR_BASE_DOMAINE" >> "$LISTE_URL_A_CRAWLER"
+        fi
+        # Crawl sur base de l'url courante
+    done < <(curl -s "$URL_COURANTE" \
+    | grep -E "<a href=[^>]*>" \
+    | sed -E 's/<a href="([^"]*)".*>/\1/' \
+    | grep -o -E "$REGEX_DEBUT_URL.*\..*" \
+    | grep "$DOMAINE" \
+    | sort -u )
+    # Étapes et commentaires de la production des URL
+    # curl -s : silent
+    # récupère les lignes avec les balises href (lien)
+    # remplace les balises par leurs liens
+    # | grep -o -E "http(s)?://(www\.)?.*\..*" \
+    # grep -o : récupère que la partie qui match
+    # puis tri
+    # Noter l'url qui a étée crawlée ds un autre fichier
+    echo "$URL_COURANTE" >> "$LISTE_URL_DEJA_CRAWLEES"
+    URL_COURANTE="" # remise à vide de l'url courante
+done
 
-exit 0
-URL="https://becash.ch/"
-DOMAINE="${URL%/}" # suppression d'un éventuel slash de fin
-REGEX_DEBUT_URL="^http(s)?://(www\.)?"
-echo "$DOMAINE" \
-| sed -E "s/^http(s)?://(www\.)?//" #\grep -E "$REGEX_DEBUT_URL"
+# Suppression fichier des url à crawler
+rm -rf "$LISTE_URL_A_CRAWLER"
 
-exit 0
-curl -s "$URL" \
-# curl -s : silent
-| grep -E "<a href=[^>]*>" \
-# récupère les lignes avec les balises href (lien)
-| sed -E 's/<a href="([^"]*)".*>/\1/' \
-# remplace les balises par leurs liens
-| grep -o -E "http(s)?://(www\.)?.*\..*" \
-# grep -o : récupère que la partie qui match
-| sort -u
-# trie
+# Tri des url du fichier des urls déjà crawlées
+cat "$LISTE_URL_DEJA_CRAWLEES" | sort -u > "$LISTE_URL_DEJA_CRAWLEES.tmp" && mv "$LISTE_URL_DEJA_CRAWLEES.tmp" "$LISTE_URL_DEJA_CRAWLEES"
+
+# Demande si affichage du fichier avec less y/n
+REPONSE_AFFICHAGE=""
+QUESTION_AFFICHAGE="Souhaiteriez-vous afficher l'output stocké dans le fichier
+\"$LISTE_URL_DEJA_CRAWLEES\"
+avec less ? (YyOo/Nn) "
+question_oui_non REPONSE_AFFICHAGE "$QUESTION_AFFICHAGE"
+if [ "$REPONSE_AFFICHAGE" = "o" ]
+then
+    less "$LISTE_URL_DEJA_CRAWLEES"
+else
+    :
+fi
+
+# Demande si suppression du fichier y/n
+REPONSE_SUPPRESSION=""
+QUESTION_SUPPRESSION="Souhaiteriez-vous supprimer le fichier d'output
+\"$LISTE_URL_DEJA_CRAWLEES\"
+? (YyOo/Nn) "
+question_oui_non REPONSE_SUPPRESSION "$QUESTION_SUPPRESSION"
+if [ "$REPONSE_SUPPRESSION" = "o" ]
+then
+    rm -rf "$LISTE_URL_DEJA_CRAWLEES"
+else
+    :
+fi
