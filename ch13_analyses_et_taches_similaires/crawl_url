@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+
+# My shell variable 
+f="https://www.cyberciti.biz/faq/copy-command/"
+f="https://becash.ch/"
+ 
+## Remove protocol part of url  ##
+f="${f#http://}"
+f="${f#https://}"
+f="${f#ftp://}"
+f="${f#scp://}"
+f="${f#scp://}"
+f="${f#sftp://}"
+ 
+## Remove username and/or username:password part of URL  ##
+f="${f#*:*@}"
+f="${f#*@}"
+ 
+## Remove rest of urls ##
+f=${f%%/*}
+ 
+## Show domain name only ##
+echo "$f"
+
+
+
+exit 0
+URL="https://becash.ch/"
+DOMAINE="${URL%/}" # suppression d'un éventuel slash de fin
+REGEX_DEBUT_URL="^http(s)?://(www\.)?"
+echo "$DOMAINE" \
+| sed -E "s/^http(s)?://(www\.)?//" #\grep -E "$REGEX_DEBUT_URL"
+
+exit 0
+curl -s "$URL" \
+# curl -s : silent
+| grep -E "<a href=[^>]*>" \
+# récupère les lignes avec les balises href (lien)
+| sed -E 's/<a href="([^"]*)".*>/\1/' \
+# remplace les balises par leurs liens
+| grep -o -E "http(s)?://(www\.)?.*\..*" \
+# grep -o : récupère que la partie qui match
+| sort -u
+# trie

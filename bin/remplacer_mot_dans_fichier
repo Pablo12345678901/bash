@@ -403,7 +403,7 @@ else
                                                 QUESTION_VALIDATION_REMPLACEMENT="Voulez-vous remplacer \"$REGEX_RECHERCHE\" par \"$STRING_REMPLACEMENT\" dans cette ligne du fichier \"$FICHIER_COURANT\" situé $PATH_COURANT ? (YyOn/Nn) "
                                                 for i in "${!TABLEAU_LIGNES[@]}"
                                                 do 
-                                                    echo "LIGNE : \"${TABLEAU_LIGNES[$i]}\"" # 
+                                                    echo -e "\nLIGNE : \"${TABLEAU_LIGNES[$i]}\"" # 
                                                     # choix oui non
                                                     REPONSE_POUR_CHAQUE_LIGNE="" # réinitialisation de la réponse à chaque boucle
                                                     question_oui_non REPONSE_POUR_CHAQUE_LIGNE "$QUESTION_VALIDATION_REMPLACEMENT"
@@ -421,7 +421,7 @@ else
                                                         :
                                                     fi
                                                 done
-                                                echo "\nFin du remplacement.\n"
+                                                echo -e "\nFin du remplacement.\n"
                                             fi
                                         fi
                                         FLAG_LIGNE_A_AFFICHER="false"

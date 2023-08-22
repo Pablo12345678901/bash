@@ -347,7 +347,7 @@ function question_oui_non {
         ;;
     esac
     REP_UTILISATEUR=$CHO
-}
+} < /dev/tty
 
 # R
 

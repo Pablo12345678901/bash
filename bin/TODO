@@ -18,6 +18,10 @@ DEVELOPPEMENT
         ##################################################################################
         
         DEBUG
+        - remplacement_mot_dans_fichier (les char '|' et '\' suivi de '|' font que certain regex ne sont pas détectés)
+                -> si il y a une pipeline sur plusieurs lignes qui se termine par '\' alors cela ne fonctionne pas
+                car les lignes réelles sont plusieurs et le script ne détecte qu'une seule ligne -> exemple : recherche regex 'grep' ds le fichier 'fetchurls'
+                -> si c'est un regex dans une pipeline sur une seule ligne cela peut aussi bugguer. -> exemple : recherche regex 'grep' ds le fichier 'fetchurls'
         - empêcher les apps fermée via la commande app_fermer de se réouvrir automatiquement au redémarrage de l'ordi - c'est génant
         - script de mise à jour de la DB :
                 -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
