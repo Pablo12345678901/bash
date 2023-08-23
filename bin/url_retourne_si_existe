@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-u URL" )"
+
+# Contrôle des arguments
+FLAG_OPTION_U= # non défini par défaut pr test après lecture des options
+while getopts ':u:' OPTION # le résultat de getopts à chaque boucle est stocké dans $OPTION
+do
+    case $OPTION in
+        u )     FLAG_OPTION_U=1
+                URL="$OPTARG"
+                ;;
+        # Argument manquant
+        \: )    STDERR_afficher_message "\nERREUR : Argument manquant pour l'option -$OPTARG.\n" # les ':'' signifie que la valeur de l'argument n'a pas été trouvée = argument manquant
+                STDERR_afficher_message "$SYNTAXE"
+                exit 2
+                ;;
+        # Option inconnue
+        \? )    STDERR_afficher_message "ERREUR : Option inconnue : -$OPTARG\n"
+                STDERR_afficher_message "$SYNTAXE"
+                exit 3
+                ;;
+    esac
+done
+shift $(($OPTIND - 1)) # décalage en supprimant les options acquises
+
+# Test si l'option F a été fourni (=test si flag défini)
+if [ ! -z "$FLAG_OPTION_U" ]
+then
+    # Test si d'autres darguments = en trop (=test si $1 défini)
+    if [ ! -z "$1" ]
+    then
+        STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
+        STDERR_afficher_message "$SYNTAXE"
+        exit 4 
+    else
+        :
+    fi
+else
+    STDERR_afficher_message "\nERREUR : Vous devez fournir l'option -u avec son argument.\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 5 
+fi
+
+# Test si l'url existe et la retourne si oui, sinon retourne rien.
+if [ "$(url_test_si_existe -u "$URL")" = "0" ]
+then
+    echo -e "$URL"
+fi
