@@ -115,16 +115,15 @@ do
         fi
         # Crawl sur base de l'url courante
     done < <(liens_depuis_html_avec_remplacement_slash_par_domaine -u "$URL_COURANTE" \
+    | xargs -n 1 url_retourne_si_existe -u \
     | grep -o -E "$REGEX_DEBUT_URL.*\..*" \
     | grep "$DOMAINE" \
     | sort -u )
     # Étapes et commentaires de la production des URL
-    # curl -s : silent
-    # récupère les lignes avec les balises href (lien)
-    # remplace les balises par leurs liens
-    # | grep -o -E "http(s)?://(www\.)?.*\..*" \
-    # grep -o : récupère que la partie qui match
+    # grep -o : récupère que la partie qui match des url
+    # grep $DOMAINE : récupère que les urls qui contiennent le domaine
     # puis tri
+    
     # Noter l'url qui a étée crawlée ds un autre fichier
     echo "$URL_COURANTE" >> "$LISTE_URL_DEJA_CRAWLEES"
     URL_COURANTE="" # remise à vide de l'url courante
