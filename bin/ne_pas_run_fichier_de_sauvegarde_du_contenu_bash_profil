@@ -165,7 +165,10 @@ do
 done
 
 # Ajout de GNU-GETOPT avant la version Mac de Getopts dans le path (car sinon pas disponible)
-_path_prepend PATH "/usr/local/opt/gnu-getopt/bin"
+_path_prepend PATH "/usr/local/opt/gnu-getopt/bin" # GNU getopt
+_path_prepend PATH "/usr/local/opt/gnu-sed/libexec/gnubin" # GNU sed
+_path_prepend PATH "/usr/local/opt/gawk/libexec/gnubin" # GNU awk
+_path_prepend PATH "/usr/local/opt/grep/libexec/gnubin" # GNU grep
 
 export PATH
 
