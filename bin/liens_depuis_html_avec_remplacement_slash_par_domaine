@@ -62,4 +62,4 @@ URL_PR_SED="$(sed_preparation_pr_variable_utilisee_dans_sed_avec_slash_remplacem
 
 # Remplacement d'un lien débutant par '/' par le début de l'url
 #liens_de_page_html -u "$URL" | sed -e "s/^\//$URL_PR_SED\//"
-balise_et_contenu_depuis_html -u "$URL" -b "a" -c "attr{href}" | sed -e "s/^\//$URL_PR_SED\//" | xargs -n 1 url_test_si_existe -u
+balise_et_contenu_depuis_html -u "$URL" -b "a" -c "attr{href}" | sed -e "s/^\//$URL_PR_SED\//"
