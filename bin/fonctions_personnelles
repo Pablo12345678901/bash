@@ -132,6 +132,19 @@ function calculatrice_appel_script {
 
 # D
 
+function DEBUG_afficher_output_sur_fichier_bureau {
+    # Syntaxe :
+    # $1 : MSG_A_AFFICHER (valeur)
+
+    # Affiche message que s'il y en a un
+    if [ ! -z "$*" ]
+    then
+        printf "%b\n" "$*"
+    else
+        :
+    fi
+} >> ~/Desktop/${FUNCNAME[0]}.txt # Rédige l'output sur un fichier du bureau
+
 # E
 
 function espace_apres_supprimer {

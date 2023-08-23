@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+echo "Script conservé au cas où mais pas fonctionnel à 100%. -> exit 0"
+exit 0
+
 source fonctions_personnelles
 
 # Syntaxe
