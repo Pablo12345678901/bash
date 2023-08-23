@@ -3,14 +3,15 @@
 source fonctions_personnelles
 
 # Syntaxe :
-SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-u URL" "[-b BALISE_HTML]" )"
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-u URL" "[-b BALISE_HTML]" "[-c COMPLEMENT_PR_PUP]" )"
 # Fonctionnement
 # Retourne les balises recherchées et leur contenu
 
 # Contrôle des arguments
 FLAG_OPTION_U=
 FLAG_OPTION_B=
-while getopts ':u:b:' OPTION # le résultat de getopts à chaque boucle est stocké dans $OPTION
+FLAG_OPTION_C=
+while getopts ':u:b:c:' OPTION # le résultat de getopts à chaque boucle est stocké dans $OPTION
 do
     case $OPTION in
         u )     FLAG_OPTION_U=1
@@ -27,6 +28,9 @@ do
                 ;;
         b )     FLAG_OPTION_B=1
                 BALISE_HTML="$OPTARG"
+                ;;
+        c )     FLAG_OPTION_C=1     
+                COMPLEMENT_PR_PUP="$OPTARG"
                 ;;
         # Argument manquant
         \: )    STDERR_afficher_message "\nERREUR : Argument manquant pour l'option -$OPTARG.\n" # les ':'' signifie que la valeur de l'argument n'a pas été trouvée = argument manquant
@@ -60,12 +64,19 @@ else
     exit 5 
 fi
 
+# Affichage du résultat avec mise en couleur pour une meilleure clarté
 # Si aucune balise transmise alors affichage de toutes les balises
 if [ -z "$FLAG_OPTION_B" ]
 then
     curl -s "$URL" | pup --color
-else
-    # Sinon que de la balise en question
-    curl -s "$URL" | pup --color "$BALISE_HTML"
+else # Sinon affichage de la balise en question
+    # S'il n'y a pas de complément
+    if [ -z "$FLAG_OPTION_C" ]
+    then
+        # Affichage de la balise
+        curl -s "$URL" | pup --color "$BALISE_HTML"
+    else # Sinon requête balise + complément pour pup
+        curl -s "$URL" | pup --color "$BALISE_HTML $COMPLEMENT_PR_PUP"
+    fi
 fi
 
