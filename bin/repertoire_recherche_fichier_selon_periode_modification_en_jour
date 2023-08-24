@@ -18,7 +18,7 @@ REPERTOIRE_PAR_DEFAUT="$REPERTOIRE_DEVELOPPEMENT/bash"
 if [ -z "$1" ] # si pas d'argument fourni
 then
     REPERTOIRE="$REPERTOIRE_PAR_DEFAUT"
-    PERIODE="-1d"
+    PERIODE="-1" # par défaut = -1 jour
     echo -e "\nAucun répertoire fourni en 1er argument."
     echo -e "Aucune période fournie en 2ème argument."
     echo -e "Comportement par défaut :"
@@ -28,19 +28,19 @@ else
         REPERTOIRE="$1"
         if [ -z "$2" ]
         then
-            PERIODE="-1d"
+            PERIODE="-1"
             echo -e "\nAucune période fournie en 2ème argument."
             echo -e "Comportement par défaut :"
             # Continue le script avec le comportement par défaut
         else
             PERIODE="$2"
-            REGEX_PERIODE_SIGNE_NB_DIF_ZERO_UNITE="^[+-]{1}[1-9]?[0-9]*[smhdw]{1}$"
+            REGEX_PERIODE_SIGNE_NB_DIF_ZERO_UNITE="^[+-]{1}[1-9]?[0-9]*$"
             if [[ "$PERIODE" =~ $REGEX_PERIODE_SIGNE_NB_DIF_ZERO_UNITE ]]
             then
                 # Continue le script
                 :
             else
-                echo -e "\nERREUR : l'argument fourni \"$PERIODE \" n'est pas un nombre entier <>0 avec signe +/- suivi d'une unité s|m|h|d|v.\n"
+                echo -e "\nERREUR : l'argument fourni \"$PERIODE \" n'est pas un nombre entier <>0 avec signe +/-.\n"
                 echo -e "$SYNTAXE"
                 exit 1
             fi
@@ -64,10 +64,16 @@ if [ "$MODE_SILENCIEUX" = "on" ]
 then
     : # pas d'affichage de message
 else
+    # Gestion de l'accord
+    ACCORD=""
+    # Test si valeur absolue de la période est plus grande que 1.
+    if [ ${PERIODE#-} -gt 1 ]
+    then
+        ACCORD="s"
+    fi
     # Affichage du type de recherche exécutée
-    echo -e "\nRecherche des documents dans le répertoire \"$REPERTOIRE\" modifiés sur la période \"$PERIODE\".\n"
+    echo -e "\nRecherche des documents dans le répertoire \"$REPERTOIRE\" modifiés sur la période \"$PERIODE\" jour${ACCORD}.\n"
 fi
-
 
 DERNIER_REPERTOIRE_AFFICHE=""
 REPERTOIRE_COURANT=""
@@ -86,26 +92,14 @@ do
         :
     fi
     echo -e "\t$FICHIER_COURANT" # affichage du nom du fichier dans tous les cas
-done < <(find -s "$REPERTOIRE" -path *.git -prune -o -type f -mtime "$PERIODE" -print0 2>/dev/null |
-# find -s : traverse les répertoire par ordre alphabétique
+done < <(find "$REPERTOIRE" -path *.git -prune -o -type f -mtime "$PERIODE" -print0 2>/dev/null |
 # -path ... -prunt -o : ne va pas dans les répertoires .git
 # find -type f : que les fichiers pas les répertoires
 # find -mtime : moment de la dernière modification
 # find -print : affiche les résultat sur STDOUT
 # 2>/dev/null : les messages d'erreurs sont ignorés
-# TEMPS
-# par défaut unité = 1d = 24h = 1 jour
-#   le nb doit être :
-#	positif avec '+' : signifie il y a plus de X jours
-#	sans signe : signifie il y a exactement X jours
-#	négatif avec '-' : signifie il y a moins de X jours
-# Unités de temps :
-#	        s       second
-#           m       minute (60 seconds)
-#           h       hour (60 minutes)
-#           d       day (24 hours)
-#           w       week (7 days)
-tr '\0' '\n') # retour à la ligne imposé pour gérer les fichiers lu par 'read'
+tr '\0' '\n' | # retour à la ligne imposé pour gérer les fichiers lu par 'read'
+sort ) # tri
 # car ceux-ci peuvent contenir des espaces
 # donc affichage d'un fichier par ligne
 

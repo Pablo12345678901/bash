@@ -164,7 +164,9 @@ do
     _path_append PATH "$path_a_ajoute" # ajoute en fin
 done
 
-# Ajout de GNU-GETOPT avant la version Mac de Getopts dans le path (car sinon pas disponible)
+# Commandes GNU placées avant les paths des commandes Apple
+_path_prepend PATH "/usr/local/opt/findutils/libexec/gnubin" # GNU findutils avec de multiples commandes de recherche (find / locate ) et aussi xargs
+_path_prepend PATH "/usr/local/opt/coreutils/libexec/gnubin" # GNU coreutils avec de multiples commandes de traitement de texte
 _path_prepend PATH "/usr/local/opt/gnu-getopt/bin" # GNU getopt
 _path_prepend PATH "/usr/local/opt/gnu-sed/libexec/gnubin" # GNU sed
 _path_prepend PATH "/usr/local/opt/gawk/libexec/gnubin" # GNU awk
