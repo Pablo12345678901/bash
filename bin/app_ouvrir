@@ -6,8 +6,6 @@
 source fonctions_personnelles
 
 # Ouverture des apps
-# Mettre sur plusieurs lignes pour une meilleur lisibilité
-app_ouvrir_avec_nom "Finder" "Microsoft Excel" "Google Chrome"
-app_ouvrir_avec_nom '/Applications/Visual Studio Code.app' "Terminal"
+app_ouvrir_avec_nom "Finder" "Microsoft Excel" "Google Chrome" "/Applications/Visual Studio Code.app" "Terminal"
 
 

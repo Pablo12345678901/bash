@@ -84,23 +84,27 @@ function app_ouvrir_avec_nom {
     if [ $# -gt 0 ]
     then
         # Ouverture des apps
-        echo -e "Ouverture des apps...\n"
+        echo -e "Ouverture des apps :\n"
         while [ $# -gt 0 ]
         do
             APP_A_OUVRIR="$1"
+            NOM_APP_BRUT="$1"
+            NOM_APP_SANS_PATH="${NOM_APP_BRUT##*/}"
+            NOM_APP="${NOM_APP_SANS_PATH%.*}"
             shift 1
             { open -a "$APP_A_OUVRIR" &&
-            echo -e "Ouverture de \"$APP_A_OUVRIR\"...\n"
+            echo -e "$NOM_APP..."
             } ||
             # Bloc si échec
-            {   echo -e "\nERREUR : \"$APP_A_OUVRIR\" n'est pas une app ou n'a pas pu être ouverte." &&
-                echo -e "$SYNTAXE" &&
+            {   STDERR_afficher_message "\nERREUR : \"$APP_A_OUVRIR\" n'est pas une app ou n'a pas pu être ouverte." &&
+                STDERR_afficher_message "$SYNTAXE" &&
                 exit 1
-            }
+            } >&2
         done
+        echo "" # retour à la ligne esthétique final
     else
-        echo -e "\nERREUR : aucun argument transmis."
-        echo -e "$SYNTAXE"
+        STDERR_afficher_message "\nERREUR : aucun argument transmis."
+        STDERR_afficher_message "$SYNTAXE"
         exit 2
     fi
 }
