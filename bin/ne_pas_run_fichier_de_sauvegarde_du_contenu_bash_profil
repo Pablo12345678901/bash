@@ -1,20 +1,41 @@
-#!/usr/bin/env bash
+# ~/.profile: executed by the command interpreter for login shells.
+# This file is not read by bash(1), if ~/.bash_profile or ~/.bash_login
+# exists.
+# see /usr/share/doc/bash/examples/startup-files for examples.
+# the files are located in the bash-doc package.
 
+# the default umask is set in /etc/profile; for setting the umask
+# for ssh logins, install and configure the libpam-umask package.
+#umask 022
 
+# if running bash
+if [ -n "$BASH_VERSION" ]; then
+    # include .bashrc if it exists
+    if [ -f "$HOME/.bashrc" ]; then
+	. "$HOME/.bashrc"
+    fi
+fi
 
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+# Profil Linux ci-dessus
 
 
 # Source le fichier ou je conserve mes fonctions personnelles
 # Je l'ai placé dans l'environnement de développement pour faciliter ses modifications.
 # Ainsi je peux appeler les fonctions depuis n'importe quel terminal / fichier.
 # Toutefois, je dois continuer de sourcer le fichiers dans mes scripts.
-: ${REPERTOIRE_DES_COMMANDES_PERSO:="/Users/pablo/Desktop/Developpement/bash/bin"} # fixe la variable si pas définie
+: ${REPERTOIRE_DES_COMMANDES_PERSO:="$HOME/Bureau/Developpement/bash/bin"} # fixe la variable si pas définie
 . $REPERTOIRE_DES_COMMANDES_PERSO/fonctions_personnelles # source les fonctions personnelles
-
-
-# Source le fichier bashrc si existant
-if [ -f "/etc/bashrc" ]; then . "/etc/bashrc"; fi
-
 
 
 
@@ -99,7 +120,7 @@ function ajout_au_tableau() {
 
 ################################
 # Liste variables d'environnement personnelles (créées par moi)
-REPERTOIRE_DEVELOPPEMENT="/Users/pablo/Desktop/Developpement"
+REPERTOIRE_DEVELOPPEMENT="$HOME/Bureau/Developpement"
 export REPERTOIRE_DEVELOPPEMENT # pour utilisation (notamment) durant les push de Git
 REPERTOIRE_DES_COMMANDES_PERSO="$REPERTOIRE_DEVELOPPEMENT/bash/bin" # path du répertoire des commandes perso - à adapter si changement d'environnement
 export REPERTOIRE_DES_COMMANDES_PERSO # pour utilisation dans le script qui sauvegarde ce profil
@@ -116,13 +137,13 @@ export RACCOURCIS_CLAVIER
 BASH_PROFILE_PATH="$HOME/.profile"
 export BASH_PROFILE_PATH
 # Path du fichier bashrc
-BASHRC_PATH='/etc/bashrc'
+BASHRC_PATH="$HOME/.bashrc"
 export BASHRC_PATH
 # Path du bureau
-BUREAU_PATH="/Users/pablo/Desktop"
+BUREAU_PATH="$HOME/Bureau"
 export BUREAU_PATH
 # Path de la corbeille 
-CORBEILLE_PATH="/Users/pablo/.Trash"
+CORBEILLE_PATH="$HOME/.local/share/Trash"
 export CORBEILLE_PATH
 
 # Tableau des variables personnelles 
@@ -153,8 +174,8 @@ export LISTE_VARIABLES_PERSO # pour affichage sur demande via script corresponda
 # Liste de paths personnels ajoutés à $PATH
 # tableau des paths à ajouter manuellement
 declare -a liste_path 
-ajout_au_tableau liste_path '/usr/local/opt/llvm/bin'
-ajout_au_tableau liste_path '/usr/local/opt/openjdk/bin'
+# Mac : ajout_au_tableau liste_path '/usr/local/opt/llvm/bin'
+# Mac : ajout_au_tableau liste_path '/usr/local/opt/openjdk/bin'
 ajout_au_tableau liste_path "$REPERTOIRE_DES_COMMANDES_PERSO"
 
 # Ajouter chaque élément du tableau à $PATH
@@ -165,12 +186,20 @@ do
 done
 
 # Commandes GNU placées avant les paths des commandes Apple
-_path_prepend PATH "/usr/local/opt/findutils/libexec/gnubin" # GNU findutils avec de multiples commandes de recherche (find / locate ) et aussi xargs
-_path_prepend PATH "/usr/local/opt/coreutils/libexec/gnubin" # GNU coreutils avec de multiples commandes de traitement de texte
-_path_prepend PATH "/usr/local/opt/gnu-getopt/bin" # GNU getopt
-_path_prepend PATH "/usr/local/opt/gnu-sed/libexec/gnubin" # GNU sed
-_path_prepend PATH "/usr/local/opt/gawk/libexec/gnubin" # GNU awk
-_path_prepend PATH "/usr/local/opt/grep/libexec/gnubin" # GNU grep
+# Mac :  _path_prepend PATH "/usr/local/opt/findutils/libexec/gnubin" # GNU findutils avec de multiples commandes de recherche (find / locate ) et aussi xargs
+# Mac : _path_prepend PATH "/usr/local/opt/coreutils/libexec/gnubin" # GNU coreutils avec de multiples commandes de traitement de texte
+# Mac : _path_prepend PATH "/usr/local/opt/gnu-getopt/bin" # GNU getopt
+# Mac : _path_prepend PATH "/usr/local/opt/gnu-sed/libexec/gnubin" # GNU sed
+# Mac : _path_prepend PATH "/usr/local/opt/gawk/libexec/gnubin" # GNU awk
+# Mac : _path_prepend PATH "/usr/local/opt/grep/libexec/gnubin" # GNU grep
+# Linux : _path_del PATH '/usr/local/opt/llvm/bin' 
+# Linux : _path_del PATH '/usr/local/opt/openjdk/bin'
+# Linux : _path_del PATH "/usr/local/opt/findutils/libexec/gnubin"
+# Linux : _path_del PATH "/usr/local/opt/coreutils/libexec/gnubin"
+# Linux : _path_del PATH "/usr/local/opt/gnu-getopt/bin"
+# Linux : _path_del PATH "/usr/local/opt/gnu-sed/libexec/gnubin"
+# Linux : _path_del PATH "/usr/local/opt/gawk/libexec/gnubin"
+# Linux : _path_del PATH "/usr/local/opt/grep/libexec/gnubin"
 
 export PATH
 
