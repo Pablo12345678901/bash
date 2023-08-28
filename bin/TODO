@@ -32,10 +32,12 @@ DEVELOPPEMENT
         - empêcher les apps fermée via la commande app_fermer de se réouvrir automatiquement au redémarrage de l'ordi - c'est génant
         - script de mise à jour de la DB :
                 -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
-
-        ##################################################################################
         
         CREATION FONCTIONNALITE
+        - disque_dur_ejecter -> modification de eject car refuse 'soit disant' d'éjecter le disque dur Element et autre mais l'éjecte à moitié
+                -> tjr visible mais plus monté
+                -> si déco manuellement ne se reconnecte qu'après longtemps 
+                -> par contre il détecte si en cours d'utilisation et affiche un autre message d'erreur
         - finaliser le script de création DB : db_creation...
         - transformer les fonctions en fonctions d'affichages - ne plus traiter avec des variables globales
                 -> afficher les valeurs et ensuite l'implémentation décide ce qu'elle en fait

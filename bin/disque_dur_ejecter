@@ -3,20 +3,77 @@
 # Syntaxe :
 # - : pas d'argument à fournir
 
-PATH_DES_DISQUES_DONT_APPAREILS_UBS="/Volumes" # à adapter si changement d'environnement
+source fonctions_personnelles
 
 # Tableaux de conservations des résultats avec les noms des appareils UBS / disques durs
 declare -a LISTE_APPAREILS
 declare -a LISTE_APPAREILS_EJECTE
 declare -a LISTE_APPAREILS_PAS_EJECTES
 
+# DEBUG
+echo -e "\nScript $(basename $0) en cours de dév -- pas encore au point sur Linux...\n"
+read -p "Veuillez déconnecter manuellement les USB puis taper enter pour continuer.
+"
+exit 0
+
+
 echo -e "\nÉjection des appareils USB et disques durs.\n"
 
 # Gestion du IFS pour le split des tableau dont les éléments sont séparés par des ":"
 OLDIFS=$IFS # NE PAS SUPPRIMER
 IFS=: # NE PAS SUPPRIMER
+cd "$USB_CONNEXION_PATH" # Variable d'environnement 
 
-for APPAREIL_USB in $PATH_DES_DISQUES_DONT_APPAREILS_UBS/*
+# Version pour Linux
+# Une distinction est faite entre la variable du path "$APPAREIL_USB" et la variable du nom "$NOM_SIMPLE_APPAREIL" (sans le reste du path)
+while read ELEMENT
+do
+    TABLEAU_APPAREIL_USB+=("$ELEMENT")
+done < <(find . -mindepth 1 -maxdepth 1 -print0 |
+        tr '\0' '\n' |
+        cut -d '/' -f 2-
+        ) 
+
+# Test si tableau non vide -> quitte si vide
+NB_USB_A_EJECTER="$(tableau_taille TABLEAU_APPAREIL_USB)"
+if [ "$NB_USB_A_EJECTER" = "0" ]
+then
+    echo -e "\nAucun appareil à éjecter.\n"
+    exit 0
+fi
+
+for NOM_SIMPLE_APPAREIL in "${TABLEAU_APPAREIL_USB[@]}" # horizontal
+do
+    # Supression des éventuels guillemets simples avant/après
+    NOM_SIMPLE_APPAREIL="${NOM_SIMPLE_APPAREIL#\'}"
+    NOM_SIMPLE_APPAREIL="${NOM_SIMPLE_APPAREIL%\'}"
+    FIN_PATH_USB="$(lsblk |
+    grep "$NOM_SIMPLE_APPAREIL" |
+    grep -E -o -m 1 'sd[^[:space:]]{1,3}'
+    )"
+    APPAREIL_USB="/dev/${FIN_PATH_USB}"
+    LISTE_APPAREILS+=("$NOM_SIMPLE_APPAREIL") # ajout à la liste des appareils
+    # éjection des appareils et conservation des résultats dans les tableaux
+    echo "Éjection de \"$NOM_SIMPLE_APPAREIL\"..."
+    {   sudo eject -f "$APPAREIL_USB" &&
+        # eject -F : force
+        # eject -f : pour ejecter 'removable floppy' dont les usb font partie
+        sudo udisksctl power-off -b "$APPAREIL_USB"
+        # udisksctl power-off = arrêt
+        # udisksctl -b = spécifier le device par son path (/dev/...)
+    }
+    if [ $? -eq 0 ]
+    then
+        LISTE_APPAREILS_EJECTES+=("$NOM_SIMPLE_APPAREIL")
+    else
+        echo -e "\nERREUR : l'éjection de \"$NOM_SIMPLE_APPAREIL\" a échouée\n"
+        LISTE_APPAREILS_PAS_EJECTES+=("$NOM_SIMPLE_APPAREIL")
+    fi
+done
+
+# Version pour MacOs
+: <<-"VERSIONMAC"
+for APPAREIL_USB in $USB_CONNEXION_PATH/*
 do
     # Une distinction est faite entre la variable du path "$APPAREIL_USB" et la variable du nom "$NOM_SIMPLE_APPAREIL" (sans le reste du path)
     NOM_SIMPLE_APPAREIL="${APPAREIL_USB##*/}" # séparateur ":" volontairement appliquer car certains noms de disque sont en plusieurs mots séparés d'un espace
@@ -26,6 +83,7 @@ do
     if [[ $APPAREIL_USB != *"Macintosh HD" && $APPAREIL_USB != *"com.apple.TimeMachine"* ]] # pour ne pas éjecter le disque d'origine d'Apple ni sa sauvegarde
     then
         echo "Éjection de \"$NOM_SIMPLE_APPAREIL\"..."
+        
         diskutil eject "$APPAREIL_USB" # regarder le man pour cette commande
         if [ $? -eq 0 ]
         then
@@ -38,6 +96,9 @@ do
         :
     fi
 done
+VERSIONMAC
+
+cd "$OLDPWD"
 
 # Affichage des résultats
 if [ ${#LISTE_APPAREILS[@]} -eq 0 ]
