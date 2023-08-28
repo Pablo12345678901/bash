@@ -125,7 +125,7 @@ do
     do
         # Récupération des éléments
         PATH_FICHIER="$(echo "$MATCH" | awk -F ':' ' { print $1 }')"
-        # awk -F 'fieldseparateur'
+        # gawk -F 'fieldseparateur'
         NUM_LIGNE="$(echo "$MATCH" | awk -F ':' ' { print $2 }')"
         CONTENU_LIGNE="$(echo "$MATCH" | awk -F ':' ' { for (i=3; i<=NF; i++) { printf ("%s", $i) } }')"
         # Séparation du répertoire et du fichier seul
@@ -152,7 +152,7 @@ do
         echo -e "\t\t$NUM_LIGNE\t$CONTENU_LIGNE" # affichage de la ligne à chaque fois
 
     # Obtention des lignes qui matchent parmi les fichiers.
-    done < <(grep -E -H -n "$REGEX_RECHERCHE" "$CHAQUE_FICHIER" 2>/dev/null)
+    done < <(grep -E -H -n "$REGEX_RECHERCHE" "$CHAQUE_FICHIER" ) #2>/dev/null)
     # grep -E : extended regex
     # grep -H : affiche toujours le nom du fichier qui a matché
     # grep -n : affiche le numéro de ligne

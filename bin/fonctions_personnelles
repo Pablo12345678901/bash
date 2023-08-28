@@ -378,13 +378,13 @@ function repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_r
     while read NOM_FICHIER
     do
         TAB_FICHIER+=("$NOM_FICHIER")
-    done < <(find -s "$REP" -path *.git -prune -o -path *.DS_Store -prune -o -type f -print0 2>/dev/null |
-    # find -s : recherche dans l'ordre alphabétique
+    done < <(find "$REP" -path *.git -prune -o -path *.DS_Store -prune -o -type f -print0 2>/dev/null |
     # find -path *.git -prune -o : sans rentrer dans les répertoires .git
     # find -type f : les fichiers uniquement
     # 2>/dev/null : pas de message d'erreur
-    tr '\0' '\n')
+    tr '\0' '\n' |
     # tr : mise à la ligne forcée entre les fichiers car certains ont des espaces
+    sort )
 }
 
 function retourne_choix_si_nb_correct_selon_select {
