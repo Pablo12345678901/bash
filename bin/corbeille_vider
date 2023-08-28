@@ -7,6 +7,9 @@ declare -a TABLEAU_FICHIERS # pour l'affichage initial
 declare -a TABLEAU_PATH # pour la suppression
 declare -a TABLEAU_FICHIERS_RESTANTS # pour l'affichage final
 
+echo -e "\nScript $(basename $0) en cours de dév - pas encore au point...\n"
+exit 0
+
 PATH_CORBEILLE=$HOME/.Trash/*
 
 # Obtention de la liste des fichiers initiaux

@@ -34,6 +34,7 @@ DEVELOPPEMENT
                 -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
         
         CREATION FONCTIONNALITE
+        - corbeille vider -> débuger et adapter pr Linux
         - disque_dur_ejecter -> modification de eject car refuse 'soit disant' d'éjecter le disque dur Element et autre mais l'éjecte à moitié
                 -> tjr visible mais plus monté
                 -> si déco manuellement ne se reconnecte qu'après longtemps 
