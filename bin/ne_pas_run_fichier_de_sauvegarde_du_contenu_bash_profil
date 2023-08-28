@@ -145,6 +145,9 @@ export BUREAU_PATH
 # Path de la corbeille 
 CORBEILLE_PATH="$HOME/.local/share/Trash"
 export CORBEILLE_PATH
+# Path de connexion des ports usb locaux
+USB_CONNEXION_PATH="/media/${USER}"
+export USB_CONNEXION_PATH
 
 # Tableau des variables personnelles 
 declare -a TABLEAU_VARIABLES_PERSO # tableau des paths à ajouter manuellement
@@ -158,7 +161,12 @@ ajout_au_tableau TABLEAU_VARIABLES_PERSO 'BASH_PROFILE_PATH'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'BASHRC_PATH'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'BUREAU_PATH'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'CORBEILLE_PATH'
-LISTE_VARIABLES_PERSO=$( IFS=: ; printf "%s" "${TABLEAU_VARIABLES_PERSO[*]}" ) # transformation du tableau en string séparé par des ":" via la définition de IFS dans un sous-shell
+ajout_au_tableau TABLEAU_VARIABLES_PERSO 'USB_CONNEXION_PATH'
+
+
+# Création de la liste des variables persos
+LISTE_VARIABLES_PERSO=$( IFS=: ; printf "%s" "${TABLEAU_VARIABLES_PERSO[*]}" )
+# transformation du tableau en string séparé par des ":" via la définition de IFS dans un sous-shell
 # car impossible de transmettre un tableau en tant que variable d'environnement
 export LISTE_VARIABLES_PERSO # pour affichage sur demande via script correspondant
 
