@@ -64,6 +64,8 @@ cd "$REPERTOIRE_GIT"
 git rev-parse --abbrev-ref HEAD
 exit 0
 
+
+sdf
 git checkout # THIS_BRANCH
 git merge --strategy=ours master    # keep the content of this branch, but record a merge
 git checkout master
