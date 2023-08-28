@@ -5,6 +5,13 @@
 
 source fonctions_personnelles
 
+# DEBUG
+echo -e "\nScript $(basename $0) en cours de développement - pas au point...\n"
+read -p "Veuillez fermer les apps manuellement puis taper enter pour continuer
+"
+exit 0
+
+
 OPTION_SORTIE="Quitter"
 CHOIX=""
 MESSAGE_SELECT="Sélectionnez une app à fermer parmi la liste"

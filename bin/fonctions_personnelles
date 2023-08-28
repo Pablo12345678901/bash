@@ -49,6 +49,10 @@ function app_ouvertes_obtention_et_remplissage_tableau {
     # Syntaxe :
     # $1 : TAB_APP_OUV (variable)
 
+    # DEBUG
+    echo "\nFonction ${FUNCNAME[0]} en cours de développement - pas au point...\n"
+    exit 0
+
     local -n TAB_APP_OUV=$1 # variable liée à la variable globale du tableau des app ouvertes
 
     # Osacript fonctionne sur Mac uniquement (non portable)
