@@ -17,8 +17,11 @@
 
 source fonctions_personnelles
 
+# À modifier selon l'environnement
+PATH_DISQUE_DUR="${USB_CONNEXION_PATH}/Elements"
+
 # Gestion des répertoires concernés
-REPERTOIRE_GENERAL_RECHERCHE_EMPLOI="/Volumes/Elements/2_Taf_et_hospice/0_Recherche_emploi/0_OCE-ORP/1_Recherche_d_emploi"
+REPERTOIRE_GENERAL_RECHERCHE_EMPLOI="${PATH_DISQUE_DUR}/2_Taf_et_hospice/0_Recherche_emploi/0_OCE-ORP/1_Recherche_d_emploi"
 REPERTOIRE_CHOMAGE="0_Preuves_des_recherches"
 REPERTOIRE_RECHERCHE_NON_CHOMAGE="00_Recherches_reelles"
 REPERTOIRE_DE_BASE="${REPERTOIRE_GENERAL_RECHERCHE_EMPLOI}/${REPERTOIRE_CHOMAGE}"
@@ -148,14 +151,15 @@ else
     FLAG_DOSSIER_TROUVE="false"
     FLAG_CV_TROUVE="false"
     FLAG_LM_TROUVE="false"
-    VARIATION=-1
+    VARIATION=1
     PATH_AUTRE_DOSSIER_REEL=""
     PATH_CV_AUTRE_DOSSIER_REEL=""
     PATH_LM_AUTRE_DOSSIER_REEL=""
     while [ $FLAG_DOSSIER_TROUVE = "false" ]
     do
         # La variation évolue de -1j à chaque date
-        NOUVELLE_DATE="$(date -v${VARIATION}d +%F)"
+        #NOUVELLE_DATE="$(date -v${VARIATION}d +%F)"
+        NOUVELLE_DATE="$(date --date="${VARIATION} days ago" +%F)"
         # date -I : Obtient la date au format AAAA-MM-JJ
         ANNEE_AUTRE_DOSSIER="$(echo "$NOUVELLE_DATE" | awk -F - ' { print $1 } ')"
         # obtient les 2 derniers chiffres de l'année
@@ -180,7 +184,7 @@ else
             PATH_AUTRE_DOSSIER_REEL="$PATH_AUTRE_DOSSIER"
             # Ce flag mettra fin à la boucle de recherche
             FLAG_DOSSIER_TROUVE="true"
-        done < <(find -E "$REPERTOIRE_DE_BASE" -type d -regex "$REGEX_NOM_DE_L_AUTRE_DOSSIER" -print0 -quit | tr '\0' '\n' )
+        done < <(find "$REPERTOIRE_DE_BASE" -regextype posix-extended -type d -regex "$REGEX_NOM_DE_L_AUTRE_DOSSIER" -print0 -quit | tr '\0' '\n' )
         # trouve les éventuels répertoire avec -type d selon le regex du path
         # find -quit : quitte après le premier match
         
@@ -195,7 +199,7 @@ else
                 do
                     PATH_CV_AUTRE_DOSSIER_REEL="$PATH_CV"
                     FLAG_CV_TROUVE="true"
-                done < <(find -E "$PATH_AUTRE_DOSSIER_REEL" -regex "${REGEX_CV}" -print0 -quit | tr '\0' '\n')
+                done < <(find "$PATH_AUTRE_DOSSIER_REEL" -regextype posix-extended -regex "${REGEX_CV}" -print0 -quit | tr '\0' '\n')
                 # find -quit : quitte après le premier match
             else
                 :
@@ -208,7 +212,7 @@ else
                 do
                     PATH_LM_AUTRE_DOSSIER_REEL="$PATH_LM"
                     FLAG_LM_TROUVE="true"
-                done < <(find -E "$PATH_AUTRE_DOSSIER_REEL" -regex "${REGEX_LM}" -print0 -quit | tr '\0' '\n')
+                done < <(find "$PATH_AUTRE_DOSSIER_REEL" -regextype posix-extended -regex "${REGEX_LM}" -print0 -quit | tr '\0' '\n')
                 # find -quit : quitte après le premier match
             else
                 :
@@ -244,7 +248,7 @@ else
             :
         fi
         # Recule d'un jour à chaque boucle
-        ((VARIATION--))
+        ((VARIATION++))
     done
 fi
 
