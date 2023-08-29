@@ -18,6 +18,7 @@ DEVELOPPEMENT
         ##################################################################################
         
         DEBUG
+        - script dossier emploi -> recherche fichier odt et docx pas exacte -> vont plus loin qu'il ne devraient pour la recherche
         - remplacement_mot_dans_fichier (les char '|' et '\' suivi de '|' font que certain regex ne sont pas détectés)
                 -> si il y a une pipeline sur plusieurs lignes qui se termine par '\' alors cela ne fonctionne pas
                 car les lignes réelles sont plusieurs et le script ne détecte qu'une seule ligne -> exemple : recherche regex 'grep' ds le fichier 'fetchurls'
@@ -89,7 +90,7 @@ DEVELOPPEMENT
                 -> remplissage du formulaire sur JobRoom (connexion / remplissage)
                 -> éventuellement : remplissage du formulaire si postulation via Jobup / via autre site
                 -> Éventuels messages d'erreurs si bug (étapes : création répertoire, copie fichiers)
-                -> Acceptation de passer en revue plusieurs répertoires pour la même date s'il y a (comportement actuel : un seul répertoire par date avec 'find -quit' )
+                -> Acceptation de passer en revue plusieurs répertoires pour la même date (y.c la date actuelle) s'il y a (comportement actuel : un seul répertoire par date avec 'find -quit' )
                 -> Si dossier existant, rechercher CV + LM et ouvrir si existant ou rechercher -> copier/coller puis ouvrir sinon
         - app_ouvrir
                 -> obtenir la liste de toutes les apps disponibles sur le Mac et les proposer sous forme y/n + sélect à la fin de l'ouverture des apps de base

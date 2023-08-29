@@ -17,8 +17,12 @@
 
 source fonctions_personnelles
 
+echo "DEBUG script $(basename $0) pas au point avec linux - à adapter"
+exit 0
+
 # À modifier selon l'environnement
 PATH_DISQUE_DUR="${USB_CONNEXION_PATH}/Elements"
+EXTENSION_FICHIER="docx" # "docx"
 
 # Gestion des répertoires concernés
 REPERTOIRE_GENERAL_RECHERCHE_EMPLOI="${PATH_DISQUE_DUR}/2_Taf_et_hospice/0_Recherche_emploi/0_OCE-ORP/1_Recherche_d_emploi"
@@ -30,25 +34,26 @@ PATH_REPERTOIRE_CERTIFICATS_DE_TRAVAIL_ET_DIPLOMES="${REPERTOIRE_GENERAL_RECHERC
 # Variable crée avant toute boucle / if pr être accessible partout
 RERTOIRE_MOIS_EN_COURS=""
 PATH_COMPLET_REPERTOIRE_CANDIDATURE=""
+
 # Version française
-TITRE_CV="CV_Pablo_ZAMORA_FR.docx"
-TITRE_LM="LM_Pablo_ZAMORA_FR.docx"
+TITRE_CV="CV_Pablo_ZAMORA_FR.${EXTENSION_FICHIER}" 
+TITRE_LM="LM_Pablo_ZAMORA_FR.${EXTENSION_FICHIER}"
 TITRE_CERTIFICATS_DE_TRAVAIL="Certificats_de_travail.pdf"
 TITRE_DIPLOMES="Diplomes.pdf"
 # Regex de recherche
-REGEX_TITRE_CV="CV.*\.docx"
-REGEX_TITRE_LM="LM.*\.docx"
+REGEX_TITRE_CV="CV.*\.${EXTENSION_FICHIER}" 
+REGEX_TITRE_LM="LM.*\.${EXTENSION_FICHIER}"
 # Par défaut - modifié si l'argument $3 '-anglais' est fourni
 FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE="" 
 
 # Version anglaise
-TITRE_CV_ANGLAIS="Resume_Pablo_ZAMORA_EN.docx"
-TITRE_LM_ANGLAIS="Cover_letter_Pablo_ZAMORA_EN.docx"
+TITRE_CV_ANGLAIS="Resume_Pablo_ZAMORA_EN.${EXTENSION_FICHIER}"
+TITRE_LM_ANGLAIS="Cover_letter_Pablo_ZAMORA_EN.${EXTENSION_FICHIER}"
 TITRE_CERTIFICATS_DE_TRAVAIL_ANGLAIS="Work_certificates.pdf"
 TITRE_DIPLOMES_ANGLAIS="Diplomas.pdf"
 # Regex de recherche
-REGEX_TITRE_CV_ANGLAIS="Cover_letter.*\.docx"
-REGEX_TITRE_LM_ANGLAIS="Resume.*\.docx"
+REGEX_TITRE_CV_ANGLAIS="Cover_letter.*\.${EXTENSION_FICHIER}"
+REGEX_TITRE_LM_ANGLAIS="Resume.*\.${EXTENSION_FICHIER}"
 
 # Conservation du répertoire d'avant commande
 POSITION_AVANT_COMMANDE="$PWD"
@@ -151,7 +156,7 @@ else
     FLAG_DOSSIER_TROUVE="false"
     FLAG_CV_TROUVE="false"
     FLAG_LM_TROUVE="false"
-    VARIATION=1
+    VARIATION=0
     PATH_AUTRE_DOSSIER_REEL=""
     PATH_CV_AUTRE_DOSSIER_REEL=""
     PATH_LM_AUTRE_DOSSIER_REEL=""
@@ -160,6 +165,7 @@ else
         # La variation évolue de -1j à chaque date
         #NOUVELLE_DATE="$(date -v${VARIATION}d +%F)"
         NOUVELLE_DATE="$(date --date="${VARIATION} days ago" +%F)"
+        echo "DEBUG $NOUVELLE_DATE"
         # date -I : Obtient la date au format AAAA-MM-JJ
         ANNEE_AUTRE_DOSSIER="$(echo "$NOUVELLE_DATE" | awk -F - ' { print $1 } ')"
         # obtient les 2 derniers chiffres de l'année
