@@ -8,9 +8,9 @@ source fonctions_personnelles
 
 # Selon l'environnement, modifier ces données
 EXTENSION_CAPTURE_ECRAN=".png"
-EMPLACEMENT_DES_CAPTURES_D_ECRAN=~/Desktop
+EMPLACEMENT_DES_CAPTURES_D_ECRAN=~/Images
 # Temps à partir duquel je considère qu'un fichier de l'extension est une capture d'écran.
-FICHIER_DATANT_DE="-5m" # ici datant de moins de 5 minutes
+FICHIER_DATANT_DE="-5" # ici datant de moins de 5 minutes
 ARGUMENT_ANNONCE="-annonce"
 ARGUMENT_CONFIRMATION="-confirmation"
 DEBUT_NOM_FICHIER_ANNONCE="A_"
@@ -86,7 +86,7 @@ do
     FLAG_CAPTURE_D_ECRAN="true"
 
     # Recherche tous les fichiers sur le bureau qui sont d'une certaine extension et qui ont été créé il y a X temps maximum
-done < <(find -s -E "$EMPLACEMENT_DES_CAPTURES_D_ECRAN" -type f -maxdepth 1 -mtime "$FICHIER_DATANT_DE" -regex ".*$EXTENSION_CAPTURE_ECRAN")
+done < <(find "$EMPLACEMENT_DES_CAPTURES_D_ECRAN" -maxdepth 1 -regextype posix-extended -type f -mmin "$FICHIER_DATANT_DE" -regex ".*$EXTENSION_CAPTURE_ECRAN" | sort )
 # Gestion de IFS pour obtenir les noms tels quels avec éventuels espaces
 IFS="$OLDIFS"
 
