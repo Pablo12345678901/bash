@@ -1,0 +1,11 @@
+#!/usr/bin/env bash 
+
+echo -e "\nMise à jour de apt...\n"
+sudo apt install &&
+sudo apt upgrade &&
+sudo apt full-upgrade &&
+{   echo -e "\nApt mis à jour !\n"
+    exit 0
+} || {  echo "\nERREUR : apt n'a pas pu être mise à jour \n"
+        exit 1
+}

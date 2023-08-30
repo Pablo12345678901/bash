@@ -1,0 +1,4 @@
+#!/usr/bin/env bash 
+
+apt_mettre_a_jour
+brew_mettre_a_jour
