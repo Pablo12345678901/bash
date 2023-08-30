@@ -18,11 +18,11 @@
 source fonctions_personnelles
 
 echo "DEBUG script $(basename $0) pas au point avec linux - à adapter"
-exit 0
+#exit 0
 
 # À modifier selon l'environnement
 PATH_DISQUE_DUR="${USB_CONNEXION_PATH}/Elements"
-EXTENSION_FICHIER="docx" # "docx"
+EXTENSION_FICHIER="odt" # "docx"
 
 # Gestion des répertoires concernés
 REPERTOIRE_GENERAL_RECHERCHE_EMPLOI="${PATH_DISQUE_DUR}/2_Taf_et_hospice/0_Recherche_emploi/0_OCE-ORP/1_Recherche_d_emploi"
@@ -163,9 +163,7 @@ else
     while [ $FLAG_DOSSIER_TROUVE = "false" ]
     do
         # La variation évolue de -1j à chaque date
-        #NOUVELLE_DATE="$(date -v${VARIATION}d +%F)"
         NOUVELLE_DATE="$(date --date="${VARIATION} days ago" +%F)"
-        echo "DEBUG $NOUVELLE_DATE"
         # date -I : Obtient la date au format AAAA-MM-JJ
         ANNEE_AUTRE_DOSSIER="$(echo "$NOUVELLE_DATE" | awk -F - ' { print $1 } ')"
         # obtient les 2 derniers chiffres de l'année
@@ -190,10 +188,9 @@ else
             PATH_AUTRE_DOSSIER_REEL="$PATH_AUTRE_DOSSIER"
             # Ce flag mettra fin à la boucle de recherche
             FLAG_DOSSIER_TROUVE="true"
-        done < <(find "$REPERTOIRE_DE_BASE" -regextype posix-extended -type d -regex "$REGEX_NOM_DE_L_AUTRE_DOSSIER" -print0 -quit | tr '\0' '\n' )
+        done < <(find "$REPERTOIRE_DE_BASE" -type d -regex "$REGEX_NOM_DE_L_AUTRE_DOSSIER" -print0 -quit | tr '\0' '\n' )
         # trouve les éventuels répertoire avec -type d selon le regex du path
         # find -quit : quitte après le premier match
-        
         # Bloc de recherche CV + LM -> se déclenche que si un dossier valable a été trouvé
         # Recherche du path du CV (word) -> que si pas encore trouvé (FLAG) 
         if [ $FLAG_DOSSIER_TROUVE = "true" ]
@@ -205,7 +202,7 @@ else
                 do
                     PATH_CV_AUTRE_DOSSIER_REEL="$PATH_CV"
                     FLAG_CV_TROUVE="true"
-                done < <(find "$PATH_AUTRE_DOSSIER_REEL" -regextype posix-extended -regex "${REGEX_CV}" -print0 -quit | tr '\0' '\n')
+                done < <(find "$PATH_AUTRE_DOSSIER_REEL" -regex "${REGEX_CV}" -print0 -quit | tr '\0' '\n')
                 # find -quit : quitte après le premier match
             else
                 :
@@ -218,7 +215,7 @@ else
                 do
                     PATH_LM_AUTRE_DOSSIER_REEL="$PATH_LM"
                     FLAG_LM_TROUVE="true"
-                done < <(find "$PATH_AUTRE_DOSSIER_REEL" -regextype posix-extended -regex "${REGEX_LM}" -print0 -quit | tr '\0' '\n')
+                done < <(find "$PATH_AUTRE_DOSSIER_REEL" -regex "${REGEX_LM}" -print0 -quit | tr '\0' '\n')
                 # find -quit : quitte après le premier match
             else
                 :
@@ -234,8 +231,8 @@ else
                 PATH_NVO_LM="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_LM}"
                 
                 # DEV - DECOMMENTER CES LIGNES AP
-                #cp "$PATH_CV_AUTRE_DOSSIER_REEL" "$PATH_NVO_CV"
-                #cp "$PATH_LM_AUTRE_DOSSIER_REEL" "$PATH_NVO_LM"
+                cp "$PATH_CV_AUTRE_DOSSIER_REEL" "$PATH_NVO_CV"
+                cp "$PATH_LM_AUTRE_DOSSIER_REEL" "$PATH_NVO_LM"
 
                 # Copie des certificats de travail et diplomes
                 PATH_CERTIFICATS_DE_TRAVAIL="${PATH_REPERTOIRE_CERTIFICATS_DE_TRAVAIL_ET_DIPLOMES}/${TITRE_CERTIFICATS_DE_TRAVAIL}"
@@ -244,15 +241,15 @@ else
                 PATH_NVO_DIPLOME="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_DIPLOMES}"
                 
                 # DEV - DECOMMENTER CES LIGNES AP
-                #cp "$PATH_CERTIFICATS_DE_TRAVAIL" "$PATH_NVO_CERTIFICATS_DE_TRAVAIL"
-                #cp "$PATH_DIPLOME" "$PATH_NVO_DIPLOME"
+                cp "$PATH_CERTIFICATS_DE_TRAVAIL" "$PATH_NVO_CERTIFICATS_DE_TRAVAIL"
+                cp "$PATH_DIPLOME" "$PATH_NVO_DIPLOME"
                 
                 # Ouverture des 2 fichiers word pr modification
                 echo -e "\nOuverture du CV et de la LM pour votre modification.\n"
                 
                 # DEV - DECOMMENTER CES LIGNES AP
-                #open "$PATH_NVO_CV"
-                #open "$PATH_NVO_LM"
+                open "$PATH_NVO_CV"
+                open "$PATH_NVO_LM"
                 
                 break # sortie de boucle
             fi

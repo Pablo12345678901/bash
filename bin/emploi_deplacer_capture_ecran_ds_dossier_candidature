@@ -64,7 +64,7 @@ fi
 # ait fait les captures d'écran.
 MESSAGE="
 Tapez enter après avoir effectué les captures d'écran $STRING_TYPE_ANNONCE_OU_CONFIRMATION_PR_MESSAGE (extension \"$EXTENSION_CAPTURE_ECRAN\").
-Attention : elles doivent dater de $FICHIER_DATANT_DE.
+Attention : elles doivent dater de $FICHIER_DATANT_DE minutes.
 
 Elles seront ensuites déplacées depuis \"$EMPLACEMENT_DES_CAPTURES_D_ECRAN\" vers le dossier de candidature situé \"$REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE\".
 "
