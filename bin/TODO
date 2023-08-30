@@ -35,7 +35,6 @@ DEVELOPPEMENT
                 -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
         
         CREATION FONCTIONNALITE
-        
         - disque_dur_ejecter -> modification de eject car refuse 'soit disant' d'éjecter le disque dur Element et autre mais l'éjecte à moitié
                 -> tjr visible mais plus monté
                 -> si déco manuellement ne se reconnecte qu'après longtemps 
@@ -45,6 +44,7 @@ DEVELOPPEMENT
         - app fermer all script -> débuger et adapter pr linux
         - bluetooth_eteindre -> débugger et adapter pr linux 
         - ordi_eteindre -> débugger et adapter pr linux
+        - finaliser le script de gestion des packages installés / réinstallé / etc.. y.c. ceux installés manuellement
         - finaliser le script de création DB : db_creation...
         - transformer les fonctions en fonctions d'affichages - ne plus traiter avec des variables globales
                 -> afficher les valeurs et ensuite l'implémentation décide ce qu'elle en fait

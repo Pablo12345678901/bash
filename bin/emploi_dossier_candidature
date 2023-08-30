@@ -232,21 +232,27 @@ else
                 # Copie du CV et LM dans le nouveau répertoire précédemment crée
                 PATH_NVO_CV="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_CV}"
                 PATH_NVO_LM="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_LM}"
-                cp "$PATH_CV_AUTRE_DOSSIER_REEL" "$PATH_NVO_CV"
-                cp "$PATH_LM_AUTRE_DOSSIER_REEL" "$PATH_NVO_LM"
+                
+                # DEV - DECOMMENTER CES LIGNES AP
+                #cp "$PATH_CV_AUTRE_DOSSIER_REEL" "$PATH_NVO_CV"
+                #cp "$PATH_LM_AUTRE_DOSSIER_REEL" "$PATH_NVO_LM"
 
                 # Copie des certificats de travail et diplomes
                 PATH_CERTIFICATS_DE_TRAVAIL="${PATH_REPERTOIRE_CERTIFICATS_DE_TRAVAIL_ET_DIPLOMES}/${TITRE_CERTIFICATS_DE_TRAVAIL}"
                 PATH_DIPLOME="${PATH_REPERTOIRE_CERTIFICATS_DE_TRAVAIL_ET_DIPLOMES}/${TITRE_DIPLOMES}"
                 PATH_NVO_CERTIFICATS_DE_TRAVAIL="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_CERTIFICATS_DE_TRAVAIL}"
                 PATH_NVO_DIPLOME="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_DIPLOMES}"
-                cp "$PATH_CERTIFICATS_DE_TRAVAIL" "$PATH_NVO_CERTIFICATS_DE_TRAVAIL"
-                cp "$PATH_DIPLOME" "$PATH_NVO_DIPLOME"
+                
+                # DEV - DECOMMENTER CES LIGNES AP
+                #cp "$PATH_CERTIFICATS_DE_TRAVAIL" "$PATH_NVO_CERTIFICATS_DE_TRAVAIL"
+                #cp "$PATH_DIPLOME" "$PATH_NVO_DIPLOME"
                 
                 # Ouverture des 2 fichiers word pr modification
                 echo -e "\nOuverture du CV et de la LM pour votre modification.\n"
-                open "$PATH_NVO_CV"
-                open "$PATH_NVO_LM"
+                
+                # DEV - DECOMMENTER CES LIGNES AP
+                #open "$PATH_NVO_CV"
+                #open "$PATH_NVO_LM"
                 
                 break # sortie de boucle
             fi

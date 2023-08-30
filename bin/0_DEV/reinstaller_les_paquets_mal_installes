@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# - : aucun argument requis
+
+echo "PAS AU POINT ENCORE"
+
+TEMPS_DATTENTE_AVANT_LANCEMENT=10
+echo -e "\nAVERTISSEMENT : ce script est long...\n\nLancement dans $TEMPS_DATTENTE_AVANT_LANCEMENT secondes...\n"
+sleep $TEMPS_DATTENTE_AVANT_LANCEMENT
+
+PHRASE_PB_PACKAGE="Cannot find md5sums path for "
+RESULTAT="1" # pr lancer la boucle
+
+while [ ${#RESULTAT} -gt 0 ]
+do
+    RESULTAT="" # remise à vide au début de chaque boucle
+    RESULTAT="$(sudo debsums -c 2>&1)"
+    if [[ "$RESULTAT" =~ $PHRASE_PB_PACKAGE ]]
+    then
+        PACKAGE_A_INSTALLER="${RESULTAT#$PHRASE_PB_PACKAGE}"
+        #echo "PACKAGE_A_INSTALLER $PACKAGE_A_INSTALLER"
+        sudo apt install --reinstall "$PACKAGE_A_INSTALLER"
+    else
+        echo "Message final : $RESULTAT"
+        RESULTAT="" # si pas de message d'erreur, alors remise à 0 
+    fi
+done
