@@ -1,4 +1,9 @@
 #!/usr/bin/env bash 
 
-apt_mettre_a_jour
-brew_mettre_a_jour
+# Syntaxe :
+# - : aucun argument requis.
+
+# Pour la mise à jour manuelle
+# En principe, mis à jour par deux cron
+apt_mettre_a_jour # sudo crontab -> pr apt
+brew_mettre_a_jour # crontab

@@ -26,7 +26,6 @@ fi
 
 # Conservation du résultat de l'opération pr affichage message réussite / échec
 RESULTAT_DERNIER_OPERATION=$?
-
 # Affichage du message que si pas en mode silencieux
 if [ $FLAG_MODE_SILENCIEUX = "true" ]
 then
