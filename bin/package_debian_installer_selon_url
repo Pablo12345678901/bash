@@ -2,13 +2,25 @@
 
 source fonctions_personnelles
 
-SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-u URL" "[-r REPERTOIRE_TEMPORAIRE]" )"
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-u URL" "[-f]" "[-r REPERTOIRE_TEMPORAIRE]" )"
 
 # Contrôle des arguments
 FLAG_OPTION_U= # non défini par défaut pr test après lecture des options
-while getopts ':u:' OPTION # le résultat de getopts à chaque boucle est stocké dans $OPTION
+FLAG_OPTION_F=
+while getopts ':fr:u:' OPTION # le résultat de getopts à chaque boucle est stocké dans $OPTION
 do
     case $OPTION in
+        f )     FLAG_OPTION_F=1     
+                ;;
+        r )     REPERTOIRE_TEMPORAIRE="$OPTARG"
+                # Test si path absolu (commence par slash)
+                if [ "${REPERTOIRE_TEMPORAIRE:0:1}" = "/" ]
+                then
+                    :
+                else
+                    REPERTOIRE_TEMPORAIRE="${$PWD}/${REPERTOIRE_TEMPORAIRE}"
+                fi
+                ;;
         u )     FLAG_OPTION_U=1
                 URL="$OPTARG"
                 # Test si url existe
@@ -19,15 +31,6 @@ do
                     STDERR_afficher_message "\nERREUR : L'url \"$URL\" n'existe pas.\n"
                     STDERR_afficher_message "$SYNTAXE"
                     exit 1
-                fi
-                ;;
-        r )     REPERTOIRE_TEMPORAIRE="$OPTARG"
-                # Test si path absolu (commence par slash)
-                if [ "${REPERTOIRE_TEMPORAIRE:0:1}" = "/" ]
-                then
-                    :
-                else
-                    REPERTOIRE_TEMPORAIRE="${$PWD}/${REPERTOIRE_TEMPORAIRE}"
                 fi
                 ;;
         # Argument manquant
@@ -78,10 +81,23 @@ REGEX_EXTENSION_DEB="^.*\.(D|d)(E|e)(B|b)$"
 
 if [[ "$PACKAGE" =~ $REGEX_EXTENSION_DEB ]]
 then 
-    sudo dpkg -i "$PACKAGE" || {    STDERR_afficher_message "\nERREUR : le fichier \"$PACKAGE\" n'a pas pu être traité correctement.\nVeuillez le faire manuellement.\n" &&
-    rm -rf "$PACKAGE" ; # éventuel test de suppression ici
-    exit 2 
-    }
+    # Si l'option -f n'a pas été fourni = normal sinon force avec '--auto-deconfigure'
+    if [ -z "$FLAG_OPTION_F" ]
+    then
+        sudo dpkg -i "$PACKAGE"
+    else
+        sudo dpkg -i --auto-deconfigure "$PACKAGE"
+    fi
+    # Test si échec de l'action
+    if (($?))
+    then
+        {   STDERR_afficher_message "\nERREUR : le fichier \"$PACKAGE\" n'a pas pu être traité correctement.\nVeuillez le faire manuellement.\n" &&
+            rm -rf "$PACKAGE" ; # éventuel test de suppression ici
+            exit 2 
+        }
+    else
+        "ok"
+    fi
 else
     STDERR_afficher_message "\nERREUR : le fichier \"$PACKAGE\" n'est pas un package avec extension \".deb\".\n"
 fi
