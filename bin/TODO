@@ -35,13 +35,14 @@ DEVELOPPEMENT
                 -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
         
         CREATION FONCTIONNALITE
+        - sauvegarde de sécurité git push des répertoire (linux_config et administratif)
         - disque_dur_ejecter -> modification de eject car refuse 'soit disant' d'éjecter le disque dur Element et autre mais l'éjecte à moitié
                 -> tjr visible mais plus monté
-                -> si déco manuellement ne se reconnecte qu'après longtemps 
+                -> si déco manuellement ne se reconnecten qu'après longtemps 
                 -> par contre il détecte si en cours d'utilisation et affiche un autre message d'erreur
         - corbeille vider -> débuger et adapter pr Linux
         - app_recuperertoute fonction -> débugger et adapter pr linux
-        - app fermer all script -> débuger et adapter pr linux
+        - app fermer_all script -> débuger et adapter pr linux
         - bluetooth_eteindre -> débugger et adapter pr linux 
         - ordi_eteindre -> débugger et adapter pr linux
         - finaliser le script de gestion des packages installés / réinstallé / etc.. y.c. ceux installés manuellement
