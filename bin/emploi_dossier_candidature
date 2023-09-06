@@ -17,9 +17,6 @@
 
 source fonctions_personnelles
 
-echo "DEBUG script $(basename $0) pas au point avec linux - à adapter"
-#exit 0
-
 # À modifier selon l'environnement
 PATH_DISQUE_DUR="${USB_CONNEXION_PATH}/Elements"
 EXTENSION_FICHIER="odt" # "docx"
