@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+: <<"DEV"
+echo "Hello world"
+
+for number in {1..10}
+do
+    echo "TADA : $number"
+done
+
+
+set -- {A..Z}
+for ((i=0; i<=$#; i++))
+do
+    echo "${!i}"
+done
+DEV
+
+ls -l | sh
