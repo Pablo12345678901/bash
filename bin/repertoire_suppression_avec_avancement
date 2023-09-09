@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-r REPERTOIRE_OU_FICHIER_A_SUPPRIMER")"
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt -o 'r:' -q -- "$@")
+# -o : option courte
+# -q : quiet
+# -- : marque la fin des options
+
+# Test si la syntaxe a été correcte (options + arguments)
+if [ $? -ne 0 ]
+then
+    STDERR_afficher_message "ERREUR de syntaxe..."
+    STDERR_afficher_message "$SYNTAXE"
+    exit 1
+fi
+
+# Contrôle des arguments
+FLAG_OPTION_R= 
+
+# Remise des options en paramètres positionnels
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+	case "$1" in
+        '-r' )
+            FLAG_OPTION_R=1
+            REPERTOIRE_OU_FICHIER_A_SUPPRIMER="$2"
+            shift 2
+            # Test si répertoire ou fichier
+            if [ -d "$REPERTOIRE_OU_FICHIER_A_SUPPRIMER" ] || [ -f "$REPERTOIRE_OU_FICHIER_A_SUPPRIMER" ] 
+            then
+                :
+            else
+                STDERR_afficher_message "\nERREUR : Le path \"$REPERTOIRE_OU_FICHIER_A_SUPPRIMER\" n'est pas un répertoire/fichier.\n"
+                STDERR_afficher_message "$SYNTAXE"
+                exit 2
+            fi
+            continue
+            ;;
+		'--')
+			shift
+			break
+		    ;;
+        # Gestion des erreurs pour tout autre bug.
+        * )
+            STDERR_afficher_message "ERREUR interne\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 3
+            ;;
+	esac
+done
+
+# Test si les options requises ont été fournies (=test si flag défini)
+if [ ! -z "$FLAG_OPTION_R" ] 
+then
+    # Test si d'autres darguments = en trop (=test si $1 défini)
+    if [ ! -z "$1" ]
+    then
+        STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
+        STDERR_afficher_message "$SYNTAXE"
+        exit 4
+    else
+        :
+    fi
+else
+    STDERR_afficher_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 5
+fi
+
+# Demande de sécurité pr éviter une suppression non voulue
+REPONSE=""
+QUESTION_SUPPRESSION="Êtes-vous certain de vouloir supprimer tous les fichiers/répertoires du path
+
+\"$REPERTOIRE_OU_FICHIER_A_SUPPRIMER\"
+
+? (OoYy/Nn) " 
+question_oui_non REPONSE "$QUESTION_SUPPRESSION"
+
+if [ "$REPONSE" = "o" ]
+then
+    echo -e "\nComptage du nombre de fichiers à supprimer dans le répertoire/fichier \"$REPERTOIRE_OU_FICHIER_A_SUPPRIMER\"..."
+    NB_FICHIER=$( du -a "$REPERTOIRE_OU_FICHIER_A_SUPPRIMER" | wc -l )
+    echo -e "\n$NB_FICHIER fichiers à supprimer."
+    # Suppression avec affichage de la barre de progression
+    echo -e "\nSuppression des fichiers situés \"$REPERTOIRE_OU_FICHIER_A_SUPPRIMER\".\n"
+    rm -rfv "$REPERTOIRE_OU_FICHIER_A_SUPPRIMER" | pv -l -s $NB_FICHIER >/dev/null
+    # Test si suppression correctement effectuée (si le fichier existe toujours = échec)
+    if [ -d "$REPERTOIRE_OU_FICHIER_A_SUPPRIMER" ] || [ -f "$REPERTOIRE_OU_FICHIER_A_SUPPRIMER" ]
+    then
+        STDERR_afficher_message "\nERREUR : la suppression de \"$REPERTOIRE_OU_FICHIER_A_SUPPRIMER\" n'a pas fonctionné.\n"
+        STDERR_afficher_message "\nVeuillez contrôler les résultat manuellement.\n"
+        open "$REPERTOIRE_OU_FICHIER_A_SUPPRIMER"
+        exit 6
+    else
+        echo -e "\nSuppression terminée.\n"
+    fi
+else
+    echo -e "\nAnnulation de la suppression.\n"
+    exit 0
+fi
