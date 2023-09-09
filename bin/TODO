@@ -80,6 +80,9 @@ DEVELOPPEMENT
                 ->   accepter les strings de plusieurs mots avec gestion des espaces
                 ->   accepter de remplacer un string par un string vide
                 ->   faire fonctionner le vidage de la corbeille depuis ce script
+        - backup sauvegarde :
+                ->      ajout fonctionnalité de test si espace suffisant sur répertoire destination avant de lancer la copie et sinon
+                                -> tester la taille globale et si la taille globale est ok - effacer le contenu pr remplacer (avec une demande pr ce faire avant = sécurité)
         - db_recuperer_data...
                 -> Séparer les données par un autre char que '\t'
                 -> Fin de ligne par un autre char que '\0'

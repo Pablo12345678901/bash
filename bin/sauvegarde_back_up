@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-
-
 source fonctions_personnelles
 
 # Syntaxe
@@ -108,13 +106,11 @@ else
 fi
 
 # Back-up
-rsync -a -v -z -P --partial "$SOURCE_AVEC_SLASH_FINAL" "$DESTINATION_SANS_SLASH_FINAL"
+rsync -a -v -z -P --info=progress2 --partial "$SOURCE_AVEC_SLASH_FINAL" "$DESTINATION_SANS_SLASH_FINAL"
 # Debug :
 # -a : archive mode is -rlptgoD (no -A,-X,-U,-N,-H) -> backup tout y.c permissions sur fichiers
 # -v : verbose
 # -z : compress avant de backup (qui sera décompressé) = plus rapide
 # -P : progress bar
+# --info=progress2 : montre un niveau élevé (0=nul 2=max) d'information sur la progression
 # --partial : si pas complètement sauvegardé et perte de connexion, conserve les fichiers partiels. Puis se reconnecte et ne recopie que la suite à partir de ce qui a déjà été copié.
-
-# À activer qd script OK pr backup
-#rsync -a -z --partial "$SOURCE_AVEC_SLASH_FINAL" "$DESTINATION_SANS_SLASH_FINAL"
