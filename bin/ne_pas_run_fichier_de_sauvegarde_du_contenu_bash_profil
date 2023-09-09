@@ -163,7 +163,6 @@ ajout_au_tableau TABLEAU_VARIABLES_PERSO 'BUREAU_PATH'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'CORBEILLE_PATH'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'USB_CONNEXION_PATH'
 
-
 # Création de la liste des variables persos
 LISTE_VARIABLES_PERSO=$( IFS=: ; printf "%s" "${TABLEAU_VARIABLES_PERSO[*]}" )
 # transformation du tableau en string séparé par des ":" via la définition de IFS dans un sous-shell
@@ -179,6 +178,7 @@ export LISTE_VARIABLES_PERSO # pour affichage sur demande via script corresponda
 ##################################
 ######### $PATH ##################
 ##################################
+
 # Liste de paths personnels ajoutés à $PATH
 # tableau des paths à ajouter manuellement
 declare -a liste_path 
@@ -211,9 +211,9 @@ done
 
 export PATH
 
-
-
-
+##################################
+######### FIN PATH ###############
+##################################
 
 
 
