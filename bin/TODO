@@ -18,7 +18,9 @@ DEVELOPPEMENT
         ##################################################################################
         
         DEBUG
-        - script dossier emploi -> recherche fichier odt et docx pas exacte -> vont plus loin qu'il ne devraient pour la recherche
+        - script bluetooth_souris
+                -> si interrupteur en haut à droite écran eteint manuellement, ne s'allume pas automatiquement depuis script
+                ->si allumé manuellement et service stoppé alors oui s'allume -> recherche fichier odt et docx pas exacte -> vont plus loin qu'il ne devraient pour la recherche
         - remplacement_mot_dans_fichier (les char '|' et '\' suivi de '|' font que certain regex ne sont pas détectés)
                 -> si il y a une pipeline sur plusieurs lignes qui se termine par '\' alors cela ne fonctionne pas
                 car les lignes réelles sont plusieurs et le script ne détecte qu'une seule ligne -> exemple : recherche regex 'grep' ds le fichier 'fetchurls'
