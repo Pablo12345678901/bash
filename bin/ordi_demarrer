@@ -3,5 +3,5 @@
 # Syntaxe :
 # - : pas d'argument à fournir
 
-bluetooth_connexion_souris
-app_ouvrir
+bluetooth_connexion_souris_linux
+#app_ouvrir

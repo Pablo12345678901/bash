@@ -26,7 +26,7 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
 # Profil Linux ci-dessus
 
 
@@ -186,12 +186,18 @@ declare -a liste_path
 # Mac : ajout_au_tableau liste_path '/usr/local/opt/openjdk/bin'
 ajout_au_tableau liste_path "$REPERTOIRE_DES_COMMANDES_PERSO"
 
+
 # Ajouter chaque élément du tableau à $PATH
 for path_a_ajoute in "${liste_path[@]}"
 do
     _path_del PATH "$path_a_ajoute" # supprime les doublons
     _path_append PATH "$path_a_ajoute" # ajoute en fin
 done
+
+# Spécial brew
+_path_append PATH /home/linuxbrew/.linuxbrew/bin
+_path_append PATH  /home/linuxbrew/.linuxbrew/sbin
+
 
 # Commandes GNU placées avant les paths des commandes Apple
 # Mac :  _path_prepend PATH "/usr/local/opt/findutils/libexec/gnubin" # GNU findutils avec de multiples commandes de recherche (find / locate ) et aussi xargs
