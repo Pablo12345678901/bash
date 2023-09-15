@@ -20,6 +20,9 @@ source fonctions_personnelles
 # À modifier selon l'environnement
 PATH_DISQUE_DUR="${USB_CONNEXION_PATH}/Elements"
 EXTENSION_FICHIER="odt" # "docx"
+# Tableau de recherche emploi
+REPERTOIRE_ADMINISTRATIF="$REPERTOIRE_DEVELOPPEMENT/administratif"
+TABLEAU_RECHERCHE_EMPLOI="Recherche_d_emploi.ods"
 
 # Gestion des répertoires concernés
 REPERTOIRE_GENERAL_RECHERCHE_EMPLOI="${PATH_DISQUE_DUR}/2_Taf_et_hospice/0_Recherche_emploi/0_OCE-ORP/1_Recherche_d_emploi"
@@ -61,15 +64,15 @@ SYNTAXE="\nSyntaxe :\n\t$(basename $0)    NOM_DU_POSTE    NOM_DE_LENTREPRISE    
 ARG_FOURNI_TOUS="$*"
 if [[ -z "$1" && -z "$2" ]]
 then
-    echo -e "\nERREUR : aucun argument fourni."
-    echo -e "$SYNTAXE"
+    STDERR_afficher_message "\nERREUR : aucun argument fourni."
+    STDERR_afficher_message "$SYNTAXE"
     exit 1
 elif [ -z "$2" ]
 then
-    echo -e "\nERREUR : le deuxième argument (nom de l'entreprise) n'a pas été fourni."
-    echo -e "Argument fourni : \"$ARG_FOURNI_TOUS\"."
-    echo -e "$SYNTAXE"
-    exit 1
+    STDERR_afficher_message "\nERREUR : le deuxième argument (nom de l'entreprise) n'a pas été fourni."
+    STDERR_afficher_message "Argument fourni : \"$ARG_FOURNI_TOUS\"."
+    STDERR_afficher_message "$SYNTAXE"
+    exit 2
 else
     # Définition du nom du poste et de l'entreprise
     NOM_DU_POSTE="$1"
@@ -95,10 +98,10 @@ do
                     FLAG_POSTULATION_CHOMAGE="false"
                     shift 1
                     ;;
-    * )             echo -e "\nERREUR : l'argument fourni \"$1\" est invalide."
-                    echo -e "Tous les arguments fournis : \"$ARG_FOURNI_TOUS\"."
-                    echo -e "$SYNTAXE"
-                    exit 1
+    * )             STDERR_afficher_message "\nERREUR : l'argument fourni \"$1\" est invalide."
+                    STDERR_afficher_message "Tous les arguments fournis : \"$ARG_FOURNI_TOUS\"."
+                    STDERR_afficher_message "$SYNTAXE"
+                    exit 3
                     ;;
     esac
 done
@@ -108,9 +111,27 @@ if [ -d "$REPERTOIRE_GENERAL_RECHERCHE_EMPLOI" ]
 then
     :
 else
-    echo -e "\nERREUR : le répertoire :\n\"$REPERTOIRE_GENERAL_RECHERCHE_EMPLOI\"\nn'est pas existant.\nIl est possible que le disque dur ne soit pas connecté.\n"
-    exit 1
+    STDERR_afficher_message "\nERREUR : le répertoire :\n\"$REPERTOIRE_GENERAL_RECHERCHE_EMPLOI\"\nn'est pas existant.\nIl est possible que le disque dur ne soit pas connecté.\n"
+    exit 4
 fi
+
+# Test si le répertoire administratif + tableau de recherche emploi existent
+PATH_TABLEAU_RECHERCHE_EMPLOI="${REPERTOIRE_ADMINISTRATIF}/${TABLEAU_RECHERCHE_EMPLOI}"
+if [ ! -d "$REPERTOIRE_ADMINISTRATIF" ]
+then
+    STDERR_afficher_message "\nERREUR : Le répertoire \"$REPERTOIRE_ADMINISTRATIF\" n'existe pas.\n"
+    exit 5
+else
+    if [ ! -f "$PATH_TABLEAU_RECHERCHE_EMPLOI" ]
+    then
+        STDERR_afficher_message "\nERREUR : Le fichier \"$PATH_TABLEAU_RECHERCHE_EMPLOI\" n'existe pas.\n"
+        exit 6
+    fi
+fi
+
+# Ouverture du tableau de recherche emploi
+echo -e "\nOuverture du tableau de recherche emploi...\n"
+open "$PATH_TABLEAU_RECHERCHE_EMPLOI"
 
 # Obtention de la date
 DATE_AJD="$(date -I)"
