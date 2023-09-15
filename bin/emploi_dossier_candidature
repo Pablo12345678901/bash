@@ -20,9 +20,6 @@ source fonctions_personnelles
 # À modifier selon l'environnement
 PATH_DISQUE_DUR="${USB_CONNEXION_PATH}/Elements"
 EXTENSION_FICHIER="odt" # "docx"
-# Tableau de recherche emploi
-REPERTOIRE_ADMINISTRATIF="$REPERTOIRE_DEVELOPPEMENT/administratif"
-TABLEAU_RECHERCHE_EMPLOI="Recherche_d_emploi.ods"
 
 # Gestion des répertoires concernés
 REPERTOIRE_GENERAL_RECHERCHE_EMPLOI="${PATH_DISQUE_DUR}/2_Taf_et_hospice/0_Recherche_emploi/0_OCE-ORP/1_Recherche_d_emploi"
@@ -115,23 +112,8 @@ else
     exit 4
 fi
 
-# Test si le répertoire administratif + tableau de recherche emploi existent
-PATH_TABLEAU_RECHERCHE_EMPLOI="${REPERTOIRE_ADMINISTRATIF}/${TABLEAU_RECHERCHE_EMPLOI}"
-if [ ! -d "$REPERTOIRE_ADMINISTRATIF" ]
-then
-    STDERR_afficher_message "\nERREUR : Le répertoire \"$REPERTOIRE_ADMINISTRATIF\" n'existe pas.\n"
-    exit 5
-else
-    if [ ! -f "$PATH_TABLEAU_RECHERCHE_EMPLOI" ]
-    then
-        STDERR_afficher_message "\nERREUR : Le fichier \"$PATH_TABLEAU_RECHERCHE_EMPLOI\" n'existe pas.\n"
-        exit 6
-    fi
-fi
-
-# Ouverture du tableau de recherche emploi
-echo -e "\nOuverture du tableau de recherche emploi...\n"
-open "$PATH_TABLEAU_RECHERCHE_EMPLOI"
+# Ouverture du tableau recherche emploi
+admin_ouvrir_fichier -f "Recherche_d_emploi.ods" || exit 4
 
 # Obtention de la date
 DATE_AJD="$(date -I)"
@@ -284,7 +266,7 @@ echo -e "\nOuverture du répertoire \"$PATH_COMPLET_REPERTOIRE_CANDIDATURE\"...\
 open "$PATH_COMPLET_REPERTOIRE_CANDIDATURE"
 
 # Copie des captures d'écran de l'annonce
-emploi_deplacer_capture_ecran_ds_dossier_candidature "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" "-annonce"
+emploi_capture_ecran_deplacer_ds_dossier_candidature "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" "-annonce"
 
 # Question oui/non il y a capture d'écran confirmation
 # -> si oui, copie dans le répertoire
@@ -293,7 +275,7 @@ QUESTION_CONFIRMATION="Y a-t-il une/des capture(s) d'écran de la confirmation ?
 question_oui_non REPONSE_SI_CONFIRMATION "$QUESTION_CONFIRMATION"
 if [ "$REPONSE_SI_CONFIRMATION" = "o" ]
 then
-    emploi_deplacer_capture_ecran_ds_dossier_candidature "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" "-confirmation"
+    emploi_capture_ecran_deplacer_ds_dossier_candidature "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" "-confirmation"
 else 
     :
 fi

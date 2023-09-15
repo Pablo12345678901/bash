@@ -37,9 +37,10 @@ DEVELOPPEMENT
                 -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
         
         CREATION FONCTIONNALITE
+        - fonction de génération dynamique du code d'erreur lié à exit en détectant si c'est un bon ou mauvais exit
         - sauvegarde de sécurité git push des répertoire (linux_config et administratif)
         - disque_dur_ejecter -> modification de eject car refuse 'soit disant' d'éjecter le disque dur Element et autre mais l'éjecte à moitié
-                -> tjr visible mais plus monté
+                -> tjr visible ais plus monté
                 -> si déco manuellement ne se reconnecten qu'après longtemps 
                 -> par contre il détecte si en cours d'utilisation et affiche un autre message d'erreur
         - corbeille vider -> débuger et adapter pr Linux
@@ -85,6 +86,7 @@ DEVELOPPEMENT
         - backup sauvegarde :
                 ->      ajout fonctionnalité de test si espace suffisant sur répertoire destination avant de lancer la copie et sinon
                                 -> tester la taille globale et si la taille globale est ok - effacer le contenu pr remplacer (avec une demande pr ce faire avant = sécurité)
+        - script admin_ouvrir_fichier : lister les fichiers disponible pr ouverture si aucun argument fichier transmis
         - db_recuperer_data...
                 -> Séparer les données par un autre char que '\t'
                 -> Fin de ligne par un autre char que '\0'
