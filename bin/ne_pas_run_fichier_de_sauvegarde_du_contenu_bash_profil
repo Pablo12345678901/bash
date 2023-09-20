@@ -1,43 +1,29 @@
-# ~/.profile: executed by the command interpreter for login shells.
-# This file is not read by bash(1), if ~/.bash_profile or ~/.bash_login
-# exists.
-# see /usr/share/doc/bash/examples/startup-files for examples.
-# the files are located in the bash-doc package.
+## DEBUT GUIX
 
-# the default umask is set in /etc/profile; for setting the umask
-# for ssh logins, install and configure the libpam-umask package.
-#umask 022
+# Set up Guix Home profile
+if [ -f ~/.profile ]; then . ~/.profile; fi
 
-# if running bash
-if [ -n "$BASH_VERSION" ]; then
-    # include .bashrc if it exists
-    if [ -f "$HOME/.bashrc" ]; then
-	. "$HOME/.bashrc"
-    fi
-fi
+# Honor per-interactive-shell startup file
+if [ -f ~/.bashrc ]; then . ~/.bashrc; fi
 
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
-fi
+# Merge search-paths from multiple profiles, the order matters.
+eval "$(guix package --search-paths \
+-p $HOME/.config/guix/current \
+-p $HOME/.guix-profile \
+-p /run/current-system/profile)"
 
-# set PATH so it includes user's private bin if it exists
-if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$PATH"
-fi
+### FIN GUIX ### IL RESTE DES PATHS GUIX CI-DESSOUS ###
 
 
-# Profil Linux ci-dessus
-
-
+# VARIABLE A ADAPTER ICI
+: ${BUREAU_PATH:="$HOME/Desktop"}
+: ${REPERTOIRE_DEVELOPPEMENT:="$BUREAU_PATH/developpement"}
+: ${REPERTOIRE_DES_COMMANDES_PERSO:="$REPERTOIRE_DEVELOPPEMENT/bash/bin"}
 # Source le fichier ou je conserve mes fonctions personnelles
 # Je l'ai placé dans l'environnement de développement pour faciliter ses modifications.
 # Ainsi je peux appeler les fonctions depuis n'importe quel terminal / fichier.
 # Toutefois, je dois continuer de sourcer le fichiers dans mes scripts.
-: ${REPERTOIRE_DES_COMMANDES_PERSO:="$HOME/Bureau/Developpement/bash/bin"} # fixe la variable si pas définie
 . $REPERTOIRE_DES_COMMANDES_PERSO/fonctions_personnelles # source les fonctions personnelles
-
-
 
 # Contrôle pour ne pas run ce script par moi-même via mes commandes personnelles.
 if [[ $0 =~ (-)?bash$ ]] # "-bash" est run au lancement et "bash" est run avec "exec bash -l" qui relance bash
@@ -50,7 +36,6 @@ else
     exit 1 # exit du fichier si ce n'est pas le shell qui le run à l'ouverture
     # c'est-à-dire : exit du fichier si je le run sous le nom donné ci-dessous en tant que commande du dossier personnel.
 fi
-
 
 
 
@@ -120,36 +105,51 @@ function ajout_au_tableau() {
 
 ################################
 # Liste variables d'environnement personnelles (créées par moi)
-REPERTOIRE_DEVELOPPEMENT="$HOME/Bureau/Developpement"
+# REPERTOIRE_DEVELOPPEMENT est déjà défini ci-dessus
 export REPERTOIRE_DEVELOPPEMENT # pour utilisation (notamment) durant les push de Git
-REPERTOIRE_DES_COMMANDES_PERSO="$REPERTOIRE_DEVELOPPEMENT/bash/bin" # path du répertoire des commandes perso - à adapter si changement d'environnement
+
+# REPERTOIRE_DES_COMMANDES_PERSO est déjà défini ci-dessus
 export REPERTOIRE_DES_COMMANDES_PERSO # pour utilisation dans le script qui sauvegarde ce profil
 REPERTOIRE_ADMINISTRATIF="$REPERTOIRE_DEVELOPPEMENT/administratif"
 export REPERTOIRE_ADMINISTRATIF
+
 # Pour lesspipe, une extension utile à la commande less de Bash
-LESSOPEN="|/usr/local/bin/lesspipe.sh %s"
-export LESSOPEN
+#LESSOPEN="|/usr/local/bin/lesspipe.sh %s"
+#export LESSOPEN
+
 # Pour la commande ajouter la database locale à la commande locate
-DB_LOCALE="$HOME/locate.user.database"
-export DB_LOCALE
+#DB_LOCALE="$HOME/locate.user.database"
+#export DB_LOCALE
+
 # Pour la gestion des keybinds (raccourcis clavier) de la commande 'bind'
-RACCOURCIS_CLAVIER="$REPERTOIRE_DES_COMMANDES_PERSO/bind_gestion_raccourci_clavier.txt"
-export RACCOURCIS_CLAVIER
+#RACCOURCIS_CLAVIER="$REPERTOIRE_DES_COMMANDES_PERSO/#bind_gestion_raccourci_clavier.txt"
+#export RACCOURCIS_CLAVIER
+
 # Path du fichier de profil bash
-BASH_PROFILE_PATH="$HOME/.profile"
+BASH_PROFILE_PATH="$HOME/.bash_profile"
 export BASH_PROFILE_PATH
+
 # Path du fichier bashrc
 BASHRC_PATH="$HOME/.bashrc"
 export BASHRC_PATH
+
 # Path du bureau
-BUREAU_PATH="$HOME/Bureau"
+# BUREAU_PATH est déjà défini ci-dessus
 export BUREAU_PATH
+
 # Path de la corbeille 
-CORBEILLE_PATH="$HOME/.local/share/Trash"
-export CORBEILLE_PATH
+#CORBEILLE_PATH="trash:///"
+#export CORBEILLE_PATH
+
 # Path de connexion des ports usb locaux
 USB_CONNEXION_PATH="/media/${USER}"
 export USB_CONNEXION_PATH
+
+# Pour GUIX
+GUIX_PROFILE="/home/incognito/.guix-profile"
+. "$GUIX_PROFILE/etc/profile" # charger le guix profile 
+export GUIX_PROFILE
+
 
 # Tableau des variables personnelles 
 declare -a TABLEAU_VARIABLES_PERSO # tableau des paths à ajouter manuellement
@@ -157,14 +157,15 @@ declare -a TABLEAU_VARIABLES_PERSO # tableau des paths à ajouter manuellement
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'REPERTOIRE_DEVELOPPEMENT'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'REPERTOIRE_DES_COMMANDES_PERSO'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'REPERTOIRE_ADMINISTRATIF'
-ajout_au_tableau TABLEAU_VARIABLES_PERSO 'LESSOPEN'
-ajout_au_tableau TABLEAU_VARIABLES_PERSO 'DB_LOCALE'
-ajout_au_tableau TABLEAU_VARIABLES_PERSO 'RACCOURCIS_CLAVIER'
+#ajout_au_tableau TABLEAU_VARIABLES_PERSO 'LESSOPEN'
+#ajout_au_tableau TABLEAU_VARIABLES_PERSO 'DB_LOCALE'
+#ajout_au_tableau TABLEAU_VARIABLES_PERSO 'RACCOURCIS_CLAVIER'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'BASH_PROFILE_PATH'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'BASHRC_PATH'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'BUREAU_PATH'
-ajout_au_tableau TABLEAU_VARIABLES_PERSO 'CORBEILLE_PATH'
+#ajout_au_tableau TABLEAU_VARIABLES_PERSO 'CORBEILLE_PATH'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'USB_CONNEXION_PATH'
+ajout_au_tableau TABLEAU_VARIABLES_PERSO 'GUIX_PROFILE'
 
 # Création de la liste des variables persos
 LISTE_VARIABLES_PERSO=$( IFS=: ; printf "%s" "${TABLEAU_VARIABLES_PERSO[*]}" )
@@ -189,6 +190,14 @@ declare -a liste_path
 # Mac : ajout_au_tableau liste_path '/usr/local/opt/openjdk/bin'
 ajout_au_tableau liste_path "$REPERTOIRE_DES_COMMANDES_PERSO"
 
+### SPECIAL GUIX ####
+# Prepend setuid programs.
+_path_prepend PATH "/run/setuid-programs"
+
+# Prepend guix à mon PATH
+_path_prepend PATH "$HOME/.config/guix/current/bin"
+
+### FIN SPECIAL GUIX
 
 # Ajouter chaque élément du tableau à $PATH
 for path_a_ajoute in "${liste_path[@]}"
@@ -198,8 +207,8 @@ do
 done
 
 # Spécial brew
-_path_append PATH /home/linuxbrew/.linuxbrew/bin
-_path_append PATH  /home/linuxbrew/.linuxbrew/sbin
+#_path_append PATH /home/linuxbrew/.linuxbrew/bin
+#_path_append PATH  /home/linuxbrew/.linuxbrew/sbin
 
 
 # Commandes GNU placées avant les paths des commandes Apple
@@ -235,7 +244,7 @@ alias affiche_nimporte_quoi_qwjdwfj="printf \"J'affiche nimporte quoi depuis un 
 
 # Bidouillage du terminal (visuel / fonctionnalités)
 # utile pour le script qui relance la dernière commande avec des espaces.
-clear # nettoyage de l'écran du terminal à chaque lancement de celui-ci
+#clear # nettoyage de l'écran du terminal à chaque lancement de celui-ci
 
 
 # Sauvegarde du profil dans le répertoire des commandes personnelles
