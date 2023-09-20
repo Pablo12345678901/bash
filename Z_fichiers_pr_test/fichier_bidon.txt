@@ -20,7 +20,7 @@ Langage de programmation : JS, php, python, C#. Jav@@@@@@@@@@@@@@@a et Ruby
 Framework : Ensemble de composant logiciels. Les composants seront appelés à par@@@@@@@@@@@@@@@tir des langages de programmation afin de faire des choses plus puissantes. Le framework = la caisse à outil du développeur. Il existe des framework pour tout faire : des applications web, mobile, et bien d'autres choses.
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 LISTE DE FRAMEWORK
-JS : Angular, React JS, node js, jQuery
+testJS : Angular, React JS, node js, jQuery
 php : Symphony, Laravel
 Pyth@@@@@@@@@@@@@@@on : django, Flask
 C# : ASP.NET MVC, .Net Core
