@@ -568,6 +568,21 @@ function sleep_et_affiche_message {
     fi
 }
 
+function statut_retourne {
+    # Syntaxe :
+    # $1 : $? (Sans guillemets)
+    # $2 : COMMANDE
+    
+    local VALEUR_RETOUR=$1
+    local COMMANDE="$2"
+    if [ $VALEUR_RETOUR -eq 0 ]
+    then
+	echo "$COMMANDE - OK"
+    else
+	echo "$COMMANDE - ERREUR"
+    fi
+}
+
 function STDERR_afficher_message {
     # Syntaxe :
     # $1 : MSG_A_AFFICHER (valeur)

@@ -3,7 +3,34 @@
 # Syntaxe :
 # - : aucun argument requis.
 
+source fonctions_personnelles
+
+
 # Pour la mise à jour manuelle
 # Peut pas être mis à jour via un cron car chaque utilisateur doit runner pour soi avec sudo (seul root sans sudo).
+declare -a LISTE_STATUTS
+STATUT=""
+
+echo -e "\nMise à jour de $USER...\n"
 guix pull
+STATUT="$(statut_retourne $? "guix pull")"
+LISTE_STATUTS+=("$STATUT")
 sudo guix system reconfigure /etc/config.scm
+STATUT="$(statut_retourne $? "sudo guix system reconfigure /etc/config.scm")"
+LISTE_STATUTS+=("$STATUT")
+
+echo -e "\nMise à jour de root...\n"
+sudo guix pull
+STATUT="$(statut_retourne $? "guix pull")"
+LISTE_STATUTS+=("$STATUT")
+sudo -i guix system reconfigure /etc/config.scm
+STATUT="$(statut_retourne $? "sudo -i guix system reconfigure /etc/config.scm")"
+LISTE_STATUTS+=("$STATUT")
+
+echo -e "\nRésultat de la mise à jour :\n"
+tableau_contenu LISTE_STATUTS
+
+# Redémarrage
+echo ""
+read -p "Taper enter pour reboot ou control+c pour annuler"
+sudo reboot
