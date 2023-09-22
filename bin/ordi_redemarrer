@@ -15,6 +15,6 @@ bluetooth_eteindre
 # Redémarrer l'ordinateur
 echo -e "\nSaisissez votre mot de passe et l'ordinateur redémarrera IMMEDIATEMENT."
 echo -e "Annulez avec CTRL+C\n"
-sudo herd restart root
+sudo reboot
 #sudo shutdown -r now || # "-r" pour reboot = redémarrer
 { echo -e "\nERREUR : la commande \"$COMMANDE\" a échoué.\n" ; exit 1 ; }
