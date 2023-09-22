@@ -16,5 +16,6 @@ bluetooth_eteindre
 # Éteindre l'ordinateur
 echo -e "\nSaisissez votre mot de passe et l'ordinateur s'éteindra IMMEDIATEMENT."
 echo -e "Annulez avec CTRL+C\n"
-sudo shutdown -h now || # "-h" pour éteindre
+# sudo shutdown -h now || # "-h" pour éteindre # debian
+sudo herd power-off root ||
 { echo -e "\nERREUR : la commande \"$COMMANDE\" a échoué.\n" ; exit 1 ; }
