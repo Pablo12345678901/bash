@@ -245,7 +245,7 @@ alias affiche_nimporte_quoi_qwjdwfj="printf \"J'affiche nimporte quoi depuis un 
 # Bidouillage du terminal (visuel / fonctionnalités)
 # utile pour le script qui relance la dernière commande avec des espaces.
 #clear # nettoyage de l'écran du terminal à chaque lancement de celui-ci
-
+xbindkeys >/dev/null 2>&1 # synchronisation du raccourci clic droit avec la clef -> fichier de config sous $HOME/.xbindkeysrc.scm
 
 # Sauvegarde du profil dans le répertoire des commandes personnelles
 TITRE_FICHIER_SAUVEGARDE_PROFIL_BASH="ne_pas_run_fichier_de_sauvegarde_du_contenu_bash_profil"

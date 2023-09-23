@@ -11,20 +11,47 @@ source fonctions_personnelles
 declare -a LISTE_STATUTS
 STATUT=""
 
+###############################################
 echo -e "\nMise à jour de $USER...\n"
-guix pull
-STATUT="$(statut_retourne $? "guix pull")"
-LISTE_STATUTS+=("$STATUT")
-sudo guix system reconfigure /etc/config.scm
-STATUT="$(statut_retourne $? "sudo guix system reconfigure /etc/config.scm")"
+
+# Mise à jour de $USER
+COMMANDE="guix package -u"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
 LISTE_STATUTS+=("$STATUT")
 
-echo -e "\nMise à jour de root...\n"
-sudo guix pull
-STATUT="$(statut_retourne $? "guix pull")"
+COMMANDE="guix pull"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
 LISTE_STATUTS+=("$STATUT")
-sudo -i guix system reconfigure /etc/config.scm
-STATUT="$(statut_retourne $? "sudo -i guix system reconfigure /etc/config.scm")"
+
+COMMANDE="sudo guix system reconfigure /etc/config.scm"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
+LISTE_STATUTS+=("$STATUT")
+
+# Mise à jour de root
+echo -e "\nMise à jour de root...\n"
+
+COMMANDE="sudo -i guix package -u"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
+LISTE_STATUTS+=("$STATUT")
+
+COMMANDE="sudo -i guix pull"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
+LISTE_STATUTS+=("$STATUT")
+
+COMMANDE="sudo -i guix system reconfigure /etc/config.scm"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
 LISTE_STATUTS+=("$STATUT")
 
 echo -e "\nRésultat de la mise à jour :\n"
