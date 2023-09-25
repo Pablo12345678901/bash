@@ -18,6 +18,8 @@ DEVELOPPEMENT
         ##################################################################################
         
         DEBUG
+	- emploi_dossier
+		-> xdg open n'ouvre pas la bonne app -> à configurer (ouvre le browser internet par défaut)
         - script bluetooth_souris
                 -> si interrupteur en haut à droite écran eteint manuellement, ne s'allume pas automatiquement depuis script
                 ->si allumé manuellement et service stoppé alors oui s'allume -> recherche fichier odt et docx pas exacte -> vont plus loin qu'il ne devraient pour la recherche

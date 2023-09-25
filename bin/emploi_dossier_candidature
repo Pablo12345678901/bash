@@ -248,8 +248,9 @@ else
                 echo -e "\nOuverture du CV et de la LM pour votre modification.\n"
                 
                 # DEV - DECOMMENTER CES LIGNES AP
-                open "$PATH_NVO_CV"
-                open "$PATH_NVO_LM"
+		echo "DEBUG :  $(basename $0) xdg-open pas au point, veuillez ouvrir manuellement les fichiers CV et LM"
+                #xdg-open "$PATH_NVO_CV" >/dev/null 2>&1 &
+                #xdg-open "$PATH_NVO_LM" >/dev/null 2>&1 &
                 
                 break # sortie de boucle
             fi
@@ -263,7 +264,9 @@ fi
 
 # Ouverture du répertoire
 echo -e "\nOuverture du répertoire \"$PATH_COMPLET_REPERTOIRE_CANDIDATURE\"...\n"
-open "$PATH_COMPLET_REPERTOIRE_CANDIDATURE"
+
+echo "DEBUG :  $(basename $0) xdg-open pas au point, veuillez ouvrir manuellement les fichiers le répertoire de candidature"
+#xdg-open "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" >/dev/null 2>&1 &
 
 # Copie des captures d'écran de l'annonce
 emploi_capture_ecran_deplacer_ds_dossier_candidature "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" "-annonce"

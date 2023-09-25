@@ -14,7 +14,6 @@ eval "$(guix package --search-paths \
 
 ### FIN GUIX ### IL RESTE DES PATHS GUIX CI-DESSOUS ###
 
-
 # VARIABLE A ADAPTER ICI
 : ${BUREAU_PATH:="$HOME/Desktop"}
 : ${REPERTOIRE_DEVELOPPEMENT:="$BUREAU_PATH/developpement"}
@@ -110,8 +109,19 @@ export REPERTOIRE_DEVELOPPEMENT # pour utilisation (notamment) durant les push d
 
 # REPERTOIRE_DES_COMMANDES_PERSO est déjà défini ci-dessus
 export REPERTOIRE_DES_COMMANDES_PERSO # pour utilisation dans le script qui sauvegarde ce profil
+
+# Repertoire admin
 REPERTOIRE_ADMINISTRATIF="$REPERTOIRE_DEVELOPPEMENT/administratif"
 export REPERTOIRE_ADMINISTRATIF
+
+# Repertoire config linux
+REPERTOIRE_LINUX_CONFIG="$REPERTOIRE_DEVELOPPEMENT/linux_config"
+export REPERTOIRE_LINUX_CONFIG
+
+# Path du fichier mime-type format xml qui permet à xdg-mime de reconnaître le type de fichier
+# pour que xdg-open puisse l'ouvrir avec la bonne app 
+MIMETYPE_FICHIER_CONFIG_PATH="${REPERTOIRE_LINUX_CONFIG}/mime-type/media-types.xml"
+export MIMETYPE_FICHIER_CONFIG_PATH
 
 # Pour lesspipe, une extension utile à la commande less de Bash
 #LESSOPEN="|/usr/local/bin/lesspipe.sh %s"
@@ -145,6 +155,10 @@ export BUREAU_PATH
 USB_CONNEXION_PATH="/media/${USER}"
 export USB_CONNEXION_PATH
 
+# Path de stockage des captures d'écrans
+CAPTURES_D_ECRAN_PATH="${HOME}/Pictures/Captures d’écran"
+export CAPTURES_D_ECRAN_PATH
+
 # Pour GUIX
 GUIX_PROFILE="/home/incognito/.guix-profile"
 . "$GUIX_PROFILE/etc/profile" # charger le guix profile 
@@ -157,6 +171,8 @@ declare -a TABLEAU_VARIABLES_PERSO # tableau des paths à ajouter manuellement
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'REPERTOIRE_DEVELOPPEMENT'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'REPERTOIRE_DES_COMMANDES_PERSO'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'REPERTOIRE_ADMINISTRATIF'
+ajout_au_tableau TABLEAU_VARIABLES_PERSO 'REPERTOIRE_LINUX_CONFIG'
+ajout_au_tableau TABLEAU_VARIABLES_PERSO 'MIMETYPE_FICHIER_CONFIG_PATH'
 #ajout_au_tableau TABLEAU_VARIABLES_PERSO 'LESSOPEN'
 #ajout_au_tableau TABLEAU_VARIABLES_PERSO 'DB_LOCALE'
 #ajout_au_tableau TABLEAU_VARIABLES_PERSO 'RACCOURCIS_CLAVIER'
@@ -165,6 +181,7 @@ ajout_au_tableau TABLEAU_VARIABLES_PERSO 'BASHRC_PATH'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'BUREAU_PATH'
 #ajout_au_tableau TABLEAU_VARIABLES_PERSO 'CORBEILLE_PATH'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'USB_CONNEXION_PATH'
+ajout_au_tableau TABLEAU_VARIABLES_PERSO 'CAPTURES_D_ECRAN_PATH'
 ajout_au_tableau TABLEAU_VARIABLES_PERSO 'GUIX_PROFILE'
 
 # Création de la liste des variables persos
@@ -251,6 +268,6 @@ xbindkeys >/dev/null 2>&1 # synchronisation du raccourci clic droit avec la clef
 TITRE_FICHIER_SAUVEGARDE_PROFIL_BASH="ne_pas_run_fichier_de_sauvegarde_du_contenu_bash_profil"
 { cd $REPERTOIRE_DES_COMMANDES_PERSO &&
 cp $BASH_PROFILE_PATH $TITRE_FICHIER_SAUVEGARDE_PROFIL_BASH && # sauvegarde du profile utilisé dans le répertoire perso
-cd $OLDPWD ; } || echo -e "Le fichier .profile situé '$BASH_PROFILE_PATH' n'a pas pu être copié dans le répertoire perso.\nDébugger le fichier .profile.\n" >&2 # cd $OLDPWD revient ou j'étais
+cd $OLDPWD ; } || echo -e "Le fichier .profile situé '$BASH_PROFILE_PATH' n'a pas pu être copié dans le répertoire perso.\nDébugger le fichier \"$BASH_PROFILE_PATH\".\n" >&2 # cd $OLDPWD revient ou j'étais
 
 

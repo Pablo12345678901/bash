@@ -8,7 +8,6 @@ source fonctions_personnelles
 
 # Selon l'environnement, modifier ces données
 EXTENSION_CAPTURE_ECRAN=".png"
-EMPLACEMENT_DES_CAPTURES_D_ECRAN=~/Images
 # Temps à partir duquel je considère qu'un fichier de l'extension est une capture d'écran.
 FICHIER_DATANT_DE="-5" # ici datant de moins de 5 minutes
 ARGUMENT_ANNONCE="-annonce"
@@ -66,7 +65,7 @@ MESSAGE="
 Tapez enter après avoir effectué les captures d'écran $STRING_TYPE_ANNONCE_OU_CONFIRMATION_PR_MESSAGE (extension \"$EXTENSION_CAPTURE_ECRAN\").
 Attention : elles doivent dater de $FICHIER_DATANT_DE minutes.
 
-Elles seront ensuites déplacées depuis \"$EMPLACEMENT_DES_CAPTURES_D_ECRAN\" vers le dossier de candidature situé \"$REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE\".
+Elles seront ensuites déplacées depuis \"$CAPTURES_D_ECRAN_PATH\" vers le dossier de candidature situé \"$REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE\".
 "
 read -p "$MESSAGE" VALEUR_BIDON
 
@@ -86,14 +85,14 @@ do
     FLAG_CAPTURE_D_ECRAN="true"
 
     # Recherche tous les fichiers sur le bureau qui sont d'une certaine extension et qui ont été créé il y a X temps maximum
-done < <(find "$EMPLACEMENT_DES_CAPTURES_D_ECRAN" -maxdepth 1 -regextype posix-extended -type f -mmin "$FICHIER_DATANT_DE" -regex ".*$EXTENSION_CAPTURE_ECRAN" | sort )
+done < <(find "$CAPTURES_D_ECRAN_PATH" -maxdepth 1 -regextype posix-extended -type f -mmin "$FICHIER_DATANT_DE" -regex ".*$EXTENSION_CAPTURE_ECRAN" | sort )
 # Gestion de IFS pour obtenir les noms tels quels avec éventuels espaces
 IFS="$OLDIFS"
 
 # Vérification s'il y avait effectivement au moins une capture d'écran.
 if [ $FLAG_CAPTURE_D_ECRAN = "false" ]
 then
-    echo -e "\nERREUR : aucune capture d'écran n'a été détectée à l'emplacement \"$EMPLACEMENT_DES_CAPTURES_D_ECRAN\".\n"
+    echo -e "\nERREUR : aucune capture d'écran n'a été détectée à l'emplacement \"$CAPTURES_D_ECRAN_PATH\".\n"
 else
     echo "" # retour à la ligne esthétique
 fi
