@@ -82,9 +82,7 @@ fi
 
 # Ouverture du tableau de recherche emploi
 echo -e "\nOuverture du fichier \"$FICHIER_A_OUVRIR\"...\n"
-{
-    echo "DEBUG :  $(basename $0) xdg-open pas au point, veuillez ouvrir manuellement le fichier"
-    xdg-open "$PATH_FICHIER_A_OUVRIR" >/dev/null 2>&1 &&
+{   xdg-open "$PATH_FICHIER_A_OUVRIR" >/dev/null 2>&1 &&
     exit 0
 } ||
 {   STDERR_afficher_message "\nERREUR : le fichier \"$FICHIER_A_OUVRIR\" n'a pas pu être ouvert.\n" &&
