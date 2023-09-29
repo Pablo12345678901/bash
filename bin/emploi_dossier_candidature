@@ -141,6 +141,7 @@ NVO_REPERTOIRE_CANDIDATURE_SANS_ESPACE="$(echo "$NVO_REPERTOIRE_CANDIDATURE_AVEC
 tr 'é' 'e' |
 tr 'è' 'e' |
 tr 'ê' 'e' |
+tr 'à' 'a' |
 tr '/' ' ' |
 tr ' ' '_' )"
 # tr : remplacement des slash par des espaces et des espaces par des underscores
