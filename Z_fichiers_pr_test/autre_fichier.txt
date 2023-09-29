@@ -1,3 +1,6 @@
+ICI=$(grep -n '6.3. Linux in the office' nb_lignes | cut -d ':' -f 1); LA=$(wc -l nb_lignes | cut -d ' ' -f 1); awk -v UP=$ICI -v DOWN=$LA "BEGIN { print (UP/DOWN) }"
+
+
 # Test ligne 
 #blabla
 # a # a -> OUI -> OK
