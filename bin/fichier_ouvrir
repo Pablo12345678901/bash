@@ -34,18 +34,19 @@ while true; do
             FLAG_OPTION_F=1
             FICHIER_A_OUVRIR="$2"
             shift 2
-            # Test si le répertoire administratif + tableau de recherche emploi existent
-            PATH_FICHIER_A_OUVRIR="${REPERTOIRE_ADMINISTRATIF}/${FICHIER_A_OUVRIR}"
-            if [ ! -d "$REPERTOIRE_ADMINISTRATIF" ]
+            # Test si path absolu ou relatif
+	    if [ "${FICHIER_A_OUVRIR:0:1}" = "/" ]
+	    then
+	        PATH_FICHIER_A_OUVRIR="$FICHIER_A_OUVRIR"
+	    else
+	        REPERTOIRE_A_OUVRIR="$PWD"
+		PATH_FICHIER_A_OUVRIR="${REPERTOIRE_A_OUVRIR}/${FICHIER_A_OUVRIR}"
+	    fi
+	    # Test si le fichier existe
+            if [ ! -d "$PATH_FICHIER_A_OUVRIR" ] && [ ! -f "$PATH_FICHIER_A_OUVRIR" ] 
             then
-                STDERR_afficher_message "\nERREUR : Le répertoire \"$REPERTOIRE_ADMINISTRATIF\" n'existe pas.\n"
+                STDERR_afficher_message "\nERREUR : Le fichier \"$PATH_FICHIER_A_OUVRIR\" n'existe pas.\n"
                 exit 2
-            else
-                if [ ! -f "$PATH_FICHIER_A_OUVRIR" ]
-                then
-                    STDERR_afficher_message "\nERREUR : Le fichier \"$PATH_FICHIER_A_OUVRIR\" n'existe pas.\n"
-                    exit 3
-                fi
             fi
             continue
             ;;

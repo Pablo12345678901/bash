@@ -20,6 +20,7 @@ source fonctions_personnelles
 # À modifier selon l'environnement
 PATH_DISQUE_DUR="${USB_CONNEXION_PATH}/Elements"
 EXTENSION_FICHIER="odt" # "docx"
+TABLEAU_RECHERCHE_EMPLOI="emploi.ods"
 
 # Gestion des répertoires concernés
 REPERTOIRE_GENERAL_RECHERCHE_EMPLOI="${PATH_DISQUE_DUR}/2_Taf_et_hospice/0_Recherche_emploi/0_OCE-ORP/1_Recherche_d_emploi"
@@ -113,7 +114,7 @@ else
 fi
 
 # Ouverture du tableau recherche emploi
-admin_ouvrir_fichier -f "Recherche_d_emploi.ods" || exit 4
+fichier_ouvrir -f "$TABLEAU_RECHERCHE_EMPLOI" || exit 4
 
 # Obtention de la date
 DATE_AJD="$(date -I)"
@@ -251,8 +252,8 @@ else
                 
                 # Ouverture des 2 fichiers word pr modification
                 echo -e "\nOuverture du CV et de la LM pour votre modification.\n"
-                xdg-open "$PATH_NVO_CV" >/dev/null 2>&1 &
-                xdg-open "$PATH_NVO_LM" >/dev/null 2>&1 &
+                fichier_ouvrir -f "$PATH_NVO_CV" &
+                fichier_ouvrir -f "$PATH_NVO_LM" &
                 
                 break # sortie de boucle
             fi
@@ -267,7 +268,7 @@ fi
 # Ouverture du répertoire
 echo -e "\nOuverture du répertoire \"$PATH_COMPLET_REPERTOIRE_CANDIDATURE\"...\n"
 
-xdg-open "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" >/dev/null 2>&1 &
+fichier_ouvrir -f "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" &
 
 # Copie des captures d'écran de l'annonce
 emploi_capture_ecran_deplacer_ds_dossier_candidature "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" "-annonce"
