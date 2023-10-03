@@ -39,6 +39,7 @@ DEVELOPPEMENT
                 -> il y a un bug avec 'permission denied' --> cf : https://superuser.com/questions/161183/cannot-manually-update-database-for-locate
         
         CREATION FONCTIONNALITE
+	- sauvegarde du profil /etc/config.scm via un cron (tester car peut être qu'il faut run en tant que root pour copier...)
         - fonction de génération dynamique du code d'erreur lié à exit en détectant si c'est un bon ou mauvais exit
         - sauvegarde de sécurité git push des répertoire (linux_config et administratif)
         - disque_dur_ejecter -> modification de eject car refuse 'soit disant' d'éjecter le disque dur Element et autre mais l'éjecte à moitié
