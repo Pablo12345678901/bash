@@ -7,7 +7,7 @@ COMMANDE="${0##*/}" # nom du fichier = utile pour les messages d'erreur
 
 # Voir les script correspondants
 git_push_avant_deteindre_ordinateur
-disque_dur_ejecter ||  exit 1
+disque_dur_ejecter_guix ||  exit 1
 corbeille_vider
 app_fermer -all || exit 1
 
