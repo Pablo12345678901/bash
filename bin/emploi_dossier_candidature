@@ -138,10 +138,14 @@ fi
 # Obtenir le nom du nouveau dossier de candidature
 NVO_REPERTOIRE_CANDIDATURE_AVEC_ESPACE="${JOUR} ${NOM_DU_POSTE} ${NOM_DE_LENTREPRISE}${FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE}"
 NVO_REPERTOIRE_CANDIDATURE_SANS_ESPACE="$(echo "$NVO_REPERTOIRE_CANDIDATURE_AVEC_ESPACE" |
+tr 'à' 'a' |
+tr 'â' 'a' |
 tr 'é' 'e' |
 tr 'è' 'e' |
 tr 'ê' 'e' |
-tr 'à' 'a' |
+tr 'î' 'i' |
+tr 'ô' 'o' |
+tr 'û' 'u' |
 tr '/' ' ' |
 tr ' ' '_' )"
 # tr : remplacement des slash par des espaces et des espaces par des underscores
