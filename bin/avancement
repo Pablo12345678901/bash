@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+TITRE_ACTUEL="$1"
+FICHIER_INDEX="$2"
+
+if [ -z "$1" ] || [ -z "$2" ]
+then
+	echo "ERREUR : veuillez fournir:
+\$1 : le titre actuel
+\$2 : le path du fichier contenant l'index"
+	exit 1
+fi
+
+LIGNE_ACTUELLE=$(grep -E -n "^$TITRE_ACTUEL\$" "$2" |
+cut -d ':' -f 1 # récupération du numéro de ligne
+)
+#echo "DEBUG : $
+TOTAL_LIGNE=$(wc -l "$2" | cut -d ' ' -f 1)
+
+
+echo "Avancement : $(awk -v LIG_ACTU=$LIGNE_ACTUELLE -v LIG_TOT=$TOTAL_LIGNE "BEGIN { print (LIG_ACTU*100/LIG_TOT) }") %"

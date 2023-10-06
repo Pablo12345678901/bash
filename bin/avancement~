@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+TITRE_ACTUEL="$1"
+FICHIER_INDEX="$2"
+
+LIGNE_ACTUELLE=ICI=$(grep -n "$TITRE_ACTUEL" "$2" |
+cut -d ':' -f 1 # récupération du numéro de ligne
+)
+
+TOTAL_LIGNE=$(wc -l "$2" | cut -d ' ' -f 1)
+
+
+echo "Avancement : $(awk -v LIG_ACTU=$LIGNE_ACTUELLE -v LIG_TOT=$TOTAL_LIGNE "BEGIN { print (LIG_ACTU/LIG_TOT) }") %"

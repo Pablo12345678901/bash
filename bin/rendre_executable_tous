@@ -31,7 +31,9 @@ declare -a liste_fichier_non_executable
 
 # Gestion des noms de fichiers incluant les éventuels espaces
 # Placement de tous les fichiers contenu dans chaque répertoire dans un tableau avec gestion des éventuels espaces dans les noms
-readarray -t TABLEAU_FICHIER < <(find "$path_des_script_perso" -type f -print0 | xargs -n 1 -0 -I XxX printf "%s\n" XxX | sort )
+readarray -t TABLEAU_FICHIER < <(find "$path_des_script_perso" -type f -print0 |
+				     xargs -n 1 -0 echo |
+				     sort )
 # find -s : liste triée
 # find ... -type f : fichier (pas répertoires)
 # find -print0 : char de fin = nul et pas espace (par défaut)
