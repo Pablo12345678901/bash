@@ -27,11 +27,13 @@ $COMMANDE
 STATUT="$(statut_retourne $? "$COMMANDE")"
 LISTE_STATUTS+=("$STATUT")
 
-COMMANDE="sudo guix system reconfigure /etc/config.scm"
-echo -e "\nRUN : $COMMANDE\n"
-$COMMANDE
-STATUT="$(statut_retourne $? "$COMMANDE")"
-LISTE_STATUTS+=("$STATUT")
+# 'sudo guix system reconfigure'
+#    -> Pas besoin de le faire 2x, juste une fois à la fin
+#COMMANDE="sudo guix system reconfigure /etc/config.scm"
+#echo -e "\nRUN : $COMMANDE\n"
+#$COMMANDE
+#STATUT="$(statut_retourne $? "$COMMANDE")"
+#LISTE_STATUTS+=("$STATUT")
 
 # Mise à jour de root
 echo -e "\nMise à jour de root...\n"
@@ -48,7 +50,9 @@ $COMMANDE
 STATUT="$(statut_retourne $? "$COMMANDE")"
 LISTE_STATUTS+=("$STATUT")
 
-COMMANDE="sudo -i guix system reconfigure /etc/config.scm"
+# Mise à jour du système
+echo -e "\nMise à jour du système...\n"
+COMMANDE="sudo guix system reconfigure /etc/config.scm"
 echo -e "\nRUN : $COMMANDE\n"
 $COMMANDE
 STATUT="$(statut_retourne $? "$COMMANDE")"
