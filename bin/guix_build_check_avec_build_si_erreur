@@ -16,10 +16,18 @@ declare -a LISTE_CHECK_ECHEC
 declare -a LISTE_BUILD_REUSSI
 declare -a LISTE_BUILD_ECHEC
 
+# Gestion de l'avancement des paquets avec le num du paquet courant
+# et nb paquets totaux
+NUMERO_PAQUET_COURANT=0
+NOMBRE_TOTAL_PAQUET=$(tableau_taille LISTE_PAQUETS)
+
+
 # Check pour chaque paquet
 for PAQUET_COURANT in "${LISTE_PAQUETS[@]}"
 do
-	echo "Check du paquet \"$PAQUET_COURANT\" dans $SECONDE_ATTENTE secondes..."
+	((NUMERO_PAQUET_COURANT++))
+	POURCENTAGE_AVANCEMENT="$(awk -v UP=$NUMERO_PAQUET_COURANT -v DOWN=$NOMBRE_TOTAL_PAQUET " BEGIN { print (UP*100/DOWN) } ")"
+	echo -e "\n${NUMERO_PAQUET_COURANT}/${NOMBRE_TOTAL_PAQUET} = $POURCENTAGE_AVANCEMENT % - Check du paquet \"$PAQUET_COURANT\" dans $SECONDE_ATTENTE secondes...\n"
 	sleep $SECONDE_ATTENTE
 	guix build "$PAQUET_COURANT" --check
 	# Contrôle de la valeur de retour du check
@@ -36,34 +44,29 @@ do
 		# Contrôle de la valeur de retour du build
 		if (($?))
 		then
-			echo -e "ERREUR : Build échoué pour le paquet \"$PAQUET_COURANT\""
+			echo -e "\nERREUR : Build échoué pour le paquet \"$PAQUET_COURANT\"\n"
 		 	LISTE_BUILD_ECHEC+=("$PAQUET_COURANT")
-			sleep $SECONDE_ATTENTE
 		else
-			echo -e "REUSSITE : Build réussi pour le paquet  \"$PAQUET_COURANT\""
+			echo -e "\nREUSSITE : Build réussi pour le paquet  \"$PAQUET_COURANT\"\n"
 			LISTE_BUILD_REUSSI+=("$PAQUET_COURANT")
-			sleep $SECONDE_ATTENTE
 
-			echo -e "Nouvel essai du check pour le paquet \"$PAQUET_COURANT\" dans $SECONDE_ATTENTE secondes..."
+			echo -e "\nNouvel essai du check pour le paquet \"$PAQUET_COURANT\" dans $SECONDE_ATTENTE secondes...\n"
 			sleep $SECONDE_ATTENTE
 			guix build "$PAQUET_COURANT" --check
 
 			# Contrôle de la valeur de retour du check
 			if (($?))
 			then
-				echo -e "ERREUR : Check échoué pour le paquet \"$PAQUET_COURANT\""	
+				echo -e "\nERREUR : Check échoué pour le paquet \"$PAQUET_COURANT\"\n"	
 				LISTE_CHECK_ECHEC+=("$PAQUET_COURANT")
-				sleep $SECONDE_ATTENTE
 			else
-				echo -e "REUSSITE : Check réussi pour le paquet \"$PAQUET_COURANT\""
+				echo -e "\nREUSSITE : Check réussi pour le paquet \"$PAQUET_COURANT\"\n"
 				LISTE_CHECK_REUSSI+=("$PAQUET_COURANT")
-				sleep $SECONDE_ATTENTE
 			fi
 		fi
 	else
-		echo -e "REUSSITE : Check réussi pour le paquet \"$PAQUET_COURANT\""
+		echo -e "\nREUSSITE : Check réussi pour le paquet \"$PAQUET_COURANT\"\n"
 		LISTE_CHECK_REUSSI+=("$PAQUET_COURANT")
-		sleep $SECONDE_ATTENTE
 	fi
 done
 
