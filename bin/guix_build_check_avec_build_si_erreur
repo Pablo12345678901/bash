@@ -24,18 +24,18 @@ declare -a LISTE_BUILD_ECHEC
 NUMERO_PAQUET_COURANT=0
 NOMBRE_TOTAL_PAQUET=$(tableau_taille LISTE_PAQUETS)
 
-#: <<-"SKIP"
-
-
 # Check pour chaque paquet
 for PAQUET_COURANT in "${LISTE_PAQUETS[@]}"
 do
-        ((NUMERO_PAQUET_COURANT++))
+    ((NUMERO_PAQUET_COURANT++))
+
+: <<-"BLOCDEBUG"
 	if [ $NUMERO_PAQUET_COURANT -eq 5 ]
 	then
 	    echo "DEBUG break"
 	    break
 	fi
+BLOCDEBUG
 	
 	POURCENTAGE_AVANCEMENT="$(awk -v UP=$NUMERO_PAQUET_COURANT -v DOWN=$NOMBRE_TOTAL_PAQUET " BEGIN { print (UP*100/DOWN) } ")"
 	echo -e "\n${NUMERO_PAQUET_COURANT}/${NOMBRE_TOTAL_PAQUET} = $POURCENTAGE_AVANCEMENT % - Check du paquet \"$PAQUET_COURANT\" dans $SECONDE_ATTENTE secondes...\n"
