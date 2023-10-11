@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+guix build --check
+if (($?))
+then
+	echo "ICI"
+else
+	echo "LA"
+fi

@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+# Configuration du temps d'attente après les messages clefs
+SECONDE_ATTENTE=5
+
+# Récupération de tous les packages installés localement
+# puis check du build un par un
+COMMANDE_DU_CHECK="guix build `guix package -I |
+     	   	 cut -f 1` \
+		 --check" 
+
+# Exécution du premier check
+NUMERO_CHECK=0
+((NUMERO_CHECK++))
+echo -e "$NUMERO_CHECK check dans $SECONDE_ATTENTE secondes..."
+sleep $SECONDE_ATTENTE
+$COMMANDE_DU_CHECK
+
+# Contrôle de la valeur de retour du check
+while (($?))
+do
+	echo "ERREUR détectée lors de l'exécution du check..."
+	sleep $SECONDE_ATTENTE
+
+	# Détection du paquet qui pose problème
+	echo "Détection du paquet qui pose problème..."
+	sleep $SECONDE_ATTENTE
+	PAQUET_A_BUILD="$($COMMANDE_DU_CHECK 2>&1 |
+	tail -n 1 |
+	awk -F '/' ' { print $4 } ' |
+	cut -d '-' -f 2)"
+
+	# Affichage du paquet qui pose problème
+	echo -e "\nERREUR avec le paquet \"$PAQUET_A_BUILD\"\n"
+	sleep $SECONDE_ATTENTE
+
+	# Rebuild du paquet qui a posé problème
+echo -e "\nRebuild du paquet \"$PAQUET_A_BUILD\" dans $SECONDE_ATTENTE secondes.\n"
+	sleep $SECONDE_ATTENTE
+	guix build "$PAQUET_A_BUILD"
+
+	# Ré-essai du check
+	((NUMERO_CHECK++))
+	echo -e "Ré-essai : $NUMERO_CHECK check dans $SECONDE_ATTENTE secondes..."
+	sleep $SECONDE_ATTENTE
+	$COMMANDE_DU_CHECK
+done
+
+# Message de fin du script
+echo -e "\nRéussite : fin du check !.\n"
+exit 0
