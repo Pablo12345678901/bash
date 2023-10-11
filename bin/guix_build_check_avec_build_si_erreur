@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
+# Argumnent :
+# aucun
+
 source fonctions_personnelles
 
 # Configuration du temps d'attente après les messages clefs
-SECONDE_ATTENTE=5
+SECONDE_ATTENTE=1
 
 # Récupération de tous les packages installés localement
 declare -a LISTE_PAQUETS
@@ -21,15 +24,25 @@ declare -a LISTE_BUILD_ECHEC
 NUMERO_PAQUET_COURANT=0
 NOMBRE_TOTAL_PAQUET=$(tableau_taille LISTE_PAQUETS)
 
+#: <<-"SKIP"
+
 
 # Check pour chaque paquet
 for PAQUET_COURANT in "${LISTE_PAQUETS[@]}"
 do
-	((NUMERO_PAQUET_COURANT++))
+        ((NUMERO_PAQUET_COURANT++))
+	if [ $NUMERO_PAQUET_COURANT -eq 5 ]
+	then
+	    echo "DEBUG break"
+	    break
+	fi
+	
 	POURCENTAGE_AVANCEMENT="$(awk -v UP=$NUMERO_PAQUET_COURANT -v DOWN=$NOMBRE_TOTAL_PAQUET " BEGIN { print (UP*100/DOWN) } ")"
 	echo -e "\n${NUMERO_PAQUET_COURANT}/${NOMBRE_TOTAL_PAQUET} = $POURCENTAGE_AVANCEMENT % - Check du paquet \"$PAQUET_COURANT\" dans $SECONDE_ATTENTE secondes...\n"
 	sleep $SECONDE_ATTENTE
-	guix build "$PAQUET_COURANT" --check
+
+	guix build --check "$PAQUET_COURANT"
+
 	# Contrôle de la valeur de retour du check
 	if (($?))
 	then
@@ -52,8 +65,9 @@ do
 
 			echo -e "\nNouvel essai du check pour le paquet \"$PAQUET_COURANT\" dans $SECONDE_ATTENTE secondes...\n"
 			sleep $SECONDE_ATTENTE
-			guix build "$PAQUET_COURANT" --check
 
+			guix build --check "$PAQUET_COURANT"
+			
 			# Contrôle de la valeur de retour du check
 			if (($?))
 			then
@@ -70,34 +84,36 @@ do
 	fi
 done
 
-
 # Affichage des résultats
 FLAG_REUSSITE="true" # pour affichage final
-echo "\nAffichage final des résultats dans $SECONDE_ATTENTE secondes...\n"
+echo -e "\nAffichage final des résultats dans $SECONDE_ATTENTE secondes...\n"
 sleep $SECONDE_ATTENTE
 
 TYPE="Check réussite"
 TABLEAU="LISTE_CHECK_REUSSI"
 if [ $(tableau_taille "$TABLEAU") -gt 0 ]
 then
-	echo -e "$TYPE"
+	echo -e "\n$TYPE\n"
 	tableau_contenu "$TABLEAU"
+	echo # Esthétique
 fi
 
 TYPE="Build réussite"
 TABLEAU="LISTE_BUILD_REUSSI"
 if [ $(tableau_taille "$TABLEAU") -gt 0 ]
 then
-	echo -e "$TYPE"
+	echo -e "\n$TYPE\n"
 	tableau_contenu "$TABLEAU"
+	echo # Esthétique
 fi
 
 TYPE="Build échec"
 TABLEAU="LISTE_BUILD_ECHEC"
 if [ $(tableau_taille "$TABLEAU") -gt 0 ]
 then
-	echo -e "$TYPE"
+	echo -e "\n$TYPE\n"
 	tableau_contenu "$TABLEAU"
+	echo # Esthétique
 	FLAG_REUSSITE="false"
 fi
 
@@ -105,12 +121,13 @@ TYPE="Check échec"
 TABLEAU="LISTE_CHECK_ECHEC"
 if [ $(tableau_taille "$TABLEAU") -gt 0 ]
 then
-	echo -e "$TYPE"
+	echo -e "\n$TYPE\n"
 	tableau_contenu "$TABLEAU"
+	echo # Esthétique
 	FLAG_REUSSITE="false"
 fi
 
-
+# Affichage du résumé (si minimum 1 échec = échec)
 if [ "$FLAG_REUSSITE" = "true" ]
 then
 	echo -e "\nRésumé : REUSSITE !\n"
@@ -119,7 +136,6 @@ else
 	echo -e "\nRésumé : ECHEC... Veuillez contrôler les résumés finaux.\n"
 	exit 1
 fi
-
 
 # Message de fin du script
 echo -e "\nFin du check !\n"
