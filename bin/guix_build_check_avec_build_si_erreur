@@ -7,7 +7,10 @@ SECONDE_ATTENTE=5
 
 # Récupération de tous les packages installés localement
 declare -a LISTE_PAQUETS
-LISTE_PAQUETS=(`guix package -I | cut -f 1`)
+LISTE_PAQUETS=(`guix package -I | # récupération des packages
+		     cut -f 1 | # récupération du nom uniquement
+		     sort` # tri par ordre alphabétique
+		     )
 declare -a LISTE_CHECK_REUSSI
 declare -a LISTE_CHECK_ECHEC
 declare -a LISTE_BUILD_REUSSI
