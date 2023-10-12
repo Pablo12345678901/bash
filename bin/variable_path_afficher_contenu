@@ -22,32 +22,44 @@ else
     fi
 fi
 
-# Affichage que si non mode silence
+# Affichage du message que si non mode silence
 if [ $FLAG_SILENT_MODE = "true" ]
 then 
     :
 else
-    echo -e "\nContenu de la variable \"\$PATH\" :\n"
+    echo -e "\nContenu brut (non trié = ordre réel) de la variable \"\$PATH\" :\n"
 fi
 
-# Tri, puis affichage de chaque élément
-sort -f < <(    OLDIFS="$IFS" # récupération de la valeur de IFS
-# sort -f : ignore la casse
-                IFS=: # Modification du char séparateur de base
-                for CHAQUE_PATH in $PATH
-                do
-                    echo -e "${ALIGNEMENT_TABULATION}${CHAQUE_PATH}"
-                done 
-                IFS="$OLDIFS" # Remise de IFS à son ancienne valeur
-            )
+# Affichage brut de chaque élément
+( OLDIFS="$IFS" # récupération de la valeur de IFS
+  IFS=: # Modification du char séparateur de base
+  for CHAQUE_PATH in $PATH
+  do
+      echo -e "${ALIGNEMENT_TABULATION}${CHAQUE_PATH}"
+  done 
+  IFS="$OLDIFS" # Remise de IFS à son ancienne valeur
+)
 
-# Affichage que si non mode silence
+# Affichage trié que si non mode silence
 if [ $FLAG_SILENT_MODE = "true" ]
 then 
     :
 else
-    echo ""
+    echo -e "\nContenu trié de la variable \"\$PATH\" :\n"
+    # Tri, puis affichage de chaque élément
+    sort -f -u < <(    OLDIFS="$IFS" # récupération de la valeur de IFS
+    # sort -f : ignore la casse
+    # sort -u : supprime les doublons
+                    IFS=: # Modification du char séparateur de base
+                    for CHAQUE_PATH in $PATH
+                    do
+			echo -e "${ALIGNEMENT_TABULATION}${CHAQUE_PATH}"
+                    done 
+                    IFS="$OLDIFS" # Remise de IFS à son ancienne valeur
+               )
+    echo "" # esthétique
 fi
+
 
 
 
