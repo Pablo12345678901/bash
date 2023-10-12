@@ -12,7 +12,9 @@ then
 	exit 1
 fi
 
-LIGNE_ACTUELLE=$(grep -E -n "^$TITRE_ACTUEL\$" "$FICHIER_INDEX" |
+TITRE_ACTUEL="$(echo "$TITRE_ACTUEL")" # à corriger ici car le char '’' ne figure pas dans la liste du texte
+
+LIGNE_ACTUELLE=$(grep -E -n "^${TITRE_ACTUEL}\$" "$FICHIER_INDEX" |
 cut -d ':' -f 1 # récupération du numéro de ligne
 )
 #echo "DEBUG : $
