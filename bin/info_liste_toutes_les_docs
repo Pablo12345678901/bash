@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+# inputs : aucun
+
+# Afficher les chapitres (et titres) de documentation info disponibles localement 
+info --all --index-search "" 2>/dev/null | # Pr afficher l'index avec la liste des chapitres, titres de documentation et résumé
+cut -d '(' -f 2 | cut -d ')' -f 1 | # récupérer le contenu entre les premières parenthèses = le titre de la doc
+sort -u | # trier et supprimer les doublons
+sed 's/^[ ]*//g' | # suppression espaces avant
+sed 's/[ ]*$//g' | # suppression espaces après
+grep -v '.* .*' | # suppression des lignes contenant toujours des espaces (ce sont des phrases entre parenthèses et pas des titres des doc
+grep -v '.*\..*' | # idem pour celles qui se terminent par un point
+grep -E -v '[A-Z].*' | # idem pour celles qui débutent par une majuscule
+grep -E -v '^[ ]*$' # idem pour les lignes sans contenu (ou avec que des espaces
+
+# Pr tester si les script fonctionne correctement (s'il les noms des documentations info sont correctes
+# Il faut exécuter une pipeline sur l'output de ce script avec :
+# info_liste_toutes_les_docs | grep -A 100 'pod2texi' | grep -v 'pod2texi' | xargs -n 1 info 1>/dev/null # pour n'obtenir que les erreurs éventuelles
+# à noter que pod2texi est affiché dans la documentation mais n'existe pas (ce n'est pas une erreur du script).
