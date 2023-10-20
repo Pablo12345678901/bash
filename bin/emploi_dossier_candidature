@@ -28,7 +28,7 @@ REPERTOIRE_CHOMAGE="0_Preuves_des_recherches"
 REPERTOIRE_RECHERCHE_NON_CHOMAGE="00_Recherches_reelles"
 REPERTOIRE_DE_BASE="${REPERTOIRE_GENERAL_RECHERCHE_EMPLOI}/${REPERTOIRE_CHOMAGE}"
 FLAG_POSTULATION_CHOMAGE="true" # Par défaut - modifié si nécessaire selon les arguments fournis
-PATH_REPERTOIRE_CERTIFICATS_DE_TRAVAIL_ET_DIPLOMES="${REPERTOIRE_GENERAL_RECHERCHE_EMPLOI}/3_Autres_documents"
+
 # Variable crée avant toute boucle / if pr être accessible partout
 RERTOIRE_MOIS_EN_COURS=""
 PATH_COMPLET_REPERTOIRE_CANDIDATURE=""
@@ -212,6 +212,8 @@ else
     FLAG_DOSSIER_TROUVE="false"
     FLAG_CV_TROUVE="false"
     FLAG_LM_TROUVE="false"
+    FLAG_CERTIFICATS_DE_TRAVAIL_TROUVE="false"
+    FLAG_DIPLOMES_TROUVE="false"
     VARIATION=0
     PATH_AUTRE_DOSSIER_REEL=""
     PATH_CV_AUTRE_DOSSIER_REEL=""
@@ -251,6 +253,8 @@ else
         # Recherche du path du CV (word) -> que si pas encore trouvé (FLAG) 
         if [ $FLAG_DOSSIER_TROUVE = "true" ]
         then
+	    
+	    # Recherche du path d'un CV
             if [ $FLAG_CV_TROUVE = "false" ]
             then
                 REGEX_CV="${PATH_AUTRE_DOSSIER_REEL}/${REGEX_TITRE_CV}"
@@ -263,7 +267,8 @@ else
             else
                 :
             fi
-            # Recherche du path de la LM (word) -> que si pas encore trouvé (FLAG) 
+
+            # Recherche du path d'une LM 
             if [ $FLAG_LM_TROUVE = "false" ]
             then
                 REGEX_LM="${PATH_AUTRE_DOSSIER_REEL}/${REGEX_TITRE_LM}"
@@ -276,35 +281,59 @@ else
             else
                 :
             fi
-            # Si un des 2 éléments (CV ou LM) n'a pas été trouvé alors on continue
-            if [[ $FLAG_CV_TROUVE = "false" || $FLAG_LM_TROUVE = "false" ]]
+
+            # Recherche du path pr certificats de travail
+            if [ $FLAG_CERTIFICATS_DE_TRAVAIL_TROUVE = "false" ]
+            then
+                REGEX_CERTIFICATS_DE_TRAVAIL="${PATH_AUTRE_DOSSIER_REEL}/${TITRE_CERTIFICATS_DE_TRAVAIL}"
+                while read PATH_CERTIFICATS_DE_TRAVAIL
+                do
+                    PATH_CERTIFICATS_DE_TRAVAIL_AUTRE_DOSSIER_REEL="$PATH_CERTIFICATS_DE_TRAVAIL"
+                    FLAG_CERTIFICATS_DE_TRAVAIL_TROUVE="true"
+                done < <(find "$PATH_AUTRE_DOSSIER_REEL" -regex "$REGEX_CERTIFICATS_DE_TRAVAIL" -print0 -quit | tr '\0' '\n')
+                # find -quit : quitte après le premier match
+            else
+                :
+            fi
+
+            # Recherche du path pr diplômes
+            if [ $FLAG_DIPLOMES_TROUVE = "false" ]
+            then
+                REGEX_DIPLOMES="${PATH_AUTRE_DOSSIER_REEL}/${TITRE_DIPLOMES}"
+                while read PATH_DIPLOMES
+                do
+                    PATH_DIPLOMES_AUTRE_DOSSIER_REEL="$PATH_DIPLOMES"
+                    FLAG_DIPLOMES_TROUVE="true"
+                done < <(find "$PATH_AUTRE_DOSSIER_REEL" -regex "$REGEX_DIPLOMES" -print0 -quit | tr '\0' '\n')
+                # find -quit : quitte après le premier match
+            else
+                :
+            fi
+	    
+            # Si un des 4 éléments (CV, LM, diplomes, certif) n'a pas été trouvé alors on continue
+            if [[ $FLAG_CV_TROUVE = "false" || $FLAG_LM_TROUVE = "false" || $FLAG_CERTIFICATS_DE_TRAVAIL_TROUVE = "false" || $FLAG_DIPLOMES_TROUVE = "false" ]]
             then
                 # Remise du FLAG dossier à false pour continuer les recherches
                 FLAG_DOSSIER_TROUVE="false"
-            else 
-                # Copie du CV et LM dans le nouveau répertoire précédemment crée
+            else
+		#
+                # Génération des nouveaux path - CV, LM, diplômes et certif travail
                 PATH_NVO_CV="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_CV}"
                 PATH_NVO_LM="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_LM}"
-                
-                # DEV - DECOMMENTER CES LIGNES AP
+                PATH_NVO_CERTIFICATS_DE_TRAVAIL="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_CERTIFICATS_DE_TRAVAIL}"
+                PATH_NVO_DIPLOMES="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_DIPLOMES}"
+		
+                # Copie des documents dans le nouveau répertoire
                 cp "$PATH_CV_AUTRE_DOSSIER_REEL" "$PATH_NVO_CV"
                 cp "$PATH_LM_AUTRE_DOSSIER_REEL" "$PATH_NVO_LM"
-
-                # Copie des certificats de travail et diplomes
-                PATH_CERTIFICATS_DE_TRAVAIL="${PATH_REPERTOIRE_CERTIFICATS_DE_TRAVAIL_ET_DIPLOMES}/${TITRE_CERTIFICATS_DE_TRAVAIL}"
-                PATH_DIPLOME="${PATH_REPERTOIRE_CERTIFICATS_DE_TRAVAIL_ET_DIPLOMES}/${TITRE_DIPLOMES}"
-                PATH_NVO_CERTIFICATS_DE_TRAVAIL="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_CERTIFICATS_DE_TRAVAIL}"
-                PATH_NVO_DIPLOME="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_DIPLOMES}"
-                
-                # DEV - DECOMMENTER CES LIGNES AP
-                cp "$PATH_CERTIFICATS_DE_TRAVAIL" "$PATH_NVO_CERTIFICATS_DE_TRAVAIL"
-                cp "$PATH_DIPLOME" "$PATH_NVO_DIPLOME"
-                
-                # Ouverture des 2 fichiers word pr modification
+		cp "$PATH_CERTIFICATS_DE_TRAVAIL_AUTRE_DOSSIER_REEL" "$PATH_NVO_CERTIFICATS_DE_TRAVAIL"
+                cp "$PATH_DIPLOMES_AUTRE_DOSSIER_REEL" "$PATH_NVO_DIPLOMES"
+		                
+                # Ouverture des fichiers CV+LM pr modification
                 echo -e "\nOuverture du CV et de la LM pour votre modification.\n"
-                fichier_ouvrir -f "$PATH_NVO_CV"
+		fichier_ouvrir -f "$PATH_NVO_CV"
                 fichier_ouvrir -f "$PATH_NVO_LM"
-                
+		
                 break # sortie de boucle
             fi
         else
