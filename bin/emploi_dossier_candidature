@@ -192,7 +192,12 @@ tr 'î' 'i' |
 tr 'ô' 'o' |
 tr 'û' 'u' |
 tr '/' ' ' |
-tr ' ' '_' )"
+tr ' ' '_' |
+tr '(' '_' |
+tr ')' '_' |
+tr '-' '_'
+)"
+
 # tr : remplacement des slash par des espaces et des espaces par des underscores
 PATH_COMPLET_REPERTOIRE_CANDIDATURE="${RERTOIRE_MOIS_EN_COURS}/${NVO_REPERTOIRE_CANDIDATURE_SANS_ESPACE}"
 
