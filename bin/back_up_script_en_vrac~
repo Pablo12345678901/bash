@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+FICHIER_RESULTAT="/home/incognito/Desktop/temporaire/output.txt"
+
+# Back-up de home vers le disque principal
+COMMANDE="sauvegarde_back_up -s /home/ -d /media/incognito/Elements/home"
+{ $COMMANDE  &&
+      echo "OK - $COMMANDE" >> "$FICHIER_RESULTAT"
+} || echo "PAS OK - $COMMANDE" >> "$FICHIER_RESULTAT"
+
+# Back-up du disque principal vers le disque secondaire
+COMMANDE="sauvegarde_back_up -s /media/incognito/Elements/ -d /media/incognito/Double"
+{ $COMMANDE  &&
+      echo "OK - $COMMANDE" >> "$FICHIER_RESULTAT"
+} || echo "PAS OK - $COMMANDE" >> "$FICHIER_RESULTAT"
+
+echo "Fin du script - vérifiez les résultats"
+fichier_ouvrir -f "$FICHIER_RESULTAT"
+
+
