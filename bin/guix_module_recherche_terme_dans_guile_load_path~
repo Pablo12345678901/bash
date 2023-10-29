@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# Argument 
+TERME_RECHERCHE="$1"
+TEMPS_ATTENTE=2
+
+echo -e "\nAttention :
+1. Ce script ne contient pas de contrôle d'arguments ni de message d'erreur (envoyés vers /dev/null)
+2. Veuillez fournir en argument le terme recherché parmi les modules disponibles dans la variable d'environnement GUILE_LOAD_PATH.
+
+Démarrage du script dans $TEMPS_ATTENTE secondes\n"
+
+sleep "$TEMPS_ATTENTE"
+
+grep "$TERME_RECHERCHE" $(echo $GUILE_LOAD_PATH |
+		tr ':' '\0' |
+		tr '\n' '\0' |
+		xargs -0 -n 1 find |
+		sort
+     	   ) 
