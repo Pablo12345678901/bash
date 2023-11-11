@@ -5,13 +5,7 @@
 
 COMMANDE="${0##*/}" # nom du fichier = utile pour les messages d'erreur
 
-# Voir les script correspondants
-git_push_avant_deteindre_ordinateur
-disque_dur_ejecter_guix ||  exit 1
-corbeille_vider || exit 1
-app_fermer -all || exit 1
-
-bluetooth_eteindre || exit 1
+eteindre_actions_avant # script contenant la liste des choses à faire avant d'éteindre
 
 # Éteindre l'ordinateur
 echo -e "\nSaisissez votre mot de passe et l'ordinateur s'éteindra IMMEDIATEMENT."
