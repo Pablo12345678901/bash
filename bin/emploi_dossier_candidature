@@ -199,11 +199,13 @@ tr 'ô' 'o' |
 tr 'Ô' 'O' |
 tr 'û' 'u' |
 tr 'Û' 'U' |
-tr '/' ' ' |
-tr ' ' '_' |
+tr '/' '_' |
+tr '’' '_' |
+tr "'" '_' |
 tr '(' '_' |
 tr ')' '_' |
-tr '-' '_'
+tr '-' '_' |
+tr ' ' '_'
 )"
 
 # tr : remplacement des slash par des espaces et des espaces par des underscores
