@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-f NOM_DU_FICHIER_A_RENOMMER")"
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'f:' -q -- "$@")
+# -q : quiet
+# -- : marque la fin des options
+
+# Test si la syntaxe a été correcte (options + arguments)
+if [ $? -ne 0 ]
+then
+    STDERR_afficher_message "ERREUR de syntaxe..."
+    STDERR_afficher_message "$SYNTAXE"
+    exit 1
+fi
+
+# Contrôle des arguments
+FLAG_OPTION_F=
+
+# Remise des options en paramètres positionnels
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+    case "$1" in
+	-f )  
+	    FLAG_OPTION_F=1
+            NOM_DU_FICHIER_A_RENOMMER="$2"
+            shift 2
+            continue
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )
+	    # Gestion des erreurs pour tout autre bug
+            STDERR_afficher_message "ERREUR interne\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 2
+            ;;
+	esac
+done
+
+# Test si les options requises ont été fournies (=test si flag défini)
+if [ ! -z "$FLAG_OPTION_F" ]
+then
+    # Test si d'autres darguments = en trop (=test si $1 défini)
+    if [ ! -z "$1" ]
+    then
+        STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
+        STDERR_afficher_message "$SYNTAXE"
+        exit 3
+    else
+        :
+    fi
+else
+    STDERR_afficher_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 4
+fi
+
+########## FIN GESTION ARGUMENTS/OPTIONS ####################
+
+# Contrôle si le fichier existe - quitte sinon
+if [ -f "$NOM_DU_FICHIER_A_RENOMMER" ]
+then
+    NOM_FICHIER_SEUL="${NOM_DU_FICHIER_A_RENOMMER##*/}"
+    NOM_REPERTOIRE_SEUL="${NOM_DU_FICHIER_A_RENOMMER%$NOM_FICHIER_SEUL}"   
+else
+    STDERR_afficher_message "\nERREUR : le fichier :\n\"$NOM_DU_FICHIER_A_RENOMMER\"\nn'est pas existant ou le path est erroné.\nVeuillez le contrôler.\n"
+    exit 5
+fi
+
+# Obtenir le nom du nouveau fichier sans les char spéciaux / accentués
+NVO_NOM_FICHIER_SEUL="$(string_remplacer_char_speciaux_par_tirets -s "$NOM_FICHIER_SEUL")"
+
+NOM_NVO_FICHIER="${NOM_REPERTOIRE_SEUL}${NVO_NOM_FICHIER_SEUL}"
+
+# Renommer le fichier
+{ mv "$NOM_DU_FICHIER_A_RENOMMER" "$NOM_NVO_FICHIER" &&
+      echo -e "\nLe fichier a été renommé en\n\"$NOM_NVO_FICHIER\".\n"
+} || STDERR_afficher_message "\nERREUR : le fichier :\n\"$NOM_DU_FICHIER_A_RENOMMER\"\nn'a pas pu être renommé en\n\"$NOM_NVO_FICHIER\".\nVeuillez le faire manuellement ou débugguer.\n"
+    

@@ -1,0 +1,393 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# $1 : NOM_DU_POSTE (entre guilemets)
+# $2 : NOM_DE_LENTREPRISE (entre guillemets)
+# $3 : optionnel '-anglais' si recherche CV+LM en anglais + création répertoire avec 'EN' à la fin -> sachant que par défaut = recherche en français
+# $4 : optionnel '-vrai' si recherche réelle et pas bidon -> adapte le nom du dossier créé et recherché
+
+# Fonctionnement :
+# À partir de la date, l'année (AA) et le mois (MM) sont récupérés.
+# Il est recherché si un répertoire AAMM existe déjà et sinon il est créé.
+# Ensuite, un répertoire avec la date du jour, le nom du poste et de l'entreprise est créé.
+# Dans ce nom de répertoire, les slashs '/' sont remplacés par des espaces, puis les espaces (tous) par des underscores.
+# Les derniers CV et LM (parmi les autres dossiers) trouvés sont copiés dans ce nouveau répertoire de postulation. Idem pour les certicats de travail et les diplômes.
+# La recherche est faite par ordre décronologique.
+# Finalement, le CV et LM sont ouverts pour modification. Le répertoire lui aussi est ouvert.
+
+source fonctions_personnelles
+
+# À modifier selon l'environnement
+PATH_DISQUE_DUR="${USB_CONNEXION_PATH}/Elements"
+EXTENSION_FICHIER="odt" # "docx"
+TABLEAU_RECHERCHE_EMPLOI="${REPERTOIRE_ADMINISTRATIF}/emploi.ods"
+
+# Gestion des répertoires concernés
+REPERTOIRE_GENERAL_RECHERCHE_EMPLOI="${PATH_DISQUE_DUR}/2_Taf_et_hospice/0_Recherche_emploi/0_OCE-ORP/1_Recherche_d_emploi"
+REPERTOIRE_CHOMAGE="0_Preuves_des_recherches"
+REPERTOIRE_RECHERCHE_NON_CHOMAGE="00_Recherches_reelles"
+REPERTOIRE_DE_BASE="${REPERTOIRE_GENERAL_RECHERCHE_EMPLOI}/${REPERTOIRE_CHOMAGE}"
+FLAG_POSTULATION_CHOMAGE="true" # Par défaut - modifié si nécessaire selon les arguments fournis
+
+# Variable crée avant toute boucle / if pr être accessible partout
+RERTOIRE_MOIS_EN_COURS=""
+PATH_COMPLET_REPERTOIRE_CANDIDATURE=""
+
+# Version française
+TITRE_CV="CV_Pablo_ZAMORA_FR.${EXTENSION_FICHIER}" 
+TITRE_LM="LM_Pablo_ZAMORA_FR.${EXTENSION_FICHIER}"
+TITRE_CERTIFICATS_DE_TRAVAIL="Certificats_de_travail.pdf"
+TITRE_DIPLOMES="Diplomes.pdf"
+# Regex de recherche
+REGEX_TITRE_CV="CV.*\.${EXTENSION_FICHIER}" 
+REGEX_TITRE_LM="LM.*\.${EXTENSION_FICHIER}"
+# Par défaut - modifié si l'argument $3 '-anglais' est fourni
+FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE="" 
+
+# Version anglaise
+TITRE_CV_ANGLAIS="Resume_Pablo_ZAMORA_EN.${EXTENSION_FICHIER}"
+TITRE_LM_ANGLAIS="Cover_letter_Pablo_ZAMORA_EN.${EXTENSION_FICHIER}"
+TITRE_CERTIFICATS_DE_TRAVAIL_ANGLAIS="Work_certificates.pdf"
+TITRE_DIPLOMES_ANGLAIS="Diplomas.pdf"
+# Regex de recherche
+REGEX_TITRE_CV_ANGLAIS="Resume.*\.${EXTENSION_FICHIER}"
+REGEX_TITRE_LM_ANGLAIS="Cover_letter.*\.${EXTENSION_FICHIER}"
+
+# Conservation du répertoire d'avant commande
+POSITION_AVANT_COMMANDE="$PWD"
+TYPE_POSTULATION="" # pr gérer les postulation bidons ou les vraies postulations
+
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-p NOM_DU_POSTE"  "-e NOM_DE_LENTREPRISE" [--anglais] [--vrai])"
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'e:p:' --longoptions 'anglais,vrai' -q -- "$@")
+# -q : quiet
+# -- : marque la fin des options
+
+# Test si la syntaxe a été correcte (options + arguments)
+if [ $? -ne 0 ]
+then
+    STDERR_afficher_message "ERREUR de syntaxe..."
+    STDERR_afficher_message "$SYNTAXE"
+    exit 1
+fi
+
+# Contrôle des arguments
+FLAG_OPTION_E=
+FLAG_OPTION_P=
+
+# Remise des options en paramètres positionnels
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+    case "$1" in
+	-e )  
+	    FLAG_OPTION_E=1
+            NOM_DE_LENTREPRISE="$2"
+            shift 2
+            continue
+            ;;
+	-p )
+	    FLAG_OPTION_P=1
+            NOM_DU_POSTE="$2"
+            shift 2
+            continue
+       	    ;;
+	--anglais )
+	    # Parmétrisation de la recherche en anglais ici
+            TITRE_CV="$TITRE_CV_ANGLAIS"
+            TITRE_LM="$TITRE_LM_ANGLAIS"
+            TITRE_CERTIFICATS_DE_TRAVAIL="$TITRE_CERTIFICATS_DE_TRAVAIL_ANGLAIS"
+            TITRE_DIPLOMES="$TITRE_DIPLOMES_ANGLAIS"
+            REGEX_TITRE_CV="$REGEX_TITRE_CV_ANGLAIS"
+            REGEX_TITRE_LM="$REGEX_TITRE_LM_ANGLAIS"
+            FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE="_EN"
+            shift 1
+            ;; 
+	--vrai )
+            REPERTOIRE_DE_BASE="${REPERTOIRE_GENERAL_RECHERCHE_EMPLOI}/${REPERTOIRE_RECHERCHE_NON_CHOMAGE}"
+            FLAG_POSTULATION_CHOMAGE="false"
+            shift 1
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )
+	    # Gestion des erreurs pour tout autre bug
+            STDERR_afficher_message "ERREUR interne\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 2
+            ;;
+	esac
+done
+
+# Test si les options requises ont été fournies (=test si flag défini)
+if [ ! -z "$FLAG_OPTION_E" ] && [ ! -z "$FLAG_OPTION_P" ]
+then
+    # Test si d'autres darguments = en trop (=test si $1 défini)
+    if [ ! -z "$1" ]
+    then
+        STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
+        STDERR_afficher_message "$SYNTAXE"
+        exit 3
+    else
+        :
+    fi
+else
+    STDERR_afficher_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 4
+fi
+
+########## FIN GESTION ARGUMENTS/OPTIONS ####################
+
+
+
+
+# Contrôle si disque dur connecté (=si le répertoire existe) - quitte sinon
+if [ -d "$REPERTOIRE_GENERAL_RECHERCHE_EMPLOI" ]
+then
+    :
+else
+    STDERR_afficher_message "\nERREUR : le répertoire :\n\"$REPERTOIRE_GENERAL_RECHERCHE_EMPLOI\"\nn'est pas existant.\nIl est possible que le disque dur ne soit pas connecté.\n"
+    exit 5
+fi
+
+# Ouverture du tableau recherche emploi
+fichier_ouvrir -f "$TABLEAU_RECHERCHE_EMPLOI" || exit 6
+
+# Obtention de la date
+DATE_AJD="$(date -I)"
+# date -I : Obtient la date au format AAAA-MM-JJ
+ANNEE="$(echo "$DATE_AJD" | awk -F - ' { print $1 } ')"
+# obtient les 2 derniers chiffres de l'année
+ANNEE_SHORT="${ANNEE:2:2}"
+MOIS="$(echo "$DATE_AJD" | awk -F - ' { print $2 } ')"
+JOUR="$(echo "$DATE_AJD" | awk -F - ' { print $3 } ')"
+
+# Si le répertoire du mois en cours n'existe pas, je le crée 
+RERTOIRE_MOIS_EN_COURS="${REPERTOIRE_DE_BASE}/${ANNEE_SHORT}${MOIS}"
+if [ -d "$RERTOIRE_MOIS_EN_COURS" ]
+then
+    :
+else
+    echo -e "\nCréation du répertoire du mois en cours : \"$RERTOIRE_MOIS_EN_COURS\".\n"
+    mkdir "$RERTOIRE_MOIS_EN_COURS"
+fi
+
+# Obtenir le nom du nouveau dossier de candidature
+NVO_REPERTOIRE_CANDIDATURE_AVEC_ESPACE="${JOUR} ${NOM_DU_POSTE} ${NOM_DE_LENTREPRISE}${FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE}"
+NVO_REPERTOIRE_CANDIDATURE_SANS_ESPACE="$(echo "$NVO_REPERTOIRE_CANDIDATURE_AVEC_ESPACE" |
+tr 'à' 'a' |
+tr 'À' 'A' |
+tr 'â' 'a' |
+tr 'Â' 'A' |
+tr 'é' 'e' |
+tr 'É' 'E' |
+tr 'è' 'e' |
+tr 'È' 'E' |
+tr 'ê' 'e' |
+tr 'Ê' 'E' |
+tr 'î' 'i' |
+tr 'Î' 'I' |
+tr 'ô' 'o' |
+tr 'Ô' 'O' |
+tr 'û' 'u' |
+tr 'Û' 'U' |
+tr '/' '_' |
+tr '’' '_' |
+tr "'" '_' |
+tr '(' '_' |
+tr ')' '_' |
+tr '-' '_' |
+tr ' ' '_'
+)"
+
+# tr : remplacement des slash par des espaces et des espaces par des underscores
+PATH_COMPLET_REPERTOIRE_CANDIDATURE="${RERTOIRE_MOIS_EN_COURS}/${NVO_REPERTOIRE_CANDIDATURE_SANS_ESPACE}"
+
+# Si un dossier du même nom est déjà existant
+if [ -d "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" ]
+then
+    # Ouverture tel quel
+    echo -e "\nERREUR : répertoire \"$PATH_COMPLET_REPERTOIRE_CANDIDATURE\" est déjà existant.\nVeuillez contrôler son contenu.\n"
+else
+    # Sinon création + copie des derniers CV + LM format word + Diplome + Certificats de travail
+    # Création
+    echo -e "\nCréation du répertoire de candidature : \"$PATH_COMPLET_REPERTOIRE_CANDIDATURE\".\n"
+    mkdir "$PATH_COMPLET_REPERTOIRE_CANDIDATURE"
+    # Copie du dernier CV et LM utilisé dedans.
+
+    # Recherche du premier dossier le plus ancien avant aujourd'hui
+    FLAG_DOSSIER_TROUVE="false"
+    FLAG_CV_TROUVE="false"
+    FLAG_LM_TROUVE="false"
+    FLAG_CERTIFICATS_DE_TRAVAIL_TROUVE="false"
+    FLAG_DIPLOMES_TROUVE="false"
+    VARIATION=0
+    PATH_AUTRE_DOSSIER_REEL=""
+    PATH_CV_AUTRE_DOSSIER_REEL=""
+    PATH_LM_AUTRE_DOSSIER_REEL=""
+    while [ $FLAG_DOSSIER_TROUVE = "false" ]
+    do
+        # La variation évolue de -1j à chaque date
+        NOUVELLE_DATE="$(date --date="${VARIATION} days ago" +%F)"
+        # date -I : Obtient la date au format AAAA-MM-JJ
+        ANNEE_AUTRE_DOSSIER="$(echo "$NOUVELLE_DATE" | awk -F - ' { print $1 } ')"
+        # obtient les 2 derniers chiffres de l'année
+        ANNEE_SHORT_AUTRE_DOSSIER="${ANNEE_AUTRE_DOSSIER:2:2}"
+        MOIS_AUTRE_DOSSIER="$(echo "$NOUVELLE_DATE" | awk -F - ' { print $2 } ')"
+        JOUR_AUTRE_DOSSIER="$(echo "$NOUVELLE_DATE" | awk -F - ' { print $3 } ')"
+        
+        # Adaptation du regex du nom du répertoire recherché
+        # car si pas en anglais alors ne doit absolument pas se terminer par '_EN'
+        if [ -z "$FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE" ] 
+        then
+            # si fin du répertoire anglais est vide = pas recherche en anlais
+            REGEX_NOM_DE_L_AUTRE_DOSSIER="${REPERTOIRE_DE_BASE}/${ANNEE_SHORT_AUTRE_DOSSIER}${MOIS_AUTRE_DOSSIER}/${JOUR_AUTRE_DOSSIER}.*[^-][^E][^N]"
+        else
+            # sinon = recherche en anglais avec l'extension normale
+            REGEX_NOM_DE_L_AUTRE_DOSSIER="${REPERTOIRE_DE_BASE}/${ANNEE_SHORT_AUTRE_DOSSIER}${MOIS_AUTRE_DOSSIER}/${JOUR_AUTRE_DOSSIER}.*${FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE}"
+        fi
+        
+        # Recherche d'un dossier AAMMM (année-mois)
+        while read PATH_AUTRE_DOSSIER
+        do 
+            PATH_AUTRE_DOSSIER_REEL="$PATH_AUTRE_DOSSIER"
+            # Ce flag mettra fin à la boucle de recherche
+            FLAG_DOSSIER_TROUVE="true"
+        done < <(find "$REPERTOIRE_DE_BASE" -type d -regex "$REGEX_NOM_DE_L_AUTRE_DOSSIER" -print0 -quit | tr '\0' '\n' )
+        # trouve les éventuels répertoire avec -type d selon le regex du path
+        # find -quit : quitte après le premier match
+        # Bloc de recherche CV + LM -> se déclenche que si un dossier valable a été trouvé
+        # Recherche du path du CV (word) -> que si pas encore trouvé (FLAG) 
+        if [ $FLAG_DOSSIER_TROUVE = "true" ]
+        then
+	    
+	    # Recherche du path d'un CV
+            if [ $FLAG_CV_TROUVE = "false" ]
+            then
+                REGEX_CV="${PATH_AUTRE_DOSSIER_REEL}/${REGEX_TITRE_CV}"
+                while read PATH_CV
+                do
+                    PATH_CV_AUTRE_DOSSIER_REEL="$PATH_CV"
+                    FLAG_CV_TROUVE="true"
+                done < <(find "$PATH_AUTRE_DOSSIER_REEL" -regex "${REGEX_CV}" -print0 -quit | tr '\0' '\n')
+                # find -quit : quitte après le premier match
+            else
+                :
+            fi
+
+            # Recherche du path d'une LM 
+            if [ $FLAG_LM_TROUVE = "false" ]
+            then
+                REGEX_LM="${PATH_AUTRE_DOSSIER_REEL}/${REGEX_TITRE_LM}"
+                while read PATH_LM
+                do
+                    PATH_LM_AUTRE_DOSSIER_REEL="$PATH_LM"
+                    FLAG_LM_TROUVE="true"
+                done < <(find "$PATH_AUTRE_DOSSIER_REEL" -regex "${REGEX_LM}" -print0 -quit | tr '\0' '\n')
+                # find -quit : quitte après le premier match
+            else
+                :
+            fi
+
+            # Recherche du path pr certificats de travail
+            if [ $FLAG_CERTIFICATS_DE_TRAVAIL_TROUVE = "false" ]
+            then
+                REGEX_CERTIFICATS_DE_TRAVAIL="${PATH_AUTRE_DOSSIER_REEL}/${TITRE_CERTIFICATS_DE_TRAVAIL}"
+                while read PATH_CERTIFICATS_DE_TRAVAIL
+                do
+                    PATH_CERTIFICATS_DE_TRAVAIL_AUTRE_DOSSIER_REEL="$PATH_CERTIFICATS_DE_TRAVAIL"
+                    FLAG_CERTIFICATS_DE_TRAVAIL_TROUVE="true"
+                done < <(find "$PATH_AUTRE_DOSSIER_REEL" -regex "$REGEX_CERTIFICATS_DE_TRAVAIL" -print0 -quit | tr '\0' '\n')
+                # find -quit : quitte après le premier match
+            else
+                :
+            fi
+
+            # Recherche du path pr diplômes
+            if [ $FLAG_DIPLOMES_TROUVE = "false" ]
+            then
+                REGEX_DIPLOMES="${PATH_AUTRE_DOSSIER_REEL}/${TITRE_DIPLOMES}"
+                while read PATH_DIPLOMES
+                do
+                    PATH_DIPLOMES_AUTRE_DOSSIER_REEL="$PATH_DIPLOMES"
+                    FLAG_DIPLOMES_TROUVE="true"
+                done < <(find "$PATH_AUTRE_DOSSIER_REEL" -regex "$REGEX_DIPLOMES" -print0 -quit | tr '\0' '\n')
+                # find -quit : quitte après le premier match
+            else
+                :
+            fi
+	    
+            # Si un des 4 éléments (CV, LM, diplomes, certif) n'a pas été trouvé alors on continue
+            if [[ $FLAG_CV_TROUVE = "false" || $FLAG_LM_TROUVE = "false" || $FLAG_CERTIFICATS_DE_TRAVAIL_TROUVE = "false" || $FLAG_DIPLOMES_TROUVE = "false" ]]
+            then
+                # Remise du FLAG dossier à false pour continuer les recherches
+                FLAG_DOSSIER_TROUVE="false"
+            else
+		#
+                # Génération des nouveaux path - CV, LM, diplômes et certif travail
+                PATH_NVO_CV="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_CV}"
+                PATH_NVO_LM="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_LM}"
+                PATH_NVO_CERTIFICATS_DE_TRAVAIL="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_CERTIFICATS_DE_TRAVAIL}"
+                PATH_NVO_DIPLOMES="${PATH_COMPLET_REPERTOIRE_CANDIDATURE}/${TITRE_DIPLOMES}"
+		
+                # Copie des documents dans le nouveau répertoire
+                cp "$PATH_CV_AUTRE_DOSSIER_REEL" "$PATH_NVO_CV"
+                cp "$PATH_LM_AUTRE_DOSSIER_REEL" "$PATH_NVO_LM"
+		cp "$PATH_CERTIFICATS_DE_TRAVAIL_AUTRE_DOSSIER_REEL" "$PATH_NVO_CERTIFICATS_DE_TRAVAIL"
+                cp "$PATH_DIPLOMES_AUTRE_DOSSIER_REEL" "$PATH_NVO_DIPLOMES"
+		                
+                # Ouverture des fichiers CV+LM pr modification
+                echo -e "\nOuverture du CV et de la LM pour votre modification.\n"
+		fichier_ouvrir -f "$PATH_NVO_CV"
+                fichier_ouvrir -f "$PATH_NVO_LM"
+		
+                break # sortie de boucle
+            fi
+        else
+            :
+        fi
+        # Recule d'un jour à chaque boucle
+        ((VARIATION++))
+    done
+fi
+
+# Ouverture du répertoire
+echo -e "\nOuverture du répertoire \"$PATH_COMPLET_REPERTOIRE_CANDIDATURE\"...\n"
+
+fichier_ouvrir -f "$PATH_COMPLET_REPERTOIRE_CANDIDATURE"
+
+# Copie des captures d'écran de l'annonce
+emploi_capture_ecran_deplacer_ds_dossier_candidature "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" "-annonce"
+
+# Question oui/non il y a capture d'écran confirmation
+# -> si oui, copie dans le répertoire
+REPONSE_SI_CONFIRMATION=""
+QUESTION_CONFIRMATION="Y a-t-il une/des capture(s) d'écran de la confirmation ? (YyOo/Nn) "
+question_oui_non REPONSE_SI_CONFIRMATION "$QUESTION_CONFIRMATION"
+if [ "$REPONSE_SI_CONFIRMATION" = "o" ]
+then
+    emploi_capture_ecran_deplacer_ds_dossier_candidature "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" "-confirmation"
+else 
+    :
+fi
+
+# Affichage du message et attent de la validation de l'utilisateur QUE si postulation chômage
+if [ $FLAG_POSTULATION_CHOMAGE = "true" ]
+then
+    MESSAGE_FINAL="
+Veuillez saisir la postulation sur JobRoom puis tapez enter pour valider la fin du script.
+"
+    read -p "$MESSAGE_FINAL"
+else
+    :
+fi
+
+echo -e "\nFin de la gestion du dossier de candidature.\n"
