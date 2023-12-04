@@ -182,33 +182,7 @@ fi
 
 # Obtenir le nom du nouveau dossier de candidature
 NVO_REPERTOIRE_CANDIDATURE_AVEC_ESPACE="${JOUR} ${NOM_DU_POSTE} ${NOM_DE_LENTREPRISE}${FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE}"
-NVO_REPERTOIRE_CANDIDATURE_SANS_ESPACE="$(echo "$NVO_REPERTOIRE_CANDIDATURE_AVEC_ESPACE" |
-tr 'à' 'a' |
-tr 'À' 'A' |
-tr 'â' 'a' |
-tr 'Â' 'A' |
-tr 'é' 'e' |
-tr 'É' 'E' |
-tr 'è' 'e' |
-tr 'È' 'E' |
-tr 'ê' 'e' |
-tr 'Ê' 'E' |
-tr 'î' 'i' |
-tr 'Î' 'I' |
-tr 'ô' 'o' |
-tr 'Ô' 'O' |
-tr 'û' 'u' |
-tr 'Û' 'U' |
-tr '/' '_' |
-tr '’' '_' |
-tr "'" '_' |
-tr '(' '_' |
-tr ')' '_' |
-tr '-' '_' |
-tr ' ' '_'
-)"
-
-# tr : remplacement des slash par des espaces et des espaces par des underscores
+NVO_REPERTOIRE_CANDIDATURE_SANS_ESPACE="$(string_remplacer_char_speciaux_par_tirets -s "$NVO_REPERTOIRE_CANDIDATURE_AVEC_ESPACE")"
 PATH_COMPLET_REPERTOIRE_CANDIDATURE="${RERTOIRE_MOIS_EN_COURS}/${NVO_REPERTOIRE_CANDIDATURE_SANS_ESPACE}"
 
 # Si un dossier du même nom est déjà existant
