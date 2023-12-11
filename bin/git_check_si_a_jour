@@ -2,13 +2,14 @@
 
 FLAG_REPERTOIRE_A_PUSH="false"
 COMPTEUR=0
+MESSAGE_INDIQUANT_QUE_RIEN_A_PUSH="nothing to commit, working tree clean"
 while read REPERTOIRE_DEV_CONCERNE
 do
 
 	OLDPWD="$PWD"
 	cd "$REPERTOIRE_DEV_CONCERNE"
 	# Test si le répertoire est à push ou non - si oui grep ne retourne pas 0 donc déclenche le 'if' ci-dessous 
-        git status | grep 'rien à valider, la copie de travail est propre' >/dev/null 2>&1
+        git status | grep "$MESSAGE_INDIQUANT_QUE_RIEN_A_PUSH" >/dev/null 2>&1
 	if (($?))
 	then
 		# Affichage esthétique avant la première fois
