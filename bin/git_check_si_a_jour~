@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+FLAG_REPERTOIRE_A_PUSH="false"
+COMPTEUR=0
+MESSAGE_INDIQUANT_QUE_RIEN_A_PUSH="nothing to commit, working tree clean"
+while read REPERTOIRE_DEV_CONCERNE
+do
+
+	OLDPWD="$PWD"
+	cd "$REPERTOIRE_DEV_CONCERNE"
+	# Test si le répertoire est à push ou non - si oui grep ne retourne pas 0 donc déclenche le 'if' ci-dessous 
+        git status | grep "$MESSAGE_INDIQUANT_QUE_RIEN_A_PUSH" >/dev/null 2>&1
+	if (($?))
+	then
+		# Affichage esthétique avant la première fois
+		if [ "$FLAG_REPERTOIRE_A_PUSH" = "false" ]
+		then
+			echo -e "\nRépertoire(s) à git push :\n"
+		fi
+		((COMPTEUR++))
+		# Affichage du répertoire à push
+		echo "$COMPTEUR - ${REPERTOIRE_DEV_CONCERNE##*/}"
+		FLAG_REPERTOIRE_A_PUSH="true"	
+	fi
+	cd "$OLDPWD"	
+done < <(find $REPERTOIRE_DEVELOPPEMENT -mindepth 1 -maxdepth 1)
+
+# Retour à la ligne esthétique final
+if [ "$FLAG_REPERTOIRE_A_PUSH" = "true" ]
+then
+    echo ""
+fi		
