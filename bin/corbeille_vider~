@@ -8,9 +8,10 @@ source fonctions_personnelles
 REPONSE_UTILISATEUR=""
 QUESTION_POSEE="Êtes-vous d'accord de supprimer le contenu des répertoires suivants (variables d'environnement à configurer):
 CORBEILLE_PATH : \"$CORBEILLE_PATH\"
+CORBEILLE_DISQUE_DUR_PATH \"$CORBEILLE_DISQUE_DUR_PATH\"
 ? "
-# CORBEILLE_DISQUE_DUR_PATH \"$CORBEILLE_DISQUE_DUR_PATH\" # Pour le disque dur
 question_oui_non RESPONSE_UTILISATEUR "$QUESTION_POSEE"
+
 
 if [ "$RESPONSE_UTILISATEUR" = 'n' ]
 then
@@ -23,27 +24,20 @@ echo "DEBUG fin test"
 exit 0
 
 # Suppression du contenu des path des corbeilles
-echo -e "\nVidage de la corbeille"
+echo -e "\nVidage des 2 corbeilles (base + disque dur)\n"
 
 {   rm -rf $CORBEILLE_PATH/* &&
     echo -e "\nCorbeille située \"$CORBEILLE_PATH\" vidée !\n"
 } ||
     { STDERR_afficher_message "\nERREUR : la corbeille située \"$CORBEILLE_PATH\" n'a pas pu être vidée\n" &&
       exit 1
-    }
-
-# Ci-dessous pour vider la corbeille du disque dur
-: <<"TEMPORAIRE"
-
+     }
 {   rm -rf $CORBEILLE_DISQUE_DUR_PATH/* &&
     echo -e "\nCorbeille située \"$CORBEILLE_DISQUE_DUR_PATH\" vidée !\n"
 } ||
     { STDERR_afficher_message "\nERREUR : la corbeille située \"$CORBEILLE_DISQUE_DUR_PATH\" n'a pas pu être vidée\n" &&
       exit 1
     }
-
-TEMPORAIRE
-
 exit 0 # sortie sans erreur si suppression ok
 
 #######################################
