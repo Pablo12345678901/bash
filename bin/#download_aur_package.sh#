@@ -60,13 +60,12 @@ echo "DEBUG EXIT DEV"
 exit 5
 ##############################
 
-# List other file with choice to read them with less or follow on
-# with a select loop
+# List other file in new git dir with select loop : choice to read them with 'less' or to continue
 
 
 
 
-# Then installation
+# Then package build and installation
 { git pull  && 
   makepkg -s -i -r -c && 
   git clean -dfx
