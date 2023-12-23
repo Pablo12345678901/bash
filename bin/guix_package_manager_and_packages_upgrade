@@ -1,0 +1,83 @@
+#!/usr/bin/env bash 
+
+# Syntaxe :
+# - : aucun argument requis.
+
+source fonctions_personnelles
+
+# Pour la mise à jour manuelle
+# Peut pas être mis à jour via un cron car chaque utilisateur doit runner pour soi avec sudo (seul root sans sudo).
+declare -a LISTE_STATUTS
+STATUT=""
+
+###############################################
+echo -e "\nGuix update for user : $USER...\n"
+
+# Pull the latest revision of Guix and its package collection
+COMMANDE="guix pull"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
+LISTE_STATUTS+=("$STATUT")
+
+# Instruct the shell to point to this new ‘guix’
+COMMANDE="hash guix"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
+LISTE_STATUTS+=("$STATUT")
+
+# Upgrade all the packages previously installed
+COMMANDE="guix upgrade"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
+LISTE_STATUTS+=("$STATUT")
+
+###############################################
+# Mise à jour de root -> en chargeant l'environnement de root avec 'sudo -i'
+echo -e "\nGuix update for user : root...\n"
+
+# Pull the latest revision of Guix and its package collection
+COMMANDE="sudo -i guix pull"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
+LISTE_STATUTS+=("$STATUT")
+
+# Instruct the shell to point to this new ‘guix’
+COMMANDE="sudo -i hash guix"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
+LISTE_STATUTS+=("$STATUT")
+
+# Upgrade all the packages previously installed
+COMMANDE="sudo -i guix upgrade"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
+LISTE_STATUTS+=("$STATUT")
+
+# Restarting the Guix daemon
+COMMANDE="sudo systemctl restart guix-daemon.service"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
+LISTE_STATUTS+=("$STATUT")
+
+# Showing results
+echo -e "\nUpgrade status and results :\n"
+tableau_contenu LISTE_STATUTS
+
+# Return the script status
+for EACH_STATUS in "${LISTE_STATUTS[@]}"
+do
+    if [[ "$EACH_STATUS" =~ ^.*(ERREUR)$ ]]
+    then
+	STDERR_afficher_message "\nThe Guix update and upgrade failed.\n\nPlease check output.\n\n"
+	exit 1
+    fi
+done
+
+exit 0

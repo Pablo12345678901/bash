@@ -1,9 +1,0 @@
-#!/usr/bin/env bash 
-
-# Syntaxe :
-# - : aucun argument requis.
-
-# Pour la mise à jour manuelle
-# En principe, mis à jour par deux cron
-guix pull
-sudo guix system reconfigure /etc/config.scm

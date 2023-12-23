@@ -1,0 +1,48 @@
+#!/usr/bin/env bash 
+
+# Syntaxe :
+# - : aucun argument requis.
+
+source fonctions_personnelles
+
+# Pour la mise à jour manuelle
+# Peut pas être mis à jour via un cron car chaque utilisateur doit runner pour soi avec sudo (seul root sans sudo).
+declare -a LISTE_STATUTS
+STATUT=""
+
+# Pacman update and upgrade
+COMMANDE="sudo pacman -Suy"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
+LISTE_STATUTS+=("$STATUT")
+
+# AUR local builds update and upgrade
+COMMANDE="archlinux_update_and_build_aur_packages" # call another local scriptCOMMANDE="hash guix"
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
+LISTE_STATUTS+=("$STATUT")
+
+# Guix package manager and packages update and upgrade
+COMMANDE="guix_package_manager_and_packages_upgrade" # call another local script
+echo -e "\nRUN : $COMMANDE\n"
+$COMMANDE
+STATUT="$(statut_retourne $? "$COMMANDE")"
+LISTE_STATUTS+=("$STATUT")
+
+# Showing results
+echo -e "\nUpgrade status and results :\n"
+tableau_contenu LISTE_STATUTS
+
+# Return the script status
+for EACH_STATUS in "${LISTE_STATUTS[@]}"
+do
+    if [[ "$EACH_STATUS" =~ ^.*(ERREUR)$ ]]
+    then
+	STDERR_afficher_message "\nThe update and upgrade of the whole system failed.\n\nPlease check output.\n\n"
+	exit 1
+    fi
+done
+
+exit 0
