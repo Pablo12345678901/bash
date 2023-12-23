@@ -61,7 +61,7 @@ exit 5
 ##############################
 
 # List other file in new git dir with select loop : choice to read them with 'less' or to continue
-
+select_parmi_liste
 
 
 
