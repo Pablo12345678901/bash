@@ -126,6 +126,22 @@ function argument_fournis_afficher_tous {
     echo "" # retour à la ligne final esthétique
 }
 
+function ask_user_if_agree_to_continue {
+    # Syntaxe :
+    # -
+    # Exit with error code 0 if wished by the user
+
+    USER_ANSWER=""
+    QUESTION_YES_NO="Do you agree to continue the script
+(Yy/Nn) ? "
+    question_oui_non USER_ANSWER "$QUESTION_YES_NO"
+    if [ "$USER_ANSWER" = "n" ]
+    then
+	echo -e "\nYou choosed to stop the script.\n"
+	exit 0
+    fi
+}
+
 # B
 
 # C

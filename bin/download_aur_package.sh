@@ -2,6 +2,21 @@
 
 source fonctions_personnelles
 
+: <<"DEVID"
+function ask_user_if_agree_to_continue {
+# Ask if satisfied to continue
+USER_ANSWER=""
+QUESTION_YES_NO="Do you agree to continue the script
+(Yy/Nn) ? "
+question_oui_non USER_ANSWER "$QUESTION_YES_NO"
+if [ "$USER_ANSWER" = "n" ]
+then
+    echo -e "\nYou choosed to stop the script.\n"
+    exit 0
+fi
+}
+DEVID
+
 # ARGUMENT TEST
 URL_GIT_REPO="https://aur.archlinux.org/linux-mainline.git"
 
@@ -47,26 +62,36 @@ then
     exit 1
 fi
 
-# Show PKGBUILD file with less
-echo "Would you like to check the content of the 'PKGBUILD' file
-?"
-if [ 1 -eq 1 ]
+# Show PKGBUILD file with less - if wished by user
+USER_ANSWER=""
+QUESTION_YES_NO="Would you like to check the content of the 'PKGBUILD' file
+(Yy/Nn) ? "
+question_oui_non USER_ANSWER "$QUESTION_YES_NO"
+if [ "$USER_ANSWER" = "o" ]
 then
     less "$PATH_PKGBUILD"
 fi
 
-##############################
-echo "DEBUG EXIT DEV"
+ask_user_if_agree_to_continue
+
 exit 5
-##############################
 
-# List other file with choice to read them with less or follow on
-# with a select loop
+# List other file in new git dir with select loop : choice to read them with 'less' or to continue
+declare -a ARRAY_OPTIONS
+echo "DEBUG : array à remplir avec les fichiers"
+USER_CHOICE=""
+MESSAGE_FOR_USER="Which other file would you like to check the content
+?"
+STOP_OPTION="Pursue with build and installation"
+select_parmi_liste ARRAY_OPTIONS USER_CHOICE "$MESSAGE_FOR_USER" "$MESSAGE_FOR_USER"
+# $1 : TAB_D_OPTIONS (variable)
+# $2 : CH_UTILISATEUR (variable)
+# $3 : MES_AFFICHE (valeur) -> avant d'afficher les choix
+# $4 : OPT_POUR_ARRETER (optionnel) (valeur)
 
 
 
-
-# Then installation
+# Then package build and installation
 { git pull  && 
   makepkg -s -i -r -c && 
   git clean -dfx
