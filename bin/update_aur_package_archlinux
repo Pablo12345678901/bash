@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Get builds directories into an array
+declare -a ARRAY_BUILDS_DIR
+while read REPERTOIRE_A_METTRE_A_JOUR
+do
+    ARRAY_BUILDS_DIR+=("$REPERTOIRE_A_METTRE_A_JOUR")
+done < <(find "$REPERTOIRE_BUILDS_ARCHLINUX" -maxdepth 1 -mindepth 1 -type d -print0 |
+	     tr '\0' '\n')
+
+declare -a ARRAY_BUILDS_ERROR
+
+# Update all builds directories
+for REPERTOIRE in "${ARRAY_BUILDS_DIR[@]}"
+do
+  OLDPWD="$PWD"
+  PACKAGE_BASENAME="${REPERTOIRE##*/}"
+  cd "$REPERTOIRE"
+  # Check if git directory is up to date
+  DIRECTORY_STATUS="$(git pull 2>&1)"
+  STATUS=$?
+  if [ "$DIRECTORY_STATUS" = "Already up to date." ]
+  then
+      echo "The package \"$PACKAGE_BASENAME\" located \"$REPERTOIRE\" is already up to date."
+  else
+      echo "$DIRECTORY_STATUS"
+  { [ $STATUS ]  && 
+  makepkg -s -i -r -c && 
+  git clean -dfx  &&
+  echo -e "\nThe package \"$PACKAGE_BASENAME\" located \"$REPERTOIRE\" was correctly updated\n"
+  } ||
+  { STDERR_afficher_message "\nERROR : the package \"$PACKAGE_BASENAME\" located \"$REPERTOIRE\" could not be updated. Do it manually.\n" &&
+    ARRAY_BUILDS_ERROR+=("$PACKAGE_BASENAME")
+  } # conservation of builds errors to show at the end 
+ fi 
+ cd "$OLDPWD"
+done
+
+# Showing the update results
+if [ "$(tableau_taille ARRAY_BUILDS_ERROR)" != "0" ]
+then
+    STDERR_afficher_message "\nERROR : issue with the build(s) below :\n\n$(tableau_contenu ARRAY_BUILDS_ERROR)\n\nCheck the above output...\n"
+    exit 1
+else
+    echo -e "\nAll builds were well performed!\n"
+    exit 0
+fi
