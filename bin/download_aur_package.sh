@@ -74,24 +74,25 @@ fi
 
 ask_user_if_agree_to_continue
 
-exit 5
-
 # List other file in new git dir with select loop : choice to read them with 'less' or to continue
 declare -a ARRAY_OPTIONS
-echo "DEBUG : array à remplir avec les fichiers"
+pwd
 USER_CHOICE=""
 MESSAGE_FOR_USER="Which other file would you like to check the content
 ?"
 STOP_OPTION="Pursue with build and installation"
-select_parmi_liste ARRAY_OPTIONS USER_CHOICE "$MESSAGE_FOR_USER" "$MESSAGE_FOR_USER"
+select_parmi_liste ARRAY_OPTIONS USER_CHOICE "$MESSAGE_FOR_USER" "$STOP_OPTION"
 # $1 : TAB_D_OPTIONS (variable)
 # $2 : CH_UTILISATEUR (variable)
 # $3 : MES_AFFICHE (valeur) -> avant d'afficher les choix
 # $4 : OPT_POUR_ARRETER (optionnel) (valeur)
 
+ask_user_if_agree_to_continue
 
+exit 5
 
 # Then package build and installation
+echo -e "\nBuild and installation...\n"
 { git pull  && 
   makepkg -s -i -r -c && 
   git clean -dfx

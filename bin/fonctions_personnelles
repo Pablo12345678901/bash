@@ -478,7 +478,7 @@ function select_parmi_liste {
         TAB_CHOIX=("${TAB_D_OPTIONS[@]}") # copie du tableau original car je vais y ajouter l'option de sortie
         TAB_CHOIX+=("$OPT_POUR_ARRETER") # ajout de l'option de sortie
         DER_OPTION="${#TAB_CHOIX[@]}"
-        MES_SI_OPTION_QUITTER="Tapez \"$DER_OPTION\" pour \"$OPT_POUR_ARRETER\"
+        MES_SI_OPTION_QUITTER="Write \"$DER_OPTION\" to do \"$OPT_POUR_ARRETER\"
         " # inclus un retour à la ligne
     fi
     CH_UTILISATEUR=""
@@ -493,7 +493,7 @@ function select_parmi_liste {
         then
             :
         else
-            echo -e "ERREUR : votre saisie ne fait pas partie de la liste de choix.\n$MES_SI_OPTION_QUITTER"
+            echo -e "ERROR : your input is not in the choices list.\n$MES_SI_OPTION_QUITTER"
         fi
     done   </dev/tty
 
