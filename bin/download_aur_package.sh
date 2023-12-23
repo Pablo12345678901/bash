@@ -2,27 +2,75 @@
 
 source fonctions_personnelles
 
-: <<"DEVID"
-function ask_user_if_agree_to_continue {
-# Ask if satisfied to continue
-USER_ANSWER=""
-QUESTION_YES_NO="Do you agree to continue the script
-(Yy/Nn) ? "
-question_oui_non USER_ANSWER "$QUESTION_YES_NO"
-if [ "$USER_ANSWER" = "n" ]
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-u URL_GIT_REPO")"
+
+####### BEGINNING OF OPTION MANAGEMENT ##########
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'u:' -q -- "$@")
+# -q : quiet
+# -- : to explicitly show the options end
+
+# Test whether syntax was correct (options + arguments)
+if [ $? -ne 0 ]
 then
-    echo -e "\nYou choosed to stop the script.\n"
-    exit 0
+    STDERR_afficher_message "ERROR: syntax..."
+    STDERR_afficher_message "$SYNTAXE"
+    exit 1
 fi
-}
-DEVID
 
-# ARGUMENT TEST
-URL_GIT_REPO="https://aur.archlinux.org/linux-mainline.git"
+# Arguments check
+FLAG_OPTION_U=
 
-###### TEST END  ##########
+# Re-set options through positional parameters
+eval set -- "$TEMP"
+unset TEMP
 
+while true; do
+    case "$1" in
+	-u )  
+	    FLAG_OPTION_U=1
+            URL_GIT_REPO="$2"
+            shift 2
+            continue
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )
+	    # Error management for all other bugs
+            STDERR_afficher_message "ERROR: internal error...\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 2
+            ;;
+	esac
+done
 
+# Test whether required options were provided (=test if corresponding flag is defined)
+if [ ! -z "$FLAG_OPTION_U" ]
+then
+    # Test whether other arguments were provided = in excess (=test if $1 is defined)
+    if [ ! -z "$1" ]
+    then
+        STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
+        STDERR_afficher_message "$SYNTAXE"
+        exit 3
+    else
+        :
+    fi
+else
+    STDERR_afficher_message "\nERROR : You must provide all required arguments.\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 4
+fi
+
+########## END OF OPTION MANAGEMENT ####################
+
+# Get cleaned url and new dir name
 URL_GIT_REPO="${URL_GIT_REPO%/}" # remove eventual '/' at the end of url
 # Get repo name
 NEW_GIT_REPO="${URL_GIT_REPO##*/}" # remove all url except basename
@@ -30,27 +78,26 @@ NEW_GIT_REPO="${NEW_GIT_REPO%\.git}" # remove the '.git' at the end of url
 PACKAGE_BASENAME="$NEW_GIT_REPO"
 
 LOCATION_AT_SCRIPT_BEGINNING="$PWD"
-
-echo "DEBUG : $PWD" # debug
-
 cd "$REPERTOIRE_BUILDS_ARCHLINUX"
+NEW_REPO_PATH=""
 
 # Creation of new git repo if not existing yet
 if [ ! -d "./${NEW_GIT_REPO}" ]
 then
     # Creation of new git dir and error check
     { git clone "$URL_GIT_REPO" &&
-    echo -e "\nNew repo created : \"$NEW_GIT_REPO\" located \"${PWD}/${NEW_GIT_REPO}\"\n"
+      NEW_REPO_PATH="${PWD}/${NEW_GIT_REPO}" &&
+    echo -e "\nNew repo created : \"$NEW_GIT_REPO\" located \"$NEW_REPO_PATH\".\n"
     } ||
     { STDERR_afficher_message "\nERROR : the git repo could not be created. Do it manually...\n"
     cd "$LOCATION_AT_SCRIPT_BEGINNING"
     exit 1
     }
+else
+    NEW_REPO_PATH="${PWD}/${NEW_GIT_REPO}"
 fi
 
 cd "$NEW_GIT_REPO"
-
-echo "DEBUG : $PWD" # debug
 
 # Test if PKGBUILD file exists in folder
 PATH_PKGBUILD="$(find -maxdepth 1 -mindepth 1 -name "PKGBUILD")"
@@ -76,20 +123,33 @@ ask_user_if_agree_to_continue
 
 # List other file in new git dir with select loop : choice to read them with 'less' or to continue
 declare -a ARRAY_OPTIONS
-pwd
-USER_CHOICE=""
-MESSAGE_FOR_USER="Which other file would you like to check the content
+# Fill the array with all file at the first level of the new git dir
+while read FILE_WITHIN_REPO
+do
+    FILE_BASENAME_OPTION="${FILE_WITHIN_REPO##*/}"
+    ARRAY_OPTIONS+=("$FILE_BASENAME_OPTION")
+done < <(find "$NEW_REPO_PATH" -maxdepth 1 -mindepth 1 -type f -print0 |
+    tr '\0' '\n')
+
+# Loop to ask whether to show file content or to pursue
+FLAG_CONTINUE="false"
+while [ ! "$FLAG_CONTINUE" = "true" ]
+do
+
+    USER_CHOICE=""
+    MESSAGE_FOR_USER="Which other file would you like to check the content
 ?"
-STOP_OPTION="Pursue with build and installation"
-select_parmi_liste ARRAY_OPTIONS USER_CHOICE "$MESSAGE_FOR_USER" "$STOP_OPTION"
-# $1 : TAB_D_OPTIONS (variable)
-# $2 : CH_UTILISATEUR (variable)
-# $3 : MES_AFFICHE (valeur) -> avant d'afficher les choix
-# $4 : OPT_POUR_ARRETER (optionnel) (valeur)
+    STOP_OPTION="Pursue the script (if exit is wanted it will be available then)"
+    select_parmi_liste ARRAY_OPTIONS USER_CHOICE "$MESSAGE_FOR_USER" "$STOP_OPTION"
+    if [ "$USER_CHOICE" = "$STOP_OPTION" ]
+    then
+	FLAG_CONTINUE="true"
+    else
+	less "${NEW_REPO_PATH}/${USER_CHOICE}"
+    fi
+done
 
 ask_user_if_agree_to_continue
-
-exit 5
 
 # Then package build and installation
 echo -e "\nBuild and installation...\n"
@@ -97,15 +157,13 @@ echo -e "\nBuild and installation...\n"
   makepkg -s -i -r -c && 
   git clean -dfx
 } ||
-{ STDERR_afficher_message "\nERROR : the package \"$PACKAGE_BASENAME\" located \"$REPERTOIRE\" could not be built. Do it manually.\n"
-    cd "$LOCATION_AT_SCRIPT_BEGINNING"
-    exit 1
+{ STDERR_afficher_message "\nERROR : the package \"$PACKAGE_BASENAME\" located \"$NEW_REPO_PATH\" could not be built. Do it manually...\n"
+  cd "$LOCATION_AT_SCRIPT_BEGINNING"
+  exit 1
 }
   
 # If no build error so showing confirmation message
-echo -e "\nThe package \"$PACKAGE_BASENAME\" located \"$REPERTOIRE\" was correctly built\n"
+echo -e "\nThe package \"$PACKAGE_BASENAME\" located \"$NEW_REPO_PATH\" was correctly built.\n"
 cd "$LOCATION_AT_SCRIPT_BEGINNING"
-
-echo "DEBUG : $PWD"
 
 exit 0
