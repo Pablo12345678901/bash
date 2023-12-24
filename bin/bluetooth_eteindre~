@@ -5,6 +5,8 @@
 
 # DEBUG
 echo -e "\nScript $(basename $0) en cours de développement - pas au point...\n"
+sudo systemctl stop bluetooth.service
+echo $?
 exit 0
 
 # Comme l'utilitaire de blueutil n'est pas intégré d'office, je teste s'il l'est et sinon l'installe

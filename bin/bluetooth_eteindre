@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# - : pas d'argument à fournir
+
+bluetoothctl power off && echo -e "\nBluetooth was successfully turned off.\n" || STDERR_afficher_message "\nERROR : Bluetooth could not be turned off. Do it manually...\n"

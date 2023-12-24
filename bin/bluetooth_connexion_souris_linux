@@ -31,10 +31,13 @@ BLUETOOTH_ACTIF="$(echo "$STATUT_BLUETOOTH" | awk -v REGEX="$REGEX_ETAT_ACTIF" '
 if [ ! "$BLUETOOTH_ACTIF" = "true" ]
 then
     sudo systemctl start "$SERVICE" ||
-    {   STDERR_afficher_message "\nERREUR : Le bluetooth n'a pas pu être allumé.\n"
+    {   STDERR_afficher_message "\nERREUR : Le service du bluetooth n'a pas pu être allumé.\n"
         exit 2
     }
 fi
+
+# Turn on the Bluetooth
+bluetoothctl power on
 
 # Récupération de l'adresse MAC de l'appareil
 HARDWARE_BLUETOOTH="$(bluetoothctl devices)"
