@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Syntaxe :
+# -
+
+# Workaround because of network service conflict and unknown cause
+# NetworkManager enable the ethernet interface but if this service
+# is enabled on boot, Wireless connection is not available immediatly
+# and if lauched manually, ethernet interface works well - so made this workaround.
+
+SERVICE_NAME="NetworkManager.service"
+
+# Start / restart NetworkManager
+{ { sudo systemctl is-active --quiet "$SERVICE_NAME" && sudo systemctl restart "$SERVICE_NAME"
+} || sudo systemctl start "$SERVICE_NAME"
+} ||
+{ STDERR_afficher_message "\nERROR : The service \"$SERVICE_NAME\" could not be started/restarted. Do it manually...\n"
+  exit 1
+}
+
+# Get the name of the interface - if existing
+INTERFACE_NAME="$(ip link show | grep -E -o 'en[a-z0-9]*:')"
+INTERFACE_NAME="${INTERFACE_NAME%:}"
+
+if [ -z "$INTERFACE_NAME" ]
+then
+    STDERR_afficher_message "\nERROR : no ethernet interface available...\n"
+    exit 2
+fi
+
+# Test if interface is up silently
+ip link show | grep "$INTERFACE_NAME" | grep -E '([[:space:]]UP[[:space:]])' >/dev/null 2>&1
+
+# Show results
+if (($?))
+then
+    STDERR_afficher_message "\nERROR : The ethernet interface \"$INTERFACE_NAME\" could not be set UP. Do it manually...\n"
+    exit 3
+else
+    echo -e "\nEthernet interface \"$INTERFACE_NAME\" was successfully set UP !\n"
+    exit 0
+fi
