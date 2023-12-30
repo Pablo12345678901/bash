@@ -106,9 +106,9 @@ else
 fi
 
 # Back-up
-rsync -a -v -z -P --info=progress2 --partial "$SOURCE_AVEC_SLASH_FINAL" "$DESTINATION_SANS_SLASH_FINAL"
+sudo rsync -a -v -z -P --info=progress2 --partial "$SOURCE_AVEC_SLASH_FINAL" "$DESTINATION_SANS_SLASH_FINAL"
 # Debug :
-# -a : archive mode is -rlptgoD (no -A,-X,-U,-N,-H) -> backup tout y.c permissions sur fichiers
+# -a : archive mode is -rlptgoD (no -A,-X,-U,-N,-H) -> backup tout y.c permissions sur fichiers
 # -v : verbose
 # -z : compress avant de backup (qui sera décompressé) = plus rapide
 # -P : progress bar

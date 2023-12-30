@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# -
+
+MAIN_EXTERNAL_DISK="${USB_CONNEXION_PATH}/Elements"
+BACK_UP_EXTERNAL_DISK="${USB_CONNEXION_PATH}/Double"
+SCRIPT_OUTPUT_FILE="${REPERTOIRE_TEMPORAIRE}/output.txt"
+
+# Check if env var are okay and if the external disks are connected - else exit with error
+if [[ ! -d "$MAIN_EXTERNAL_DISK" || ! -d "$BACK_UP_EXTERNAL_DISK" || ! -d "$REPERTOIRE_TEMPORAIRE" ]]
+then
+    echo -e "ERROR : one (or more) of those var below is not correctly defined."
+    echo -e "MAIN_EXTERNAL_DISK = \"$MAIN_EXTERNAL_DISK\""
+    echo -e "BACK_UP_EXTERNAL_DISK = \"$BACK_UP_EXTERNAL_DISK\""
+    echo -e "SCRIPT_OUTPUT_FILE = \"$SCRIPT_OUTPUT_FILE\""
+    
+    echo -e "Its is maybe because of the env var below :"
+    echo -e "USB_CONNEXION_PATH = \"$USB_CONNEXION_PATH\""
+    echo -e "REPERTOIRE_TEMPORAIRE = \"$REPERTOIRE_TEMPORAIRE\""
+    exit 1
+fi
+
+# Remove content if file existing
+echo -n "" > "$SCRIPT_OUTPUT_FILE"
+
+# Back-up from home dir to main external disk
+COMMAND="sudo back_up_a_dir_to_another -s /home/ -d ${MAIN_EXTERNAL_DISK}/home "
+{ $COMMAND &&
+      echo "OK - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+} || echo "ERROR - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+
+echo -e "\n\n" >> "$SCRIPT_OUTPUT_FILE" # Esthetic
+
+# Back-up du disque principal vers le disque secondaire
+COMMAND="sudo back_up_a_dir_to_another -s ${MAIN_EXTERNAL_DISK}/ -d ${BACK_UP_EXTERNAL_DISK} "
+{ $COMMAND &&
+      echo "OK - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+} || echo "ERROR - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+
+echo -e "\nBack-up script finished - Please check the results.\n"
+fichier_ouvrir -f "$SCRIPT_OUTPUT_FILE"
