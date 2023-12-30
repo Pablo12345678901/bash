@@ -40,7 +40,7 @@ then
                 REPERTOIRE_GIT_A_PUSH="$REPERTOIRE_DEVELOPPEMENT/$CHOIX"
             else
                 echo -e "\nVous avez choisi d'annuler le git push.\n"
-                exit 1
+                exit 0
             fi
         else
             echo -e "ERREUR : votre saisie ne fait pas partie de la liste de choix.\nTapez \"$DERNIERE_OPTION\" pour \"$OPTION_SORTIE\""
@@ -75,7 +75,7 @@ fi
 # Push du git
 {   git add . &&
     git status &&
-    MESSAGE_AVEC_LE_GIT_PUSH="$2"
+    MESSAGE_AVEC_LE_GIT_PUSH="$2" &&
     while [ ${#MESSAGE_AVEC_LE_GIT_PUSH} -eq 0 ]
     do
         read -rp "Quelle message voudriez-vous joindre avec le push ? " MESSAGE_AVEC_LE_GIT_PUSH
@@ -83,11 +83,15 @@ fi
         if [ ${#MESSAGE_AVEC_LE_GIT_PUSH} -eq 0 ]
         then
             echo -e "\nERREUR : Veuillez saisir un message d'au moins 1 char.\n"
-        else
-            :
         fi
-    done
+    done &&
     git commit -m "$MESSAGE_AVEC_LE_GIT_PUSH" &&
-    git push  && echo -e "\nCommit du répertoire \"$CHOIX\" = OK\n" ; } || echo -e "\nLe commit du répertoire \"$CHOIX\" n'a pas pu être correctement fait OU il n'y avait rien à push."
+    git push  && echo -e "\nCommit du répertoire \"$CHOIX\" = OK\n" &&
+    cd "$OLDPWD" &&
+    exit 0
+} ||
+{ echo -e "\nLe commit du répertoire \"$CHOIX\" n'a pas pu être correctement fait OU il n'y avait rien à push."
+  cd "$OLDPWD"
+  exit 1
+}
 
-cd "$OLDPWD"

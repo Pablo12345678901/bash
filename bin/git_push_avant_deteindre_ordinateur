@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# - : pas d'argument à fournir
+
+source fonctions_personnelles
+
+# Demande si souhait de push Git avant d'éteindre
+QUESTION="Souhaiteriez-vous git push avant d'éteindre l'ordinateur ? (Oo/Nn) "
+REPONSE=''
+question_oui_non REPONSE "$QUESTION"
+
+if [ $REPONSE == 'o' ]
+then
+    while [ $REPONSE == 'o' ]
+    do
+        git_commit_avec_message || exit 1
+        QUESTION="Y a-t-il d'autre répertoire à push ? (Oo/Nn) "
+        REPONSE=''
+        question_oui_non REPONSE "$QUESTION"
+        if [ $REPONSE == 'o' ]
+        then
+            :
+        else
+            echo -e "\nVous avez choisi de poursuivre la procédure d'éteinte de l'ordinateur sans git push d'autre répertoire.\n"
+	    exit 0
+        fi
+    done
+else
+    :
+fi
