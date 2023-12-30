@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# - : pas d'argument à fournir
+
+source fonctions_personnelles
+
+COMMANDE="${0##*/}" # nom du fichier = utile pour les messages d'erreur
+
+# Execute some actions before shutting down.
+turn_off_actions_before ||
+    { STDERR_afficher_message "\nERROR : could not process all required actions before the stand-by.\n Please check output...\n" &&
+      exit 1
+    }
+
+# Éteindre l'ordinateur
+echo -e "\nSaisissez votre mot de passe et l'ordinateur se mettra en veille IMMEDIATEMENT."
+echo -e "Annulez avec CTRL+C\n"
+sudo shutdown -H now ||
+{ echo -e "\nERREUR : la commande \"$COMMANDE\" a échoué.\n" ; exit 1 ; }
