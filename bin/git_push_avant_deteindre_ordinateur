@@ -23,6 +23,8 @@ STATUS_UP_OR_NOT_TO_DATE="$(echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE" |
 if [ "$STATUS_UP_OR_NOT_TO_DATE" = "$WORDS_SHOWING_UP_TO_DATE" ]
 then
     exit 0
+else
+    echo -e "STATUS : \"$STATUS_UP_OR_NOT_TO_DATE\"\nWORDS : \"$WORDS_SHOWING_UP_TO_DATE\""
 fi
 
 # Else propose to git push - and then if yes call the script to do so.
