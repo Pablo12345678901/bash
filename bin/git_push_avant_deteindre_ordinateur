@@ -7,21 +7,26 @@ source fonctions_personnelles
 
 # Showing if my git dev dirs are up-to-date or need to be pushed
 RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE="$(git_check_if_up_to_date)"
-echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE\n"
+echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE"
 
-# If not up-to-date, then ask if push is wished.
+# Test if up-to-date then no push so exit
+# Getting the status
 WORDS_SHOWING_UP_TO_DATE="up-to-date"
-echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE" |
+STATUS_UP_OR_NOT_TO_DATE="$(echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE" |
     awk -v UPTODATE="$WORDS_SHOWING_UP_TO_DATE" '{ for(i=1;i<=NF;i++)
             { if ($i==UPTODATE)
                 { printf("up-to-date") }
             }
          }'
+)"
+# Checking the status
+if [ "$STATUS_UP_OR_NOT_TO_DATE" = "$WORDS_SHOWING_UP_TO_DATE" ]
+then
+    exit 0
+fi
 
-exit 5
-
-# Demande si souhait de push Git avant d'éteindre
-QUESTION="Souhaiteriez-vous git push avant d'éteindre l'ordinateur ? (Oo/Nn) "
+# Else propose to git push - and then if yes call the script to do so.
+QUESTION="Would you like to git push ? (Oo/Nn) "
 REPONSE=''
 question_oui_non REPONSE "$QUESTION"
 
@@ -30,17 +35,16 @@ then
     while [ $REPONSE == 'o' ]
     do
         git_commit_avec_message || exit 1
-        QUESTION="Y a-t-il d'autre répertoire à push ? (Oo/Nn) "
+        QUESTION="Any other dir(s) to git push ? (YyOo/Nn) "
         REPONSE=''
         question_oui_non REPONSE "$QUESTION"
-        if [ $REPONSE == 'o' ]
+        if [ ! $REPONSE == 'o' ]
         then
-            :
-        else
-            echo -e "\nVous avez choisi de poursuivre la procédure d'éteinte de l'ordinateur sans git push d'autre répertoire.\n"
-	    exit 0
+            break
         fi
     done
-else
-    :
 fi
+
+# Exit
+echo -e "\nYou have choosen to continue without git push any other dir.\n"
+exit 0
