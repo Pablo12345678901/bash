@@ -11,7 +11,7 @@ QUESTION_POSEE="Êtes-vous d'accord de supprimer le contenu des répertoires sui
 CORBEILLE_PATH : \"$CORBEILLE_PATH\"
 CORBEILLE_DISQUE_DUR_PATH \"$CORBEILLE_DISQUE_DUR_PATH\"
 
-? "
+? (YyOo/Nn) "
 
 question_oui_non RESPONSE_UTILISATEUR "$QUESTION_POSEE"
 
