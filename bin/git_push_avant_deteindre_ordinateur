@@ -12,11 +12,11 @@ echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE"
 # Test if up-to-date then no push so exit
 # Getting the status
 WORDS_SHOWING_UP_TO_DATE="up-to-date"
+REGEX_SHOWING_UP_TO_DATE=".*$WORDS_SHOWING_UP_TO_DATE.*"
 STATUS_UP_OR_NOT_TO_DATE="$(echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE" |
-    awk -v UPTODATE="$WORDS_SHOWING_UP_TO_DATE" '{
-            { if ($0 ~ /.*UPTODATE.*/)
-                { printf("up-to-date") }
-              else { printf("%s", UPTODATE) }
+    awk -v WORDSUPTODATE="$WORDS_SHOWING_UP_TO_DATE" -v REGEXUPTODATE="$REGEX_SHOWING_UP_TO_DATE" '{
+            { if ($0 ~ REGEXUPTODATE)
+                { printf("%s", WORDSUPTODATE) }
             }
          }'
 )"
