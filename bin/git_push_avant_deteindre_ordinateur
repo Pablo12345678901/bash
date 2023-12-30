@@ -14,7 +14,7 @@ echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE"
 WORDS_SHOWING_UP_TO_DATE="up-to-date"
 STATUS_UP_OR_NOT_TO_DATE="$(echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE" |
     awk -v UPTODATE="$WORDS_SHOWING_UP_TO_DATE" '{ for(i=1;i<=NF;i++)
-            { if ($i==UPTODATE)
+            { if ($0 ~ /UPTODATE/)
                 { printf("up-to-date") }
             }
          }'
