@@ -5,6 +5,21 @@
 
 source fonctions_personnelles
 
+# Showing if my git dev dirs are up-to-date or need to be pushed
+RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE="$(git_check_if_up_to_date)"
+echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE\n"
+
+# If not up-to-date, then ask if push is wished.
+WORDS_SHOWING_UP_TO_DATE="up-to-date"
+echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE" |
+    awk -v UPTODATE="$WORDS_SHOWING_UP_TO_DATE" '{ for(i=1;i<=NF;i++)
+            { if ($i==UPTODATE)
+                { printf("up-to-date") }
+            }
+         }'
+
+exit 5
+
 # Demande si souhait de push Git avant d'éteindre
 QUESTION="Souhaiteriez-vous git push avant d'éteindre l'ordinateur ? (Oo/Nn) "
 REPONSE=''

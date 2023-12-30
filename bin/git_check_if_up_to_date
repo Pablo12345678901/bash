@@ -15,7 +15,7 @@ do
 		# Affichage esthétique avant la première fois
 		if [ "$FLAG_REPERTOIRE_A_PUSH" = "false" ]
 		then
-			echo -e "\nRépertoire(s) à git push :\n"
+			echo -e "\nList of Git dirs to 'git push' :\n"
 		fi
 		((COMPTEUR++))
 		# Affichage du répertoire à push
@@ -29,6 +29,8 @@ done < <(find $REPERTOIRE_DEVELOPPEMENT -mindepth 1 -maxdepth 1)
 if [ "$FLAG_REPERTOIRE_A_PUSH" = "true" ]
 then
     echo ""
+else
+    echo -e "All Git dirs are already up-to-date."
 fi
 
 exit 0
