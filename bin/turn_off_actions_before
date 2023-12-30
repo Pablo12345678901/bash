@@ -3,8 +3,7 @@
 # Syntaxe :
 # - : pas d'argument à fournir
 
-# Voir les script correspondants
-git_check_if_up_to_date || exit 1
+# Calling a few custom scripts
 git_push_avant_deteindre_ordinateur || exit 1
 disque_dur_ejecter_guix_et_archlinux ||  exit 1
 corbeille_vider || exit 1
