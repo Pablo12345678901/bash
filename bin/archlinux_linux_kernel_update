@@ -399,7 +399,7 @@ fi
 
 # Rebooting
 cd "$LOCATION_AT_SCRIPT_BEGINNING"
-sudo reboot
+reboot_full # calling custom script to perform specific actions before reboot
 
 
 

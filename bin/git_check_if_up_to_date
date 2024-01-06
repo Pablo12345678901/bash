@@ -23,7 +23,7 @@ do
 		FLAG_REPERTOIRE_A_PUSH="true"	
 	fi
 	cd "$OLDPWD"	
-done < <(find $REPERTOIRE_DEVELOPPEMENT -mindepth 1 -maxdepth 1)
+done < <(find "$REPERTOIRE_DEVELOPPEMENT" -mindepth 1 -maxdepth 1)
 
 # Retour à la ligne esthétique final
 if [ "$FLAG_REPERTOIRE_A_PUSH" = "true" ]
