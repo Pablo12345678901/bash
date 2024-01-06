@@ -1,0 +1,408 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-k LINUX_KERNEL_NAME")"
+
+####### BEGINNING OF OPTION MANAGEMENT ##########
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'k:' -q -- "$@")
+# -q : quiet
+# -- : to explicitly show the options end
+
+# Test whether syntax was correct (options + arguments)
+if [ $? -ne 0 ]
+then
+    STDERR_afficher_message "ERROR: syntax..."
+    STDERR_afficher_message "$SYNTAXE"
+    exit 1
+fi
+
+# Arguments check
+FLAG_OPTION_K=
+
+# Re-set options through positional parameters
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+    case "$1" in
+	-k )  
+	    FLAG_OPTION_K=1
+            LINUX_KERNEL_NAME="$2"
+            shift 2
+            continue
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )
+	    # Error management for all other bugs
+            STDERR_afficher_message "ERROR: internal error...\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 2
+            ;;
+	esac
+done
+
+# Test whether required options were provided (=test if corresponding flag is defined)
+if [ ! -z "$FLAG_OPTION_K" ]
+then
+    # Test whether other arguments were provided = in excess (=test if $1 is defined)
+    if [ ! -z "$1" ]
+    then
+        STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
+        STDERR_afficher_message "$SYNTAXE"
+        exit 3
+    else
+        :
+    fi
+else
+    STDERR_afficher_message "\nERROR : You must provide all required arguments.\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 4
+fi
+
+########## END OF OPTION MANAGEMENT ####################
+
+# Get kernel path name
+LINUX_KERNEL_NAME="${LINUX_KERNEL_NAME%/}" # remove the ending '/' if there is one
+LINUX_KERNEL_NAME="${LINUX_KERNEL_NAME##*/}" # remove all absolute path (if needed) except basename
+PACKAGE_BASENAME="$LINUX_KERNEL_NAME"
+
+LOCATION_AT_SCRIPT_BEGINNING="$PWD"
+cd "$REPERTOIRE_BUILDS_ARCHLINUX"
+LINUX_KERNEL_PATH="${REPERTOIRE_BUILDS_ARCHLINUX}/${LINUX_KERNEL_NAME}"
+
+# Creation of new git repo if not existing yet
+if [ ! -d "./${LINUX_KERNEL_NAME}" ]
+then
+    STDERR_afficher_message "\nERROR : there is no linux kernel dir \"$LINUX_KERNEL_NAME\" located at the path \"$LINUX_KERNEL_PATH\".\n"
+    cd "$LOCATION_AT_SCRIPT_BEGINNING"
+    exit 1
+fi
+
+cd "$LINUX_KERNEL_NAME"
+
+
+# Ask if wanted to start or to choose a step
+declare -a ARRAY_START_OR_CHOOSE
+ARRAY_START_OR_CHOOSE+=("Start the update from the beggining")
+ARRAY_START_OR_CHOOSE+=("Choose a specific step")
+USER_ACTION=""
+QUESTION_START_OR_CHOOSE="What would you like to do ? "
+OPTION_TO_QUIT="Quit"
+select_parmi_liste ARRAY_START_OR_CHOOSE USER_ACTION "$QUESTION_START_OR_CHOOSE" "$OPTION_TO_QUIT"
+
+# Setting all flag to true by default - meaning all steps will be performed
+FLAG_GIT_PULL="true"
+FLAG_BUILD_WITH_MAKEPKG="true"
+FLAG_INSTALL_WITH_PACMAN="true"
+FLAG_GIT_CLEAN_AFTER_INSTALLATION="true"
+FLAG_KERNEL_CREATE_NEW_ENTRY="true"
+FLAG_OLD_KERNEL_REMOVE="true"
+FLAG_REGENERATE_GRUB_CONF_FILE="true"
+
+# Quit if required by user
+if [ "$USER_ACTION" = "$OPTION_TO_QUIT" ]
+then
+    echo -e "\nYou choosed to quit the script without further step.\n"
+    cd "$LOCATION_AT_SCRIPT_BEGINNING"
+    exit 0
+fi
+
+# Step list and choice by the way
+# Will be used to show the next step after the current step end
+declare -a ARRAY_STEP_CHOICE # this array will be needed after so declared before
+ARRAY_CURRENT_STEP_INDEX=0
+ARRAY_STEP_CHOICE+=("Git pull")
+ARRAY_STEP_CHOICE+=("Build with makepkg")
+ARRAY_STEP_CHOICE+=("Install with pacman")
+ARRAY_STEP_CHOICE+=("Git clean")
+ARRAY_STEP_CHOICE+=("Kernel create new entry")
+ARRAY_STEP_CHOICE+=("Old kernel remove")
+ARRAY_STEP_CHOICE+=("Regenerate grub conf file")
+ARRAY_STEP_CHOICE+=("Reboot")
+
+# Choose a step if required by user 
+if [ "$USER_ACTION" = "Choose a specific step" ]
+then
+    STEP_CHOOSED=""
+    QUESTION_WHICH_STEP="At which step would you like to start ? "
+    OPTION_TO_EXIT="Quit"
+    select_parmi_liste ARRAY_STEP_CHOICE STEP_CHOOSED "$QUESTION_WHICH_STEP" "$OPTION_TO_EXIT"
+
+    # Quit if required by user
+    if [ "$STEP_CHOOSED" = "$OPTION_TO_EXIT" ]
+    then
+	echo -e "\nYou choosed to quit the script without further step.\n"
+	cd "$LOCATION_AT_SCRIPT_BEGINNING"
+	exit 0
+    fi
+    
+    # Adaptation of the flag to start from the specific step    
+    case "$STEP_CHOOSED" in
+    "Git pull")
+        :
+	;;
+    "Build with makepkg")
+	FLAG_GIT_PULL="false"
+	ARRAY_CURRENT_STEP_INDEX=1
+	;;
+    "Install with pacman")
+	FLAG_GIT_PULL="false"
+        FLAG_BUILD_WITH_MAKEPKG="false"
+	ARRAY_CURRENT_STEP_INDEX=2
+	;;
+    "Git clean")
+	FLAG_GIT_PULL="false"
+        FLAG_BUILD_WITH_MAKEPKG="false"
+        FLAG_INSTALL_WITH_PACMAN="false"
+	ARRAY_CURRENT_STEP_INDEX=3
+	;;
+    "Kernel create new entry")
+	FLAG_GIT_PULL="false"
+	FLAG_BUILD_WITH_MAKEPKG="false"
+	FLAG_INSTALL_WITH_PACMAN="false"
+	FLAG_GIT_CLEAN_AFTER_INSTALLATION="false"
+	ARRAY_CURRENT_STEP_INDEX=4
+	;;
+    "Old kernel remove")
+        FLAG_GIT_PULL="false"
+	FLAG_BUILD_WITH_MAKEPKG="false"
+	FLAG_INSTALL_WITH_PACMAN="false"
+	FLAG_GIT_CLEAN_AFTER_INSTALLATION="false"
+	FLAG_KERNEL_CREATE_NEW_ENTRY="false"
+	ARRAY_CURRENT_STEP_INDEX=5
+	;;
+    "Regenerate grub conf file")
+	FLAG_GIT_PULL="false"
+	FLAG_BUILD_WITH_MAKEPKG="false"
+	FLAG_INSTALL_WITH_PACMAN="false"
+	FLAG_GIT_CLEAN_AFTER_INSTALLATION="false"
+	FLAG_KERNEL_CREATE_NEW_ENTRY="false"
+	FLAG_OLD_KERNEL_REMOVE="false"
+	ARRAY_CURRENT_STEP_INDEX=6
+	;;
+    "Reboot")
+	FLAG_GIT_PULL="false"
+	FLAG_BUILD_WITH_MAKEPKG="false"
+	FLAG_INSTALL_WITH_PACMAN="false"
+	FLAG_GIT_CLEAN_AFTER_INSTALLATION="false"
+	FLAG_KERNEL_CREATE_NEW_ENTRY="false"
+	FLAG_OLD_KERNEL_REMOVE="false"
+	FLAG_REGENERATE_GRUB_CONF_FILE="false"
+	ARRAY_CURRENT_STEP_INDEX=7
+	;;
+    *)
+        STDERR_afficher_message "\nERROR : The step choosed is not in script.\n"
+        cd "$LOCATION_AT_SCRIPT_BEGINNING"
+        exit 1
+        ;;
+    esac
+	
+fi
+
+# 1
+if [ "$FLAG_GIT_PULL" = "true" ]
+then
+    # Update the git repo
+    { git pull &&
+      echo -e "\nThe step \"${ARRAY_STEP_CHOICE[0]}\" was well performed.\n"
+    }  ||
+    { STDERR_afficher_message "\nERROR : The step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was not correctly performed.\nPlease check output...\n"
+      cd "$LOCATION_AT_SCRIPT_BEGINNING"
+      exit 1
+    }
+    # Show next step and asks if user want to continue
+    ((ARRAY_CURRENT_STEP_INDEX++))	
+    echo -e "\nNEXT STEP : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"	
+    ask_user_if_agree_to_continue
+fi
+
+# 2
+if [ "$FLAG_BUILD_WITH_MAKEPKG" = "true" ]
+then
+    # Build the kernel
+    { makepkg -s &&
+      echo -e "\nThe step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was well performed.\n"
+    }  ||
+    { STDERR_afficher_message "\nERROR : The step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was not correctly performed.\nPlease check output...\n"
+      cd "$LOCATION_AT_SCRIPT_BEGINNING"
+      exit 1
+    }
+    # Show next step and asks if user want to continue
+    ((ARRAY_CURRENT_STEP_INDEX++))	
+    echo -e "\nNEXT STEP : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"	
+    ask_user_if_agree_to_continue
+fi
+
+# 3
+if [ "$FLAG_INSTALL_WITH_PACMAN" = "true" ]
+then
+    # find the build right files (2 out of 3)
+    # And then install the 2 (out of 3) files
+    { { FILE_LINUX_MAIN="$(find . -maxdepth 1 -mindepth 1 -type f | grep "$LINUX_KERNEL_NAME" | grep -v 'headers' | grep -v 'docs')"
+	FILE_LINUX_HEADER="$(find . -maxdepth 1 -mindepth 1 -type f | grep "$LINUX_KERNEL_NAME" | grep 'headers')"
+	if [ -f "$FILE_LINUX_MAIN" ] && [ -f "$FILE_LINUX_HEADER" ]
+	then
+	    echo -e "Installing 2 kernel files with pacman :\nHEADER : \"$FILE_LINUX_HEADER\"\nand\nMAIN FILE : \"$FILE_LINUX_MAIN\"\n"
+	    sudo pacman -U "$FILE_LINUX_HEADER" "$FILE_LINUX_MAIN"
+	else
+	    acsdfdgtfrgthergthzthe # Provocking an error by calling a non-existent command to exit the script
+	fi
+        } &&
+      echo -e "\nThe step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was well performed.\n"
+    }  ||
+    { STDERR_afficher_message "\nERROR : The step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was not correctly performed.\nPlease check output...\n"
+      cd "$LOCATION_AT_SCRIPT_BEGINNING"
+      exit 1
+    }
+    # Show next step and asks if user want to continue
+    ((ARRAY_CURRENT_STEP_INDEX++))	
+    echo -e "\nNEXT STEP : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"	
+    ask_user_if_agree_to_continue
+fi
+
+# 4
+if [ "$FLAG_GIT_CLEAN_AFTER_INSTALLATION" = "true" ]
+then
+    # IMPORTANT CHECK - ELSE BUILD WILL BE LOST (and it takes time to re-build)
+    echo -e "CAUTION : The step of installing the kernel with pacman has to be well performed before else the kernel built will be LOST !\n"
+    ask_user_if_agree_to_continue
+    
+    # Clean git dir by removing build file
+    { git clean -dfx &&
+      echo -e "\nThe step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was well performed.\n"
+    }  ||
+    { STDERR_afficher_message "\nERROR : The step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was not correctly performed.\nPlease check output...\n"
+      cd "$LOCATION_AT_SCRIPT_BEGINNING"
+      exit 1
+    }
+    # Show next step and asks if user want to continue
+    ((ARRAY_CURRENT_STEP_INDEX++))	
+    echo -e "\nNEXT STEP : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"	
+    ask_user_if_agree_to_continue
+fi
+
+# 5
+if [ "$FLAG_KERNEL_CREATE_NEW_ENTRY" = "true" ]
+then
+
+    # Get the name of the new kernel by letting the user picking between available ones
+    # Then add a new entry
+    { { declare -a ARRAY_KERNELS_AVAILABLE &&
+	while IFS= read -r -d $'\0' KERNEL_PATH
+	do
+	    # Get the kernel basename
+	    KERNEL_BASENAME="${KERNEL_PATH%/}" # remove the ending '/' if there is one
+	    KERNEL_BASENAME="${KERNEL_BASENAME##*/}" # remove all the path except the basename
+	    ARRAY_KERNELS_AVAILABLE+=("$KERNEL_BASENAME")
+	done < <(find "/usr/lib/modules/" -maxdepth 1 -mindepth 1 -print0) &&   
+        KERNEL_CHOOSED="" &&
+        QUESTION_KERNEL_TO_CHOOSE="Which kernel needs a new entry ? " &&
+        OPTION_FOR_STOPPING="Quit" &&
+        select_parmi_liste ARRAY_KERNELS_AVAILABLE KERNEL_CHOOSED "$QUESTION_KERNEL_TO_CHOOSE" "$OPTION_FOR_STOPPING" &&
+        if [ "$" = "$OPTION_FOR_STOPPING" ]
+	then
+	    echo -e "\nYou choosed to quit without further step.\n"
+	    cd "$LOCATION_AT_SCRIPT_BEGINNING"
+	    exit 0
+	fi &&
+        kernel-install add "$KERNEL_CHOOSED" "/usr/lib/modules/${KERNEL_CHOOSED}/vmlinuz"
+      } &&
+      echo -e "\nThe step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was well performed.\n"
+    }  ||
+    { STDERR_afficher_message "\nERROR : The step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was not correctly performed.\nPlease check output...\n"
+      cd "$LOCATION_AT_SCRIPT_BEGINNING"
+      exit 1
+    }
+    # Show next step and asks if user want to continue
+    ((ARRAY_CURRENT_STEP_INDEX++))	
+    echo -e "\nNEXT STEP : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"	
+    ask_user_if_agree_to_continue
+fi
+
+# 6
+if [ "$FLAG_OLD_KERNEL_REMOVE" = "true" ]
+then
+    # Ask if removing a kernel is wished or to continue
+    # If yes, get the name of the new kernel by letting the user picking between available ones
+    # and then showing a caution message and if user wants to continue then remove it from the entries
+    # Else, continue
+    { { USER_CHOICE_REMOVE_OR_NOT="" &&
+	QUESTION_REMOVE_OR_NOT="Would you like to remove a kernel
+(YyOo/Nn) ? " &&
+	question_oui_non USER_CHOICE_REMOVE_OR_NOT "$QUESTION_REMOVE_OR_NOT" &&
+	if [ "$USER_CHOICE_REMOVE_OR_NOT" = 'o' ]
+	then
+	    # Removing a kernel
+	    declare -a ARRAY_KERNELS_POTENTIALLY_REMOVED &&
+	    while IFS= read -r -d $'\0' KERNEL_POTENTIALLY_REMOVED_PATH
+	    do
+		# Get the kernel basename
+		KERNEL_BASENAME="${KERNEL_POTENTIALLY_REMOVED_PATH%/}" # remove the ending '/' if there is one
+		KERNEL_BASENAME="${KERNEL_BASENAME##*/}" # remove all the path except the basename
+		ARRAY_KERNELS_POTENTIALLY_REMOVED+=("$KERNEL_BASENAME")
+	    done < <(find "/usr/lib/modules/" -maxdepth 1 -mindepth 1 -print0) &&   
+	    KERNEL_TO_BE_REMOVED="" &&
+	    QUESTION_KERNEL_TO_REMOVE="Which kernel would you like to remove ? " &&
+	    OPTION_TO_GO_OUT="Quit" &&
+	    select_parmi_liste ARRAY_KERNELS_POTENTIALLY_REMOVED KERNEL_TO_BE_REMOVED "$QUESTION_KERNEL_TO_REMOVE" "$OPTION_TO_GO_OUT" &&
+	    if [ "$" = "$OPTION_FOR_STOPPING" ]
+	    then
+		echo -e "\nYou choosed to quit without further step.\n"
+		cd "$LOCATION_AT_SCRIPT_BEGINNING"
+		exit 0
+	    fi &&
+	    echo -e "\nCAUTION : You will remove the kernel \"$KERNEL_TO_BE_REMOVED\" located \"/usr/lib/modules/${KERNEL_TO_BE_REMOVED}\".\n" &&
+	    ask_user_if_agree_to_continue &&
+	    kernel-install remove "$KERNEL_TO_BE_REMOVED"
+	else
+	    # Showing a confirmation that no kernel will be removed
+	    echo -e "\nYou choosed not to remove any kernel.\n"
+	fi
+      } &&
+      echo -e "\nThe step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was well performed.\n"
+    }  ||
+    { STDERR_afficher_message "\nERROR : The step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was not correctly performed.\nPlease check output...\n"
+      cd "$LOCATION_AT_SCRIPT_BEGINNING"
+      exit 1
+    }
+    # Show next step and asks if user want to continue
+    ((ARRAY_CURRENT_STEP_INDEX++))	
+    echo -e "\nNEXT STEP : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"	
+    ask_user_if_agree_to_continue
+fi
+
+# 7
+if [ "$FLAG_REGENERATE_GRUB_CONF_FILE" = "true" ]
+then
+    # Regenerating a new grub.cfg file to show the new kernel entry on boot
+    { sudo grub-mkconfig -o /boot/grub/grub.cfg &&
+      echo -e "\nThe step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was well performed.\n"
+    }  ||
+    { STDERR_afficher_message "\nERROR : The step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was not correctly performed.\nPlease check output...\n"
+      cd "$LOCATION_AT_SCRIPT_BEGINNING"
+      exit 1
+    }
+    # Show next step and asks if user want to continue
+    ((ARRAY_CURRENT_STEP_INDEX++))	
+    echo -e "\nNEXT STEP : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"	
+    ask_user_if_agree_to_continue
+fi
+
+# Rebooting
+cd "$LOCATION_AT_SCRIPT_BEGINNING"
+sudo reboot
+
+
+
+
+
+
