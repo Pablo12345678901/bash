@@ -16,7 +16,7 @@ STRING_LISTE_TRIEE_VARIABLES_PERSO=$( tr ':' '\n' <<<"${LISTE_VARIABLES_PERSO[*]
 TABLEAU_VARIABLES_PERSO=($STRING_LISTE_TRIEE_VARIABLES_PERSO) 
 
 # Affichage des variables et de leur valeur
-echo -e "\nListe des variables personnelles créées par moi :\n"
+echo -e "\nList of env vars created by me :\n"
 for VARIABLE_PERSO in "${TABLEAU_VARIABLES_PERSO[@]}"
 do
     echo "$VARIABLE_PERSO=${!VARIABLE_PERSO}"
