@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# -d : optional : to provide with the MAC address of the device to be connected
+
+source fonctions_personnelles
+
+BLUETOOTH_COMMAND="bluetoothctl"
+# For ArchLinux
+PACKAGE_LIST_TO_BE_INSTALLED_IF_NOT_AVAILABLE="bluez bluez-utils"
+
+####### BEGINNING OF OPTION MANAGEMENT ##########
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'd:' -q -- "$@")
+# -q : quiet
+# -- : to explicitly show the options end
+
+# Test whether syntax was correct (options + arguments)
+if [ $? -ne 0 ]
+then
+    STDERR_afficher_message "ERROR: syntax..."
+    STDERR_afficher_message "$SYNTAXE"
+    exit 1
+fi
+
+# Arguments check
+FLAG_OPTION_D=
+
+# Re-set options through positional parameters
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+    case "$1" in
+	-d )  
+	    FLAG_OPTION_D=1
+            DEVICE_MAC_ADRESS="$2"
+            shift 2
+            continue
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )
+	    # Error management for all other bugs
+            STDERR_afficher_message "ERROR: internal error...\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 2
+            ;;
+	esac
+done
+
+# Test whether required options were provided (=test if corresponding flag is defined)
+if [ ! -z "$FLAG_OPTION_D" ]
+then
+    # Test whether other arguments were provided = in excess (=test if $1 is defined)
+    if [ ! -z "$1" ]
+    then
+        STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
+        STDERR_afficher_message "$SYNTAXE"
+        exit 3
+    else
+        :
+    fi
+else
+    # If no device MAC address was provided, set default to the mouse one
+    echo -e "\nNo device was provided as a script argument."
+    echo -e "Default behaviour : connecting to device (mouse) with MAC address $BLUETOOTH_MOUSE_MAC_ADRESS.\n"
+    DEVICE_MAC_ADRESS="$BLUETOOTH_MOUSE_MAC_ADRESS"
+    if [ -z "$BLUETOOTH_MOUSE_MAC_ADRESS" ]
+    then
+	STDERR_afficher_message "\nERROR : the env var \"BLUETOOTH_MOUSE_MAC_ADRESS\" is not set.\nPlease set it and re-run the script.\n"
+	exit 4
+    fi
+fi
+
+########## END OF OPTION MANAGEMENT ####################
+
+# Test if the command to manage bluetooth connection is installed
+type -p "$BLUETOOTH_COMMAND" >/dev/null 2>&1 # test if command is existing
+# If not existing, then installation of required packages
+if (($?))
+then
+    echo -e "\nInstallation of the packages required for bluetooth : \"$PACKAGE_LIST_TO_BE_INSTALLED_IF_NOT_AVAILABLE\"..."
+    sudo pacman -S "$PACKAGE_LIST_TO_BE_INSTALLED_IF_NOT_AVAILABLE" ||
+    { STDERR_afficher_message "\nERROR : the installation of the packages required failed.\nPlease check the above output...\n"
+    exit 5
+  }
+fi
+
+# Control if bluetooth service if active
+SERVICE="bluetooth.service"
+REGEX_ACTIVE_STATE="^[[:space:]]*Status:[[:space:]]*\"Running\"[[:space:]]*$"
+STATUS_BLUETOOTH="$(sudo systemctl status $SERVICE)"
+BLUETOOTH_ACTIVE="$(echo "$STATUS_BLUETOOTH" | awk -v REGEX="$REGEX_ACTIVE_STATE" ' { if ($0 ~ REGEX) { printf ("%s", "true")} }')"
+if [ ! "$BLUETOOTH_ACTIVE" = "true" ]
+then
+    sudo systemctl start "$SERVICE" ||
+    {   STDERR_afficher_message "\nERROR : The bluetooth service could be activated.\n"
+        exit 6
+    }
+fi
+
+# Turn on the Bluetooth
+bluetoothctl power on >/dev/null 2>&1 ||
+{   STDERR_afficher_message "\nERROR : The bluetooth could not be turned on.\n" &&
+    exit 7
+}
+
+# Connection to device
+{   bluetoothctl connect "$DEVICE_MAC_ADRESS" >/dev/null 2>&1 &&
+    echo -e "\nThe device with MAC address $DEVICE_MAC_ADRESS was connected through bluetooth.\n" &&
+    exit 0
+} ||
+{   STDERR_afficher_message "\nERROR : The device with MAC address $DEVICE_MAC_ADRESS could not be connected or was not available.\n" &&
+    exit 8
+}
+
