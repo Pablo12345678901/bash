@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-f FILE_TO_RENAME")"
+
+################ MANAGING THE SCRIPT OPTIONS #########################
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'f:' -q -- "$@")
+# -q : quiet
+# -- : marque la fin des options
+
+# Test if the syntax is correct (options + arguments)
+if [ $? -ne 0 ]
+then
+    STDERR_afficher_message "ERROR : syntax error..."
+    STDERR_afficher_message "$SYNTAXE"
+    exit 1
+fi
+
+# Control of the arguments
+FLAG_OPTION_F=
+
+# Reput options as positional parameters
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+    case "$1" in
+	-f )  
+	    FLAG_OPTION_F=1
+            FILE_TO_RENAME="$2"
+            shift 2
+            continue
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )
+	    # Managing all other errors
+            STDERR_afficher_message "ERROR : internal error.\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 2
+            ;;
+	esac
+done
+
+# Test if mandatory options were provided (=test if the flag is defined)
+if [ ! -z "$FLAG_OPTION_F" ]
+then
+    # Test if other arguments = in excess (=test if $1 is defined)
+    if [ ! -z "$1" ]
+    then
+        STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
+        STDERR_afficher_message "$SYNTAXE"
+        exit 3
+    else
+        :
+    fi
+else
+    STDERR_afficher_message "\nERROR : You must provide all required arguments.\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 4
+fi
+
+########## END OF OPTIONS MANAGING ####################
+
+# Test if file/dir exists - else exits
+if [ -f "$FILE_TO_RENAME" ] || [ -d "$FILE_TO_RENAME" ]
+then
+    FILE_BASENAME="${FILE_TO_RENAME##*/}"
+    DIR_NAME="${FILE_TO_RENAME%$FILE_BASENAME}"   
+else
+    STDERR_afficher_message "\nERROR : the file :\n\"$FILE_TO_RENAME\"\nis not existing or the path is wrong.\nPlease check it.\n"
+    exit 5
+fi
+
+# Get the filename without special char / accents
+NEW_FILE_BASENAME="$(string_replace_special_chars_and_accents_with_underscore -s "$FILE_BASENAME")"
+
+NEW_FILE_NAME="${DIR_NAME}${NEW_FILE_BASENAME}"
+
+# Check if the file has already a convenient name - exit if so
+if [ "$FILE_TO_RENAME" = "$NEW_FILE_NAME" ]
+then
+    echo -e "\nThe file was not renamed because it already has a convenient name without special chars or accents : \n\"$FILE_TO_RENAME\".\n"
+    exit 0
+fi
+    
+# Rename the file
+{ mv "$FILE_TO_RENAME" "$NEW_FILE_NAME" &&
+  echo -e "\nThe file was renamed as : \n\"$NEW_FILE_NAME\".\n"
+} || STDERR_afficher_message "\nERROR : the file :\n\"$FILE_TO_RENAME\"\ncould not be renamed\n\"$NEW_FILE_NAME\".\nPlease do it manually or debug.\n"
+
+    

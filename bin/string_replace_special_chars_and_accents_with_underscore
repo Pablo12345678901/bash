@@ -3,12 +3,12 @@
 source fonctions_personnelles
 
 # Syntaxe
-SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-f NOM_DU_FICHIER_A_RENOMMER")"
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-s STRING_AVEC_CHAR_SPECIAUX")"
 
 # Note that we use "$@" to let each command-line parameter expand to a
 # separate word. The quotes around "$@" are essential!
 # We need TEMP as the 'eval set --' would nuke the return value of getopt.
-TEMP=$(getopt --options 'f:' -q -- "$@")
+TEMP=$(getopt --options 's:' -q -- "$@")
 # -q : quiet
 # -- : marque la fin des options
 
@@ -21,7 +21,7 @@ then
 fi
 
 # Contrôle des arguments
-FLAG_OPTION_F=
+FLAG_OPTION_S=
 
 # Remise des options en paramètres positionnels
 eval set -- "$TEMP"
@@ -29,9 +29,9 @@ unset TEMP
 
 while true; do
     case "$1" in
-	-f )  
-	    FLAG_OPTION_F=1
-            NOM_DU_FICHIER_A_RENOMMER="$2"
+	-s )  
+	    FLAG_OPTION_S=1
+            STRING_AVEC_CHAR_SPECIAUX="$2"
             shift 2
             continue
             ;;
@@ -49,7 +49,7 @@ while true; do
 done
 
 # Test si les options requises ont été fournies (=test si flag défini)
-if [ ! -z "$FLAG_OPTION_F" ]
+if [ ! -z "$FLAG_OPTION_S" ]
 then
     # Test si d'autres darguments = en trop (=test si $1 défini)
     if [ ! -z "$1" ]
@@ -66,25 +66,33 @@ else
     exit 4
 fi
 
-########## FIN GESTION ARGUMENTS/OPTIONS ####################
 
-# Contrôle si le fichier existe - quitte sinon
-if [ -f "$NOM_DU_FICHIER_A_RENOMMER" ]
-then
-    NOM_FICHIER_SEUL="${NOM_DU_FICHIER_A_RENOMMER##*/}"
-    NOM_REPERTOIRE_SEUL="${NOM_DU_FICHIER_A_RENOMMER%$NOM_FICHIER_SEUL}"   
-else
-    STDERR_afficher_message "\nERREUR : le fichier :\n\"$NOM_DU_FICHIER_A_RENOMMER\"\nn'est pas existant ou le path est erroné.\nVeuillez le contrôler.\n"
-    exit 5
-fi
+# Echo du nvo string sans les char spéciaux
+echo "$STRING_AVEC_CHAR_SPECIAUX" |
+tr 'à' 'a' |
+tr 'À' 'A' |
+tr 'â' 'a' |
+tr 'Â' 'A' |
+tr 'ç' 'c' |
+tr 'Ç' 'C' |
+tr 'é' 'e' |
+tr 'É' 'E' |
+tr 'è' 'e' |
+tr 'È' 'E' |
+tr 'ê' 'e' |
+tr 'Ê' 'E' |
+tr 'î' 'i' |
+tr 'Î' 'I' |
+tr 'ô' 'o' |
+tr 'Ô' 'O' |
+tr 'û' 'u' |
+tr 'Û' 'U' |
+tr '/' '_' |
+tr '’' '_' |
+tr "'" '_' |
+tr '°' '_' |
+tr '(' '_' |
+tr ')' '_' |
+tr '-' '_' |
+tr ' ' '_'
 
-# Obtenir le nom du nouveau fichier sans les char spéciaux / accentués
-NVO_NOM_FICHIER_SEUL="$(string_remplacer_char_speciaux_par_tirets -s "$NOM_FICHIER_SEUL")"
-
-NOM_NVO_FICHIER="${NOM_REPERTOIRE_SEUL}${NVO_NOM_FICHIER_SEUL}"
-
-# Renommer le fichier
-{ mv "$NOM_DU_FICHIER_A_RENOMMER" "$NOM_NVO_FICHIER" &&
-      echo -e "\nLe fichier a été renommé en\n\"$NOM_NVO_FICHIER\".\n"
-} || STDERR_afficher_message "\nERREUR : le fichier :\n\"$NOM_DU_FICHIER_A_RENOMMER\"\nn'a pas pu être renommé en\n\"$NOM_NVO_FICHIER\".\nVeuillez le faire manuellement ou débugguer.\n"
-    
