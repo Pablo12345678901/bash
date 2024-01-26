@@ -3,6 +3,8 @@
 # Syntaxe :
 # -
 
+source fonctions_personnelles
+
 MAIN_EXTERNAL_DISK="${USB_CONNEXION_PATH}/Elements"
 BACK_UP_EXTERNAL_DISK="${USB_CONNEXION_PATH}/Double"
 SCRIPT_OUTPUT_FILE="${REPERTOIRE_TEMPORAIRE}/output.txt"
@@ -32,11 +34,22 @@ COMMAND="sudo back_up_a_dir_to_another -s /home/ -d ${MAIN_EXTERNAL_DISK}/home "
 
 echo -e "\n\n" >> "$SCRIPT_OUTPUT_FILE" # Esthetic
 
-# Back-up du disque principal vers le disque secondaire
+# Printing message to show that first back-up part is finished
+echo -e "\nThe back-up from home dir to main external disk is finished.\n"
+
+# Asking user if continue because precedent step is too long and next step needs 'sudo' so need user input to avoid failure
+echo -e "\nBack-up from main external disk to secondary disk...\n"
+ask_user_if_agree_to_continue
+
+# Back-up from main external disk to secondary disk
 COMMAND="sudo back_up_a_dir_to_another -s ${MAIN_EXTERNAL_DISK}/ -d ${BACK_UP_EXTERNAL_DISK} "
 { $COMMAND &&
       echo "OK - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
 } || echo "ERROR - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
 
+# Printing message to show the second back-up part is finished
+echo -e "\nThe back-up from main external disk to secondary disk is finished.\n"
+
+# Showing the results
 echo -e "\nBack-up script finished - Please check the results.\n"
 fichier_ouvrir -f "$SCRIPT_OUTPUT_FILE"
