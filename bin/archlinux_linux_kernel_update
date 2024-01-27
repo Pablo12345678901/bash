@@ -213,7 +213,7 @@ if [ "$FLAG_GIT_PULL" = "true" ]
 then
     # Update the git repo
     { git pull &&
-      echo -e "\nThe step \"${ARRAY_STEP_CHOICE[0]}\" was well performed.\n"
+      echo -e "\nThe step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was well performed.\n"
     }  ||
     { STDERR_afficher_message "\nERROR : The step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was not correctly performed.\nPlease check output...\n"
       cd "$LOCATION_AT_SCRIPT_BEGINNING"

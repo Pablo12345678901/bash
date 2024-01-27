@@ -26,29 +26,105 @@ fi
 # Remove content if file existing
 echo -n "" > "$SCRIPT_OUTPUT_FILE"
 
-# Back-up from home dir to main external disk
-COMMAND="sudo back_up_a_dir_to_another -s /home/ -d ${MAIN_EXTERNAL_DISK}/home "
-{ $COMMAND &&
-      echo "OK - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
-} || echo "ERROR - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+# Ask if wanted to start or to choose a step
+declare -a ARRAY_START_OR_CHOOSE
+ARRAY_START_OR_CHOOSE+=("Start the back-up from the beggining")
+ARRAY_START_OR_CHOOSE+=("Choose a specific step")
+USER_ACTION=""
+QUESTION_START_OR_CHOOSE="What would you like to do ? "
+OPTION_TO_QUIT="Quit"
+select_parmi_liste ARRAY_START_OR_CHOOSE USER_ACTION "$QUESTION_START_OR_CHOOSE" "$OPTION_TO_QUIT"
 
-echo -e "\n\n" >> "$SCRIPT_OUTPUT_FILE" # Esthetic
+# Quit if required by user
+if [ "$USER_ACTION" = "$OPTION_TO_QUIT" ]
+then
+    echo -e "\nYou choosed to quit the script without further step.\n"
+    exit 0
+fi
 
-# Printing message to show that first back-up part is finished
-echo -e "\nThe back-up from home dir to main external disk is finished.\n"
+# Step list and choice by the way
+# Will be used to show the next step after the current step end
+declare -a ARRAY_STEP_CHOICE # this array will be needed after so declared before
+ARRAY_CURRENT_STEP_INDEX=0
+ARRAY_STEP_CHOICE+=("Back up home to main external disk")
+ARRAY_STEP_CHOICE+=("Back-up main external disk to secondary external disk")
 
-# Asking user if continue because precedent step is too long and next step needs 'sudo' so need user input to avoid failure
-echo -e "\nBack-up from main external disk to secondary disk...\n"
-ask_user_if_agree_to_continue
+# Setting all flag to true by default - meaning all steps will be performed
+FLAG_BACK_UP_HOME_TO_MAIN_EXTERNAL_DISK="true"
+FLAG_BACK_UP_MAIN_EXTERNAL_DISK_TO_SECONDARY_DISK="true"
 
-# Back-up from main external disk to secondary disk
-COMMAND="sudo back_up_a_dir_to_another -s ${MAIN_EXTERNAL_DISK}/ -d ${BACK_UP_EXTERNAL_DISK} "
-{ $COMMAND &&
-      echo "OK - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
-} || echo "ERROR - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+# Choose a step if required by user 
+if [ "$USER_ACTION" = "Choose a specific step" ]
+then
+    STEP_CHOOSED=""
+    QUESTION_WHICH_STEP="At which step would you like to start ? "
+    OPTION_TO_EXIT="Quit"
+    select_parmi_liste ARRAY_STEP_CHOICE STEP_CHOOSED "$QUESTION_WHICH_STEP" "$OPTION_TO_EXIT"
 
-# Printing message to show the second back-up part is finished
-echo -e "\nThe back-up from main external disk to secondary disk is finished.\n"
+    # Quit if required by user
+    if [ "$STEP_CHOOSED" = "$OPTION_TO_EXIT" ]
+    then
+	echo -e "\nYou choosed to quit the script without further step.\n"
+	exit 0
+    fi
+    
+    # Adaptation of the flag to start from the specific step    
+    case "$STEP_CHOOSED" in
+    "Back up home to main external disk")
+        :
+	;;
+    "Back-up main external disk to secondary external disk")
+	FLAG_BACK_UP_HOME_TO_MAIN_EXTERNAL_DISK="false"
+	ARRAY_CURRENT_STEP_INDEX=1
+	;;
+    *)
+        STDERR_afficher_message "\nERROR : The step choosed is not in script.\n"
+        exit 1
+        ;;
+    esac
+	
+fi
+
+# Running from the step choosed / from the beggining
+if [ "$FLAG_BACK_UP_HOME_TO_MAIN_EXTERNAL_DISK" = "true" ]
+then
+    # Command to be runned
+    COMMAND="sudo back_up_a_dir_to_another -s /home/ -d ${MAIN_EXTERNAL_DISK}/home "
+    # Showing current step
+    echo -e "\nRUNNING : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"
+    # Back-up
+    { $COMMAND &&
+	  echo "OK - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+    } || echo "ERROR - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+    echo -e "\n\n" >> "$SCRIPT_OUTPUT_FILE" # Esthetic
+    # Printing message to show that step is finished
+    echo -e "\nFINISHED : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"
+    # Show next step and asks if user want to continue
+    ((ARRAY_CURRENT_STEP_INDEX++))	
+    echo -e "\nNEXT STEP : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"	
+    ask_user_if_agree_to_continue
+fi
+
+if [ "$FLAG_BACK_UP_MAIN_EXTERNAL_DISK_TO_SECONDARY_DISK" = "true" ]
+then
+    # Command to be runned
+    COMMAND="sudo back_up_a_dir_to_another -s /home/ -d ${MAIN_EXTERNAL_DISK}/home "
+    # Showing current step
+    echo -e "\nRUNNING : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"
+    # Back-up
+    COMMAND="sudo back_up_a_dir_to_another -s ${MAIN_EXTERNAL_DISK}/ -d ${BACK_UP_EXTERNAL_DISK} "
+    { $COMMAND &&
+	  echo "OK - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+    } || echo "ERROR - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+    echo -e "\n\n" >> "$SCRIPT_OUTPUT_FILE" # Esthetic
+    # Printing message to show that step is finished
+    echo -e "\nFINISHED : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"
+    # Below : to be activated if more steps are added below
+    # Show next step and asks if user want to continue
+    #((ARRAY_CURRENT_STEP_INDEX++))
+    #echo -e "\nNEXT STEP : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"	
+    #ask_user_if_agree_to_continue
+fi
 
 # Showing the results
 echo -e "\nBack-up script finished - Please check the results.\n"
