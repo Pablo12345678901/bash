@@ -7,7 +7,7 @@ declare -a ARRAY_BUILDS_DIR
 while read REPERTOIRE_A_METTRE_A_JOUR
 do
     ARRAY_BUILDS_DIR+=("$REPERTOIRE_A_METTRE_A_JOUR")
-done < <(find "$REPERTOIRE_BUILDS_ARCHLINUX" -maxdepth 1 -mindepth 1 -type d -print0 |
+done < <(find "$REPERTOIRE_BUILDS_AUR" -maxdepth 1 -mindepth 1 -type d -print0 |
 	     tr '\0' '\n')
 
 declare -a ARRAY_BUILDS_ERROR
