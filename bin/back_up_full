@@ -119,6 +119,8 @@ then
     echo -e "\n\n" >> "$SCRIPT_OUTPUT_FILE" # Esthetic
     # Printing message to show that step is finished
     echo -e "\nFINISHED : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"
+
+    
     # Below : to be activated if more steps are added below
     # Show next step and asks if user want to continue
     #((ARRAY_CURRENT_STEP_INDEX++))
