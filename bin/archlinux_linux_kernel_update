@@ -247,14 +247,20 @@ if [ "$FLAG_INSTALL_WITH_PACMAN" = "true" ]
 then
     # find the build right files (2 out of 3)
     # And then install the 2 (out of 3) files
-    { { FILE_LINUX_MAIN="$(find . -maxdepth 1 -mindepth 1 -type f | grep "$LINUX_KERNEL_NAME" | grep -v 'headers' | grep -v 'docs')"
-	FILE_LINUX_HEADER="$(find . -maxdepth 1 -mindepth 1 -type f | grep "$LINUX_KERNEL_NAME" | grep 'headers')"
+    # For the 'grep REGEX' search, those 3 files (and only them) ends with 'zst' extension.
+    { { FILE_LINUX_MAIN="$(find . -maxdepth 1 -mindepth 1 -type f | grep -E "$LINUX_KERNEL_NAME.*\.zst" | grep -v 'headers' | grep -v 'docs')"
+	FILE_LINUX_HEADER="$(find . -maxdepth 1 -mindepth 1 -type f | grep -E "$LINUX_KERNEL_NAME.*\.zst" | grep 'headers')"
 	if [ -f "$FILE_LINUX_MAIN" ] && [ -f "$FILE_LINUX_HEADER" ]
 	then
 	    echo -e "Installing 2 kernel files with pacman :\nHEADER : \"$FILE_LINUX_HEADER\"\nand\nMAIN FILE : \"$FILE_LINUX_MAIN\"\n"
 	    sudo pacman -U "$FILE_LINUX_HEADER" "$FILE_LINUX_MAIN"
 	else
-	    acsdfdgtfrgthergthzthe # Provocking an error by calling a non-existent command to exit the script
+	    # This case should not occur except if dir was not 'git clean' from precedent build.
+            STDERR_afficher_message "\nERROR : The 2 kernels files that should be installed with pacman have no value or value of more than one file (ambiguous).\n\nPlease check the values of those two vars :\nHEADER : \"$FILE_LINUX_HEADER\"\nand\nMAIN FILE : \"$FILE_LINUX_MAIN\"\n"
+            # Provocking an (silent) error by calling a non-existent command.
+	    # This error will be catched below and provoq actions below (as return to initial dir).
+	    # The exit with error code could be directly implemented here but was not in order to keep similar code blocks compared to the other parts.
+	    acsdfdgtfrgthergthzthe >/dev/null 2>&1 
 	fi
         } &&
       echo -e "\nThe step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was well performed.\n"
