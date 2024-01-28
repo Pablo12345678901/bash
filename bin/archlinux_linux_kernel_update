@@ -320,6 +320,7 @@ then
 	    cd "$LOCATION_AT_SCRIPT_BEGINNING"
 	    exit 0
 	fi &&
+	 # Adding the kernel entry to /boot dir
         kernel-install add "$KERNEL_CHOOSED" "/usr/lib/modules/${KERNEL_CHOOSED}/vmlinuz"
       } &&
       echo -e "\nThe step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was well performed.\n"
@@ -360,7 +361,7 @@ then
 	    QUESTION_KERNEL_TO_REMOVE="Which kernel would you like to remove ? " &&
 	    OPTION_TO_GO_OUT="Quit" &&
 	    select_parmi_liste ARRAY_KERNELS_POTENTIALLY_REMOVED KERNEL_TO_BE_REMOVED "$QUESTION_KERNEL_TO_REMOVE" "$OPTION_TO_GO_OUT" &&
-	    if [ "$" = "$OPTION_FOR_STOPPING" ]
+	    if [ "$KERNEL_TO_BE_REMOVED" = "$OPTION_TO_GO_OUT" ]
 	    then
 		echo -e "\nYou choosed to quit without further step.\n"
 		cd "$LOCATION_AT_SCRIPT_BEGINNING"
@@ -368,7 +369,10 @@ then
 	    fi &&
 	    echo -e "\nCAUTION : You will remove the kernel \"$KERNEL_TO_BE_REMOVED\" located \"/usr/lib/modules/${KERNEL_TO_BE_REMOVED}\".\n" &&
 	    ask_user_if_agree_to_continue &&
-	    kernel-install remove "$KERNEL_TO_BE_REMOVED"
+	    # Removing the kernel entry from /boot dir
+	    kernel-install remove "$KERNEL_TO_BE_REMOVED" &&
+	    # Removing the kernel dir from /usr/lib/modules dir
+	    sudo rm -rf /usr/lib/modules/${KERNEL_TO_BE_REMOVED}
 	else
 	    # Showing a confirmation that no kernel will be removed
 	    echo -e "\nYou choosed not to remove any kernel.\n"
