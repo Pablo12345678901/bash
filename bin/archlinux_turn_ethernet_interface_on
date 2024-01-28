@@ -12,33 +12,69 @@ source fonctions_personnelles
 
 SERVICE_NAME="NetworkManager.service"
 
-# Start / restart NetworkManager
-{ { sudo systemctl is-active --quiet "$SERVICE_NAME" && sudo systemctl restart "$SERVICE_NAME"
-} || sudo systemctl start "$SERVICE_NAME"
-} ||
-{ STDERR_afficher_message "\nERROR : The service \"$SERVICE_NAME\" could not be started/restarted. Do it manually...\n"
-  exit 1
-}
+# Managing several trials because sometimes, first trial does not work
+COUNTER_OF_TRIAL=0
+TRIAL_MAX=5
+SLEEPING_TIME_BETWEEN_TRIALS=1
 
-# Get the name of the interface - if existing
-INTERFACE_NAME="$(ip link show | grep -E -o 'en[a-z0-9]*:')"
-INTERFACE_NAME="${INTERFACE_NAME%:}"
-
-if [ -z "$INTERFACE_NAME" ]
+# For the fun, managing the singular/plural of the name 'second'
+if [ $SLEEPING_TIME_BETWEEN_TRIALS -le 1 ]
 then
-    STDERR_afficher_message "\nERROR : no ethernet interface available...\n"
-    exit 2
-fi
-
-# Test if interface is up silently
-ip link show | grep "$INTERFACE_NAME" | grep -E '([[:space:]]UP[[:space:]])' >/dev/null 2>&1
-
-# Show results
-if (($?))
-then
-    STDERR_afficher_message "\nERROR : The ethernet interface \"$INTERFACE_NAME\" could not be set UP. Do it manually...\n"
-    exit 3
+    SECONDS_SINGULAR_OR_PLURAL="second"
 else
-    echo -e "\nEthernet interface \"$INTERFACE_NAME\" was successfully set UP !\n"
-    exit 0
+    SECONDS_SINGULAR_OR_PLURAL="seconds"
 fi
+
+# Looping while not reaching X trials (max)
+while [ $COUNTER_OF_TRIAL -lt $TRIAL_MAX ]
+do  
+    # Start / restart NetworkManager
+    { { sudo systemctl is-active --quiet "$SERVICE_NAME" && sudo systemctl restart "$SERVICE_NAME"
+    } || sudo systemctl start "$SERVICE_NAME"
+    } ||
+    { STDERR_afficher_message "\nERROR : The service \"$SERVICE_NAME\" could not be started/restarted. Do it manually...\n"
+      exit 1
+    }
+
+    # Get the name of the interface - if existing
+    INTERFACE_NAME="$(ip link show | grep -E -o 'en[a-z0-9]*:')"
+    INTERFACE_NAME="${INTERFACE_NAME%:}"
+    if [ -z "$INTERFACE_NAME" ]
+    then
+	STDERR_afficher_message "\nERROR : no ethernet interface available...\n"
+	exit 2
+    fi
+
+    # Try to set interface up (the command returns 0 even if unsuccessful)
+    sudo ip link set "$INTERFACE_NAME" up
+    
+    # Wait because sometimes it is sets down quickly after being set up 
+    sleep 1
+    ip link show | grep "$INTERFACE_NAME" | grep -E '([[:space:]]UP[[:space:]])' >/dev/null 2>&1
+    
+    # Check result
+    if (($?))
+    then
+	# Backline only before first error message
+	if [ $COUNTER_OF_TRIAL -eq 0 ]
+	then
+	    echo "" # Estethic
+	fi
+	# Try again
+	((COUNTER_OF_TRIAL++))
+	echo -e "Trial number $COUNTER_OF_TRIAL/$TRIAL_MAX failed - Re-try in $SLEEPING_TIME_BETWEEN_TRIALS $SECONDS_SINGULAR_OR_PLURAL..."
+        # Avoid waiting if trial counter reached the max
+	if [ $COUNTER_OF_TRIAL -lt $TRIAL_MAX ]
+	then
+	    sleep $SLEEPING_TIME_BETWEEN_TRIALS
+	fi
+    else
+	# Show success confirmation message
+	echo -e "\nEthernet interface \"$INTERFACE_NAME\" was successfully set UP !\n"
+	exit 0
+    fi
+done
+
+# Show failure after X trials
+STDERR_afficher_message "\nERROR : The ethernet interface \"$INTERFACE_NAME\" could not be set UP. Do it manually...\n"
+exit 3
