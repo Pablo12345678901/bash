@@ -1,0 +1,124 @@
+#!/usr/bin/env bash
+
+# Summary of script :
+# From a dir containing photos of a book, each one called by 'PAGENUMBER.JPG' (extension easily customizable with little adaptation of the script)
+# converts each photo to a pdf
+# and then merge them to get a final output.
+
+source fonctions_personnelles
+
+COUNTER=0
+PAGE_MAX=10
+DIR_OF_FILES="/home/incognito/Downloads"
+JPGS_DIR="${DIR_OF_FILES}/jpgs"
+PDFS_DIR="${DIR_OF_FILES}/pdfs"
+
+# Managing final output dir and name
+BASENAME_FINAL_OUTPUT_PDF="hacking_tutorial_with_exercises.pdf"
+DIR_OF_FINAL_OUTPUT="$PDFS_DIR"
+PATH_OF_FINAL_OUTPUT="${DIR_OF_FINAL_OUTPUT}/${BASENAME_FINAL_OUTPUT_PDF}"
+
+# Create pdfs dir if not existing
+test -d "$PDFS_DIR" || mkdir "$PDFS_DIR" 
+
+# Checking that all pages are saved and named with 'PAGENUMBER.jpg'
+FLAG_FIRST_ERROR_MESSAGE="true"
+FLAG_NO_ERROR="true"
+# Message for user
+echo -e "\nChecking that all $PAGE_MAX photos are present and well named (FORMAT : PAGENUMBER.jpg)...\n"
+while [ $COUNTER -lt $PAGE_MAX ]
+do
+    ((COUNTER++))
+    FILE_FOUND=""
+    FILE_FOUND="$(find ${JPGS_DIR}/${COUNTER}.jpg 2>/dev/null)"
+    if [ -z "$FILE_FOUND" ]
+    then
+	# Add one backline only before first error message
+	if [ "$FLAG_FIRST_ERROR_MESSAGE" = "true" ]
+	then
+	    # deactivate flag
+	    FLAG_FIRST_ERROR_MESSAGE="false"
+	    FLAG_NO_ERROR="false"
+	    echo "" # Esthetic
+	fi
+	# Error message with page number missing
+	echo -e "PAGE $COUNTER MISSING"
+    fi
+done
+
+# Exit with error if one or more photos are missing
+if [ "$FLAG_NO_ERROR" = "false" ]
+then
+    STDERR_afficher_message "\nERROR : one or more photo(s) are missing. \nPlease check above output...\n"
+    exit 1
+fi
+
+echo -e "\nCheck finished : OK !\n"
+
+# Conversion from photos to pdf
+COUNTER=0
+# Loop to convert all photo to pdfs
+echo -e "\nConversion from jpg to pdf...\n"
+while [ $COUNTER -lt $PAGE_MAX ]
+do
+    ((COUNTER++))
+    echo -e "Conversion of ${COUNTER}.jpg to pdf..."
+    img2pdf --output "${JPGS_DIR}/${COUNTER}.pdf" "${JPGS_DIR}/${COUNTER}.jpg" ||
+    # Exit with error message if cannot merge PDFs
+    { STDERR_afficher_message "\nERROR : could not convert '$COUNTER.jpg' to pdf. \nPlease do it manually or check the script...\n"
+      exit 1
+    }
+    # Mv to pdf to pdfs dir
+    mv "${JPGS_DIR}/${COUNTER}.pdf" "${PDFS_DIR}/${COUNTER}.pdf"
+done
+
+echo -e "\nConversion finished : OK !\n"
+
+# Merge all pdf
+# Reset counter to 0 to re-loop
+COUNTER=0
+PDF_TO_MERGE_FIRST=""
+PDF_TO_MERGE_SECOND=""
+PDF_CURRENT_OUTPUT=""
+PDF_OUTPUT_PREVIOUS=""
+BASENAME_WITHOUT_EXTENSION_OUTPUT="combined_of"
+# Loop to merge all pdf
+echo -e "\nMerging to pdf...\n"
+while [ $COUNTER -lt $PAGE_MAX ]
+do
+    if [ $COUNTER -eq 0 ]
+    then
+	# First merging = pdf1 + pdf2
+	((COUNTER++))
+	PDF_TO_MERGE_FIRST="${PDFS_DIR}/${COUNTER}.pdf"
+    	((COUNTER++))
+        PDF_TO_MERGE_SECOND="${PDFS_DIR}/${COUNTER}.pdf"	
+    else
+	# Next merging = pdfX + current_combined_pdf
+        PDF_TO_MERGE_FIRST="${PDF_OUTPUT_PREVIOUS}"
+	((COUNTER++))
+        PDF_TO_MERGE_SECOND="${PDFS_DIR}/${COUNTER}.pdf"
+    fi
+    PDF_CURRENT_OUTPUT="${PDFS_DIR}/${BASENAME_WITHOUT_EXTENSION_OUTPUT}_${COUNTER}_pages.pdf"
+    # Merge PDFs silently
+    echo "Merging page $COUNTER..."
+    gs -dNOPAUSE -sDEVICE=pdfwrite -sOUTPUTFILE="$PDF_CURRENT_OUTPUT" -dBATCH "$PDF_TO_MERGE_FIRST" "$PDF_TO_MERGE_SECOND" >/dev/null 2>&1 ||
+	# Exit with error message if cannot merge PDFs
+	{ STDERR_afficher_message "\nERROR : could not merge the pdfs '$PDF_TO_MERGE_FIRST' and '$PDF_TO_MERGE_SECOND'. \nPlease do it manually or check the script.\nREMINDER : a silent STDERR is activated with the 'gs' command...\n"
+	  exit 1
+	}
+    # Removing precedent output and pdfs already merged to keep dir cleaned
+    rm -rf "$PDF_OUTPUT_PREVIOUS" "$PDF_TO_MERGE_FIRST" "$PDF_TO_MERGE_SECOND"
+    # Remember the name of current output to merge it next time
+    PDF_OUTPUT_PREVIOUS="$PDF_CURRENT_OUTPUT"
+done
+
+echo -e "\nMerging to pdf finished : OK !\n"
+
+# Pretty final renaming
+mv "$PDF_CURRENT_OUTPUT" "$PATH_OF_FINAL_OUTPUT"
+
+# Final message and opening of final output
+echo -e "\nOpening final output pdf '$BASENAME_FINAL_OUTPUT_PDF' located '$PATH_OF_FINAL_OUTPUT'...\n"
+fichier_ouvrir -f "$PATH_OF_FINAL_OUTPUT"
+exit 0
