@@ -229,7 +229,8 @@ fi
 if [ "$FLAG_BUILD_WITH_MAKEPKG" = "true" ]
 then
     # Build the kernel
-    { makepkg -s &&
+    # And precise the time it took because this information is important to know for further builds
+    { time makepkg -s &&
       echo -e "\nThe step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was well performed.\n"
     }  ||
     { STDERR_afficher_message "\nERROR : The step \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\" was not correctly performed.\nPlease check output...\n"
