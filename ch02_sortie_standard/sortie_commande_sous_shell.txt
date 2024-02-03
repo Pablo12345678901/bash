@@ -1,5 +1,0 @@
-Je suis charlemagne
-0_test
-bashcookbook-examples-master
-ch02_sortie_standard
-zzz_test_git.txt

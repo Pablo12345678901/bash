@@ -1,7 +1,0 @@
-#!/bin/env bash
-
-for i in {1..20}
-do
-  echo -n "$i "
-done
-echo
