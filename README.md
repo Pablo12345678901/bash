@@ -2,17 +2,19 @@ CONTENT
 
 This repo contains :
 
-- a 'bin' dir with script currently in production with my OS. Most of them are sourcing the 'fonctions_personnelles' script that contains general customized functions. 
+- a 'bin' symlink which redirects to the current OS dir with its scripts in production. Most of them are sourcing the 'fonctions_personnelles' script that contains general customized functions. 
 
-- another dir called 'scripts_in_dev_or_to_be_tested_before_pushed_to_production' with scripts in development, or previously used scripts (on other OS : MacOS, Guix, PureOs and Ubuntu) that therefore need to be tested/adapted before pushed to production into the 'bin' dir.
+- dirs with OS names, containing scripts that can be used in production in such OS.
+
+- a dir called 'scripts_in_dev_or_to_be_tested_before_pushed_to_production' with scripts in development, or previously used scripts on other OS (MacOS, Guix, PureOs and Ubuntu) that therefore need to be tested/adapted before pushed to production.
 
 ################################################
 
 USE
 
-To run the scripts of the 'bin' dir :
+To run the scripts with your OS :
 
-1. Add this dir into your environment variable 'PATH'
+1. Add the 'bin' symlink into your environment variable 'PATH'. If needed, adapt the dir to which it should redirect.
 
 2. Set the needed environment variables by setting them in your bash profile. Refer to the content of all corresponding scripts to see if one/several of them are required.
 
