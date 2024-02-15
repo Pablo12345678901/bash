@@ -6,7 +6,9 @@ This repo contains :
 
 - dirs with OS names, containing scripts that can be used in production in such OS.
 
-- a dir called 'scripts_in_dev_or_to_be_tested_before_pushed_to_production' with scripts in development, or previously used scripts on other OS (MacOS, Guix, PureOs and Ubuntu) that therefore need to be tested/adapted before pushed to production.
+- a dir called 'dev' with scripts in development, or previously used scripts on other OS (MacOS, Guix, PureOs and Ubuntu) that therefore need to be tested/adapted before pushed to production.
+
+- a 'nostalgia' dir containing old scripts that would require too much work to adapt in order to replace the actual ones. Kept just for nostalgia of my work done.
 
 ################################################
 

@@ -62,9 +62,9 @@ LISTE_STATUTS+=("$STATUT")
 
 # Mise à jour du système
 echo -e "\nMise à jour du système...\n"
-# Remarques spéciale : besoin de charger le GUILE_LOAD_PATH pr certains paquets custom de la configuration système
-# cf $GUILE_LOAD_PATH et le fichier s'y trouvant 'my-guix-packages.scm'
-COMMANDE="sudo GUIX_PACKAGE_PATH=$GUIX_PACKAGE_PATH GUILE_LOAD_PATH=$GUILE_LOAD_PATH guix system reconfigure /etc/config.scm"
+# Remarques spéciale : si certains paquets sont custom, alors besoin de charger le GUILE_LOAD_PATH en remplaçant la commande ci-dessous (cf $GUILE_LOAD_PATH)
+#COMMANDE"sudo GUIX_PACKAGE_PATH=$GUIX_PACKAGE_PATH GUILE_LOAD_PATH=$GUILE_LOAD_PATH guix system reconfigure /etc/config.scm" 
+COMMANDE="sudo guix system reconfigure /etc/config.scm"
 echo -e "\nRUN : $COMMANDE\n"
 $COMMANDE
 STATUT="$(statut_retourne $? "$COMMANDE")"

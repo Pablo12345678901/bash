@@ -5,12 +5,14 @@
 
 # Cela recharge le profil bash et remet toute la configuration
 # comme si j'avais redémarré l'app terminal
+COMMANDE="exec bash --login"
+# Show warning
 echo -e "\nAvertissement :
 
-La commande exécutée est : \"exec bash --login\".
+La commande exécutée est : \"$COMMANDE\".
 
 Ceci recharge le profil bash mais peut ne pas remettre les variables d'environnement au même état qu'au lancement d'un terminal.
 
 Pour relancer un terminal tel qu'à l'état d'origine, il faut le fermer et réouvrir manuellement.\n"
 
-exec bash --login  # Ne fonctionne pas à 100% : Peut ne pas reset des variables d'environnement cf https://askubuntu.com/questions/19772/how-to-reinitialize-a-terminal-window-instead-of-closing-it-and-starting-a-new-o
+$COMMANDE  # Ne fonctionne pas à 100% : Peut ne pas reset des variables d'environnement cf https://askubuntu.com/questions/19772/how-to-reinitialize-a-terminal-window-instead-of-closing-it-and-starting-a-new-o

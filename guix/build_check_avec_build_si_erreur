@@ -47,12 +47,12 @@ BLOCDEBUG
 	if (($?))
 	then
 		# Affichage message d'erreur
-		echo -e "\nERREUR avec le paquet \"$PAQUET_A_BUILD\"\n"
+		echo -e "\nERREUR avec le paquet \"$PAQUET_COURANT\"\n"
 		
 		# Rebuild du paquet qui a posé problème
-		echo -e "\nRebuild du paquet \"$PAQUET_A_BUILD\" dans $SECONDE_ATTENTE secondes.\n"
+		echo -e "\nRebuild du paquet \"$PAQUET_COURANT\" dans $SECONDE_ATTENTE secondes.\n"
 		sleep $SECONDE_ATTENTE
-		guix build "$PAQUET_A_BUILD"
+		guix build "$PAQUET_COURANT"
 		
 		# Contrôle de la valeur de retour du build
 		if (($?))
@@ -74,7 +74,7 @@ BLOCDEBUG
 				echo -e "\nERREUR : Check échoué pour le paquet \"$PAQUET_COURANT\"\n"	
 				LISTE_CHECK_ECHEC+=("$PAQUET_COURANT")
 			else
-				echo -e "\nREUSSITE : Check réussi pour le paquet \"$PAQUET_COURANT\"\n"
+				echo -e "\nREUSSITE : Check réussi pour le paquet \"$PAQUET_COURANT\"\n"
 				LISTE_CHECK_REUSSI+=("$PAQUET_COURANT")
 			fi
 		fi

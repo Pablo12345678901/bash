@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# - : pas d'argument à fournir
+
+# Récupération de la liste des lignes avec titre fonctions
+declare -a TABLEAU_FONCTIONS
+
+# La boucle lit les données depuis le fichier (qui est produit avec l'output de la commande grep)
+while IFS= read -r # pour ajouter un délimiteur, ajouter -d 'CHARDELIMITEUR'
+# 'IFS=' préserve les éventuels espaces avant et après l'élément
+do
+   TABLEAU_FONCTIONS+=("$REPLY") # reply est la variable dans laquelle est stockée le résultat si aucune variable n'est fournie
+done < <(grep "function" "$REPERTOIRE_DES_COMMANDES_PERSO/fonctions_personnelles" | sort --ignore-case )
+
+echo -e "\nListe des fonctions personnelles disponibles :\n"
+for FONCTION in "${TABLEAU_FONCTIONS[@]}"
+do
+    FONCTION=${FONCTION#function }
+    FONCTION=${FONCTION% '{'}
+    echo "$FONCTION"
+done
+echo ""
+
+
