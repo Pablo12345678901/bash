@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# $1 : -s (silent mode)
+
+SYNTAXE="\nSyntaxe :\n\t$(basename $0)    [-s]\n"
+ALIGNEMENT_TABULATION="\t"
+
+FLAG_SILENT_MODE="false"
+if [ -z "$1" ]
+then
+    :
+else
+    if [ "$1" == "-s" ]
+    then
+        FLAG_SILENT_MODE="true"
+        ALIGNEMENT_TABULATION=""
+    else
+        echo -e "\nERREUR : l'argument n°1 \"$1\" ne correspond pas à '-s'. Rappel : il est optionnel."
+        echo -e "$SYNTAXE"
+        exit 1
+    fi
+fi
+
+# Affichage du message que si non mode silence
+if [ $FLAG_SILENT_MODE = "true" ]
+then 
+    :
+else
+    echo -e "\nContenu brut (non trié = ordre réel) de la variable \"\$PATH\" :\n"
+fi
+
+# Affichage brut de chaque élément
+( OLDIFS="$IFS" # récupération de la valeur de IFS
+  IFS=: # Modification du char séparateur de base
+  for CHAQUE_PATH in $PATH
+  do
+      echo -e "${ALIGNEMENT_TABULATION}${CHAQUE_PATH}"
+  done 
+  IFS="$OLDIFS" # Remise de IFS à son ancienne valeur
+)
+
+# Affichage trié que si non mode silence
+if [ $FLAG_SILENT_MODE = "true" ]
+then 
+    :
+else
+    echo -e "\nContenu trié de la variable \"\$PATH\" :\n"
+    # Tri, puis affichage de chaque élément
+    sort -f -u < <(    OLDIFS="$IFS" # récupération de la valeur de IFS
+    # sort -f : ignore la casse
+    # sort -u : supprime les doublons
+                    IFS=: # Modification du char séparateur de base
+                    for CHAQUE_PATH in $PATH
+                    do
+			echo -e "${ALIGNEMENT_TABULATION}${CHAQUE_PATH}"
+                    done 
+                    IFS="$OLDIFS" # Remise de IFS à son ancienne valeur
+               )
+    echo "" # esthétique
+fi
+
+
+
+

@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-s SOURCE_AVEC_SLASH_FINAL" "-d DESTINATION_SANS_SLASH_FINAL" "[--silent]")"
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt -o 'd:s:'  --long 'silent' -q -- "$@")
+
+
+# Test si la syntaxe a été correcte (options + arguments)
+if [ $? -ne 0 ]
+then
+    STDERR_afficher_message "ERREUR de syntaxe..."
+    STDERR_afficher_message "$SYNTAXE"
+    exit 1
+fi
+
+# Contrôle des arguments
+FLAG_OPTION_D= 
+FLAG_OPTION_S=
+
+# Remise des options en paramètres positionnels
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+	case "$1" in
+        '-d' )
+            FLAG_OPTION_D=1
+            DESTINATION_SANS_SLASH_FINAL="$2"
+            shift 2
+            # Test si répertoire
+            if [ ! -d "$DESTINATION_SANS_SLASH_FINAL" ]
+            then
+                STDERR_afficher_message "\nERREUR : Le path \"$DESTINATION_SANS_SLASH_FINAL\" n'est pas un répertoire.\n"
+                STDERR_afficher_message "$SYNTAXE"
+                exit 2
+            fi
+            # Test si ne se termine pas par un slash
+            if [ ! "${DESTINATION_SANS_SLASH_FINAL}" = "${DESTINATION_SANS_SLASH_FINAL%/}" ]
+            then
+                echo "ERREUR :le path de destination \"$DESTINATION_SANS_SLASH_FINAL\" ne doit pas se terminer par un slash."
+                STDERR_afficher_message "$SYNTAXE"
+                exit 3
+            fi
+            continue
+            ;;
+        '-s' )
+            FLAG_OPTION_S=1
+            SOURCE_AVEC_SLASH_FINAL="$2"
+            shift 2
+            # Test si répertoire
+            if [ ! -d "$SOURCE_AVEC_SLASH_FINAL" ]
+            then
+                STDERR_afficher_message "\nERREUR : Le path \"$SOURCE_AVEC_SLASH_FINAL\" n'est pas un répertoire.\n"
+                STDERR_afficher_message "$SYNTAXE"
+                exit 4
+            fi
+            # Test si se termine par un slash
+            if [ ! "${SOURCE_AVEC_SLASH_FINAL}" != "${SOURCE_AVEC_SLASH_FINAL%/}" ]
+            then
+                echo "ERREUR :le path source \"$SOURCE_AVEC_SLASH_FINAL\" doit se terminer par un slash."
+                STDERR_afficher_message "$SYNTAXE"
+                exit 5
+            fi
+            continue
+            ;;
+        '--silent' )
+            echo "Silence absolu - ne change rien juste pour tester la gestion d'option avec double tiret."
+            shift
+            continue
+            ;;
+		'--')
+			shift
+			break
+		    ;;
+        # Gestion des erreurs pour tout autre bug.
+        * )
+            STDERR_afficher_message "ERREUR interne\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 6
+            ;;
+	esac
+done
+
+# Test si les options requises ont été fournies (=test si flag défini)
+if [ ! -z "$FLAG_OPTION_D" ] && [ ! -z "$FLAG_OPTION_S" ] 
+then
+    # Test si d'autres darguments = en trop (=test si $1 défini)
+    if [ ! -z "$1" ]
+    then
+        STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
+        STDERR_afficher_message "$SYNTAXE"
+        exit 7
+    else
+        :
+    fi
+else
+    STDERR_afficher_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 8
+fi
+
+# Back-up
+sudo rsync -a -v -z -P --info=progress2 --partial "$SOURCE_AVEC_SLASH_FINAL" "$DESTINATION_SANS_SLASH_FINAL"
+# Debug :
+# -a : archive mode is -rlptgoD (no -A,-X,-U,-N,-H) -> backup tout y.c permissions sur fichiers
+# -v : verbose
+# -z : compress avant de backup (qui sera décompressé) = plus rapide
+# -P : progress bar
+# --info=progress2 : montre un niveau élevé (0=nul 2=max) d'information sur la progression
+# --partial : si pas complètement sauvegardé et perte de connexion, conserve les fichiers partiels. Puis se reconnecte et ne recopie que la suite à partir de ce qui a déjà été copié.

@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# - : pas d'argument à fourni
+
+source fonctions_personnelles
+
+# Tableaux de conservations des résultats avec les noms des appareils UBS / disques durs
+declare -a LISTE_APPAREILS
+declare -a LISTE_APPAREILS_EJECTE
+declare -a LISTE_APPAREILS_PAS_EJECTES
+
+# DEBUG
+#echo -e "\nScript $(basename $0) en cours de dév -- pas encore au point sur Linux...\n"
+#read -p "Veuillez déconnecter manuellement les USB puis taper enter pour continuer."
+
+echo -e "\nÉjection des appareils USB et disques durs.\n"
+
+# Détecter les disques
+while read ELEMENT
+do
+    LISTE_APPAREILS+=("$ELEMENT")
+   
+done < <(find $USB_CONNEXION_PATH -mindepth 1 -maxdepth 1 -print0 |
+        tr '\0' '\n' |
+        cut -d '/' -f 2-
+        ) 
+
+# Test si tableau non vide -> quitte si vide
+NB_USB_A_EJECTER="$(tableau_taille LISTE_APPAREILS)"
+if [ "$NB_USB_A_EJECTER" = "0" ]
+then
+    echo -e "\nAucun appareil à éjecter.\n"
+    exit 0
+fi
+
+# Démonter les disque
+for ELEMENT in "${LISTE_APPAREILS[@]}"
+do
+    NOM_SIMPLE_APPAREIL="${ELEMENT##*/}"
+    POINT_DE_MONTAGE="" # Mise à nul à chaque boucle
+    POINT_DE_MONTAGE="$(mount | grep "$ELEMENT" | awk ' { printf("%s\n",$1) } ')"
+    if [ ! -z "$POINT_DE_MONTAGE" ]
+    then
+	    echo "Éjection de \"$NOM_SIMPLE_APPAREIL\"..."
+	    # éjection des appareils et conservation des résultats dans les tableaux
+	    umount $POINT_DE_MONTAGE
+	    if [ $? -eq 0 ]
+	    then
+		LISTE_APPAREILS_EJECTES+=("$NOM_SIMPLE_APPAREIL")
+	    else
+		echo -e "\nERREUR : l'éjection de \"$NOM_SIMPLE_APPAREIL\" a échouée\n"
+		LISTE_APPAREILS_PAS_EJECTES+=("$NOM_SIMPLE_APPAREIL")
+	    fi
+    else
+	echo -e "\nERREUR : aucun point de montage n'a été trouvé pour \"$NOM_SIMPLE_APPAREIL\".\n"
+        LISTE_APPAREILS_PAS_EJECTES+=("$NOM_SIMPLE_APPAREIL")
+    fi
+done
+
+# Affichage des résultats
+if [ ${#LISTE_APPAREILS[@]} -eq 0 ]
+then
+    echo "Aucun appareil à éjecter."
+else
+    # Affichage appareils initiaux
+    echo -e "Liste des appareils initiaux :"
+    for APPAREIL in "${LISTE_APPAREILS[@]}"
+        do
+            echo "${APPAREIL##*/}"
+        done
+        echo ""
+    
+    echo -e "Résultats de l'éjection :\n"
+    # Affichage appareils éjectés
+    if [ ! ${#LISTE_APPAREILS_EJECTES[@]} -eq 0 ]
+    then
+        echo -e "Liste des appareils éjectés :"
+        for APPAREIL in "${LISTE_APPAREILS_EJECTES[@]}"
+        do
+            echo "$APPAREIL"
+        done
+        echo ""
+    fi
+
+    # Affichage appareils non éjectés
+    if [ ${#LISTE_APPAREILS_PAS_EJECTES[@]} -eq 0 ]
+    then
+        echo -e "Tout est en ordre.\n"
+    else
+        echo -e "Liste des appareils dont l'éjection a échouée :"
+        for APPAREIL in "${LISTE_APPAREILS_PAS_EJECTES[@]}"
+        do
+            echo "$APPAREIL"
+        done
+        echo ""
+        echo -e "ERREUR : certains appareils n'ont pas pu être correctement éjectés.\nVeuilez contrôler le script \"$(basename $0)\" ou le faire manuellement.\n"
+        exit 1
+    fi
+fi
+
+exit 0

@@ -3,12 +3,13 @@
 source fonctions_personnelles
 
 # Syntaxe
-SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-s STRING_AVEC_CHAR_SPECIAUX")"
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-f FICHIER_A_OUVRIR" )"
 
 # Note that we use "$@" to let each command-line parameter expand to a
 # separate word. The quotes around "$@" are essential!
 # We need TEMP as the 'eval set --' would nuke the return value of getopt.
-TEMP=$(getopt --options 's:' -q -- "$@")
+TEMP=$(getopt -o 'f:' -q -- "$@")
+# -o : option courte
 # -q : quiet
 # -- : marque la fin des options
 
@@ -21,81 +22,70 @@ then
 fi
 
 # Contrôle des arguments
-FLAG_OPTION_S=
+FLAG_OPTION_F= 
 
 # Remise des options en paramètres positionnels
 eval set -- "$TEMP"
 unset TEMP
 
 while true; do
-    case "$1" in
-	-s )  
-	    FLAG_OPTION_S=1
-            STRING_AVEC_CHAR_SPECIAUX="$2"
+	case "$1" in
+        '-f' )
+            FLAG_OPTION_F=1
+            FICHIER_A_OUVRIR="$2"
             shift 2
+            # Test si path absolu ou relatif
+	    if [ "${FICHIER_A_OUVRIR:0:1}" = "/" ]
+	    then
+	        PATH_FICHIER_A_OUVRIR="$FICHIER_A_OUVRIR"
+	    else
+	        REPERTOIRE_A_OUVRIR="$PWD"
+		PATH_FICHIER_A_OUVRIR="${REPERTOIRE_A_OUVRIR}/${FICHIER_A_OUVRIR}"
+	    fi
+	    # Test si le fichier existe
+            if [ ! -d "$PATH_FICHIER_A_OUVRIR" ] && [ ! -f "$PATH_FICHIER_A_OUVRIR" ] 
+            then
+                STDERR_afficher_message "\nERREUR : Le fichier \"$PATH_FICHIER_A_OUVRIR\" n'existe pas.\n"
+                exit 2
+            fi
             continue
             ;;
-       	'--')
-	    shift
-	    break
-      	    ;;
+		'--')
+			shift
+			break
+		    ;;
+        # Gestion des erreurs pour tout autre bug.
         * )
-	    # Gestion des erreurs pour tout autre bug
             STDERR_afficher_message "ERREUR interne\n"
             STDERR_afficher_message "$SYNTAXE"
-            exit 2
+            exit 4
             ;;
 	esac
 done
 
 # Test si les options requises ont été fournies (=test si flag défini)
-if [ ! -z "$FLAG_OPTION_S" ]
+if [ ! -z "$FLAG_OPTION_F" ] 
 then
     # Test si d'autres darguments = en trop (=test si $1 défini)
     if [ ! -z "$1" ]
     then
         STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
         STDERR_afficher_message "$SYNTAXE"
-        exit 3
+        exit 5
     else
         :
     fi
 else
     STDERR_afficher_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
     STDERR_afficher_message "$SYNTAXE"
-    exit 4
+    exit 6
 fi
 
-
-# Echo du nvo string sans les char spéciaux
-echo "$STRING_AVEC_CHAR_SPECIAUX" |
-tr 'à' 'a' |
-tr 'À' 'A' |
-tr 'â' 'a' |
-tr 'Â' 'A' |
-tr 'ç' 'c' |
-tr 'Ç' 'C' |
-tr 'é' 'e' |
-tr 'É' 'E' |
-tr 'è' 'e' |
-tr 'È' 'E' |
-tr 'ê' 'e' |
-tr 'Ê' 'E' |
-tr 'î' 'i' |
-tr 'Î' 'I' |
-tr 'ô' 'o' |
-tr 'Ô' 'O' |
-tr 'û' 'u' |
-tr 'Û' 'U' |
-tr '/' '_' |
-tr '’' '_' |
-tr "'" '_' |
-tr '°' '_' |
-tr '(' '_' |
-tr ')' '_' |
-tr '-' '_' |
-tr '–' '_' |
-tr ' ' '_' |
-tr ',' '_' |
-tr '%' '_'
-
+# Ouverture du tableau de recherche emploi
+echo -e "\nOuverture du fichier \"$FICHIER_A_OUVRIR\"...\n"
+{   xdg-open "$PATH_FICHIER_A_OUVRIR" >/dev/null 2>&1 &&
+    exit 0
+} ||
+{   STDERR_afficher_message "\nERREUR : le fichier \"$FICHIER_A_OUVRIR\" n'a pas pu être ouvert.\n" &&
+    exit 7
+} 
