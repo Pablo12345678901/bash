@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# - : pas d'argument à fournir
+
+source fonctions_personnelles
+
+COMMANDE="${0##*/}" # nom de la commande utile pour les messages d'erreur
+
+# Execute some actions before shutting down.
+turn_off_actions_before ||
+    { STDERR_afficher_message "\nERROR : could not process all required actions before rebooting.\n Please check output...\n" &&
+      exit 1
+    }
+
+# Reboot
+echo -e "\nWrite your password and the computer will reboot immediatly."
+echo -e "Cancel with CTRL+C\n"
+sudo herd stop shepherd ||
+    { echo -e "\nERROR : the command \"$COMMAND\" failed.\n"
+      exit 2
+    }
