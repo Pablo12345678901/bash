@@ -28,7 +28,7 @@ IMPORTANT
 
 Please note that :
 
-- my current OS is Arch Linux and that some commands used in the scripts were installed manually so you maybe will need to install them by yourself or process to adaptations in order to run them.
+- my current OS is Guix and that some commands used in the scripts were installed manually so you maybe will need to install them by yourself or process to adaptations in order to run them.
 
 - some scripts use environment variable that should be set into the bash profile. The later should then be sourced if not rebooting your computer.
 
