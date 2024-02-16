@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+
+source fonctions_personnelles
+
+# Syntaxe
+# No required argument.
+
+# To do :
+# Option check = resolution
+# Add a choice for the main screen and cloned screen
+# add error message with each step of the xrandr commands because there is a bug
+
+
+
+
+
+
+
+# Ask for the resolution required
+
+# Set while script in dev
+echo "DEBUG SET RESOLUTION IN SCRIPT WHILE IN DEV"
+RESOLUTION_Y_STRING="1920"
+RESOLUTION_X_STRING="1080"
+
+# Conversion from string to int
+RESOLUTION_Y=$((RESOLUTION_Y_STRING))
+RESOLUTION_X=$((RESOLUTION_X_STRING))
+
+# Test if >0 and <3000 - value max choosed. 
+VALUE_MIN=400
+VALUE_MAX=3000
+for RESOLUTION in $RESOLUTION_Y $RESOLUTION_X
+do
+    if [ ! $RESOLUTION -ge $VALUE_MIN ] || [ ! $RESOLUTION -le $VALUE_MAX ]
+    then
+        {  STDERR_afficher_message "\nERROR : all the resolutions have to be \nlower or equal to $VALUE_MAX \nand \ngreater or equal to $VALUE_MIN\n Those are you current resolutions : \nY = $RESOLUTION_Y \nX = $RESOLUTION_X\n" &&
+	   exit 1
+	   }
+    fi
+done
+
+
+# Check if x11 is the XDG_SESSION_TYPE - exit with error message else
+if [ ! "$XDG_SESSION_TYPE" = "x11" ]
+then
+    STDERR_afficher_message "\nERROR : the session type (See environment variable \"XDG_SESSION_TYPE\" is not x11. This script will not work and is stopped.\n" &&
+    exit 1
+fi 
+
+# Get the output connected available - do not list the disconnected ones
+OUTPUTS_AVAILABLE="$(xrandr |
+                        grep -E '[^d][^i][^s]connected' |
+                        cut -d ' ' -f 1 |
+                        tr '\n' ':')"
+# Remove the leading and trailing ':' 
+OUTPUTS_AVAILABLE="${OUTPUTS_AVAILABLE/#:}" # leading
+OUTPUTS_AVAILABLE="${OUTPUTS_AVAILABLE/%:}" # trailing
+
+# Choose which output should be the main screen and the screen cloned
+echo "Choose between $OUTPUTS_AVAILABLE"
+echo "DEBUG SET OUTPUT IN SCRIPT WHILE IN DEV"
+
+# Set while developping
+OUTPUT_MAIN_SCREEN="DP-2"
+OUTPUT_CLONED_SCREEN="eDP-1"
+
+echo -e "\nYou choosed to clone the screen \"$OUTPUT_CLONED_SCREEN\" on the screen \"$OUTPUT_MAIN_SCREEN\" with a resolution of :\nY = $RESOLUTION_Y\nX = $RESOLUTION_X\n"
+
+# Get the newmode from cvt
+NEWMODE_MAIN_SCREEN="$(cvt $RESOLUTION_Y $RESOLUTION_X |
+            grep 'Modeline' |
+            cut -d ' ' -f 2-)"
+# Get the resolution 
+RESOLUTION_MAIN_SCREEN="$(echo $NEWMODE_MAIN_SCREEN | cut -d ' ' -f 1)"
+
+# Add the resolution to the output
+{ xrandr --newmode "$NEWMODE_MAIN_SCREEN" &&
+  xrandr --addmode "$OUTPUT_MAIN_SCREEN" "$RESOLUTION_MAIN_SCREEN" &&
+  xrandr --output "$OUTPUT_MAIN_SCREEN" --mode "$RESOLUTION_MAIN_SCREEN" &&
+  echo -e "\nResolution '$RESOLUTION_MAIN_SCREEN' added to output \"$OUTPUT_MAIN_SCREEN\"\n"
+} ||
+{ STDERR_afficher_message "\nERROR : could not add the resolution '$RESOLUTION_MAIN_SCREEN' added to output \"$OUTPUT_MAIN_SCREEN\". \nDo it manually or check the script.\n" &&
+  exit 1
+}
+
+# Same for the other output
+# Get the newmode from cvt
+NEWMODE_CLONED_SCREEN="$(cvt $RESOLUTION_Y $RESOLUTION_X |
+            grep 'Modeline' |
+            cut -d ' ' -f 2-)"
+# Get the resolution 
+RESOLUTION_CLONED_SCREEN="$(echo $NEWMODE_CLONED_SCREEN | cut -d ' ' -f 1)"
+
+# Add the resolution to the output
+{ xrandr --newmode "$NEWMODE_CLONED_SCREEN" &&
+  xrandr --addmode "$OUTPUT_CLONED_SCREEN" "$RESOLUTION_CLONED_SCREEN" &&
+  xrandr --output "$OUTPUT_CLONED_SCREEN" --mode "$RESOLUTION_CLONED_SCREEN" &&
+  echo -e "\nResolution '$RESOLUTION_CLONED_SCREEN' added to output \"$OUTPUT_CLONED_SCREEN\"\n"
+} ||
+{ STDERR_afficher_message "\nERROR : could not add the resolution '$RESOLUTION_CLONED_SCREEN' added to output \"$OUTPUT_CLONED_SCREEN\". \nDo it manually or check the script.\n" &&
+  exit 1
+}
+
+# Clone the desktop screen to the final output
+{ xrandr --output "$$OUTPUT_MAIN_SCREEN" --same-as "$OUTPUT_CLONED_SCREEN" &&
+  echo -e "\nThe screen \"$OUTPUT_CLONED_SCREEN\" was cloned on the screen \"$OUTPUT_MAIN_SCREEN\" with a resolution of \nY = $RESOLUTION_Y\nX = $RESOLUTION_X\n" &&
+  exit 0
+} ||
+{ STDERR_afficher_message "\nERROR : The screen \"$OUTPUT_CLONED_SCREEN\" could not be cloned on the screen \"$OUTPUT_MAIN_SCREEN\" with a resolution of \nY = $RESOLUTION_Y\nX = $RESOLUTION_X\n\nDo it manually or check the script.\n" &&
+  exit 1
+}
+
