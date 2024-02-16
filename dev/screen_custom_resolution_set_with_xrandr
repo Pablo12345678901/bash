@@ -2,13 +2,13 @@
 
 source fonctions_personnelles
 
-# Syntaxe
-# No required argument.
 
 # To do :
-# Option check = resolution
 # Add a choice for the main screen and cloned screen
-# add error message with each step of the xrandr commands because there is a bug
+
+# DEBUG : those two values are set while developping
+OUTPUT_MAIN_SCREEN="DP-2"
+OUTPUT_CLONED_SCREEN="eDP-1"
 
 
 
@@ -16,38 +16,128 @@ source fonctions_personnelles
 
 
 
-# Ask for the resolution required
 
-# Set while script in dev
-echo "DEBUG SET RESOLUTION IN SCRIPT WHILE IN DEV"
-RESOLUTION_Y_STRING="1920"
-RESOLUTION_X_STRING="1080"
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "[-y SCREEN_LENGHT] [-x SCREEN_HEIGHT]")"
+
+# Default resolution that will be applied if no one was provided
+DEFAULT_RESOLUTION_X="1080"
+DEFAULT_RESOLUTION_Y="1920"
+# Customize here the min and max resolution accepted by this script.
+VALUE_MIN=400
+VALUE_MAX=3000
+
+####### BEGINNING OF OPTION MANAGEMENT ##########
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'x:y:' -q -- "$@")
+# -q : quiet
+# -- : to explicitly show the options end
+
+# Test whether syntax was correct (options + arguments)
+if [ $? -ne 0 ]
+then
+    STDERR_afficher_message "ERROR: syntax..."
+    STDERR_afficher_message "$SYNTAXE"
+    exit 1
+fi
+
+# Arguments check
+FLAG_OPTION_X=
+FLAG_OPTION_Y=
+
+# Re-set options through positional parameters
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+    case "$1" in
+	-x )  
+	    FLAG_OPTION_X=1
+            RESOLUTION_X_STRING="$2"
+            shift 2
+            continue
+            ;;
+	 -y )  
+	    FLAG_OPTION_Y=1
+            RESOLUTION_Y_STRING="$2"
+            shift 2
+            continue
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )
+	    # Error management for all other bugs
+            STDERR_afficher_message "ERROR: internal error...\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 2
+            ;;
+	esac
+done
+
+# Test whether other arguments were provided = in excess (=test if $1 is defined)
+if [ ! -z "$1" ]
+then
+    STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 3
+else
+    :
+fi
+
+# Define default behaviour if X or Y were not provided
+if [ -z "$FLAG_OPTION_X" ]
+then
+    RESOLUTION_X_STRING="$DEFAULT_RESOLUTION_X"
+    echo -e "\nNo screen size for X was provided... Default behaviour : X = $RESOLUTION_X_STRING.\n" 
+fi
+if [ -z "$FLAG_OPTION_Y" ]
+then
+    RESOLUTION_Y_STRING="$DEFAULT_RESOLUTION_Y"
+    echo -e "\nNo screen size for Y was provided... Default behaviour : Y = $RESOLUTION_Y_STRING.\n"
+fi
+
+########## END OF OPTION MANAGEMENT ####################
 
 # Conversion from string to int
 RESOLUTION_Y=$((RESOLUTION_Y_STRING))
 RESOLUTION_X=$((RESOLUTION_X_STRING))
 
-# Test if >0 and <3000 - value max choosed. 
-VALUE_MIN=400
-VALUE_MAX=3000
+# Test if both resolution are in the range between the min and max value (included).
 for RESOLUTION in $RESOLUTION_Y $RESOLUTION_X
 do
     if [ ! $RESOLUTION -ge $VALUE_MIN ] || [ ! $RESOLUTION -le $VALUE_MAX ]
     then
-        {  STDERR_afficher_message "\nERROR : all the resolutions have to be \nlower or equal to $VALUE_MAX \nand \ngreater or equal to $VALUE_MIN\n Those are you current resolutions : \nY = $RESOLUTION_Y \nX = $RESOLUTION_X\n" &&
+        {  STDERR_afficher_message "\nERROR : all the resolutions have to be lower or equal to $VALUE_MAX and greater or equal to $VALUE_MIN \nThose are the ones you provided and their conversion to int : \nY : value : \"$RESOLUTION_Y_STRING\" convert to int : $RESOLUTION_Y \nX : value : \"$RESOLUTION_X_STRING\" convert to int : $RESOLUTION_X \n" &&
+	   STDERR_afficher_message "$SYNTAXE" &&
 	   exit 1
 	   }
     fi
 done
 
-
 # Check if x11 is the XDG_SESSION_TYPE - exit with error message else
 if [ ! "$XDG_SESSION_TYPE" = "x11" ]
 then
-    STDERR_afficher_message "\nERROR : the session type (See environment variable \"XDG_SESSION_TYPE\" is not x11. This script will not work and is stopped.\n" &&
+    STDERR_afficher_message "\nERROR : the session type is not x11 but should be for this script to work. \nEnvironment variable \"XDG_SESSION_TYPE\" = $XDG_SESSION_TYPE\n" &&
     exit 1
 fi 
 
+
+
+
+
+
+
+
+
+
+
+
+: <<"PARTSTILLINDEV"
 # Get the output connected available - do not list the disconnected ones
 OUTPUTS_AVAILABLE="$(xrandr |
                         grep -E '[^d][^i][^s]connected' |
@@ -58,32 +148,75 @@ OUTPUTS_AVAILABLE="${OUTPUTS_AVAILABLE/#:}" # leading
 OUTPUTS_AVAILABLE="${OUTPUTS_AVAILABLE/%:}" # trailing
 
 # Choose which output should be the main screen and the screen cloned
-echo "Choose between $OUTPUTS_AVAILABLE"
-echo "DEBUG SET OUTPUT IN SCRIPT WHILE IN DEV"
+define -a OUTPUTS_ARRAY
 
-# Set while developping
-OUTPUT_MAIN_SCREEN="DP-2"
-OUTPUT_CLONED_SCREEN="eDP-1"
+# Check that at least those outputs are available
+
+# Choose the first one and remove it from the array
+#select_parmi_liste
+# $1 : TAB_D_OPTIONS (variable)
+# $2 : CH_UTILISATEUR (variable)
+# $3 : MES_AFFICHE (valeur) -> avant d'afficher les choix
+# $4 : OPT_POUR_ARRETER (optionnel) (valeur)
+
+# If only one output leaving - choose by default - else let the user choose
+#echo "Choose between $OUTPUTS_AVAILABLE"
+#echo "\nDEBUG SET OUTPUT IN SCRIPT WHILE IN DEV\n"
+
+
+PARTSTILLINDEV
+
+
+
+
+
+
+
+
+
+
+
 
 echo -e "\nYou choosed to clone the screen \"$OUTPUT_CLONED_SCREEN\" on the screen \"$OUTPUT_MAIN_SCREEN\" with a resolution of :\nY = $RESOLUTION_Y\nX = $RESOLUTION_X\n"
 
+############# MAIN SCREEN ####################
 # Get the newmode from cvt
 NEWMODE_MAIN_SCREEN="$(cvt $RESOLUTION_Y $RESOLUTION_X |
             grep 'Modeline' |
             cut -d ' ' -f 2-)"
+
 # Get the resolution 
 RESOLUTION_MAIN_SCREEN="$(echo $NEWMODE_MAIN_SCREEN | cut -d ' ' -f 1)"
 
-# Add the resolution to the output
-{ xrandr --newmode "$NEWMODE_MAIN_SCREEN" &&
-  xrandr --addmode "$OUTPUT_MAIN_SCREEN" "$RESOLUTION_MAIN_SCREEN" &&
-  xrandr --output "$OUTPUT_MAIN_SCREEN" --mode "$RESOLUTION_MAIN_SCREEN" &&
-  echo -e "\nResolution '$RESOLUTION_MAIN_SCREEN' added to output \"$OUTPUT_MAIN_SCREEN\"\n"
-} ||
-{ STDERR_afficher_message "\nERROR : could not add the resolution '$RESOLUTION_MAIN_SCREEN' added to output \"$OUTPUT_MAIN_SCREEN\". \nDo it manually or check the script.\n" &&
+# Create the newmode once only if not existing 
+MODE_EXISTING="$(xrandr | grep -m 1 -o "$RESOLUTION_MAIN_SCREEN")"
+if [ -z "$MODE_EXISTING" ]
+then
+    COMMAND="xrandr --newmode $NEWMODE_MAIN_SCREEN"
+    $COMMAND ||
+    { STDERR_afficher_message "\nERROR : the command '$COMMAND' could not be processed.\n" &&
+      exit 1
+    }
+fi
+
+# Add it to the ouput
+COMMAND="xrandr --addmode $OUTPUT_MAIN_SCREEN $RESOLUTION_MAIN_SCREEN"
+$COMMAND ||
+{ STDERR_afficher_message "\nERROR : the command '$COMMAND' could not be processed.\n" &&
   exit 1
 }
 
+# Set it to the output
+COMMAND="xrandr --output $OUTPUT_MAIN_SCREEN --mode $RESOLUTION_MAIN_SCREEN"
+$COMMAND ||
+{ STDERR_afficher_message "\nERROR : the command '$COMMAND' could not be processed.\n" &&
+  exit 1
+}
+    
+echo -e "\nResolution $RESOLUTION_MAIN_SCREEN was successfully added to output \"$OUTPUT_MAIN_SCREEN\"\n"
+############# END MAIN SCREEN ##################
+
+############# CLONED SCREEN ####################
 # Same for the other output
 # Get the newmode from cvt
 NEWMODE_CLONED_SCREEN="$(cvt $RESOLUTION_Y $RESOLUTION_X |
@@ -92,19 +225,27 @@ NEWMODE_CLONED_SCREEN="$(cvt $RESOLUTION_Y $RESOLUTION_X |
 # Get the resolution 
 RESOLUTION_CLONED_SCREEN="$(echo $NEWMODE_CLONED_SCREEN | cut -d ' ' -f 1)"
 
-# Add the resolution to the output
-{ xrandr --newmode "$NEWMODE_CLONED_SCREEN" &&
-  xrandr --addmode "$OUTPUT_CLONED_SCREEN" "$RESOLUTION_CLONED_SCREEN" &&
-  xrandr --output "$OUTPUT_CLONED_SCREEN" --mode "$RESOLUTION_CLONED_SCREEN" &&
-  echo -e "\nResolution '$RESOLUTION_CLONED_SCREEN' added to output \"$OUTPUT_CLONED_SCREEN\"\n"
-} ||
-{ STDERR_afficher_message "\nERROR : could not add the resolution '$RESOLUTION_CLONED_SCREEN' added to output \"$OUTPUT_CLONED_SCREEN\". \nDo it manually or check the script.\n" &&
+# Add it to the ouput
+COMMAND="xrandr --addmode $OUTPUT_CLONED_SCREEN $RESOLUTION_CLONED_SCREEN"
+$COMMAND ||
+{ STDERR_afficher_message "\nERROR : the command '$COMMAND' could not be processed.\n" &&
   exit 1
 }
 
+# Set it to the output
+COMMAND="xrandr --output $OUTPUT_CLONED_SCREEN --mode $RESOLUTION_CLONED_SCREEN"
+$COMMAND ||
+{ STDERR_afficher_message "\nERROR : the command '$COMMAND' could not be processed.\n" &&
+  exit 1
+}
+    
+echo -e "\nResolution $RESOLUTION_CLONED_SCREEN was successfully added to output \"$OUTPUT_CLONED_SCREEN\"\n"
+
+############# END CLONED SCREEN ################
+
 # Clone the desktop screen to the final output
-{ xrandr --output "$$OUTPUT_MAIN_SCREEN" --same-as "$OUTPUT_CLONED_SCREEN" &&
-  echo -e "\nThe screen \"$OUTPUT_CLONED_SCREEN\" was cloned on the screen \"$OUTPUT_MAIN_SCREEN\" with a resolution of \nY = $RESOLUTION_Y\nX = $RESOLUTION_X\n" &&
+{ xrandr --output "$OUTPUT_MAIN_SCREEN" --same-as "$OUTPUT_CLONED_SCREEN" &&
+  echo -e "\nThe screen \"$OUTPUT_CLONED_SCREEN\" was cloned on the screen \"$OUTPUT_MAIN_SCREEN\" with a resolution of :\nY = $RESOLUTION_Y\nX = $RESOLUTION_X\n" &&
   exit 0
 } ||
 { STDERR_afficher_message "\nERROR : The screen \"$OUTPUT_CLONED_SCREEN\" could not be cloned on the screen \"$OUTPUT_MAIN_SCREEN\" with a resolution of \nY = $RESOLUTION_Y\nX = $RESOLUTION_X\n\nDo it manually or check the script.\n" &&
