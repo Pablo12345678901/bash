@@ -34,6 +34,12 @@ while true; do
             FLAG_OPTION_F=1
             FICHIER_A_OUVRIR="$2"
             shift 2
+	    # If the filename contains '$', process to expansion
+	    # Some terminals add '\' before '$' so it functions -  with them all.
+	    if [[ "$FICHIER_A_OUVRIR" =~ ^.*\$.*$ ]]
+	    then
+		FICHIER_A_OUVRIR="${FICHIER_A_OUVRIR@P}"
+	    fi 
             # Test si path absolu ou relatif
 	    if [ "${FICHIER_A_OUVRIR:0:1}" = "/" ]
 	    then
