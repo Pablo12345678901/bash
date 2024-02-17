@@ -5,48 +5,44 @@
 
 source fonctions_personnelles
 
-# Showing if my git dev dirs are up-to-date or need to be pushed
-RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE="$(git_check_if_up_to_date)"
-echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE"
+# While true
+while :
+do
+    # Showing if my git dev dirs are up-to-date or need to be pushed
+    RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE="$(git_check_if_up_to_date)"
+    echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE"
 
-# Test if up-to-date then no push so exit
-# Getting the status
-WORDS_SHOWING_UP_TO_DATE="up-to-date"
-REGEX_SHOWING_UP_TO_DATE=".*$WORDS_SHOWING_UP_TO_DATE.*"
-STATUS_UP_OR_NOT_TO_DATE="$(echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE" |
-    awk -v WORDSUPTODATE="$WORDS_SHOWING_UP_TO_DATE" -v REGEXUPTODATE="$REGEX_SHOWING_UP_TO_DATE" '{
-            { if ($0 ~ REGEXUPTODATE)
-                { printf("%s", WORDSUPTODATE) }
-            }
-         }'
-)"
-# Checking the status
-if [ "$STATUS_UP_OR_NOT_TO_DATE" = "$WORDS_SHOWING_UP_TO_DATE" ]
-then
-    echo "" # Esthetic
-    exit 0
-fi
-
-# Else propose to git push - and then if yes call the script to do so.
-QUESTION="Would you like to git push ? (Oo/Nn) "
-REPONSE=''
-question_oui_non REPONSE "$QUESTION"
-
-if [ $REPONSE == 'o' ]
-then
-    while [ $REPONSE == 'o' ]
-    do
+    # Test if up-to-date then no push so exit
+    # Getting the status
+    WORDS_SHOWING_UP_TO_DATE="up-to-date"
+    REGEX_SHOWING_UP_TO_DATE=".*$WORDS_SHOWING_UP_TO_DATE.*"
+    STATUS_UP_OR_NOT_TO_DATE="$(echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE" |
+	awk -v WORDSUPTODATE="$WORDS_SHOWING_UP_TO_DATE" -v REGEXUPTODATE="$REGEX_SHOWING_UP_TO_DATE" '{
+		{ if ($0 ~ REGEXUPTODATE)
+		    { printf("%s", WORDSUPTODATE) }
+		}
+	     }'
+    )"
+    
+    # Checking the status and exit if no git repo needs to be pushed.
+    if [ "$STATUS_UP_OR_NOT_TO_DATE" = "$WORDS_SHOWING_UP_TO_DATE" ]
+    then
+	echo "" # Esthetic
+	exit 0
+    fi
+    
+    # Else propose to git push
+    QUESTION="Would you like to git push ? (Oo/Nn) "
+    REPONSE=''
+    question_oui_non REPONSE "$QUESTION"
+    
+    # Check user answer and commit if wished (through a separate script)
+    if [ $REPONSE == 'o' ]
+    then
         git_commit_avec_message || exit 1
-        QUESTION="Any other dir(s) to git push ? (YyOo/Nn) "
-        REPONSE=''
-        question_oui_non REPONSE "$QUESTION"
-        if [ ! $REPONSE == 'o' ]
-        then
-            break
-        fi
-    done
-fi
-
-# Exit
-echo -e "\nYou have choosen to continue without git push any other dir.\n"
-exit 0
+    else
+	# If user choosed not to push more repo then exit
+	echo -e "\nYou have choosen to continue without git push any other dir.\n"
+        exit 0 
+    fi
+done
