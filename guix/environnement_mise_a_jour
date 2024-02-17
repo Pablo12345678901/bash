@@ -5,6 +5,249 @@
 
 source fonctions_personnelles
 
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "[-r REQUEST_USER_AGREEMENT_TO_CONTINUE]")"
+# Set the variable "REQUEST_USER_AGREEMENT_TO_CONTINUE" to :
+#    - "always" : will always ask for user agreement before running another step.
+#    - "never" : (default) will never ask for user agreement and run all steps without pause.
+#    - "sudo" : will ask for user agreement before running another step only if it is a 'sudo' command.
+# By default, if not provided, will is set to "never". 
+
+####### BEGINNING OF OPTION MANAGEMENT ##########
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'r:' -q -- "$@")
+# -q : quiet
+# -- : to explicitly show the options end
+
+# Test whether syntax was correct (options + arguments)
+if [ $? -ne 0 ]
+then
+    STDERR_afficher_message "ERROR: syntax..."
+    STDERR_afficher_message "$SYNTAXE"
+    exit 1
+fi
+
+# Arguments check
+FLAG_OPTION_R=
+
+# Re-set options through positional parameters
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+    case "$1" in
+	-r )  
+	    FLAG_OPTION_R=1
+            REQUEST_USER_AGREEMENT_TO_CONTINUE="$2"
+            shift 2
+            continue
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )
+	    # Error management for all other bugs
+            STDERR_afficher_message "ERROR: internal error...\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 2
+            ;;
+	esac
+done
+
+# Test whether other arguments were provided = in excess (=test if $1 is defined)
+if [ ! -z "$1" ]
+then
+    STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 3
+fi
+
+# Test if the REQUEST_USER_AGREEMENT_TO_CONTINUE option was not provided
+if [ -z "$FLAG_OPTION_R" ]
+then
+    # If not, set by default to 'never'
+    echo -e "\nNo option REQUEST_USER_AGREEMENT_TO_CONTINUE provided.\nDefault behaviour : set to \"never\".\n"
+    REQUEST_USER_AGREEMENT_TO_CONTINUE="never"
+else
+    # Else, control its value
+    case $REQUEST_USER_AGREEMENT_TO_CONTINUE in
+	"always")
+	    :
+            ;;
+	"never")
+	    :
+            ;;
+	"sudo")
+	    :
+            ;;
+	*)
+	    STDERR_afficher_message "\nERROR : the option REQUEST_USER_AGREEMENT_TO_CONTINUE provided has to be set to 'always' or 'never' or 'sudo'.\nCurrently, it is set to : \"$REQUEST_USER_AGREEMENT_TO_CONTINUE\"\n"
+	    STDERR_afficher_message "$SYNTAXE"
+	    exit 3
+	    ;;
+    esac
+fi
+
+########## END OF OPTION MANAGEMENT ####################
+
+######### PART TO ADAPT IN EACH SCRIPT - THE REST IS AUTOMATIC #########
+
+# Step list and futur user choice list by the way
+# Each step represent a command to run
+# Will be used to show the next step after the current step end
+declare -a ARRAY_STEP_CHOICE # this array will be needed after so declared before
+ARRAY_CURRENT_STEP_INDEX=0
+ARRAY_STEP_CHOICE+=('guix pull')
+ARRAY_STEP_CHOICE+=('hash guix')
+ARRAY_STEP_CHOICE+=('guix upgrade')
+ARRAY_STEP_CHOICE+=('sudo -i guix pull')
+ARRAY_STEP_CHOICE+=('sudo -i hash guix')
+ARRAY_STEP_CHOICE+=('sudo -i guix upgrade')
+ARRAY_STEP_CHOICE+=('sudo guix system reconfigure /etc/config.scm')
+ARRAY_STEP_CHOICE+=('sudo herd stop shepherd')
+######### END OF PART TO ADAPT IN EACH SCRIPT  #########################
+
+# Ask if wanted to start or to choose a step
+declare -a ARRAY_START_OR_CHOOSE
+ARRAY_START_OR_CHOOSE+=("Start the update from the beggining")
+ARRAY_START_OR_CHOOSE+=("Choose a specific step")
+USER_ACTION=""
+QUESTION_START_OR_CHOOSE="What would you like to do ? "
+OPTION_TO_QUIT="Quit"
+select_parmi_liste ARRAY_START_OR_CHOOSE USER_ACTION "$QUESTION_START_OR_CHOOSE" "$OPTION_TO_QUIT"
+
+# Quit if required by user
+if [ "$USER_ACTION" = "$OPTION_TO_QUIT" ]
+then
+    echo -e "\nYou choosed to quit the script without further step.\n"
+    exit 0
+fi
+
+# Fill array of flags depending of the number of steps
+# Setting all flag to true by default - meaning all steps will be performed
+declare -a ARRAY_FLAGS
+# For all indexes, fill a 'true' into the array
+for i in "${!ARRAY_STEP_CHOICE[@]}"
+do
+    ARRAY_FLAGS+=("true")
+done
+  
+# Choose a step if required by user 
+if [ "$USER_ACTION" = "Choose a specific step" ]
+then
+    STEP_CHOOSED=""
+    QUESTION_WHICH_STEP="At which step would you like to start ? "
+    OPTION_TO_EXIT="Quit"
+    select_parmi_liste ARRAY_STEP_CHOICE STEP_CHOOSED "$QUESTION_WHICH_STEP" "$OPTION_TO_EXIT"
+
+    # Quit if required by user
+    if [ "$STEP_CHOOSED" = "$OPTION_TO_EXIT" ]
+    then
+	echo -e "\nYou choosed to quit the script without further step.\n"
+	exit 0
+    fi
+    
+    # Adaptation of the flag to start from the specific step
+    # For all indexes
+    for i in "${!ARRAY_STEP_CHOICE[@]}"
+    do
+	# If the value at the index is the value choosed by the user
+        if [ "${ARRAY_STEP_CHOICE[$i]}" = "${STEP_CHOOSED}" ]
+	then
+	    # Return the index
+	    ARRAY_CURRENT_STEP_INDEX=${i}
+	    break
+        fi
+    done
+    
+    # Fill the flag(s) of the step before the one choosed to false 
+    for (( i=0; i<ARRAY_CURRENT_STEP_INDEX; i++ ))
+    do
+	ARRAY_FLAGS[$i]="false"
+    done
+    
+fi
+
+# Get the index max : needed for testing if the current step it is the last one to be runned
+ARRAY_SIZE=${#ARRAY_STEP_CHOICE[@]}
+INDEX_MAX=$((ARRAY_SIZE-1))
+
+# For each index of the array
+for i in "${!ARRAY_STEP_CHOICE[@]}"
+do
+    # Check if the flag is true
+    if [ "${ARRAY_FLAGS[$i]}" = "true" ]
+    then
+        # Run the step and show status message (success/failure)
+	{ echo -e "\nSTEP : \"${ARRAY_STEP_CHOICE[$i]}\"\n" &&
+	  eval ${ARRAY_STEP_CHOICE[$i]} &&
+	  echo -e "\nThe step \"${ARRAY_STEP_CHOICE[$i]}\" was well performed.\n"
+	} ||
+	{ STDERR_afficher_message "\nERROR : The step \"${ARRAY_STEP_CHOICE[$i]}\" was not correctly performed.\nPlease check output...\n"
+	  exit 1
+	}
+
+	# If there is a next step, show it and asks if want to continue (depends on a variable set)
+	if [ $((i)) -lt $INDEX_MAX ]
+	then
+	    # Show next step
+	    echo -e "NEXT STEP : \"${ARRAY_STEP_CHOICE[$((i+1))]}\" \n"
+	    
+	    # Request or not the user agreement to continue depending on
+	    # the value of the corresponding variable set on the top of this script
+	    # That way, this script code can easily be copied/pasted and match different needs.
+	    case $REQUEST_USER_AGREEMENT_TO_CONTINUE in
+	    "always")   
+		ask_user_if_agree_to_continue
+		;;
+	    "sudo")
+		# Check if the command contains a 'sudo'
+		if [[ "${ARRAY_STEP_CHOICE[$((i+1))]}" =~ ^.*sudo.*$ ]]
+		then
+		    ask_user_if_agree_to_continue	
+		fi
+		;;
+	    "never")
+		:
+		;;
+	    *)
+		STDERR_afficher_message "\nERROR : the var \"REQUEST_USER_AGREEMENT_TO_CONTINUE\" = \"$REQUEST_USER_AGREEMENT_TO_CONTINUE\" was not correctly set. \nPlease adapt it on the beginning of this script \"${0##*/}\" located \"$0\".\n"
+		exit 1
+		;;
+	    esac
+	fi
+    fi	   
+done
+
+exit 0
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exit 0
+
+
+
+: <<"DEVIVEV"
+
 
 # Pour la mise à jour manuelle
 # Peut pas être mis à jour via un cron car chaque utilisateur doit runner pour soi avec sudo (seul root sans sudo).
@@ -12,8 +255,10 @@ declare -a LISTE_STATUTS
 STATUT=""
 
 ###############################################
+
 echo -e "\nMise à jour de $USER...\n"
 
+# 1
 # Pull the latest revision of Guix and its package collection
 COMMANDE="guix pull"
 echo -e "\nRUN : $COMMANDE\n"
@@ -21,6 +266,7 @@ $COMMANDE
 STATUT="$(statut_retourne $? "$COMMANDE")"
 LISTE_STATUTS+=("$STATUT")
 
+# 2
 # Instruct the shell to point to this new ‘guix’
 COMMANDE="hash guix"
 echo -e "\nRUN : $COMMANDE\n"
@@ -28,6 +274,7 @@ $COMMANDE
 STATUT="$(statut_retourne $? "$COMMANDE")"
 LISTE_STATUTS+=("$STATUT")
 
+# 3
 # Upgrade all the packages previously installed
 COMMANDE="guix upgrade"
 echo -e "\nRUN : $COMMANDE\n"
@@ -39,6 +286,7 @@ LISTE_STATUTS+=("$STATUT")
 # Mise à jour de root -> en chargeant l'environnement de root avec 'sudo -i'
 echo -e "\nMise à jour de root...\n"
 
+# 4
 # Pull the latest revision of Guix and its package collection
 COMMANDE="sudo -i guix pull"
 echo -e "\nRUN : $COMMANDE\n"
@@ -46,6 +294,7 @@ $COMMANDE
 STATUT="$(statut_retourne $? "$COMMANDE")"
 LISTE_STATUTS+=("$STATUT")
 
+# 5
 # Instruct the shell to point to this new ‘guix’
 COMMANDE="sudo -i hash guix"
 echo -e "\nRUN : $COMMANDE\n"
@@ -53,6 +302,7 @@ $COMMANDE
 STATUT="$(statut_retourne $? "$COMMANDE")"
 LISTE_STATUTS+=("$STATUT")
 
+# 6
 # Upgrade all the packages previously installed
 COMMANDE="sudo -i guix upgrade"
 echo -e "\nRUN : $COMMANDE\n"
@@ -62,6 +312,8 @@ LISTE_STATUTS+=("$STATUT")
 
 # Mise à jour du système
 echo -e "\nMise à jour du système...\n"
+
+# 7
 # Remarques spéciale : si certains paquets sont custom, alors besoin de charger le GUILE_LOAD_PATH en remplaçant la commande ci-dessous (cf $GUILE_LOAD_PATH)
 #COMMANDE"sudo GUIX_PACKAGE_PATH=$GUIX_PACKAGE_PATH GUILE_LOAD_PATH=$GUILE_LOAD_PATH guix system reconfigure /etc/config.scm" 
 COMMANDE="sudo guix system reconfigure /etc/config.scm"
@@ -75,5 +327,8 @@ tableau_contenu LISTE_STATUTS
 
 # Redémarrage
 echo ""
-read -p "Taper enter pour reboot ou control+c pour annuler"
-sudo reboot
+COMMANDE="sudo guix stop shepherd"
+read -p "Type 'enter' to reboot or control+c not to do so."
+$COMMANDE
+
+DEVIVEV
