@@ -1,25 +1,10 @@
 #!/usr/bin/env bash
 
-# Syntaxe
-# $1 : REGEX_RECHERCHE
-# $2 : STRING_REMPLACEMENT
-# $3 : FICHIER_OU_REPERTOIRE
-# ($...) : ...
-
 source fonctions_personnelles
 
 declare -a TABLEAU_FICHIERS
 
-
-
 # TO DEV :
-# 1. SYNTAX
-# 2. OPTIONS MANAGEMENT
-# 3. RESOLVE THE BUG :
-#        COMMAND RUNNED :
-#        ./remplacer_mot_dans_fichier "git_commit_avec_message" "git_commit_with_message" $REPERTOIRE_DES_COMMANDES_PERSO 
-#        ERROR GENERATED :
-#        grep: LISTE_DE_FICHIER_SEPARES_PAR_DES_DOUBLES_POINTS: No such file or directory
 # 4. RESOLVE THE SHOWING OF CHAR '\' AS IN \n' :
 #        COMMAND RUNNED :
 #        ./remplacer_mot_dans_fichier -r 'ERREUR' -s 'ERROR' -d .
@@ -182,8 +167,9 @@ CONSERVATION_LIGNE=""
 DERNIER_REPERTOIRE_AFFICHE=""
 DERNIER_FICHIER_AFFICHE=""
 
-# Filtrage des données
-while read LIGNE_FILTREE
+# Filter data between 4 lines type
+# 'read -r' avoid letting '\' acting as escape chars
+while read -r LIGNE_FILTREE
 do    
     # 4 types de lignes :
     #   REPERTOIRE
@@ -272,24 +258,26 @@ do
             :
         fi
         # Et après l'éventuel répertoire et fichier -> affichage du contenu de la ligne
-        echo "$CONSERVATION_LIGNE"
+        echo -E "$CONSERVATION_LIGNE"
     else
         : # pas d'affichage si le déclencheur minimum (une ligne avec num) n'est pas présente.
     fi
-done < <( while read LIGNE
+    # read -r : do not allow backslash char to escape any char
+done < <( while read -r LIGNE
           do  
             BESOIN_CHECK="false"
             case "$LIGNE" in
-            '/'* )      echo -e "REPERTOIRE:$LIGNE" ;; # si débute par '/'
-            [^1-9]* )   echo -e "FICHIER:\t$LIGNE" ;; # si débute par exactement 1x tab -> affichage avec 1x tab
-            [1-9]* )    BESOIN_CHECK="true" ;; # si débute par un numéro de ligne
-            * )         echo -e "VIDE:$LIGNE" ;; # si ligne vide -> affichage tel quel
+            '/'* )      echo -e "REPERTOIRE:$LIGNE" ;; # if starts by '/'
+            [^1-9]* )   echo -e "FICHIER:\t$LIGNE" ;; # if start exactly by 1x tab -> show with 1x tab
+            [1-9]* )    BESOIN_CHECK="true" ;; # if starts by the line number
+            * )         echo -e "VIDE:$LIGNE" ;; # if empty line -> show as is
             esac
 
             if [ $BESOIN_CHECK = "true" ]
             then
-                NUM_LIGNE=$(echo "$LIGNE" | awk ' {print $1} ') # affiche le numéro de lignes
-                CONTENU_LIGNE="$(sed -e "s/\t//" <(echo "${LIGNE#$NUM_LIGNE}"))" # coupe le numéro de ligne + la tabulation qui suit
+		# Have to use 'echo -E' in order to avoid the '\' acting as special chars
+                NUM_LIGNE=$(echo -E "$LIGNE" | awk ' {print $1} ') # affiche le numéro de lignes
+                CONTENU_LIGNE="$(sed -e "s/\t//" <(echo -E "${LIGNE#$NUM_LIGNE}"))" # coupe le numéro de ligne + la tabulation qui suit
                 # Conservation que des lignes contenant un match qui est avant un commentaire.
                 # Donc suppression des lignes contenant un match UNIQUEMENT dans un commentaire.
 
@@ -302,21 +290,23 @@ done < <( while read LIGNE
 		    # DEBUG REPLACE PATH AFTER DEV
                     INDEX_REGEX_RECHERCHE=$(./string_recherche_sous_string_echo_index_ou_moins_un "$REGEX_RECHERCHE" "$CONTENU_LIGNE")
 		    
-                    # si l'index est plus petit cela signifie qu'il arrive avant dans la ligne
+                    # If index is lower, it means that it arrives before the line end
                     if [ $INDEX_REGEX_RECHERCHE -lt $INDEX_SYMBOLE_COMMENTAIRE ] 
                     then
-                        # affichage ligne
-                        echo -e "LIGNE:\t\t$LIGNE"
-                    else
-                        : # le match vient après le commentaire donc la ligne n'est pas rajoutée au tableaux des matchs
+			# Print the line but preserve the '\'
+                        # Show the line with two tabs and no newline
+                        echo -e -n "LIGNE:\t\t"
+			# Followed immediatly by the line content with preseveration of '\' (echo -E)
+			echo -E "$LIGNE"
                     fi
 
                 else
-                    # affichage ligne
-                    echo -e "LIGNE:\t\t$LIGNE"
+		    # Print the line but preserve the '\'
+		    # Show the line with two tabs and no newline
+		    echo -e -n "LIGNE:\t\t"
+		    # Followed immediatly by the line content with preseveration of '\' (echo -E)
+		    echo -E "$LIGNE"
                 fi
-            else
-                :
             fi
             # La fonction ci-dessous appelle le script d'affichage des résultats = les lignes qui match le REGEX - non filtrées par rapport aux commentaires
 
@@ -335,6 +325,7 @@ done < <( while read LIGNE
     # envoi d'un doublon vers la corbeille car il se peut que s'il y a trop de match, il soient tronqués à l'écran.
 # Message indiquant qu'une copie de l'output a été placé dans la corbeille.
 echo -e "\nLes fichiers concernés et les matchs ont été affichés ci-dessus. Une copie de l'output a été placée dans la corbeille sous le nom de \"$NOM_FICHIER_OUTPUT_CORBEILLE\".\n"
+
 #######################
 REPONSE_LESS=""
 QUESTION_LESS="Voudriez-vous consulter cet output avec less ? (YyOo/Nn) "
@@ -441,7 +432,7 @@ else
         CHOIX_CHOISI="" # réinitialisation dans la fonction à chaque appel de toute façon
         MESSAGE_MONTRE="Que décidez-vous ? "
         # Affichage des données pour prise de décision
-        while read LIGNE_FINALE
+        while read -r LIGNE_FINALE
         do	    
                     case "$LIGNE_FINALE" in
                     '/'* )          REPERTOIRE_COURANT="$LIGNE_FINALE"

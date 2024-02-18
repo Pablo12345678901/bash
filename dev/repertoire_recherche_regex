@@ -189,17 +189,17 @@ DERNIER_FICHIER_AFFICHE=""
 # Pour chaque fichier, grep + affichage des lignes match.
 for CHAQUE_FICHIER in "${TABLEAU_FICHIERS[@]}"
 do
-    while read MATCH
+    # Get all match and with '-r' : do not let '\' espace any char
+    while read -r MATCH
     do	
         # Recover the first element before the ':'
         PATH_FICHIER="$(echo "$MATCH" | awk -F ':' ' { print $1 }')"
 	# awk -F = 'fieldseparator'
-	
         # Transformation from relative to absolute path if required
 	PATH_FICHIER="$(readlink --canonicalize "${PATH_FICHIER}")"
         NUM_LIGNE="$(echo "$MATCH" | awk -F ':' ' { print $2 }')"
-        CONTENU_LIGNE="$(echo "$MATCH" | awk -F ':' ' { for (i=3; i<=NF; i++) { printf ("%s", $i) } }')"
-	
+        # Get the line content which is after two ':' - cannot echo it, else the '\' will act as special chars and will be replaced by their equivalents.
+	CONTENU_LIGNE="${MATCH#*:*:}"
         # Séparation du répertoire et du fichier seul
         FICHIER_COURANT="${PATH_FICHIER##*/}" # récupération du bout de path après le dernier '/'
         REPERTOIRE_COURANT="${PATH_FICHIER%/$FICHIER_COURANT}" # retirer le fichier du path
@@ -218,14 +218,18 @@ do
         else
             :
         fi
-        # Décalage de 2 tabs
-        echo -e "\t\t$NUM_LIGNE\t$CONTENU_LIGNE" # affichage de la ligne à chaque fois
+	# Show line and content for each match
+	# Two 2 tabs before the line number and no trailing new line
+        echo -e -n "\t\t${NUM_LIGNE}\t"
+	# The line content has to be sent as it is without expansion of backslash chars.
+	echo -E "${CONTENU_LIGNE}"
 
-    # Obtention des lignes qui matchent parmi les fichiers.
-    done < <(grep -E "$REGEX_RECHERCHE" -H -n -- "$CHAQUE_FICHIER" ) #2>/dev/null)
+	# Get the lines that match the regex within each file.
+	# Silent STDERR
+    done < <(grep -E "$REGEX_RECHERCHE" -H -n -- "$CHAQUE_FICHIER" 2>/dev/null)
     # grep -E : extended regex
-    # grep -H : affiche toujours le path du fichier qui a matché
-    # grep -n : affiche le numéro de ligne
+    # grep -H : show path of file that matched
+    # grep -n : show line number
 done
 
 # End message - usefull because the script can take long to execute
