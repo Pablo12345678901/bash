@@ -25,8 +25,6 @@ else
     else
         STRING_RECHERCHE="$1"
         LONGUEUR_STRING_RECHERCHE=${#STRING_RECHERCHE}
-        # Bloc pour les tests ci-dessous
-        #DEBUG BLOC="Je suis un chat et en anglais chat c'est ct alors ça roule ?cat"
         BLOC="$2"
         LONGUEUR_BLOC=${#BLOC}
     fi

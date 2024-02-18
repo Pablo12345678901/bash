@@ -2,25 +2,6 @@
 
 source fonctions_personnelles
 
-declare -a TABLEAU_FICHIERS
-
-# TO DEV :
-# 4. RESOLVE THE SHOWING OF CHAR '\' AS IN \n' :
-#        COMMAND RUNNED :
-#        ./remplacer_mot_dans_fichier -r 'ERREUR' -s 'ERROR' -d .
-#        OUTPUT EXAMPLE :
-#        19	    { STDERR_afficher_message "nERREUR  l'installation de "$APP_BLUETOOTH" a échouée.n"
-# 3. RESTRUCTURE CODE
-# 4. IF POSSIBLE, REWRITE IN ENGLISH
-# 5. SAME FOR : SCRIPTS : repertoire_recherche_regex & string_recherche_sous_string_echo_index_ou_moins_un
-
-# DEBUG SYNTAX
-
-# Syntaxe :
-# - : aucun argument requis.
-
-source fonctions_personnelles
-
 # Syntaxe
 SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-r REGEX_RECHERCHE" "-s STRING_REMPLACEMENT" "-d FICHIER_OU_REPERTOIRE" "[...]")"
 
@@ -276,19 +257,17 @@ done < <( while read -r LIGNE
             if [ $BESOIN_CHECK = "true" ]
             then
 		# Have to use 'echo -E' in order to avoid the '\' acting as special chars
-                NUM_LIGNE=$(echo -E "$LIGNE" | awk ' {print $1} ') # affiche le numéro de lignes
-                CONTENU_LIGNE="$(sed -e "s/\t//" <(echo -E "${LIGNE#$NUM_LIGNE}"))" # coupe le numéro de ligne + la tabulation qui suit
-                # Conservation que des lignes contenant un match qui est avant un commentaire.
-                # Donc suppression des lignes contenant un match UNIQUEMENT dans un commentaire.
-
-		# DEBUG REPLACE PATH AFTER DEV
-                INDEX_SYMBOLE_COMMENTAIRE=$(./string_recherche_sous_string_echo_index_ou_moins_un " $REGEX_SYMBOLE_COMMENTAIRE" "$CONTENU_LIGNE") # un commentaire est débute par 'espace #'
+                NUM_LIGNE=$(echo -E "$LIGNE" | awk ' {print $1} ') # Show the line number
+                CONTENU_LIGNE="$(sed -e "s/\t//" <(echo -E "${LIGNE#$NUM_LIGNE}"))" # Cut the line number + the tab following
+		
+		# Keeping only line containing a match which is BEFORE a comment
+		# So, removal from the list of match of all lines containing a matchn within a comment
+                INDEX_SYMBOLE_COMMENTAIRE=$(string_get_index_maching_substring " $REGEX_SYMBOLE_COMMENTAIRE" "$CONTENU_LIGNE") # un commentaire est débute par 'espace #'
 		
                 if [ $((INDEX_SYMBOLE_COMMENTAIRE)) -ge 0 ] # si l'index est >=0 ça veut dire qu'il y a eu un match d'un symbole de commentaire
                 then
 		    
-		    # DEBUG REPLACE PATH AFTER DEV
-                    INDEX_REGEX_RECHERCHE=$(./string_recherche_sous_string_echo_index_ou_moins_un "$REGEX_RECHERCHE" "$CONTENU_LIGNE")
+                    INDEX_REGEX_RECHERCHE=$(string_get_index_maching_substring "$REGEX_RECHERCHE" "$CONTENU_LIGNE")
 		    
                     # If index is lower, it means that it arrives before the line end
                     if [ $INDEX_REGEX_RECHERCHE -lt $INDEX_SYMBOLE_COMMENTAIRE ] 
@@ -309,9 +288,10 @@ done < <( while read -r LIGNE
                 fi
             fi
             # La fonction ci-dessous appelle le script d'affichage des résultats = les lignes qui match le REGEX - non filtrées par rapport aux commentaires
-
-	    # DEBUG REPLACE PATH AFTER DEV
-	done < <( ./repertoire_recherche_regex -r "$REGEX_RECHERCHE" -l "$LISTE_FICHIERS" -s |
+            # The below script shows the results of regex matches within the list of file
+	    # But this list also contains a list of matches within comments.
+	    # Those lines will be removed from the list later. 
+	done < <( regex_search_within_dirs -r "$REGEX_RECHERCHE" -l "$LISTE_FICHIERS" -s |
     # '-s' pour silencieux : sans les messages
     # Affichage BRUT des répertoires,
     #   TAB fichiers
@@ -349,10 +329,12 @@ OPTION_POUR_ARRETER="Quitter"
 select_parmi_liste TABLEAU_OPTIONS CHOIX_SELECTIONNE "$MESSAGE_AFFICHE" "$OPTION_POUR_ARRETER"
 if [ "$CHOIX_SELECTIONNE" = "$OPTION_POUR_ARRETER" ]
 then
-    echo -e "\nVous décidez d'annuler le remplacement.\n"
+    # Quit if wished
+    echo -e "\nYou choosed to cancel the remplacement.\n"
     exit 0
 else
-    echo -e "\nVous avez choisi \"$CHOIX_SELECTIONNE\".\n"
+    # Else follow with replacement
+    echo -e "\nYou choosed : \"$CHOIX_SELECTIONNE\".\n"
     if [ "$CHOIX_SELECTIONNE" = "$OPTION_1" ] # validation massive
     then
         # Choix fait : modification de tous les fichiers et match -> lancer
@@ -396,18 +378,16 @@ else
 		# sed -i '' : inline - sans fichier de back-up
                 # s/ : substitute
                       # g : remplace tous les matchs pas juste le premier
-	          echo -e "\n$NUMERO_LIGNE_COURANTE : Line sucessfully remplaced !\n"
+	          echo -e "\n$NUMERO_LIGNE_COURANTE : Line sucessfully remplaced in the file \"$FICHIER_COURANT\" located \"$PATH_COURANT\" !\n"
 		} ||
-		{ STDERR_afficher_message "\nERROR : the line $NUMERO_LIGNE_COURANTE could not be replaced. Please check output...\n"
+		{ STDERR_afficher_message "\nERROR : the line $NUMERO_LIGNE_COURANTE in the file \"$FICHIER_COURANT\" located \"$PATH_COURANT\" could not be replaced. Please check output...\n"
 			exit 1
 		}
-            else
-                : # Pas de remplacement tant que le flag n'est pas activé.
             fi
 
 	    # Print all lines of the file
         done < <(grep $ "$PATH_FICHIER_OUTPUT_CORBEILLE")
-        echo -e "\nRemplacement terminé.\n"
+        echo -e "\nReplacement Finished.\n"
     else
         # Else review each file one by one
         # Récupération des données : elles sont déjà nettoyées il ne reste plus qu'à récupérer les éléments pour le remplacement.
@@ -433,92 +413,100 @@ else
         MESSAGE_MONTRE="Que décidez-vous ? "
         # Affichage des données pour prise de décision
         while read -r LIGNE_FINALE
-        do	    
-                    case "$LIGNE_FINALE" in
-                    '/'* )          REPERTOIRE_COURANT="$LIGNE_FINALE"
-                                    ;; # si débute par '/'
-                    [^1-9]* )       FICHIER_COURANT="$LIGNE_FINALE"
-                                    PATH_COURANT="${REPERTOIRE_COURANT}/${FICHIER_COURANT}"
-                                    ;; # si débute par exactement 1x tab -> affichage avec 1x tab
-                    [1-9]* )        TABLEAU_LIGNES+=("$LIGNE_FINALE") # Ajout de la ligne au tableau des lignes
-                                    NUMERO_LIGNE="$(echo "$LIGNE_FINALE" | awk ' { print $1 } ' )"
-                                    TABLEAU_NUMERO_LIGNES+=("$NUMERO_LIGNE") # Ajout du numéro de ligne au tableau des numéro de lignes.
-                                    FLAG_LIGNE_A_AFFICHER="true" # passage du flag à true car il y a du contenu à afficher.
-                                    # Dès qu'une ligne vide sera captée, le contenu sera affiché et le flag repassé à "false"
-                                    ;; # si débute par un numéro de ligne
-                    * )             if [ $FLAG_LIGNE_A_AFFICHER = "true" ]
-                                    then 
-                                        # Affichage données du fichiers avec espacements esthétiques
-                                        echo ""
-                                        echo "$REPERTOIRE_COURANT"
-                                        echo ""
-                                        echo "$FICHIER_COURANT"
-                                        echo ""
-                                        # Affichage contenu tableau
-                                        tableau_affichage_contenu_avec_message TABLEAU_LIGNES
-                                        # Sélection :
-                                        # Remplacer tous les match du fichier en question ?
-                                        # Les passer en revue un par un ?
-                                        # Quitter
-                                        select_parmi_liste TABLEAU_OPTIONS_SELECT CHOIX_CHOISI "$MESSAGE_MONTRE" "$OPTION_POUR_STOP" 
-                                        if [ "$CHOIX_CHOISI" = "$OPTION_POUR_ARRETER" ]
-                                        then
-                                            echo -e "\nYou choosed to cancel the replacement.\n"
-                                            exit 0
-                                        else
-                                            echo -e "\nYou choosed : \"$CHOIX_CHOISI\".\n"
-                                            if [ "$CHOIX_CHOISI" = "$OPTION_1" ] # validation massive pour ce fichier et passage au fichier suivant
-                                            then
-                                                for LINE_NUMBER in "${TABLEAU_NUMERO_LIGNES[@]}"
-                                                do
-                                                    { sed -i "${LINE_NUMBER}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" "$PATH_COURANT" &&
-                                                    # sed -i '' : inline - sans fichier de back-up
-                                                    # s/ : substitute
-						    # g : remplace tous les matchs pas juste le premier
-						    echo -e "\n$LINE_NUMBER : Line sucessfully remplaced !\n"
-						    } ||
-						    { STDERR_afficher_message "\nERROR : the line $LINE_NUMBER could not be replaced. Please check output...\n"
-							    exit 1
-						    }
-                                                done
-						
-                                            else # passage en revue un par un
-                                                QUESTION_VALIDATION_REMPLACEMENT="Voulez-vous remplacer \"$REGEX_RECHERCHE\" par \"$STRING_REMPLACEMENT\" dans cette ligne du fichier \"$FICHIER_COURANT\" situé $PATH_COURANT ? (YyOn/Nn) "
-                                                for i in "${!TABLEAU_LIGNES[@]}"
-                                                do 
-                                                    echo -e "\nLIGNE : \"${TABLEAU_LIGNES[$i]}\"" # 
-                                                    # choix oui non
-                                                    REPONSE_POUR_CHAQUE_LIGNE="" # réinitialisation de la réponse à chaque boucle
-                                                    question_oui_non REPONSE_POUR_CHAQUE_LIGNE "$QUESTION_VALIDATION_REMPLACEMENT"
-                                                    if [ "$REPONSE_POUR_CHAQUE_LIGNE" = "o" ]
-                                                    then
-							# Get the ligne number
-                                                        NUM_LIGNE_REMPLACEMENT=$((${TABLEAU_NUMERO_LIGNES[$i]}))
-                                                        
-                                                        { sed -i "${NUM_LIGNE_REMPLACEMENT}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" "$PATH_COURANT" &&
-                                                        # sed -i : inline - sans fichier de back-up
-                                                        # s/ : substitute
-                                                        # g : remplace tous les matchs pas juste le premier
-							  echo -e "\n$NUM_LIGNE_REMPLACEMENT : Line sucessfully remplaced !\n"
-							} ||
-							{ STDERR_afficher_message "\nERROR : the line $NUM_LIGNE_REMPLACEMENT could not be replaced. Please check output...\n"
-								exit 1
-							}
-						     fi
-                                                done
-                                            fi
-					    echo -e "\nEnd of replacement for the file \"$FICHIER_COURANT\" located \"$PATH_COURANT\".\n"
-                                        fi
-                                        FLAG_LIGNE_A_AFFICHER="false"
-                                        TABLEAU_LIGNES=() # remise à vide du tableau
-                                        TABLEAU_NUMERO_LIGNES=() # remise à vide du tableau
-                                    else
-                                        : # lignes vides sont ignorées sinon
-                                    fi
-                                    ;; # match les lignes vides
-                    esac
-		    # Print all lines of the file
-                done < <(grep $ "$PATH_FICHIER_OUTPUT_CORBEILLE")
+        do
+	    case "$LIGNE_FINALE" in
+	    '/'* )          REPERTOIRE_COURANT="$LIGNE_FINALE"
+			    ;; # si débute par '/'
+	    [^1-9]* )       FICHIER_COURANT="$LIGNE_FINALE"
+			    PATH_COURANT="${REPERTOIRE_COURANT}/${FICHIER_COURANT}"
+			    ;; # si débute par exactement 1x tab -> affichage avec 1x tab
+	    [1-9]* )        TABLEAU_LIGNES+=("$LIGNE_FINALE") # Ajout de la ligne au tableau des lignes
+			    # Cut the line number = the first block before the first space
+			    NUMERO_LIGNE="$(echo -E ${LIGNE_FINALE} | cut -d ' ' -f 1)"
+			    TABLEAU_NUMERO_LIGNES+=("$NUMERO_LIGNE") # Ajout du numéro de ligne au tableau des numéro de lignes.
+			    FLAG_LIGNE_A_AFFICHER="true" # passage du flag à true car il y a du contenu à afficher.
+			    # Dès qu'une ligne vide sera captée, le contenu sera affiché et le flag repassé à "false"
+			    ;; # si débute par un numéro de ligne
+	    * )             if [ $FLAG_LIGNE_A_AFFICHER = "true" ]
+			    then 
+				# Affichage données du fichiers avec espacements esthétiques
+				echo ""
+				echo "$REPERTOIRE_COURANT"
+				echo ""
+				echo "$FICHIER_COURANT"
+				echo ""
+                                # Show array content but avoid to transform '\' in escape char
+				for i in "${!TABLEAU_LIGNES[@]}"
+				do 
+				  echo -E "${TABLEAU_LIGNES[$i]}"
+				done
+				echo "" # Esthetic
+				#tableau_affichage_contenu_avec_message TABLEAU_LIGNES
+				# Sélection :
+				# Remplacer tous les match du fichier en question ?
+				# Les passer en revue un par un ?
+				# Quitter
+				select_parmi_liste TABLEAU_OPTIONS_SELECT CHOIX_CHOISI "$MESSAGE_MONTRE" "$OPTION_POUR_STOP" 
+				if [ "$CHOIX_CHOISI" = "$OPTION_POUR_ARRETER" ]
+				then
+				    echo -e "\nYou choosed to cancel the replacement.\n"
+				    exit 0
+				else
+				    echo -e "\nYou choosed : \"$CHOIX_CHOISI\".\n"
+				    if [ "$CHOIX_CHOISI" = "$OPTION_1" ] # validation massive pour ce fichier et passage au fichier suivant
+				    then
+					for LINE_NUMBER in "${TABLEAU_NUMERO_LIGNES[@]}"
+					do
+					    { sed -i "${LINE_NUMBER}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" "$PATH_COURANT" &&
+					    # sed -i '' : inline - sans fichier de back-up
+					    # s/ : substitute
+					    # g : remplace tous les matchs pas juste le premier
+					    echo -e "\n$LINE_NUMBER : Line sucessfully remplaced !\n"
+					    } ||
+					    { STDERR_afficher_message "\nERROR : the line $LINE_NUMBER could not be replaced. Please check output...\n"
+						    exit 1
+					    }
+					done
+
+				    else # passage en revue un par un
+					QUESTION_VALIDATION_REMPLACEMENT="Voulez-vous remplacer \"$REGEX_RECHERCHE\" par \"$STRING_REMPLACEMENT\" dans cette ligne du fichier \"$FICHIER_COURANT\" situé $PATH_COURANT ? (YyOn/Nn) "
+					for i in "${!TABLEAU_LIGNES[@]}"
+					do 
+					    echo -e -n "\nLIGNE : \""
+                                            echo -E -n "${TABLEAU_LIGNES[$i]}"
+                                            echo -e "\"" # 
+					    # choix oui non
+					    REPONSE_POUR_CHAQUE_LIGNE="" # réinitialisation de la réponse à chaque boucle
+					    question_oui_non REPONSE_POUR_CHAQUE_LIGNE "$QUESTION_VALIDATION_REMPLACEMENT"
+					    if [ "$REPONSE_POUR_CHAQUE_LIGNE" = "o" ]
+					    then
+						# Get the ligne number
+						NUM_LIGNE_REMPLACEMENT=$((${TABLEAU_NUMERO_LIGNES[$i]}))
+
+						{ sed -i "${NUM_LIGNE_REMPLACEMENT}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" "$PATH_COURANT" &&
+						# sed -i : inline - sans fichier de back-up
+						# s/ : substitute
+						# g : remplace tous les matchs pas juste le premier
+						  echo -e "\n$NUM_LIGNE_REMPLACEMENT : Line sucessfully remplaced !\n"
+						} ||
+						{ STDERR_afficher_message "\nERROR : the line $NUM_LIGNE_REMPLACEMENT could not be replaced. Please check output...\n"
+							exit 1
+						}
+					     fi
+					done
+				    fi
+				    echo -e "\nEnd of replacement for the file \"$FICHIER_COURANT\" located \"$PATH_COURANT\".\n"
+				fi
+				FLAG_LIGNE_A_AFFICHER="false"
+				TABLEAU_LIGNES=() # remise à vide du tableau
+				TABLEAU_NUMERO_LIGNES=() # remise à vide du tableau
+			    else
+				: # lignes vides sont ignorées sinon
+			    fi
+			    ;; # match les lignes vides
+	    esac
+	    # Print all lines of the file
+	done < <(grep $ "$PATH_FICHIER_OUTPUT_CORBEILLE")
     fi
 fi
 
