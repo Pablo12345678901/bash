@@ -15,7 +15,14 @@
 
 source fonctions_personnelles
 
+
+# DEBUG : SYNTAX HERE
+
 SYNTAXE="Syntaxe :\n\t$(basename $0)    REGEX    REPERTOIRE_DE_RECHERCHE [... [-s]]\n"
+
+
+# DEBUG OPTION MANAGEMENT HERE
+
 REPERTOIRE_PAR_DEFAUT="$REPERTOIRE_DEVELOPPEMENT/bash"
 declare -a TABLEAU_FICHIERS
 MODE_SILENCIEUX="off"
@@ -33,6 +40,7 @@ else
     then
         FICHIER_OU_REPERTOIRE="$REPERTOIRE_PAR_DEFAUT"
         repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FICHIER_OU_REPERTOIRE"
+	
         echo -e "\nAucun fichier/répertoire fourni en 2ème argument."
         echo -e "Comportement par défaut :"
         # Continue le script avec le comportement par défaut
@@ -53,6 +61,7 @@ else
                 if [ -d "$FICHIER_OU_REPERTOIRE" ]
                 then
                     repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FICHIER_OU_REPERTOIRE"
+		    
                 else
                     TABLEAU_FICHIERS+=("$FICHIER_OU_REPERTOIRE")
                 fi
@@ -67,7 +76,7 @@ else
     NB_ARGUMENT_MINIMUM=2 # dès le 3ème cela peut être des fichiers/répertoires ou l'option -s à la fin uniquement
     if [ $NB_ARGUMENTS -gt $NB_ARGUMENT_MINIMUM ]
     then
-        for ((i=$((NB_ARGUMENT_MINIMUM+1)); i<=$NB_ARGUMENTS; i++)) # +1 à cause du décalage des index qui débute à 0 et pas à 1 quand il y a 1 argument / raisonnement similaire pour le '<=NBARGUMENT'
+        for ((i=$((NB_ARGUMENT_MINIMUM+1)); i<=$NB_ARGUMENTS; i++)) # +1 à cause du décalage des index qui débute à 0 et pas à 1 quand il y a 1 argument / raisonnement similaire pour le '<=NBARGUMENT'
         do
             if [[ $i = $NB_ARGUMENTS && "${!i}" = "-s" ]] # test si dernier argument = '-s'
             then
@@ -122,7 +131,7 @@ DERNIER_FICHIER_AFFICHE=""
 for CHAQUE_FICHIER in "${TABLEAU_FICHIERS[@]}"
 do
     while read MATCH
-    do
+    do	
         # Récupération des éléments
         PATH_FICHIER="$(echo "$MATCH" | awk -F ':' ' { print $1 }')"
         # gawk -F 'fieldseparateur'
@@ -152,9 +161,9 @@ do
         echo -e "\t\t$NUM_LIGNE\t$CONTENU_LIGNE" # affichage de la ligne à chaque fois
 
     # Obtention des lignes qui matchent parmi les fichiers.
-    done < <(grep -E -H -n "$REGEX_RECHERCHE" "$CHAQUE_FICHIER" ) #2>/dev/null)
+    done < <(grep -E "$REGEX_RECHERCHE" -H -n -- "$CHAQUE_FICHIER" ) #2>/dev/null)
     # grep -E : extended regex
-    # grep -H : affiche toujours le nom du fichier qui a matché
+    # grep -H : affiche toujours le path du fichier qui a matché
     # grep -n : affiche le numéro de ligne
 done
 
