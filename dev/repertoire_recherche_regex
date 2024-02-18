@@ -191,11 +191,15 @@ for CHAQUE_FICHIER in "${TABLEAU_FICHIERS[@]}"
 do
     while read MATCH
     do	
-        # Récupération des éléments
+        # Recover the first element before the ':'
         PATH_FICHIER="$(echo "$MATCH" | awk -F ':' ' { print $1 }')"
-        # gawk -F 'fieldseparateur'
+	# awk -F = 'fieldseparator'
+	
+        # Transformation from relative to absolute path if required
+	PATH_FICHIER="$(readlink --canonicalize "${PATH_FICHIER}")"
         NUM_LIGNE="$(echo "$MATCH" | awk -F ':' ' { print $2 }')"
         CONTENU_LIGNE="$(echo "$MATCH" | awk -F ':' ' { for (i=3; i<=NF; i++) { printf ("%s", $i) } }')"
+	
         # Séparation du répertoire et du fichier seul
         FICHIER_COURANT="${PATH_FICHIER##*/}" # récupération du bout de path après le dernier '/'
         REPERTOIRE_COURANT="${PATH_FICHIER%/$FICHIER_COURANT}" # retirer le fichier du path
@@ -204,8 +208,6 @@ do
         then
             echo -e "\n$REPERTOIRE_COURANT"
             DERNIER_REPERTOIRE_AFFICHE="$REPERTOIRE_COURANT" # puis adaptation du dernier répertoire affiché au répertoire courant
-        else
-            :
         fi
         # Affichage du fichier courant que si différent de celui du précédent match (ligne qui a matché)
         if [ "$FICHIER_COURANT" != "$DERNIER_FICHIER_AFFICHE" ]
