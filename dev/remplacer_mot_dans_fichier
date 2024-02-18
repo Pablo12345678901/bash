@@ -10,9 +10,25 @@ source fonctions_personnelles
 
 declare -a TABLEAU_FICHIERS
 
+# TO DEV :
+# 1. SYNTAX
+# 2. OPTIONS MANAGEMENT
+# 3. RESOLVE THE BUG :
+#        COMMAND RUNNED :
+#        ./remplacer_mot_dans_fichier "git_commit_avec_message" "git_commit_with_message" $REPERTOIRE_DES_COMMANDES_PERSO 
+#        ERROR GENERATED :
+#        grep: LISTE_DE_FICHIER_SEPARES_PAR_DES_DOUBLES_POINTS: No such file or directory
+# 3. RESTRUCTURE CODE
+# 4. IF POSSIBLE, REWRITE IN ENGLISH
+# 5. SAME FOR : SCRIPTS : repertoire_recherche_regex & string_recherche_sous_string_echo_index_ou_moins_un
+
+# DEBUG SYNTAX
+
 SYNTAXE="Syntaxe :\n\t$(basename $0)    STRING_RECHERCHE    STRING_REMPLACEMENT    FICHIER_OU_REPERTOIRE [...]\n"
 NOM_FICHIER_OUTPUT_CORBEILLE="$(basename $0)_output.txt"
-PATH_FICHIER_OUTPUT_CORBEILLE=~/.Trash/${NOM_FICHIER_OUTPUT_CORBEILLE}
+PATH_FICHIER_OUTPUT_CORBEILLE="${CORBEILLE_PATH}/${NOM_FICHIER_OUTPUT_CORBEILLE}"
+
+# DEBUG OPTION MANAGEMENT
 
 # Contrôle qu'un argument a été fourni au script
 # Cette section doit être adaptée une fois les test avec données terminée
@@ -82,7 +98,7 @@ done
 
 # Gestion du regex qui doit matcher les mauvaises lignes avec match QUE dans un commentaire
 REGEX_SYMBOLE_COMMENTAIRE="#" # à adapter si changement de langage (exemple : 'C' )
-REGEX_LIGNE_UNIQUEMENT_COMMENTAIRE="^\t\t[1-9]{1}[0-9]*\t[.$REGEX_SYMBOLE_COMMENTAIRE.]+.*$" # contient
+REGEX_LIGNE_UNIQUEMENT_COMMENTAIRE='^[[:space:]]{2}[1-9]{1}[0-9]*[[:space:]]*[.'"$REGEX_SYMBOLE_COMMENTAIRE"'.]+.*$' # contient
 # ^ et $ : début et fin de ligne
 # \t : contient des tabulation selon le format défini par l'autre script : 2_TAB NUM_LIGNE>0 1_TAB CONTENU_LIGNE
 # [1-9] et [0-9] match un de ces nombres
@@ -108,7 +124,7 @@ DERNIER_FICHIER_AFFICHE=""
 
 # Filtrage des données
 while read LIGNE_FILTREE
-do
+do    
     # 4 types de lignes :
     #   REPERTOIRE
     #   FICHIER
@@ -201,7 +217,7 @@ do
         : # pas d'affichage si le déclencheur minimum (une ligne avec num) n'est pas présente.
     fi
 done < <( while read LIGNE
-        do
+          do  
             BESOIN_CHECK="false"
             case "$LIGNE" in
             '/'* )      echo -e "REPERTOIRE:$LIGNE" ;; # si débute par '/'
@@ -209,17 +225,23 @@ done < <( while read LIGNE
             [1-9]* )    BESOIN_CHECK="true" ;; # si débute par un numéro de ligne
             * )         echo -e "VIDE:$LIGNE" ;; # si ligne vide -> affichage tel quel
             esac
-            
+
             if [ $BESOIN_CHECK = "true" ]
             then
                 NUM_LIGNE=$(echo "$LIGNE" | awk ' {print $1} ') # affiche le numéro de lignes
                 CONTENU_LIGNE="$(sed -e "s/\t//" <(echo "${LIGNE#$NUM_LIGNE}"))" # coupe le numéro de ligne + la tabulation qui suit
                 # Conservation que des lignes contenant un match qui est avant un commentaire.
                 # Donc suppression des lignes contenant un match UNIQUEMENT dans un commentaire.
-                INDEX_SYMBOLE_COMMENTAIRE=$(string_recherche_sous_string_echo_index_ou_moins_un " $REGEX_SYMBOLE_COMMENTAIRE" "$CONTENU_LIGNE") # un commentaire est débute par 'espace #'
+
+		# DEBUG REPLACE PATH AFTER DEV
+                INDEX_SYMBOLE_COMMENTAIRE=$(./string_recherche_sous_string_echo_index_ou_moins_un " $REGEX_SYMBOLE_COMMENTAIRE" "$CONTENU_LIGNE") # un commentaire est débute par 'espace #'
+		
                 if [ $((INDEX_SYMBOLE_COMMENTAIRE)) -ge 0 ] # si l'index est >=0 ça veut dire qu'il y a eu un match d'un symbole de commentaire
                 then
-                    INDEX_REGEX_RECHERCHE=$(string_recherche_sous_string_echo_index_ou_moins_un "$REGEX_RECHERCHE" "$CONTENU_LIGNE")
+		    
+		    # DEBUG REPLACE PATH AFTER DEV
+                    INDEX_REGEX_RECHERCHE=$(./string_recherche_sous_string_echo_index_ou_moins_un "$REGEX_RECHERCHE" "$CONTENU_LIGNE")
+		    
                     # si l'index est plus petit cela signifie qu'il arrive avant dans la ligne
                     if [ $INDEX_REGEX_RECHERCHE -lt $INDEX_SYMBOLE_COMMENTAIRE ] 
                     then
@@ -237,7 +259,9 @@ done < <( while read LIGNE
                 :
             fi
             # La fonction ci-dessous appelle le script d'affichage des résultats = les lignes qui match le REGEX - non filtrées par rapport aux commentaires
-        done < <( repertoire_recherche_regex "$REGEX_RECHERCHE" "$LISTE_FICHIERS" -s |
+
+	    # DEBUG REPLACE PATH AFTER DEV
+	done < <( ./repertoire_recherche_regex -r "$REGEX_RECHERCHE" -l "$LISTE_FICHIERS" -s |
     # '-s' pour silencieux : sans les messages
     # Affichage BRUT des répertoires,
     #   TAB fichiers
@@ -317,13 +341,15 @@ else
             esac
             if [ $FLAG_DONNEES_PR_REMPLACEMENT_COMPLETE = "true" ]
             then
-                sed -i '' "${NUMERO_LIGNE_COURANTE}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" $PATH_COURANT
-                # sed -i '' : inline - sans fichier de back-up
+		sed -i "${NUMERO_LIGNE_COURANTE}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" "$PATH_COURANT"
+		# sed -i '' : inline - sans fichier de back-up
                 # s/ : substitute
                 # g : remplace tous les matchs pas juste le premier
             else
-                : # Pas de remplacement tant que le flag n'est pas activé.
+                : # Pas de remplacement tant que le flag n'est pas activé.
             fi
+
+	    # Print all lines of the file
         done < <(grep $ "$PATH_FICHIER_OUTPUT_CORBEILLE")
         echo -e "\nRemplacement terminé.\n"
     else
@@ -351,7 +377,7 @@ else
         MESSAGE_MONTRE="Que décidez-vous ? "
         # Affichage des données pour prise de décision
         while read LIGNE_FINALE
-                do
+        do	    
                     case "$LIGNE_FINALE" in
                     '/'* )          REPERTOIRE_COURANT="$LIGNE_FINALE"
                                     ;; # si débute par '/'
@@ -379,7 +405,6 @@ else
                                         # Les passer en revue un par un ?
                                         # Quitter
                                         select_parmi_liste TABLEAU_OPTIONS_SELECT CHOIX_CHOISI "$MESSAGE_MONTRE" "$OPTION_POUR_STOP" 
-                                        echo "DEBUG : $REPLY"
                                         if [ "$CHOIX_CHOISI" = "$OPTION_POUR_ARRETER" ]
                                         then
                                             echo -e "\nVous décidez d'annuler le remplacement.\n"
@@ -390,7 +415,7 @@ else
                                             then
                                                 for NUMERO_LIGNE in "${TABLEAU_NUMERO_LIGNES[@]}"
                                                 do
-                                                    sed -i '' "${NUMERO_LIGNE}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" $PATH_COURANT
+                                                    sed -i "${NUMERO_LIGNE}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" "$PATH_COURANT"
                                                     # sed -i '' : inline - sans fichier de back-up
                                                     # s/ : substitute
                                                     # g : remplace tous les matchs pas juste le premier
@@ -398,8 +423,6 @@ else
                                                 echo -e "\nRemplacement dans le fichier \"$FICHIER_COURANT\" situé $PATH_COURANT terminé.\n"
                                                 #
                                             else # passage en revue un par un
-                                                #
-                                                # DEBUG ICI
                                                 QUESTION_VALIDATION_REMPLACEMENT="Voulez-vous remplacer \"$REGEX_RECHERCHE\" par \"$STRING_REMPLACEMENT\" dans cette ligne du fichier \"$FICHIER_COURANT\" situé $PATH_COURANT ? (YyOn/Nn) "
                                                 for i in "${!TABLEAU_LIGNES[@]}"
                                                 do 
@@ -412,9 +435,8 @@ else
                                                         NUM_LIGNE_REMPLACEMENT=${TABLEAU_NUMERO_LIGNES[$i]}
                                                         echo "$NUM_LIGNE_REMPLACEMENT"
                                                         echo "Ligne remplacée"
-                                                        sed -i '' "${NUM_LIGNE_REMPLACEMENT}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" $PATH_COURANT
-                                                        #sed -i '' "$((${TABLEAU_NUMERO_LIGNES[$i]}))/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" $PATH_COURANT
-                                                        # sed -i '' : inline - sans fichier de back-up
+                                                        sed -i "$((${TABLEAU_NUMERO_LIGNES[$i]}))/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" $PATH_COURANT
+                                                        # sed -i : inline - sans fichier de back-up
                                                         # s/ : substitute
                                                         # g : remplace tous les matchs pas juste le premier
                                                     else
@@ -432,6 +454,7 @@ else
                                     fi
                                     ;; # match les lignes vides
                     esac
+		    # Print all lines of the file
                 done < <(grep $ "$PATH_FICHIER_OUTPUT_CORBEILLE")
     fi
 fi

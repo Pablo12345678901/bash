@@ -32,7 +32,7 @@ else
             FLAG_ARG_FOURNI_CHAR="true"
             if [[ "$CHAR" =~ $REGEX_NEWLINE ]]
             then
-                echo -e "\nERREUR : le caractère fourni ne peut pas contenir un newline."
+                echo -e "\nERROR : le caractère fourni ne peut pas contenir un newline."
                 echo -e "$SYNTAXE"
                 exit 1
             else
@@ -54,7 +54,7 @@ else
                     ARG_FOURNI_TAILLE="$2"
                     TAILLE="${ARG_FOURNI_TAILLE#-t=}"
                 else
-                    echo -e "\nERREUR : le deuxième argument fourni est incorrect. Cela devrait être '-t=TAILLE'."
+                    echo -e "\nERROR : le deuxième argument fourni est incorrect. Cela devrait être '-t=TAILLE'."
                     echo -e "$SYNTAXE"
                     exit 1
                 fi
@@ -67,14 +67,14 @@ else
                         CHAR="${ARG_FOURNI_CHAR#-c=}"
                         if [[ "$CHAR" =~ $REGEX_NEWLINE ]]
                         then
-                            echo -e "\nERREUR : le caractère fourni ne peut pas contenir un newline."
+                            echo -e "\nERROR : le caractère fourni ne peut pas contenir un newline."
                             echo -e "$SYNTAXE"
                             exit 1
                         else
                             :
                         fi
                     else
-                        echo -e "\nERREUR : le deuxième argument fourni est incorrect. Cela devrait être '-c=CHAR'."
+                        echo -e "\nERROR : le deuxième argument fourni est incorrect. Cela devrait être '-c=CHAR'."
                         echo -e "$SYNTAXE"
                         exit 1
                     fi
@@ -85,7 +85,7 @@ else
             fi
         fi
     else
-        echo -e "\nERREUR : le premier argument fourni est incorrect."
+        echo -e "\nERROR : le premier argument fourni est incorrect."
         echo -e "$SYNTAXE"
         exit 1
     fi
