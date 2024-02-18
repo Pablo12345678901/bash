@@ -5,6 +5,7 @@ source fonctions_personnelles
 # Syntaxe
 SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-r REGEX_RECHERCHE" "-s STRING_REMPLACEMENT" "-d FICHIER_OU_REPERTOIRE" "[...]")"
 
+
 # Set the file which will contain the output of some commands of the script
 # That enables it to stock and recover data from it for further use.
 NOM_FICHIER_OUTPUT_CORBEILLE="$(basename $0)_output.txt"

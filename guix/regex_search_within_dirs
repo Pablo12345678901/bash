@@ -15,7 +15,6 @@
 
 source fonctions_personnelles
 
-
 # Syntaxe
 SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-r REGEX_RECHERCHE" "[[-d REPERTOIRE_DE_RECHERCHE] ...] | [-l LIST_OF_FILES_SEPARATED_WITH_DOUBLE_POINTS]" "[-s]")"
 # -s : activate the silent mode

@@ -7,6 +7,7 @@
 #   L'index du début du sous-string dans le string s'il y est (echo "$INDEX_MATCH").
 #   -1 sinon : (echo "-1").
 
+
 # Contrôle des 2 arguments
 if [ -z "$1" ] || [ -z "$2" ]
 # $1 : sous-string recherché
