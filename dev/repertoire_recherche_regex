@@ -16,105 +16,164 @@
 source fonctions_personnelles
 
 
-# DEBUG : SYNTAX HERE
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-r REGEX_RECHERCHE" "[[-d REPERTOIRE_DE_RECHERCHE] ...] | [-l LIST_OF_FILES_SEPARATED_WITH_DOUBLE_POINTS]" "[-s]")"
+# -s : activate the silent mode
+# --separation-double-points : returns output separated with ':' in order to be reused in another script.
 
-SYNTAXE="Syntaxe :\n\t$(basename $0)    REGEX    REPERTOIRE_DE_RECHERCHE [... [-s]]\n"
-
-
-# DEBUG OPTION MANAGEMENT HERE
-
+# Set default behaviour with the below variables
+# Can be modified by providing arguments to script
 REPERTOIRE_PAR_DEFAUT="$REPERTOIRE_DEVELOPPEMENT/bash"
-declare -a TABLEAU_FICHIERS
-MODE_SILENCIEUX="off"
+SILENT_MODE="false"
+SPECIAL_SEPARATION="false"
 
-# Contrôle des arguments
-if [ -z "$1" ] # si pas d'argument fourni
+# The below array is requested below so have to be declared here
+declare -a TABLEAU_FICHIERS
+
+####### BEGINNING OF OPTION MANAGEMENT ##########
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'd:l:r:s' -q -- "$@")
+# -q : quiet
+# -- : to explicitly show the options end
+
+# Test whether syntax was correct (options + arguments)
+if [ $? -ne 0 ]
 then
-    echo -e "\nERREUR : Aucun REGEX fourni en 1er argument."
-    echo -e "Aucune répertoire (optionnel) fourni en 2ème argument."
-    echo -e "$SYNTAXE"
+    STDERR_afficher_message "ERROR: syntax..."
+    STDERR_afficher_message "$SYNTAXE"
     exit 1
-else 
-    REGEX_RECHERCHE="$1"
-    if [ -z "$2" ] # si pas de répertoire
-    then
-        FICHIER_OU_REPERTOIRE="$REPERTOIRE_PAR_DEFAUT"
-        repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FICHIER_OU_REPERTOIRE"
-	
-        echo -e "\nAucun fichier/répertoire fourni en 2ème argument."
-        echo -e "Comportement par défaut :"
-        # Continue le script avec le comportement par défaut
-    else
-        REGEX_DE_MARQUAGE_ARGUMENT_SPECIAL="LISTE_DE_FICHIER_SEPARES_PAR_DES_DOUBLES_POINTS"
-        if [[ "$2" =~ $REGEX_DE_MARQUAGE_ARGUMENT_SPECIAL ]] 
-        # si match regex spécial = transmission liste de path séparés par des ':'
-        then
-            LISTE_FICHIERS="$2"
-            # Retrait du regex de marquage spécial
-            LISTE_FICHIERS="${LISTE_FICHIERS#*:}"
-            tableau_depuis_string_spliter_selon_char_special_et_trier_ordre_alphabetique_pas_numero "$LISTE_FICHIERS" TABLEAU_FICHIERS ":"
-        # Sinon, fonctionnement 'normal' du script
-        else
-            if [[ -d "$2" || -f "$2" ]] # si le deuxième argument est un fichier/répertoire
-            then
-                FICHIER_OU_REPERTOIRE="$2"
-                if [ -d "$FICHIER_OU_REPERTOIRE" ]
-                then
-                    repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FICHIER_OU_REPERTOIRE"
-		    
-                else
-                    TABLEAU_FICHIERS+=("$FICHIER_OU_REPERTOIRE")
-                fi
-            else
-                echo -e "\nERREUR : l'argument fourni \"$FICHIER_OU_REPERTOIRE\" n'est pas un fichier/répertoire.\n"
-                echo -e "$SYNTAXE"
-                exit 1 
-            fi
-        fi
-    fi
-    NB_ARGUMENTS=$#
-    NB_ARGUMENT_MINIMUM=2 # dès le 3ème cela peut être des fichiers/répertoires ou l'option -s à la fin uniquement
-    if [ $NB_ARGUMENTS -gt $NB_ARGUMENT_MINIMUM ]
-    then
-        for ((i=$((NB_ARGUMENT_MINIMUM+1)); i<=$NB_ARGUMENTS; i++)) # +1 à cause du décalage des index qui débute à 0 et pas à 1 quand il y a 1 argument / raisonnement similaire pour le '<=NBARGUMENT'
-        do
-            if [[ $i = $NB_ARGUMENTS && "${!i}" = "-s" ]] # test si dernier argument = '-s'
-            then
-                MODE_SILENCIEUX="on"
-                break # sortie de boucle car c'est le dernier argument - il n'y en a pas d'autres
-            else
-                :
-            fi
-            # Si pas breaké avec le dernier argument qui vaut '-s'
-            # Alors test si fichier/répertoire et ajout ou exit avec erreur
-            FICHIER_OU_REPERTOIRE_ARG_SUIVANT="${!i}"
-            if [[ -d "${!i}" || -f "${!i}" ]] # si le 3ème argument est un fichier ou un répertoire = ok
-            then
-                # si fichier -> ajout au tableau
-                if [ -f "$FICHIER_OU_REPERTOIRE_ARG_SUIVANT" ]
-                then
-                    TABLEAU_FICHIERS+=("$FICHIER_OU_REPERTOIRE_ARG_SUIVANT")
-                else # donc forcément répertoire -> ajout des fichiers du répertoire au tableau
-                    repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FICHIER_OU_REPERTOIRE_ARG_SUIVANT"
-                fi
-            else
-                echo -e "\nERREUR : l'argument $i fourni \"$FICHIER_OU_REPERTOIRE_ARG_SUIVANT\" n'est pas un fichier / répertoire."
-                echo -e "Exit aussi s'il est suivi d'un fichier/répertoire car l'option '-s' ne peut venir (optionnel) qu'en dernier argument.\n"
-                echo -e "$SYNTAXE"
-                exit 1
-            fi
-        done
-    else
-        : # continue le script s'il y a exactement le nombre d'argument minimum.
-    fi
 fi
 
-# Affichage que si pas en mode silencieux
-if [ "$MODE_SILENCIEUX" = "on" ]
+# Arguments check
+FLAG_OPTION_D=
+FLAG_OPTION_L=
+FLAG_OPTION_R=
+
+# Re-set options through positional parameters
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+    case "$1" in
+	-d )
+	    if [ ! -z "$FLAG_OPTION_L" ]
+	    then
+		STDERR_afficher_message "\nERROR :  options '-d' and '-l' are mutually exclusive.\n"
+                STDERR_afficher_message "$SYNTAXE"
+                exit 1
+	    fi
+	    FLAG_OPTION_D=1
+	    # Add to dir array
+	    FILE_PROVIDED="$2"
+	    shift 2
+	    # Test if the file provided is really a file or a directory - exit with error else
+	    if [ -d "$FILE_PROVIDED" ] || [ -f "$FILE_PROVIDED" ]
+            then
+		# Test if it is a directory
+                if [ -d "$FILE_PROVIDED" ]
+                then
+		    # Get the path whether it is absolute or relative by going into a subshell and echoing the location
+		    FILE_PROVIDED="$(cd "$FILE_PROVIDED"; echo $PWD)"
+		    # Fill array with all files contained in the directory
+                    repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FILE_PROVIDED"
+                else
+		    # Else, it is a file so add it to the array.
+		    # 'readlink --canonicalize' : follow all the symlink and therefore support relative path as well as absolute ones
+		    FILE_PROVIDED="$(readlink --canonicalize "${FILE_PROVIDED}")"
+                    TABLEAU_FICHIERS+=("$FILE_PROVIDED")
+                fi
+            else
+                STDERR_afficher_message "\nERROR : the provided argument to '-d' = \"$FILE_PROVIDED\" is neither a file nor a directory.\n"
+                STDERR_afficher_message "$SYNTAXE"
+                exit 1 
+            fi
+
+	    continue
+            ;;
+	-l )
+	    if [ ! -z "$FLAG_OPTION_D" ]
+	    then
+		STDERR_afficher_message "\nERROR :  options '-l' and '-d' are mutually exclusive.\n"
+                STDERR_afficher_message "$SYNTAXE"
+                exit 1
+	    fi
+	    FLAG_OPTION_L=1
+            LIST_OF_FILES_SEPARATED_WITH_DOUBLE_POINTS="$2"
+            shift 2
+            continue
+            ;;
+	-r )  
+	    FLAG_OPTION_R=1
+            REGEX_RECHERCHE="$2"
+            shift 2
+            continue
+            ;;
+	-s )  
+	    SILENT_MODE="true"
+	    shift 1
+	    continue
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )
+	    # Error management for all other bugs
+            STDERR_afficher_message "ERROR: internal error...\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 2
+            ;;
+	esac
+done
+
+# Test whether other arguments were provided = in excess (=test if $1 is defined)
+if [ ! -z "$1" ]
 then
-    : # pas d'affichage de message
-else
-    # Affichage de la liste de fichiers ou sera exécuté la recherche
+    STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 3
+fi
+
+# Test if the requested option(s) were provided
+if [ -z "$FLAG_OPTION_R" ]
+then
+    STDERR_afficher_message "\nERROR : Please provide all requested argument(s).\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 3
+fi
+
+# Test if the list of path needs to be ':' separated
+if [ ! -z "$FLAG_OPTION_L" ]
+then
+    # Remove the first part until the first ':'
+    LIST_OF_FILES_SEPARATED_WITH_DOUBLE_POINTS="${LIST_OF_FILES_SEPARATED_WITH_DOUBLE_POINTS#*:}"
+    # Fill the array with the rest
+    tableau_depuis_string_spliter_selon_char_special_et_trier_ordre_alphabetique_pas_numero "$LIST_OF_FILES_SEPARATED_WITH_DOUBLE_POINTS" TABLEAU_FICHIERS ":"
+fi
+
+# Test if no directory was provided and also if no special string was provided
+if [ -z "$FLAG_OPTION_D" ] && [ -z "$FLAG_OPTION_L" ]
+then
+    # Show message about default behaviour - only if not in silent mode
+    if [ "$MODE_SILENCIEUX" = "false" ]
+    then
+        echo -e "\nNo file/directory was provided with the option '-d'."
+        echo -e "Default behaviour : search within the directory \"$REPERTOIRE_PAR_DEFAUT\".\n"
+    fi
+    # Fill the array of files with the default file provided
+    FILE_PROVIDED="$REPERTOIRE_PAR_DEFAUT"
+    repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FILE_PROVIDED"
+fi
+
+########## END OF OPTION MANAGEMENT ####################
+
+# Show message only if not in silent mode
+if [ ! "$SILENT_MODE" = "true" ]
+then
+    # Show the detailed list of files on which the search will be processed
     MESSAGE_AVANT_CONTENU_TABLEAU="\nAffichage des fichiers contenant le REGEX \"$REGEX_RECHERCHE\" parmi les fichiers :"
     MESSAGE_AVANT_CHAQUE_ELEMENT="-\t"
     tableau_affichage_contenu_avec_message TABLEAU_FICHIERS "$MESSAGE_AVANT_CONTENU_TABLEAU" "$MESSAGE_AVANT_CHAQUE_ELEMENT"
@@ -167,14 +226,13 @@ do
     # grep -n : affiche le numéro de ligne
 done
 
-# Message de fin de script (car peut être long)
-# Affichage que si pas en mode silencieux
-if [ "$MODE_SILENCIEUX" = "on" ]
+# End message - usefull because the script can take long to execute
+# Show only if not in silent mode
+if [ ! "$SILENT_MODE" = "true" ]
 then
-    : # pas d'affichage de message
-else
-    # Affichage du type de recherche exécutée
-    echo -e "\nRecherche terminée." # pr indiquer quand la recherche est terminée
+    echo -e "\nSearch ended."
 fi
 
-echo "" # pour avoir une ligne d'espace avant le 'prompt'.
+echo "" # Esthetic
+
+exit 0
