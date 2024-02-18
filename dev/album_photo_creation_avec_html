@@ -86,7 +86,7 @@ EOF
 LISTE_ARGUMENT_FOURNI=""
 if [ $# -lt 6 ]
 then
-    ERROUT "\nERREUR : il doit y avoir au moins 6 arguments.\n"
+    ERROUT "\nERROR  il doit y avoir au moins 6 arguments.\n"
     USAGE
     exit 1
 else
@@ -105,7 +105,7 @@ else
                     PATH_REPERTOIRE_PHOTO_INPUT="$1"
                     shift 1
                 else
-                    ERROUT "\nERREUR : l'argument \"$1\"(répertoire input) n'est pas un répertoire."
+                    ERROUT "\nERROR  l'argument "$1"(répertoire input) n'est pas un répertoire."
                     USAGE
                     exit 2
                 fi
@@ -116,12 +116,12 @@ else
                     PATH_REPERTOIRE_PHOTO_OUTPUT="$1"
                     shift 1
                 else
-                    ERROUT "\nERREUR : l'argument \"$1\" (répertoire output) n'est pas un répertoire."
+                    ERROUT "\nERROR  l'argument "$1" (répertoire output) n'est pas un répertoire."
                     USAGE
                     exit 3
                 fi
                 ;;
-        * )     ERROUT "\nERREUR : l'argument \"$1\" est incorrect."
+	    *)  ERROUT "\nERROR  l'argument "$1" est incorrect."
                 USAGE
                 exit 4
                 ;;
@@ -170,7 +170,7 @@ done < <(find -s -E "$PATH_REPERTOIRE_PHOTO_INPUT" -depth 1 -maxdepth 1 -type f 
 # Test si au moins une photo trouvée - sinon quitter
 if [ ${#TABLEAU_PHOTO[@]} -eq 0 ]
 then
-    echo -e "\nERREUR : aucune photo dans le répertoire d'input \"$PATH_REPERTOIRE_PHOTO_INPUT\"."
+    echo -e "\nERROR  aucune photo dans le répertoire d'input "$PATH_REPERTOIRE_PHOTO_INPUT"."
     exit 6
 else
     :

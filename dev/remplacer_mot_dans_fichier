@@ -10,6 +10,8 @@ source fonctions_personnelles
 
 declare -a TABLEAU_FICHIERS
 
+
+
 # TO DEV :
 # 1. SYNTAX
 # 2. OPTIONS MANAGEMENT
@@ -18,77 +20,136 @@ declare -a TABLEAU_FICHIERS
 #        ./remplacer_mot_dans_fichier "git_commit_avec_message" "git_commit_with_message" $REPERTOIRE_DES_COMMANDES_PERSO 
 #        ERROR GENERATED :
 #        grep: LISTE_DE_FICHIER_SEPARES_PAR_DES_DOUBLES_POINTS: No such file or directory
+# 4. RESOLVE THE SHOWING OF CHAR '\' AS IN \n' :
+#        COMMAND RUNNED :
+#        ./remplacer_mot_dans_fichier -r 'ERREUR' -s 'ERROR' -d .
+#        OUTPUT EXAMPLE :
+#        19	    { STDERR_afficher_message "nERREUR  l'installation de "$APP_BLUETOOTH" a échouée.n"
 # 3. RESTRUCTURE CODE
 # 4. IF POSSIBLE, REWRITE IN ENGLISH
 # 5. SAME FOR : SCRIPTS : repertoire_recherche_regex & string_recherche_sous_string_echo_index_ou_moins_un
 
 # DEBUG SYNTAX
 
-SYNTAXE="Syntaxe :\n\t$(basename $0)    STRING_RECHERCHE    STRING_REMPLACEMENT    FICHIER_OU_REPERTOIRE [...]\n"
+# Syntaxe :
+# - : aucun argument requis.
+
+source fonctions_personnelles
+
+# Syntaxe
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-r REGEX_RECHERCHE" "-s STRING_REMPLACEMENT" "-d FICHIER_OU_REPERTOIRE" "[...]")"
+
+# Set the file which will contain the output of some commands of the script
+# That enables it to stock and recover data from it for further use.
 NOM_FICHIER_OUTPUT_CORBEILLE="$(basename $0)_output.txt"
 PATH_FICHIER_OUTPUT_CORBEILLE="${CORBEILLE_PATH}/${NOM_FICHIER_OUTPUT_CORBEILLE}"
 
-# DEBUG OPTION MANAGEMENT
+# Declare files array here because will be needed after
+declare -a TABLEAU_FICHIERS
 
-# Contrôle qu'un argument a été fourni au script
-# Cette section doit être adaptée une fois les test avec données terminée
-if [[ -z "$1" || -z "$2" || -z "$3" ]]
+####### BEGINNING OF OPTION MANAGEMENT ##########
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'r:s:d:' -q -- "$@")
+# -q : quiet
+# -- : to explicitly show the options end
+
+# Test whether syntax was correct (options + arguments)
+if [ $? -ne 0 ]
 then
-    echo -e "\nERREUR : il faut fournir au minimum 3 arguments à ce script."
-    echo -e "Vous avez fourni les arguments suivants : \"$*\"."
-    echo -e "$SYNTAXE"
+    STDERR_afficher_message "ERROR: syntax..."
+    STDERR_afficher_message "$SYNTAXE"
     exit 1
-else
-    REGEX_RECHERCHE="$1"
-    STRING_REMPLACEMENT="$2"
-    FICHIER_OU_REPERTOIRE="$3"
-    if [[ -d "$3" || -f "$3" ]] # si le 3ème argument est un fichier ou un répertoire = ok
-    then
-        # si fichier -> ajout au tableau
-        if [ -f "$FICHIER_OU_REPERTOIRE" ]
-        then
-            TABLEAU_FICHIERS+=("$FICHIER_OU_REPERTOIRE")
-        else # donc forcément répertoire -> ajout des fichiers du répertoire au tableau
-            repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FICHIER_OU_REPERTOIRE"
-        fi
-    else
-        echo -e "\nERREUR : l'argument fourni \"$FICHIER_OU_REPERTOIRE\" n'est pas un fichier / répertoire.\n"
-        echo -e "$SYNTAXE"
-        exit 1
-    fi
-    NB_ARGUMENTS=$#
-    NB_ARGUMENT_MINIMUM=3
-    if [ $NB_ARGUMENTS -gt $NB_ARGUMENT_MINIMUM ]
-    then
-        for ((i=$((NB_ARGUMENT_MINIMUM+1)); i<=$NB_ARGUMENTS; i++)) # +1 à cause du décalage des index qui débute à 0 et pas à 1 quand il y a 1 argument / raisonnement similaire pour le '<=NBARGUMENT'
-        do
-            FICHIER_OU_REPERTOIRE_ARG_SUIVANT="${!i}"
-            if [[ -d "${!i}" || -f "${!i}" ]] # si le 3ème argument est un fichier ou un répertoire = ok
-            then
-                # si fichier -> ajout au tableau
-                if [ -f "$FICHIER_OU_REPERTOIRE_ARG_SUIVANT" ]
-                then
-                    TABLEAU_FICHIERS+=("$FICHIER_OU_REPERTOIRE_ARG_SUIVANT")
-                else # donc forcément répertoire -> ajout des fichiers du répertoire au tableau
-                    repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FICHIER_OU_REPERTOIRE_ARG_SUIVANT"
-                fi
-            else
-                echo -e "\nERREUR : l'argument $i fourni \"$FICHIER_OU_REPERTOIRE_ARG_SUIVANT\" n'est pas un fichier / répertoire.\n"
-                echo -e "$SYNTAXE"
-                exit 1
-            fi
-        done
-    else
-        : # continue le script s'il y a exactement le nombre d'argument minimum.
-    fi
 fi
 
-# Récupération des matchs dans un string
-REGEX_DE_MARQUAGE_ARGUMENT_SPECIAL="LISTE_DE_FICHIER_SEPARES_PAR_DES_DOUBLES_POINTS"
-LISTE_FICHIERS="$REGEX_DE_MARQUAGE_ARGUMENT_SPECIAL"
+# Arguments check
+FLAG_OPTION_D=
+FLAG_OPTION_R=
+FLAG_OPTION_S=
+
+# Re-set options through positional parameters
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+    case "$1" in
+	-d )  
+	    FLAG_OPTION_D=1
+            FILE_PROVIDED="$2"
+            shift 2
+            # Add to dir array
+	    # Test if the file provided is really a file or a directory - exit with error else
+	    if [ -d "$FILE_PROVIDED" ] || [ -f "$FILE_PROVIDED" ]
+            then
+		# Test if it is a directory
+                if [ -d "$FILE_PROVIDED" ]
+                then
+		    # Get the path whether it is absolute or relative
+		    FILE_PROVIDED="$(readlink --canonicalize $FILE_PROVIDED)"
+		    # Fill array with all files contained in the directory
+                    repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FILE_PROVIDED"
+                else
+		    # Else, it is a file so add it to the array.
+		    # 'readlink --canonicalize' : follow all the symlink and therefore support relative path as well as absolute ones
+		    FILE_PROVIDED="$(readlink --canonicalize "${FILE_PROVIDED}")"
+                    TABLEAU_FICHIERS+=("$FILE_PROVIDED")
+                fi
+            else
+                STDERR_afficher_message "\nERROR : the provided argument to '-d' = \"$FILE_PROVIDED\" is neither a file nor a directory.\n"
+                STDERR_afficher_message "$SYNTAXE"
+                exit 1 
+            fi
+	    continue
+            ;;
+	-r )  
+	    FLAG_OPTION_R=1
+            REGEX_RECHERCHE="$2"
+            shift 2
+            continue
+            ;;
+	-s )  
+	    FLAG_OPTION_S=1
+            STRING_REMPLACEMENT="$2"
+            shift 2
+            continue
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )
+	    # Error management for all other bugs
+            STDERR_afficher_message "ERROR: internal error...\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 2
+            ;;
+	esac
+done
+
+# Test whether other arguments were provided = in excess (=test if $1 is defined)
+if [ ! -z "$1" ]
+then
+    STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 3
+fi
+
+# Test if the REQUEST_USER_AGREEMENT_TO_CONTINUE option was not provided
+if [ -z "$FLAG_OPTION_D" ] || [ -z "$FLAG_OPTION_R" ] || [ -z "$FLAG_OPTION_S" ]
+then
+    STDERR_afficher_message "\nERROR : Please provide all required argument(s).\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 3
+fi
+
+########## END OF OPTION MANAGEMENT ####################
+
+# Get all matches in a string separating each of them with ':'
 for FICHIER_UN_PAR_UN in "${TABLEAU_FICHIERS[@]}"
 do
-    LISTE_FICHIERS+="$(echo -n ":$FICHIER_UN_PAR_UN")" # un espace à la fin de chaque fichier
+    LISTE_FICHIERS+="$(echo -n ":$FICHIER_UN_PAR_UN")"
 done
 
 # Conservation des lignes qui :
@@ -107,7 +168,6 @@ REGEX_LIGNE_UNIQUEMENT_COMMENTAIRE='^[[:space:]]{2}[1-9]{1}[0-9]*[[:space:]]*[.'
 # + : match 1 ou plusieurs fois
 # . : n'importe quel char
 # [.X.] : ne doit pas être ce string
-
 
 # Indicateurs pour affichage après avoir supprimé les fichiers sans lignes et répertoires sans fichiers
 FLAG_ESPACE_AU_TOUT_DEBUT="true"
@@ -341,10 +401,15 @@ else
             esac
             if [ $FLAG_DONNEES_PR_REMPLACEMENT_COMPLETE = "true" ]
             then
-		sed -i "${NUMERO_LIGNE_COURANTE}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" "$PATH_COURANT"
+		{ sed -i "${NUMERO_LIGNE_COURANTE}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" "$PATH_COURANT" &&
 		# sed -i '' : inline - sans fichier de back-up
                 # s/ : substitute
-                # g : remplace tous les matchs pas juste le premier
+                      # g : remplace tous les matchs pas juste le premier
+	          echo -e "\n$NUMERO_LIGNE_COURANTE : Line sucessfully remplaced !\n"
+		} ||
+		{ STDERR_afficher_message "\nERROR : the line $NUMERO_LIGNE_COURANTE could not be replaced. Please check output...\n"
+			exit 1
+		}
             else
                 : # Pas de remplacement tant que le flag n'est pas activé.
             fi
@@ -353,7 +418,7 @@ else
         done < <(grep $ "$PATH_FICHIER_OUTPUT_CORBEILLE")
         echo -e "\nRemplacement terminé.\n"
     else
-        # Choix fait : Passage en revue fichier par fichier
+        # Else review each file one by one
         # Récupération des données : elles sont déjà nettoyées il ne reste plus qu'à récupérer les éléments pour le remplacement.
         # récupérer les data du fichier dans la corbeille
         REPERTOIRE_COURANT=""
@@ -407,21 +472,25 @@ else
                                         select_parmi_liste TABLEAU_OPTIONS_SELECT CHOIX_CHOISI "$MESSAGE_MONTRE" "$OPTION_POUR_STOP" 
                                         if [ "$CHOIX_CHOISI" = "$OPTION_POUR_ARRETER" ]
                                         then
-                                            echo -e "\nVous décidez d'annuler le remplacement.\n"
+                                            echo -e "\nYou choosed to cancel the replacement.\n"
                                             exit 0
                                         else
-                                            echo -e "\nVous avez choisi \"$CHOIX_CHOISI\".\n"
+                                            echo -e "\nYou choosed : \"$CHOIX_CHOISI\".\n"
                                             if [ "$CHOIX_CHOISI" = "$OPTION_1" ] # validation massive pour ce fichier et passage au fichier suivant
                                             then
-                                                for NUMERO_LIGNE in "${TABLEAU_NUMERO_LIGNES[@]}"
+                                                for LINE_NUMBER in "${TABLEAU_NUMERO_LIGNES[@]}"
                                                 do
-                                                    sed -i "${NUMERO_LIGNE}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" "$PATH_COURANT"
+                                                    { sed -i "${LINE_NUMBER}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" "$PATH_COURANT" &&
                                                     # sed -i '' : inline - sans fichier de back-up
                                                     # s/ : substitute
-                                                    # g : remplace tous les matchs pas juste le premier
+						    # g : remplace tous les matchs pas juste le premier
+						    echo -e "\n$LINE_NUMBER : Line sucessfully remplaced !\n"
+						    } ||
+						    { STDERR_afficher_message "\nERROR : the line $LINE_NUMBER could not be replaced. Please check output...\n"
+							    exit 1
+						    }
                                                 done
-                                                echo -e "\nRemplacement dans le fichier \"$FICHIER_COURANT\" situé $PATH_COURANT terminé.\n"
-                                                #
+						
                                             else # passage en revue un par un
                                                 QUESTION_VALIDATION_REMPLACEMENT="Voulez-vous remplacer \"$REGEX_RECHERCHE\" par \"$STRING_REMPLACEMENT\" dans cette ligne du fichier \"$FICHIER_COURANT\" situé $PATH_COURANT ? (YyOn/Nn) "
                                                 for i in "${!TABLEAU_LIGNES[@]}"
@@ -432,19 +501,22 @@ else
                                                     question_oui_non REPONSE_POUR_CHAQUE_LIGNE "$QUESTION_VALIDATION_REMPLACEMENT"
                                                     if [ "$REPONSE_POUR_CHAQUE_LIGNE" = "o" ]
                                                     then
-                                                        NUM_LIGNE_REMPLACEMENT=${TABLEAU_NUMERO_LIGNES[$i]}
-                                                        echo "$NUM_LIGNE_REMPLACEMENT"
-                                                        echo "Ligne remplacée"
-                                                        sed -i "$((${TABLEAU_NUMERO_LIGNES[$i]}))/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" $PATH_COURANT
+							# Get the ligne number
+                                                        NUM_LIGNE_REMPLACEMENT=$((${TABLEAU_NUMERO_LIGNES[$i]}))
+                                                        
+                                                        { sed -i "${NUM_LIGNE_REMPLACEMENT}s/${REGEX_RECHERCHE}/${STRING_REMPLACEMENT}/g" "$PATH_COURANT" &&
                                                         # sed -i : inline - sans fichier de back-up
                                                         # s/ : substitute
                                                         # g : remplace tous les matchs pas juste le premier
-                                                    else
-                                                        :
-                                                    fi
+							  echo -e "\n$NUM_LIGNE_REMPLACEMENT : Line sucessfully remplaced !\n"
+							} ||
+							{ STDERR_afficher_message "\nERROR : the line $NUM_LIGNE_REMPLACEMENT could not be replaced. Please check output...\n"
+								exit 1
+							}
+						     fi
                                                 done
-                                                echo -e "\nFin du remplacement.\n"
                                             fi
+					    echo -e "\nEnd of replacement for the file \"$FICHIER_COURANT\" located \"$PATH_COURANT\".\n"
                                         fi
                                         FLAG_LIGNE_A_AFFICHER="false"
                                         TABLEAU_LIGNES=() # remise à vide du tableau

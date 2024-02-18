@@ -39,7 +39,7 @@ do
     # Check user answer and commit if wished (through a separate script)
     if [ $REPONSE == 'o' ]
     then
-        git_commit_avec_message || exit 1
+        git_commit_with_message || exit 1
     else
 	# If user choosed not to push more repo then exit
 	echo -e "\nYou have choosen to continue without git push any other dir.\n"

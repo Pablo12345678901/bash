@@ -75,8 +75,8 @@ while true; do
 		# Test if it is a directory
                 if [ -d "$FILE_PROVIDED" ]
                 then
-		    # Get the path whether it is absolute or relative by going into a subshell and echoing the location
-		    FILE_PROVIDED="$(cd "$FILE_PROVIDED"; echo $PWD)"
+		    # Get the path whether it is absolute or relative
+		    FILE_PROVIDED="$(readlink --canonicalize $FILE_PROVIDED)"
 		    # Fill array with all files contained in the directory
                     repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FILE_PROVIDED"
                 else

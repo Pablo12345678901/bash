@@ -72,17 +72,17 @@ else
     if [ -z "$PATH_REPERTOIRE_CODE_SOURCE_BASH_ACTUEL" ]
     then
         # Affichage message erreur
-        echo -e "\nERREUR : aucune version du code source n'est disponible. Elle devrait être ${NUMERO_VERSION_LA_PLUS_RECENTE}, idem que version bash locale."
+        echo -e "\nERROR : aucune version du code source n'est disponible. Elle devrait être ${NUMERO_VERSION_LA_PLUS_RECENTE}, idem que version bash locale."
     else
         # Affichage message erreur
         VERSION_CODE_SOURCE_LOCALE="${NOM_DU_REPERTOIRE_CODE_SOURCE_ACTUEL#bash-}"
-        echo -e "\nERREUR : la version du code source actuelle $VERSION_CODE_SOURCE_LOCALE n'est pas à jour. Elle devrait être ${NUMERO_VERSION_LA_PLUS_RECENTE}, idem que version bash locale."
+        echo -e "\nERROR : la version du code source actuelle $VERSION_CODE_SOURCE_LOCALE n'est pas à jour. Elle devrait être ${NUMERO_VERSION_LA_PLUS_RECENTE}, idem que version bash locale."
         
         # Suppression de la version actuelle
         echo -e "\nSuppression du répertoire bash code source (version obsolète)..."
         rm -rf "$PATH_REPERTOIRE_CODE_SOURCE_BASH_ACTUEL" &&
         echo -e "\nSuppression du répertoire \"$NOM_DU_REPERTOIRE_CODE_SOURCE_ACTUEL\" terminée.\n" ||
-        {   echo -e "\nERREUR : La suppression du répertoire situé \"$PATH_REPERTOIRE_CODE_SOURCE_BASH_ACTUEL\" a échoué.\n" &&
+        {   echo -e "\nERROR : La suppression du répertoire situé \"$PATH_REPERTOIRE_CODE_SOURCE_BASH_ACTUEL\" a échoué.\n" &&
             exit 1
         }
     fi
@@ -128,7 +128,7 @@ else
             # Suppression du répertoire temporaire dans lequel était le fichier tar
             rm -rf "$NVO_PATH_CODE_SOURCE_GZ" &&
             echo -e "\nSuppression du fichier tar \"$VERSION_A_TELECHARGER\" terminée.\n" ||
-            {  echo -e "\nERREUR : La suppression du fichier tar situé \"$NVO_PATH_CODE_SOURCE_GZ\" a échoué.\n" &&
+            {  echo -e "\nERROR : La suppression du fichier tar situé \"$NVO_PATH_CODE_SOURCE_GZ\" a échoué.\n" &&
                exit 1
             }
             
@@ -137,7 +137,7 @@ else
             echo -e "\nLe répertoire du code source version $NUMERO_VERSION_LA_PLUS_RECENTE est désormais situé au path \"${PATH_DU_REPERTOIRE_CODE_SOURCE_FINAL}\"."
 
         else
-            echo -e "\nERREUR : il n'y a aucun fichier nommé \"$VERSION_A_TELECHARGER\" au path \"$PATH_DE_TELECHARGEMENT\"."
+            echo -e "\nERROR : il n'y a aucun fichier nommé \"$VERSION_A_TELECHARGER\" au path \"$PATH_DE_TELECHARGEMENT\"."
             echo -e "Téléchargez le fichier \"$VERSION_A_TELECHARGER\" au path \"$PATH_DE_TELECHARGEMENT\" puis relancez ce script.\n"
             exit 1
         fi
