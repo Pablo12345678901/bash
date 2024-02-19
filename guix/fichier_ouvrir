@@ -3,28 +3,28 @@
 source fonctions_personnelles
 
 # Syntaxe
-SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-f FICHIER_A_OUVRIR" )"
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-f FILE_TO_OPEN" )"
 
 # Note that we use "$@" to let each command-line parameter expand to a
 # separate word. The quotes around "$@" are essential!
 # We need TEMP as the 'eval set --' would nuke the return value of getopt.
 TEMP=$(getopt -o 'f:' -q -- "$@")
-# -o : option courte
+# -o : list of short options
 # -q : quiet
-# -- : marque la fin des options
+# -- : announce the end of the options
 
-# Test si la syntaxe a été correcte (options + arguments)
+# Test if the syntax is correct (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERREUR de syntaxe..."
+    STDERR_afficher_message "\nERROR : syntax error.\n"
     STDERR_afficher_message "$SYNTAXE"
     exit 1
 fi
 
-# Contrôle des arguments
+# Set the flag to control arguments
 FLAG_OPTION_F= 
 
-# Remise des options en paramètres positionnels
+# Re-set options as positional parameters
 eval set -- "$TEMP"
 unset TEMP
 
@@ -32,81 +32,71 @@ while true; do
 	case "$1" in
         '-f' )
             FLAG_OPTION_F=1
-            FICHIER_A_OUVRIR="$2"
+            FILE_TO_OPEN="$2"
             shift 2
 	    # If the filename contains '$', process to expansion
 	    # Some terminals add '\' before '$' so it functions -  with them all.
-	    if [[ "$FICHIER_A_OUVRIR" =~ ^.*\$.*$ ]]
+	    if [[ "$FILE_TO_OPEN" =~ ^.*\$.*$ ]]
 	    then
-		FICHIER_A_OUVRIR="${FICHIER_A_OUVRIR@P}"
+		FILE_TO_OPEN="${FILE_TO_OPEN@P}"
 	    fi
             # Manage absolute and relative paths with 'readlink --canonicalize'
 	    # Test if the path exists, if so set path of the file to open
 	    # Else exit with error
-	    { readlink --canonicalize "$FICHIER_A_OUVRIR" >/dev/null 2>&1 &&
-	      PATH_FICHIER_A_OUVRIR="$(readlink --canonicalize "$FICHIER_A_OUVRIR")"
+	    { readlink --canonicalize "$FILE_TO_OPEN" >/dev/null 2>&1 &&
+	      PATH_FILE_TO_OPEN="$(readlink --canonicalize "$FILE_TO_OPEN")"
             }||
-	    { STDERR_afficher_message "\nERREUR : Le fichier \"$PATH_FICHIER_A_OUVRIR\" n'existe pas.\n"
+	    { STDERR_afficher_message "\nERROR : the file \"$FILE_TO_OPEN\" does not exist.\n"
               exit 2
 	    }
-
-: <<"DEV" 
-	    if [ "${FICHIER_A_OUVRIR:0:1}" = "/" ]
-	    then
-	        PATH_FICHIER_A_OUVRIR="$FICHIER_A_OUVRIR"
-	    else
-	        REPERTOIRE_A_OUVRIR="$PWD"
-		PATH_FICHIER_A_OUVRIR="${REPERTOIRE_A_OUVRIR}/${FICHIER_A_OUVRIR}"
-	    fi
-
-	    # Test si le fichier existe
-            if [ ! -d "$PATH_FICHIER_A_OUVRIR" ] && [ ! -f "$PATH_FICHIER_A_OUVRIR" ] 
-            then
-                STDERR_afficher_message "\nERREUR : Le fichier \"$PATH_FICHIER_A_OUVRIR\" n'existe pas.\n"
-                exit 2
-            fi
-DEV
-            echo "DEBUG FICHIER : '$FICHIER_A_OUVRIR'"
-            echo "DEBUG PATH : '$PATH_FICHIER_A_OUVRIR'"
             continue
             ;;
        '--')
 	    shift
 	    break
 	    ;;
-        # Gestion des erreurs pour tout autre bug.
+        # Error showed for any other error
         * )
-            STDERR_afficher_message "ERROR : internal error...\n"
+            STDERR_afficher_message "\nERROR : internal error...\n"
             STDERR_afficher_message "$SYNTAXE"
-            exit 4
+            exit 3
             ;;
 	esac
 done
 
-# Test si les options requises ont été fournies (=test si flag défini)
-if [ ! -z "$FLAG_OPTION_F" ] 
+# Test if other arguments = in excess (=test if $1 is defined)
+if [ ! -z "$1" ]
 then
-    # Test si d'autres darguments = en trop (=test si $1 défini)
-    if [ ! -z "$1" ]
-    then
-        STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
-        STDERR_afficher_message "$SYNTAXE"
-        exit 5
-    else
-        :
-    fi
-else
-    STDERR_afficher_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
+    STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
     STDERR_afficher_message "$SYNTAXE"
-    exit 6
+    exit 4
 fi
 
-# Opening the file or exit with error
-FILE_BASENAME="${PATH_FICHIER_A_OUVRIR##*/}"
-echo -e "\nOpening the file \"$FILE_BASENAME\" (called with your argument \"$FICHIER_A_OUVRIR\" located \"$PATH_FICHIER_A_OUVRIR\"...\n"
-{   xdg-open "$PATH_FICHIER_A_OUVRIR" >/dev/null 2>&1 &&
+# Test if all required arguments were provided with the flags
+if [ -z "$FLAG_OPTION_F" ] 
+then
+    STDERR_afficher_message "\nERROR : Please provide all required argument(s).\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 5
+fi
+
+# Get the file basename for further messages
+FILE_BASENAME="${PATH_FILE_TO_OPEN##*/}"
+
+# Check if the file is a dir to adapt for further messages
+FILE_TYPE=""
+if [ -d "$PATH_FILE_TO_OPEN" ]
+then
+    FILE_TYPE="directory"
+else
+    FILE_TYPE="file"
+fi
+
+# Opening the file with confirmation of success/failure
+echo -e "\nOpening the $FILE_TYPE \"$FILE_BASENAME\" (called with your argument \"$FILE_TO_OPEN\") located \"$PATH_FILE_TO_OPEN\"...\n"
+{   xdg-open "$PATH_FILE_TO_OPEN" >/dev/null 2>&1 &&
     exit 0
 } ||
-{   STDERR_afficher_message "\nERREUR : le fichier \"$FICHIER_A_OUVRIR\" n'a pas pu être ouvert.\n" &&
-    exit 7
+{   STDERR_afficher_message "\nERROR : the $FILE_TYPE \"$FILE_BASENAME\" (called with your argument \"$FILE_TO_OPEN\") located \"$PATH_FILE_TO_OPEN\"could not be opened.\n" &&
+    exit 6
 } 
