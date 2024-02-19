@@ -32,7 +32,11 @@ while true; do
 	case "$1" in
         '-f' )
             FLAG_OPTION_F=1
-            FILE_TO_OPEN="$2"
+	    echo -E "$2"
+	    # Set the file provided
+	    FILE_TO_OPEN="$2"
+	    # Preserve what was initially provided for further printed messages
+            ARGUMENT_PROVIDED="$FILE_TO_OPEN"
             shift 2
 	    # If the filename contains '$', process to expansion
 	    # Some terminals add '\' before '$' so it functions -  with them all.
@@ -46,7 +50,7 @@ while true; do
 	    { readlink --canonicalize "$FILE_TO_OPEN" >/dev/null 2>&1 &&
 	      PATH_FILE_TO_OPEN="$(readlink --canonicalize "$FILE_TO_OPEN")"
             }||
-	    { STDERR_afficher_message "\nERROR : the file \"$FILE_TO_OPEN\" does not exist.\n"
+	    { STDERR_afficher_message "\nERROR : the file \"$FILE_TO_OPEN\" (provided with your argument \"$ARGUMENT_PROVIDED\") does not exist.\n"
               exit 2
 	    }
             continue
@@ -93,10 +97,10 @@ else
 fi
 
 # Opening the file with confirmation of success/failure
-echo -e "\nOpening the $FILE_TYPE \"$FILE_BASENAME\" (called with your argument \"$FILE_TO_OPEN\") located \"$PATH_FILE_TO_OPEN\"...\n"
+echo -e "\nOpening the $FILE_TYPE \"$FILE_BASENAME\" (called with your argument \"$ARGUMENT_PROVIDED\") located \"$PATH_FILE_TO_OPEN\"...\n"
 {   xdg-open "$PATH_FILE_TO_OPEN" >/dev/null 2>&1 &&
     exit 0
 } ||
-{   STDERR_afficher_message "\nERROR : the $FILE_TYPE \"$FILE_BASENAME\" (called with your argument \"$FILE_TO_OPEN\") located \"$PATH_FILE_TO_OPEN\"could not be opened.\n" &&
+{   STDERR_afficher_message "\nERROR : the $FILE_TYPE \"$FILE_BASENAME\" (called with your argument \"$ARGUMENT_PROVIDED\") located \"$PATH_FILE_TO_OPEN\"could not be opened.\n" &&
     exit 6
 } 
