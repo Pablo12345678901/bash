@@ -97,8 +97,8 @@ while read NOM_PACKAGE
 do
     # Récupération du nom du paquet sans la version
     NOM_PACKAGE_AU_PROPRE="$(echo "$NOM_PACKAGE" | grep -m 1 -o -E "^[a-zA-Z0-9-]*")" # regex qui contient lettre min/maj/chiffre/'-' mais rien d'autre (pas d'espace, '=', ...)
-    # Contrôle si il existe au moins un package pip correspondant dans les packages de l'environnement    
-    ls "$PIP_PATH_PACKAGE" | grep -m 1 -o -E "$NOM_PACKAGE_AU_PROPRE.*" >/dev/null 2>&1 # test si le répertoire des packages pip contient effectivement au moins un répertoire / fichier du nom du paquet recherché
+    # Contrôle si il existe au moins un package pip correspondant dans les packages de l'environnement
+    ls "$PIP_PATH_PACKAGE" | grep -m 1 -o -E "$NOM_PACKAGE_AU_PROPRE.*" #>/dev/null 2>&1 # test si le répertoire des packages pip contient effectivement au moins un répertoire / fichier du nom du paquet recherché
     # Si c'est le cas, 'ls' retourne 0 - sinon affichage du package manquant
     if (($?))
     then
