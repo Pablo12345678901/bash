@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source fonctions_personnelles
+source functions_personal
 
 # Ce script configure/affiche un environnement virtuel Python pour Guix
 # avec un path PREFIX_PATH dans lequel seront installés les packages pip

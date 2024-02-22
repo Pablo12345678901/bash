@@ -3,7 +3,7 @@
 # Syntaxe :
 # -
 
-source fonctions_personnelles
+source functions_personal
 
 MAIN_EXTERNAL_DISK="${USB_CONNEXION_PATH}/Elements"
 BACK_UP_EXTERNAL_DISK="${USB_CONNEXION_PATH}/Double"
@@ -130,4 +130,4 @@ fi
 
 # Showing the results
 echo -e "\nBack-up script finished - Please check the results.\n"
-fichier_ouvrir -f "$SCRIPT_OUTPUT_FILE"
+file_open -f "$SCRIPT_OUTPUT_FILE"

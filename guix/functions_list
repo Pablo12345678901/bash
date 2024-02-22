@@ -11,7 +11,7 @@ while IFS= read -r # pour ajouter un délimiteur, ajouter -d 'CHARDELIMITEUR'
 # 'IFS=' préserve les éventuels espaces avant et après l'élément
 do
    TABLEAU_FONCTIONS+=("$REPLY") # reply est la variable dans laquelle est stockée le résultat si aucune variable n'est fournie
-done < <(grep "function" "$REPERTOIRE_DES_COMMANDES_PERSO/fonctions_personnelles" | sort --ignore-case )
+done < <(grep "function" "$REPERTOIRE_DES_COMMANDES_PERSO/functions_personal" | sort --ignore-case )
 
 echo -e "\nListe des fonctions personnelles disponibles :\n"
 for FONCTION in "${TABLEAU_FONCTIONS[@]}"

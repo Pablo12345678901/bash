@@ -3,7 +3,7 @@
 # Syntaxe :
 # - : pas d'argument à fournir
 
-source fonctions_personnelles
+source functions_personal
 
 COMMANDE="${0##*/}" # nom de la commande utile pour les messages d'erreur
 

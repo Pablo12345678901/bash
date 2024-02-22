@@ -3,7 +3,7 @@
 # Syntaxe :
 # - : pas d'argument à fourni
 
-source fonctions_personnelles
+source functions_personal
 
 # Tableaux de conservations des résultats avec les noms des appareils UBS / disques durs
 declare -a LISTE_APPAREILS

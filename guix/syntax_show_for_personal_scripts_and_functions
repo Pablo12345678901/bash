@@ -15,7 +15,7 @@
 #           si oui : recherche si une syntaxe existe
 #           si non : renvoie vers une recherche plus générale (via un autre script)        
 
-source fonctions_personnelles
+source functions_personal
 
 SYNTAXE="\nSyntaxe :\n\t$(basename $0)    FONCTION_DU_FICHIER_FONCTIONS_PERSONNELLES_OU_SCRIPT_DU_REPERTOIRE_BIN\n"
 # Contrôle des argument (min un argument):
@@ -32,7 +32,7 @@ REGEX_FICHIER_DU_REPERTOIRE_BIN="$REPERTOIRE_DES_COMMANDES_PERSO.*"
 REGEX_FONCTION_DANS_FICHIER_FONCTION="^function[[:space:]]+$FONCTION_OU_SCRIPT_RECHERCHE.*$"
 REGEX_LIGNE_COMMENTAIRE_SYNTAXE="#.*Syntaxe"
 SCRIPT_RECHERCHE_ADDITIONNELLE="man_info_commande"
-FICHIER_DES_FONCTIONS_PERSONNELLES="fonctions_personnelles"
+FICHIER_DES_FONCTIONS_PERSONNELLES="functions_personal"
 FLAG_SYNTAXE_TROUVEE="false"
 NB_LIGNE_CONTEXTE=20
 

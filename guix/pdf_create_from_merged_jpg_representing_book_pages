@@ -5,7 +5,7 @@
 # converts each photo to a pdf
 # and then merge them to get a final output.
 
-source fonctions_personnelles
+source functions_personal
 
 COUNTER=0
 PAGE_MAX=10
@@ -120,5 +120,5 @@ mv "$PDF_CURRENT_OUTPUT" "$PATH_OF_FINAL_OUTPUT"
 
 # Final message and opening of final output
 echo -e "\nOpening final output pdf '$BASENAME_FINAL_OUTPUT_PDF' located '$PATH_OF_FINAL_OUTPUT'...\n"
-fichier_ouvrir -f "$PATH_OF_FINAL_OUTPUT"
+file_open -f "$PATH_OF_FINAL_OUTPUT"
 exit 0

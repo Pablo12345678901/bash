@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source fonctions_personnelles
+source functions_personal
 
 # Syntaxe
 SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-s SOURCE_AVEC_SLASH_FINAL" "-d DESTINATION_SANS_SLASH_FINAL" "[--silent]")"

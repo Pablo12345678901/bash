@@ -3,7 +3,7 @@
 # Argumnent :
 # aucun
 
-source fonctions_personnelles
+source functions_personal
 
 # Configuration du temps d'attente après les messages clefs
 SECONDE_ATTENTE=1

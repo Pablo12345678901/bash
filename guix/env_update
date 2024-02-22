@@ -3,7 +3,7 @@
 # Syntaxe :
 # - : aucun argument requis.
 
-source fonctions_personnelles
+source functions_personal
 
 # Syntaxe
 SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "[-r REQUEST_USER_AGREEMENT_TO_CONTINUE]")"

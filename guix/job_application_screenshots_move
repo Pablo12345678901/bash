@@ -4,7 +4,7 @@
 # $1 : REPERTOIRE_DU_DOSSIER_DE_CANDIDATURE
 # $2 : TYPE_ANNONCE_OU_CONFIRMATION ('-annonce' ou '-confirmation')
 
-source fonctions_personnelles
+source functions_personal
 
 # Selon l'environnement, modifier ces données
 EXTENSION_CAPTURE_ECRAN=".png"

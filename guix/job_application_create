@@ -15,7 +15,7 @@
 # La recherche est faite par ordre décronologique.
 # Finalement, le CV et LM sont ouverts pour modification. Le répertoire lui aussi est ouvert.
 
-source fonctions_personnelles
+source functions_personal
 
 # À modifier selon l'environnement
 PATH_DISQUE_DUR="${USB_CONNEXION_PATH}/Elements"
@@ -159,7 +159,7 @@ else
 fi
 
 # Ouverture du tableau recherche emploi
-fichier_ouvrir -f "$TABLEAU_RECHERCHE_EMPLOI" || exit 6
+file_open -f "$TABLEAU_RECHERCHE_EMPLOI" || exit 6
 
 # Obtention de la date
 DATE_AJD="$(date -I)"
@@ -320,8 +320,8 @@ else
 		                
                 # Ouverture des fichiers CV+LM pr modification
                 echo -e "\nOuverture du CV et de la LM pour votre modification.\n"
-		fichier_ouvrir -f "$PATH_NVO_CV"
-                fichier_ouvrir -f "$PATH_NVO_LM"
+		file_open -f "$PATH_NVO_CV"
+                file_open -f "$PATH_NVO_LM"
 		
                 break # sortie de boucle
             fi
@@ -336,10 +336,10 @@ fi
 # Ouverture du répertoire
 echo -e "\nOuverture du répertoire \"$PATH_COMPLET_REPERTOIRE_CANDIDATURE\"...\n"
 
-fichier_ouvrir -f "$PATH_COMPLET_REPERTOIRE_CANDIDATURE"
+file_open -f "$PATH_COMPLET_REPERTOIRE_CANDIDATURE"
 
 # Copie des captures d'écran de l'annonce
-emploi_capture_ecran_deplacer_ds_dossier_candidature "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" "-annonce"
+job_application_screenshots_move "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" "-annonce"
 
 # Question oui/non il y a capture d'écran confirmation
 # -> si oui, copie dans le répertoire
@@ -348,7 +348,7 @@ QUESTION_CONFIRMATION="Y a-t-il une/des capture(s) d'écran de la confirmation ?
 question_oui_non REPONSE_SI_CONFIRMATION "$QUESTION_CONFIRMATION"
 if [ "$REPONSE_SI_CONFIRMATION" = "o" ]
 then
-    emploi_capture_ecran_deplacer_ds_dossier_candidature "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" "-confirmation"
+    job_application_screenshots_move "$PATH_COMPLET_REPERTOIRE_CANDIDATURE" "-confirmation"
 else 
     :
 fi
