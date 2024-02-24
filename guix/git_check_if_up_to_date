@@ -30,7 +30,7 @@ if [ "$FLAG_REPERTOIRE_A_PUSH" = "true" ]
 then
     echo ""
 else
-    echo -e "\nAll Git dirs are already up-to-date.\n"
+    echo -e "\nAll Git dirs are up-to-date.\n"
 fi
 
 exit 0
