@@ -13,6 +13,9 @@ turn_off_actions_before ||
       exit 1
     }
 
+# Ask user if agree to continue else, if 'sudo' is required for any of the commands called_before, it will process immediatly without possibility of stop this action.
+ask_user_if_agree_to_continue
+
 # Shutdown
 echo -e "\nWrite your password and the computer will shutdown immediatly."
 echo -e "Cancel with CTRL+C\n"
