@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 # Syntaxe :
-# $1 : index de la commande du menu sélect (optionnel)
+# $1 : index of the command from select menu to run (optionnel)
 
-# Récupération de la liste de commandes possibles
+# Get the list of all my personal commands
 declare -a LISTE_COMMANDE
 OPTION_SORTIE="Quitter"
 for command in $REPERTOIRE_DES_COMMANDES_PERSO/*
@@ -13,25 +13,24 @@ do
     LISTE_COMMANDE+=("$command")
 done
 
-# Tri des éléments du tableau
+# Sort array elements
 STRING_LISTE_TRIEE_COMMANDES="$( tr ' ' '\n' <<<"${LISTE_COMMANDE[*]}" | sort --ignore-case | tr '\n' ' ' )"
 # '<<<' : Transformation du string en un fichier (temporaire)
 # tr : remplacement des espaces ' ' par un retour à la ligne '\n'
 # sort --ignore-case : tri dans l'ordre alphabétique en ignorant la casse
 # tr : remplacement des retour à la ligne par des espaces
 
-# String retransformé sous forme de tableau pour boucler
+# Convert string to array in order to enable looping on them
 LISTE_COMMANDE=($STRING_LISTE_TRIEE_COMMANDES) 
 
-# Ajout de l'option pour quitter
+# Add the option to quit
 LISTE_COMMANDE+=("$OPTION_SORTIE") 
 DERNIERE_OPTION=${#LISTE_COMMANDE[@]}
 
-# Sélection de la commande à exécuter avec possibilité de quitter
+# Select command to run - also option to quit
 CHOIX=""
 
-
-# Gestion d'un éventuel argument (index+1 passé en argument)
+# Argument provided processing if any (comand to run = index-1)
 if [ -z "$1" ]
 then
     :
@@ -45,7 +44,7 @@ else
     fi
 fi
 
-# Boucler tant que le choix n'est pas correct = tant que choix n'est pas un string > 1char
+# Loop as long as the user does not make a correct choice. As long as it is not a string with > 1 char
 until [ -n "$CHOIX" ] 
 do
     echo -e "\nChoisissez une commande pour l'exécuter ou tapez \"$DERNIERE_OPTION\" pour \"$OPTION_SORTIE\"\n"
@@ -53,10 +52,9 @@ do
     do
         break 
     done
-    if [ -n "$CHOIX" ] # si le choix est correct
+    # Check if choice is incorrect
+    if [ ! -n "$CHOIX" ]
     then
-        :
-    else
         echo -e "ERREUR : votre saisie ne fait pas partie de la liste de choix.\nTapez \"$DERNIERE_OPTION\" pour \"$OPTION_SORTIE\""
     fi
 done    
