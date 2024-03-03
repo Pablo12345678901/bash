@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# Syntax :
+# No argument needed.
+
+# Usage : return the current timestamp. Useful when backing up files.
+
+# Format YYYYMMDDHHMM (years, month, day, hour, minute)
+CURRENT_DATE_AND_HOUR="$(date +%F%R | tr -d ':' | tr -d '-')"
+printf "%s\n" "$CURRENT_DATE_AND_HOUR" 
