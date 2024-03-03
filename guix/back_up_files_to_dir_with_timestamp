@@ -1,0 +1,120 @@
+#!/usr/bin/env bash
+
+source functions_personal
+
+# Syntax :
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-f FILE_TO_BACK_UP [[-f FILE_TO_BACK_UP] ...]" "-d TARGET_DIRECTORY" "[--sudo]")"
+# Provide '--sudo' if a sudo is required for copying root files.
+
+####### BEGINNING OF OPTION MANAGEMENT ##########
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'd:f:' --longoptions 'sudo' -q -- "$@")
+# -q : quiet
+# -- : to explicitly show the options end
+
+# Test whether syntax was correct (options + arguments)
+if [ $? -ne 0 ]
+then
+    STDERR_afficher_message "ERROR: syntax..."
+    STDERR_afficher_message "$SYNTAXE"
+    exit 1
+fi
+
+# Arguments check
+FLAG_OPTION_D=
+FLAG_OPTION_F=
+
+# Re-set options through positional parameters
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+    case "$1" in
+	-d )
+	    FLAG_OPTION_D=1
+            TARGET_DIRECTORY="$2"
+	    shift 2
+	    # Get the path whether it is absolute or relative
+	    TARGET_DIRECTORY="$(readlink --canonicalize "$TARGET_DIRECTORY")"
+	    # Test if the directory exists - exit with error else
+	    if [ ! -d "$TARGET_DIRECTORY" ]
+            then
+                STDERR_afficher_message "\nERROR : the provided argument to '-d' = \"$TARGET_DIRECTORY\" is not a directory or does not exist.\n"
+                STDERR_afficher_message "$SYNTAXE"
+                exit 2 
+            fi
+	    continue
+            ;;
+	-f )
+	    FLAG_OPTION_F=1
+	    FILE_TO_BACK_UP="$2"
+	    shift 2
+            # Get the path whether it is absolute or relative
+	    FILE_TO_BACK_UP="$(readlink --canonicalize "${FILE_TO_BACK_UP}")"
+	    # Check that the file exists - exit with error else
+	    if [ -f "$FILE_TO_BACK_UP" ]
+	    then
+		# Add file to array
+                ARRAY_FILES+=("$FILE_TO_BACK_UP")
+                # Add file basename to array
+		FILE_BASENAME="$(file_get_basename "$FILE_TO_BACK_UP")" # see personal functions
+		ARRAY_FILE_BASENAMES+=("$FILE_BASENAME")
+	    else
+		STDERR_afficher_message "\nERROR : the provided argument to '-f' = \"$FILE_TO_BACK_UP\" is not a file or does not exist.\n"
+                STDERR_afficher_message "$SYNTAXE"
+                exit 3 
+	    fi
+            continue
+            ;;
+	--sudo )  
+	    SUDO_COMMAND="sudo"
+            shift 1
+            continue
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )
+	    # Error management for all other bugs
+            STDERR_afficher_message "ERROR: internal error...\n"
+            STDERR_afficher_message "$SYNTAXE"
+            exit 4
+            ;;
+	esac
+done
+
+# Test whether other arguments were provided = in excess (=test if $1 is defined)
+if [ ! -z "$1" ]
+then
+    STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 5
+fi
+
+# Test if the requested option(s) were provided
+if [ -z "$FLAG_OPTION_D" ] || [ -z "$FLAG_OPTION_F" ]
+then
+    STDERR_afficher_message "\nERROR : Please provide all requested argument(s).\n"
+    STDERR_afficher_message "$SYNTAXE"
+    exit 6
+fi
+
+########## END OF OPTION MANAGEMENT ####################
+
+# Back-up all files to target directory with the current timestamp before their basenames
+# with confirmation message (sucess/error + exit)
+for i in "${!ARRAY_FILES[@]}"
+do
+    # With or without sudo depending on  arguments provided to script.
+    { eval "$SUDO_COMMAND" cp "${ARRAY_FILES[i]}" "${TARGET_DIRECTORY}/$(timestamp_current)-${ARRAY_FILE_BASENAMES[i]}" && echo -e "Success : the file \"${ARRAY_FILE_BASENAMES[i]}\" located \"${ARRAY_FILES[i]}\" was backed-up into the directory \"${TARGET_DIRECTORY}\".\n" 
+    } ||
+    { STDERR_afficher_message "\nERROR : the file \"${ARRAY_FILE_BASENAMES[i]}\" located \"${ARRAY_FILES[i]}\" could not be backed-up into the directory \"${TARGET_DIRECTORY}\". Please check output...\n"
+      exit 7
+    }
+done
+
+exit 0
