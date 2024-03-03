@@ -191,6 +191,23 @@ function espace_avant_supprimer {
 
 # F
 
+function file_get_basename {
+    # Syntax : 
+    # $1 : FILE_PATH (value) (absolute or relative)
+
+    local FILE_PATH="$1"
+    local FILE_BASENAME
+
+    # Remove trailing '/' if any
+    FILE_PATH="${FILE_PATH%/}"
+    # Convert relative path to absolute
+    FILE_PATH="$(readlink --canonicalize "$FILE_PATH")"
+
+    # Remove all until the last '/' (before the basename)
+    FILE_BASENAME="${FILE_PATH##*/}"
+    printf "%s\n" "$FILE_BASENAME"
+}
+
 function find_exclure_repertoire_retourne_string_a_inserer_ds_find {
     # Syntaxe : 
     # $1 : TAB (variable) -> le tableau dans lequel sera stocké ce qu'il faut ajouter à find. Doit être vide où seulement rempli par cette fonction.
@@ -947,6 +964,15 @@ function texte_aligner_blocs {
         exit 1
     fi
     STR_FINAL="$STR_PROVISOIRE"
+}
+
+function timestamp_current {
+    # Syntax :
+    # No argument needed.
+    # Usage : return the current timestamp. Useful when backing up files.
+    
+    CURRENT_DATE_AND_HOUR="$(date +%F%R | tr -d ':' | tr -d '-')"
+printf "%s\n" "$CURRENT_DATE_AND_HOUR"
 }
 
 # U
