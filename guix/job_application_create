@@ -182,7 +182,8 @@ fi
 
 # Obtenir le nom du nouveau dossier de candidature
 NVO_REPERTOIRE_CANDIDATURE_AVEC_ESPACE="${JOUR} ${NOM_DU_POSTE} ${NOM_DE_LENTREPRISE}${FIN_DU_REPERTOIRE_CANDIDATURE_VERSION_ANGLAISE}"
-NVO_REPERTOIRE_CANDIDATURE_SANS_ESPACE="$(string_replace_special_chars_and_accents_with_underscore -s "$NVO_REPERTOIRE_CANDIDATURE_AVEC_ESPACE")"
+NVO_REPERTOIRE_CANDIDATURE_SANS_ESPACE="$(string_replace_special_chars_and_accents_with_underscore -s "${NVO_REPERTOIRE_CANDIDATURE_AVEC_ESPACE@P}")"
+
 PATH_COMPLET_REPERTOIRE_CANDIDATURE="${RERTOIRE_MOIS_EN_COURS}/${NVO_REPERTOIRE_CANDIDATURE_SANS_ESPACE}"
 
 # Si un dossier du même nom est déjà existant
@@ -211,6 +212,7 @@ else
     do
         # La variation évolue de -1j à chaque date
         NOUVELLE_DATE="$(date --date="${VARIATION} days ago" +%F)"
+	
         # date -I : Obtient la date au format AAAA-MM-JJ
         ANNEE_AUTRE_DOSSIER="$(echo "$NOUVELLE_DATE" | awk -F - ' { print $1 } ')"
         # obtient les 2 derniers chiffres de l'année
@@ -233,8 +235,10 @@ else
         while read PATH_AUTRE_DOSSIER
         do 
             PATH_AUTRE_DOSSIER_REEL="$PATH_AUTRE_DOSSIER"
+	    
             # Ce flag mettra fin à la boucle de recherche
             FLAG_DOSSIER_TROUVE="true"
+
         done < <(find "$REPERTOIRE_DE_BASE" -type d -regex "$REGEX_NOM_DE_L_AUTRE_DOSSIER" -print0 -quit | tr '\0' '\n' )
         # trouve les éventuels répertoire avec -type d selon le regex du path
         # find -quit : quitte après le premier match
@@ -250,7 +254,7 @@ else
                 while read PATH_CV
                 do
                     PATH_CV_AUTRE_DOSSIER_REEL="$PATH_CV"
-                    FLAG_CV_TROUVE="true"
+                    FLAG_CV_TROUVE="true"		    
                 done < <(find "$PATH_AUTRE_DOSSIER_REEL" -regex "${REGEX_CV}" -print0 -quit | tr '\0' '\n')
                 # find -quit : quitte après le premier match
             else
