@@ -66,10 +66,8 @@ else
     exit 4
 fi
 
-echo "DEBUG-$STRING_AVEC_CHAR_SPECIAUX"
-
-# Echo du nvo string sans les char spéciaux
-echo -e "$STRING_AVEC_CHAR_SPECIAUX" |
+# Printing new string without special chars
+echo "$STRING_AVEC_CHAR_SPECIAUX" |
 # Replace the below special char - not equivalent to '-', else bug.
 tr '–' '_' |
 tr 'à' 'a' |
