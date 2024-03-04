@@ -32,7 +32,6 @@ while true; do
 	case "$1" in
         '-f' )
             FLAG_OPTION_F=1
-	    echo -E "$2"
 	    # Set the file provided
 	    FILE_TO_OPEN="$2"
 	    # Preserve what was initially provided for further printed messages
