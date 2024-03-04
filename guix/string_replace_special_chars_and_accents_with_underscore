@@ -66,9 +66,12 @@ else
     exit 4
 fi
 
+echo "DEBUG-$STRING_AVEC_CHAR_SPECIAUX"
 
 # Echo du nvo string sans les char spéciaux
-echo -E "$STRING_AVEC_CHAR_SPECIAUX" |
+echo -e "$STRING_AVEC_CHAR_SPECIAUX" |
+# Replace the below special char - not equivalent to '-', else bug.
+tr '–' '_' |
 tr 'à' 'a' |
 tr 'À' 'A' |
 tr 'â' 'a' |
@@ -87,5 +90,7 @@ tr 'ô' 'o' |
 tr 'Ô' 'O' |
 tr 'û' 'u' |
 tr 'Û' 'U' |
-sed 's/[^a-zA-Z]/_/g'
+# Replace all chars that are neither letters nor digits 
+sed 's/[^a-zA-Z0-9]/_/g'
+
 
