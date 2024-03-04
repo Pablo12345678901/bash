@@ -68,7 +68,7 @@ fi
 
 
 # Echo du nvo string sans les char spéciaux
-echo "$STRING_AVEC_CHAR_SPECIAUX" |
+echo -E "$STRING_AVEC_CHAR_SPECIAUX" |
 tr 'à' 'a' |
 tr 'À' 'A' |
 tr 'â' 'a' |
@@ -87,17 +87,5 @@ tr 'ô' 'o' |
 tr 'Ô' 'O' |
 tr 'û' 'u' |
 tr 'Û' 'U' |
-tr '/' '_' |
-tr '’' '_' |
-tr "'" '_' |
-tr '°' '_' |
-tr '(' '_' |
-tr ')' '_' |
-tr '-' '_' |
-tr '–' '_' |
-tr ',' '_' |
-tr ' ' '_' |
-tr '[' '_' |
-tr ']' '_' |
-tr '%' '_'
+sed 's/[^a-zA-Z]/_/g'
 
