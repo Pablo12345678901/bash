@@ -4,7 +4,7 @@
 # $1 : COMMANDE_RECHERCHEE
 # $2 : MOT_CLE_RECHERCHE -> option ou mot-clef à rechercher dans le manuel
 
-source fonctions_personnelles # pour le choix oui/non
+source functions_personal # pour le choix oui/non
 
 ##################################################################
 # Résumé script :
@@ -29,7 +29,7 @@ else
     MOT_CLE_RECHERCHE="$2"
 fi
 
-SCRIPT_DE_RECHERCHE_ADDITIONNELLE="man_info_commande" # à adapter si changement nom du script dans répertoire commandes personnelles
+SCRIPT_DE_RECHERCHE_ADDITIONNELLE="man_info_on_command" # à adapter si changement nom du script dans répertoire commandes personnelles
 REGEX_RECHERCHE="[[:space:]]*$2[[:space:]]*"
 
 case $(type -t "$COMMANDE_RECHERCHEE") in

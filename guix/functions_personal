@@ -307,12 +307,18 @@ function man_fonction_recherche_commande_et_mot_clef {
     echo -e "\nREGEX RECHERCHE \"$REGEX_RECHERCHE\"\n" # Ceci n'est pas du débug - c'est un affichage volontaire.
     TYPE_RECHERCHE="$3"
     SCRIPT_RECHERCHE_ADDITIONNELLE="$4"
-    # Tentative de recherche
-    "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" >/dev/null && # s'il y a une page de manuel / help
-    "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" | # récupère la page
-    col -bx | # la formatte pr traitement
+    # Silent search attempt
+    "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" >/dev/null 2>&1 && # s'il y a une page de manuel / help
+     # If a page was found, output it through pipeline
+     # STDERR has to be ignored because it lauches error about 'troff' used by man
+    "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" 2>/dev/null |
+    # Format for processing
+    col -bx |
+    # Get the first 6 line (among those are the title and section name)
     head -n 6 | # récupère les 6 première lignes (dont le titre (help) ou section NAME (man))
-    grep -c "$COMMANDE_RECHERCHEE" >/dev/null # contrôle que la commande recherchée figure bien dans le titre de la page de manuel
+    # Test if it contains the name of the command
+    grep -c "$COMMANDE_RECHERCHEE" >/dev/null
+    # contrôle que la commande recherchée figure bien dans le titre de la page de manuel
     # car parfois la page de manuel contient une autre commande (ex : man ? -> ne redirige pas vers '?' mais vers 'man test')
     ##########################################################################
     # La tentative de recherche retourne 0 si grep à compter au moins un match
@@ -333,7 +339,9 @@ function man_fonction_recherche_commande_et_mot_clef {
             exit 0
         fi
     else
-        "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" | less -I -p "$REGEX_RECHERCHE" # recherche du mot clef recherché dans la page du manuel dédiée
+	# Search the keyword (regex) within the man/help page
+	# STDERR has to be ignored because it lauches error about 'troff' used by man
+        "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" 2>/dev/null | less -I -p "$REGEX_RECHERCHE"
         # less -I : insensitive à la casse
         # less -p : demande à 'less' de débuter l'affichage à la première occurence du pattern.
         # le REGEX du mot clef recherché est composé d'au moins un espace avant et 0 ou plusieurs espaces après.
