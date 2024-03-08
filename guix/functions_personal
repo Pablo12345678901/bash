@@ -389,6 +389,14 @@ function processus_kill_ts_de_session_terminal {
     done < <(jobs -p)
 } >/dev/null 2>&1 # STDOUT et STDERR sont envoyé vers /dev/null (=ignorés)
 
+function proxy_unset {
+    # Syntax :
+    # No required argument.
+    # Use : deactivate the environment variable about the proxy.
+    
+    unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
+}
+
 # Q
 
 function question_oui_non {
