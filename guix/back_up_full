@@ -162,7 +162,7 @@ echo -n "" > "$SCRIPT_OUTPUT_FILE"
 : <<"OPTIONALHOMEBACKUPINDEV"
 
 # Optional back-up of home
-COMMAND="sudo back_up_a_dir_to_another -s \"$HOME\" -d \"${MAIN_EXTERNAL_DISK}/home\" "
+COMMAND="sudo back_up_a_dir_to_another -s $HOME -d ${MAIN_EXTERNAL_DISK}/home "
 echo "$COMMAND"
 
 # Show the current step
@@ -183,7 +183,7 @@ OPTIONALHOMEBACKUPINDEV
 SETOPTIONALHEREINDEV
 
 # Back-up of main external disk to secondary one
-COMMAND="sudo back_up_a_dir_to_another -s \"${MAIN_EXTERNAL_DISK}/\" -d \"${BACK_UP_EXTERNAL_DISK}\" "
+COMMAND="sudo back_up_a_dir_to_another -s ${MAIN_EXTERNAL_DISK}/ -d ${BACK_UP_EXTERNAL_DISK} "
 
 # Show the current step
 echo -e "\nBacking-up the main external disk to the secondary one...\n" &&
