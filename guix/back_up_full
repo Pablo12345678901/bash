@@ -1,18 +1,149 @@
 #!/usr/bin/env bash
 
-# Syntaxe :
+# Syntax :
 # -
 
 source functions_personal
 
+# Set the list of target directories for the back-up through their environment variable name
+declare -a ARRAY_DIR_LIST_FOR_BACK_UP
+ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_PROFILES")
+ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_SYSTEM_CONFIG")
+ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_CHANNELS")
+ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_MANIFESTS")
+
+# Set the list of profile files to back-up through their environment variable name
+declare -a ARRAY_ENV_VAR_PROFILES_FILES
+ARRAY_ENV_VAR_PROFILES_FILES+=("BASH_PROFILE")
+ARRAY_ENV_VAR_PROFILES_FILES+=("BASHRC")
+ARRAY_ENV_VAR_PROFILES_FILES+=("EMACS_CONF")
+ARRAY_ENV_VAR_PROFILES_FILES+=("GIT_CONF")
+ARRAY_ENV_VAR_PROFILES_FILES+=("PROXYCHAINS_CONF")
+ARRAY_ENV_VAR_PROFILES_FILES+=("RBW_CONF")
+
+# Path for external disks and output file
 MAIN_EXTERNAL_DISK="${USB_CONNEXION_PATH}/Elements"
 BACK_UP_EXTERNAL_DISK="${USB_CONNEXION_PATH}/Double"
 SCRIPT_OUTPUT_FILE="${REPERTOIRE_TEMPORAIRE}/output.txt"
+# Will enable the user to read the message before running a long command of back-up with external disk
+PAUSE_BEFORE_RUN=5 
 
+# Check that all back-up directories exist
+for i in "${!ARRAY_DIR_LIST_FOR_BACK_UP[@]}"
+do
+    if [ ! -d "${!ARRAY_DIR_LIST_FOR_BACK_UP[$i]}" ]
+    then
+        # Exit with error else
+	STDERR_afficher_message "\nERROR : the variable for the back-up directory \"${ARRAY_DIR_LIST_FOR_BACK_UP[$i]}\" is not correctly set. Currently, its value is \"${!ARRAY_DIR_LIST_FOR_BACK_UP[$i]}\" which is not a directory.\n"
+        exit 1
+    fi
+done
+
+# Back-up of profiles files
+for i in "${!ARRAY_ENV_VAR_PROFILES_FILES[@]}"
+do
+    # Check that the file exists through its environment variable value
+    if [ ! -f "${!ARRAY_ENV_VAR_PROFILES_FILES[$i]}" ]
+    then
+	# Exit with error else
+	STDERR_afficher_message "\nERROR : The environment variable \"${ARRAY_ENV_VAR_PROFILES_FILES[$i]}\" is not correctly set. Currently, its value is \"${!ARRAY_ENV_VAR_PROFILES_FILES[$i]}\" which is not a file.\n"
+	  exit 1
+    fi
+
+    # Back-up with confirmation of success / error through another script
+    back_up_files_to_dir_with_timestamp -f  "${!ARRAY_ENV_VAR_PROFILES_FILES[$i]}" -d "$DIR_BACK_UP_PROFILES" ||
+	exit 1
+
+done
+
+# Back-up of system configuration
+# Check that the file exists
+if [ ! -f "$GUIX_SYSTEM_CONF" ]
+then
+    # Exit with error else
+    STDERR_afficher_message "\nERROR : The environment variable \"GUIX_SYSTEM_CONF\" is not correctly set. Currently, its value is \"$GUIX_SYSTEM_CONF\" which is not a file.\n"
+      exit 1
+else
+# Back-up with confirmation of success / error through another script
+back_up_files_to_dir_with_timestamp -f  "$GUIX_SYSTEM_CONF" -d "$DIR_BACK_UP_SYSTEM_CONFIG" ||
+    exit 1
+fi
+
+# Back-up of channels configuration
+# Check that the file exists
+if [ ! -f "$GUIX_CHANNELS_CONF" ]
+then
+    # Exit with error else
+    STDERR_afficher_message "\nERROR : The environment variable \"GUIX_CHANNELS_CONF\" is not correctly set. Currently, its value is \"$GUIX_CHANNELS_CONF\" which is not a file.\n"
+      exit 1
+else
+# Back-up with confirmation of success / error through another script
+back_up_files_to_dir_with_timestamp -f  "$GUIX_CHANNELS_CONF" -d "$DIR_BACK_UP_CHANNELS" ||
+    exit 1
+fi
+
+# Back-up of current packages list
+# Check if the file exists (it is a symlink) so not using '-f'
+if [ ! -e "$GUIX_PACKAGES_INSTALLATION_PROFILE" ]
+then
+    # Exit with error else
+    STDERR_afficher_message "\nERROR : The environment variable \"GUIX_PACKAGES_INSTALLATION_PROFILE\" is not correctly set. Currently, its value is \"$GUIX_PACKAGES_INSTALLATION_PROFILE\" which does not exist.\n"
+      exit 1
+else
+    # Back-up with confirmation of success / error
+    {  BACK_UP_MANIFEST_PATH="${DIR_BACK_UP_MANIFESTS}/$(timestamp_current)-manifest.scm" &&
+	# Write a new file with the manifest of current packages.
+	guix package -p "$GUIX_PACKAGES_INSTALLATION_PROFILE" --export-manifest > "$BACK_UP_MANIFEST_PATH" &&
+      echo -e "\nOK - The manifest of current packages was saved under the path \"$BACK_UP_MANIFEST_PATH\".\n"
+    }||
+    { STDERR_afficher_message "\nERROR : The manifest of current packages could not be backed-up. Check script output and/or the back-up script.\n"
+      exit 1
+    }
+fi
+
+: <<"DISKPARTITIONINDEV"
+# Back-up of disk-partition, size and filesystem types
+#        - 'lsblk' to get the list of partitions as well as their sizes.
+#	- 'lsblk -f' to get the filesystem types of the partitions
+DISKPARTITIONINDEV
+
+
+
+
+: <<"GITPARTINDEV"
+
+# TO BE DONE LATER
+
+# Git
+# Ask if the development environment were saved
+# If yes, then push all directories
+# Ask the user to check git login space to check that the git push were well done.
+# Only after this all, remove all git directories
+
+# Require to remove the token
+
+# List here the required git repository to clone AND whether or not they are mine (to add the token)
+# Require for the news token
+# Clone the git dirs with urls provided and the token before if they are mine > can check it by greping the url to see if it contains my github name
+#
+
+GITPARTINDEV
+
+# Purge local Bitwarden database (tool 'rbw')
+{ rbw purge &&
+  echo -e "\nOK : The local Bitwarden database was sucessfully purged.\n"
+} ||
+{    STDERR_afficher_message "\nERROR : The local Bitwarden database could not be purged. Check script output and/or do it manually...\n"
+     exit 1
+}
+
+# Ask HERE the user to connect both disk OR exit if wished
+
+# Back-up of external disk
 # Check if env var are okay and if the external disks are connected - else exit with error
 if [[ ! -d "$MAIN_EXTERNAL_DISK" || ! -d "$BACK_UP_EXTERNAL_DISK" || ! -d "$REPERTOIRE_TEMPORAIRE" ]]
 then
-    echo -e "ERROR : one (or more) of those var below is not correctly defined."
+    echo -e "\nERROR : one (or more) of those var below is not correctly defined."
     echo -e "MAIN_EXTERNAL_DISK = \"$MAIN_EXTERNAL_DISK\""
     echo -e "BACK_UP_EXTERNAL_DISK = \"$BACK_UP_EXTERNAL_DISK\""
     echo -e "SCRIPT_OUTPUT_FILE = \"$SCRIPT_OUTPUT_FILE\""
@@ -20,114 +151,51 @@ then
     echo -e "Its is maybe because of the env var below :"
     echo -e "USB_CONNEXION_PATH = \"$USB_CONNEXION_PATH\""
     echo -e "REPERTOIRE_TEMPORAIRE = \"$REPERTOIRE_TEMPORAIRE\""
+    echo "" # Esthetic
     exit 1
 fi
 
 # Remove content if file existing
 echo -n "" > "$SCRIPT_OUTPUT_FILE"
 
-# Ask if wanted to start or to choose a step
-declare -a ARRAY_START_OR_CHOOSE
-ARRAY_START_OR_CHOOSE+=("Start the back-up from the beggining")
-ARRAY_START_OR_CHOOSE+=("Choose a specific step")
-USER_ACTION=""
-QUESTION_START_OR_CHOOSE="What would you like to do ? "
-OPTION_TO_QUIT="Quit"
-select_parmi_liste ARRAY_START_OR_CHOOSE USER_ACTION "$QUESTION_START_OR_CHOOSE" "$OPTION_TO_QUIT"
+# The below part will be set as optional
+: <<"OPTIONALHOMEBACKUPINDEV"
 
-# Quit if required by user
-if [ "$USER_ACTION" = "$OPTION_TO_QUIT" ]
-then
-    echo -e "\nYou choosed to quit the script without further step.\n"
-    exit 0
-fi
+# Optional back-up of home
+COMMAND="sudo back_up_a_dir_to_another -s \"$HOME\" -d \"${MAIN_EXTERNAL_DISK}/home\" "
+echo "$COMMAND"
 
-# Step list and choice by the way
-# Will be used to show the next step after the current step end
-declare -a ARRAY_STEP_CHOICE # this array will be needed after so declared before
-ARRAY_CURRENT_STEP_INDEX=0
-ARRAY_STEP_CHOICE+=("Back up home to main external disk")
-ARRAY_STEP_CHOICE+=("Back-up main external disk to secondary external disk")
+# Show the current step
+echo -e "\nBacking-up the \"home\" directory into the main external disk...\n" &&
+# Pause X seconds to let the user read the message
+sleep $PAUSE_BEFORE_RUN
 
-# Setting all flag to true by default - meaning all steps will be performed
-FLAG_BACK_UP_HOME_TO_MAIN_EXTERNAL_DISK="true"
-FLAG_BACK_UP_MAIN_EXTERNAL_DISK_TO_SECONDARY_DISK="true"
+# Back-up
+{ $COMMAND &&
+      echo "OK - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+} || echo "ERROR - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+echo -e "\n\n" >> "$SCRIPT_OUTPUT_FILE" # Esthetic
 
-# Choose a step if required by user 
-if [ "$USER_ACTION" = "Choose a specific step" ]
-then
-    STEP_CHOOSED=""
-    QUESTION_WHICH_STEP="At which step would you like to start ? "
-    OPTION_TO_EXIT="Quit"
-    select_parmi_liste ARRAY_STEP_CHOICE STEP_CHOOSED "$QUESTION_WHICH_STEP" "$OPTION_TO_EXIT"
+OPTIONALHOMEBACKUPINDEV
 
-    # Quit if required by user
-    if [ "$STEP_CHOOSED" = "$OPTION_TO_EXIT" ]
-    then
-	echo -e "\nYou choosed to quit the script without further step.\n"
-	exit 0
-    fi
-    
-    # Adaptation of the flag to start from the specific step    
-    case "$STEP_CHOOSED" in
-    "Back up home to main external disk")
-        :
-	;;
-    "Back-up main external disk to secondary external disk")
-	FLAG_BACK_UP_HOME_TO_MAIN_EXTERNAL_DISK="false"
-	ARRAY_CURRENT_STEP_INDEX=1
-	;;
-    *)
-        STDERR_afficher_message "\nERROR : The step choosed is not in script.\n"
-        exit 1
-        ;;
-    esac
-	
-fi
+# The below part will be set as optional
+: <<"SETOPTIONALHEREINDEV"
+SETOPTIONALHEREINDEV
 
-# Running from the step choosed / from the beggining
-if [ "$FLAG_BACK_UP_HOME_TO_MAIN_EXTERNAL_DISK" = "true" ]
-then
-    # Command to be runned
-    COMMAND="sudo back_up_a_dir_to_another -s /home/ -d ${MAIN_EXTERNAL_DISK}/home "
-    # Showing current step
-    echo -e "\nRUNNING : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"
-    # Back-up
-    { $COMMAND &&
-	  echo "OK - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
-    } || echo "ERROR - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
-    echo -e "\n\n" >> "$SCRIPT_OUTPUT_FILE" # Esthetic
-    # Printing message to show that step is finished
-    echo -e "\nFINISHED : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"
-    # Show next step and asks if user want to continue
-    ((ARRAY_CURRENT_STEP_INDEX++))	
-    echo -e "\nNEXT STEP : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"	
-    ask_user_if_agree_to_continue
-fi
+# Back-up of main external disk to secondary one
+COMMAND="sudo back_up_a_dir_to_another -s \"${MAIN_EXTERNAL_DISK}/\" -d \"${BACK_UP_EXTERNAL_DISK}\" "
 
-if [ "$FLAG_BACK_UP_MAIN_EXTERNAL_DISK_TO_SECONDARY_DISK" = "true" ]
-then
-    # Command to be runned
-    COMMAND="sudo back_up_a_dir_to_another -s /home/ -d ${MAIN_EXTERNAL_DISK}/home "
-    # Showing current step
-    echo -e "\nRUNNING : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"
-    # Back-up
-    COMMAND="sudo back_up_a_dir_to_another -s ${MAIN_EXTERNAL_DISK}/ -d ${BACK_UP_EXTERNAL_DISK} "
-    { $COMMAND &&
-	  echo "OK - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
-    } || echo "ERROR - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
-    echo -e "\n\n" >> "$SCRIPT_OUTPUT_FILE" # Esthetic
-    # Printing message to show that step is finished
-    echo -e "\nFINISHED : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"
+# Show the current step
+echo -e "\nBacking-up the main external disk to the secondary one...\n" &&
+# Pause X seconds to let the user read the message
+sleep $PAUSE_BEFORE_RUN
 
-    
-    # Below : to be activated if more steps are added below
-    # Show next step and asks if user want to continue
-    #((ARRAY_CURRENT_STEP_INDEX++))
-    #echo -e "\nNEXT STEP : \"${ARRAY_STEP_CHOICE[$ARRAY_CURRENT_STEP_INDEX]}\"\n"	
-    #ask_user_if_agree_to_continue
-fi
+# Back-up
+{ $COMMAND &&
+      echo "OK - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+} || echo "ERROR - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
+echo -e "\n\n" >> "$SCRIPT_OUTPUT_FILE" # Esthetic
 
 # Showing the results
-echo -e "\nBack-up script finished - Please check the results.\n"
+echo -e "\nBack-up of external disks finished - Please check the results.\n"
 file_open -f "$SCRIPT_OUTPUT_FILE"
