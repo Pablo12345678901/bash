@@ -122,10 +122,9 @@ DISKPARTITIONINDEV
 
 # Require to remove the token
 
-# List here the required git repository to clone AND whether or not they are mine (to add the token)
+# List here the required git repository to clone in the development environment AND whether or not they are mine (to add the token)
 # Require for the news token
 # Clone the git dirs with urls provided and the token before if they are mine > can check it by greping the url to see if it contains my github name
-#
 
 GITPARTINDEV
 
@@ -138,6 +137,8 @@ GITPARTINDEV
 }
 
 # Ask HERE the user to connect both disk OR exit if wished
+# Check first if main external disk is connected - because some steps does not need secondary disk
+# Then after, those, check if secondary disk is connected for the steps requiring it.
 
 # Back-up of external disk
 # Check if env var are okay and if the external disks are connected - else exit with error
@@ -157,6 +158,12 @@ fi
 
 # Remove content if file existing
 echo -n "" > "$SCRIPT_OUTPUT_FILE"
+
+# The below part will be set as optional
+
+: <<"GITBACKUPINTOEXTERNALDISK"
+# Copy all my git repo to main external disk : back-up in case GitHub server crash.
+GITBACKUPINTOEXTERNALDISK
 
 # The below part will be set as optional
 : <<"OPTIONALHOMEBACKUPINDEV"
