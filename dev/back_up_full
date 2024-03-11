@@ -114,6 +114,8 @@ DISKPARTITIONINDEV
 
 # TO BE DONE LATER
 
+# See the detailed list of steps in the back_up_checklist file (some were added).
+
 # Git
 # Ask if the development environment were saved
 # If yes, then push all directories
