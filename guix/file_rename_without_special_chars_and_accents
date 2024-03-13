@@ -73,17 +73,44 @@ fi
 # Test if file/dir exists - else exits
 if [ -f "$FILE_TO_RENAME" ] || [ -d "$FILE_TO_RENAME" ]
 then
+    # Get file basename and directory
     FILE_BASENAME="${FILE_TO_RENAME##*/}"
-    DIR_NAME="${FILE_TO_RENAME%$FILE_BASENAME}"   
+    DIR_NAME="${FILE_TO_RENAME%$FILE_BASENAME}"
 else
     STDERR_afficher_message "\nERROR : the file :\n\"$FILE_TO_RENAME\"\nis not existing or the path is wrong.\nPlease check it.\n"
     exit 5
 fi
 
-# Get the filename without special char / accents
+# Manage the dot files
+# Test if the file basename begging with a dot
+if [[ "$FILE_BASENAME" =~ ^\..*$ ]]
+then
+    # Conserving the dot
+    DOT_IN_THE_BEGGINING_IF_ANY="."
+    # Strip the dot on the begging of the file
+    FILE_BASENAME="${FILE_BASENAME#\.}"
+fi
+
+# Manage the extension of the file if any
+# Test if there is an extension = test if there is a
+if [[ "$FILE_BASENAME" =~ ^.{1,}\.[^\.]{1,}$ ]]
+then
+    # Conserving the extension after the dot
+    FILE_EXTENSION_IF_ANY="${FILE_BASENAME##*\.}"
+    # Add the dot before it
+    FILE_EXTENSION_IF_ANY=".$FILE_EXTENSION_IF_ANY"
+    # Strip the extension from the end of the file
+    FILE_BASENAME="${FILE_BASENAME%$FILE_EXTENSION_IF_ANY}"
+fi
+
+# Get the new filename without special char / accents
 NEW_FILE_BASENAME="$(string_replace_special_chars_and_accents_with_underscore -s "$FILE_BASENAME")"
 
-NEW_FILE_NAME="${DIR_NAME}${NEW_FILE_BASENAME}"
+# Recreate the filename with dot on the beggining and extension if any
+NEW_FILE_BASENAME_WITH_DOT_AND_EXTENSION_IF_ANY="${DOT_IN_THE_BEGGINING_IF_ANY}${NEW_FILE_BASENAME}${FILE_EXTENSION_IF_ANY}"
+
+# Produce the new path
+NEW_FILE_NAME="${DIR_NAME}${NEW_FILE_BASENAME_WITH_DOT_AND_EXTENSION_IF_ANY}"
 
 # Check if the file has already a convenient name - exit if so
 if [ "$FILE_TO_RENAME" = "$NEW_FILE_NAME" ]
