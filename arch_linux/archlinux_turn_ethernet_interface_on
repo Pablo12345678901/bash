@@ -32,7 +32,7 @@ do
     { { sudo systemctl is-active --quiet "$SERVICE_NAME" && sudo systemctl restart "$SERVICE_NAME"
     } || sudo systemctl start "$SERVICE_NAME"
     } ||
-    { STDERR_afficher_message "\nERROR : The service \"$SERVICE_NAME\" could not be started/restarted. Do it manually...\n"
+    { STDERR_show_message "\nERROR : The service \"$SERVICE_NAME\" could not be started/restarted. Do it manually...\n"
       exit 1
     }
 
@@ -41,7 +41,7 @@ do
     INTERFACE_NAME="${INTERFACE_NAME%:}"
     if [ -z "$INTERFACE_NAME" ]
     then
-	STDERR_afficher_message "\nERROR : no ethernet interface available...\n"
+	STDERR_show_message "\nERROR : no ethernet interface available...\n"
 	exit 2
     fi
 
@@ -76,5 +76,5 @@ do
 done
 
 # Show failure after X trials
-STDERR_afficher_message "\nERROR : The ethernet interface \"$INTERFACE_NAME\" could not be set UP. Do it manually...\n"
+STDERR_show_message "\nERROR : The ethernet interface \"$INTERFACE_NAME\" could not be set UP. Do it manually...\n"
 exit 3

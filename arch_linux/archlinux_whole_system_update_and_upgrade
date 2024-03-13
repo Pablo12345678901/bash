@@ -40,7 +40,7 @@ for EACH_STATUS in "${LISTE_STATUTS[@]}"
 do
     if [[ "$EACH_STATUS" =~ ^.*(ERREUR)$ ]]
     then
-	STDERR_afficher_message "\nThe update and upgrade of the whole system failed.\n\nPlease check output.\n\n"
+	STDERR_show_message "\nThe update and upgrade of the whole system failed.\n\nPlease check output.\n\n"
 	exit 1
     fi
 done

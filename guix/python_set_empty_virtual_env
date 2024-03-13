@@ -61,7 +61,7 @@ esac
 echo -e "\nCréation d'un environnement + clean si existant..."
 { rm -rf "$PYTHONENVLOCALPATHINSTALLATIONPIP"/*
 } ||
-    { STDERR_afficher_message "ECHEC lors de la création / clean. Veuillez le faire manuellement ou debugguer" &&
+    { STDERR_show_message "ECHEC lors de la création / clean. Veuillez le faire manuellement ou debugguer" &&
 	  exit 1
       }
 

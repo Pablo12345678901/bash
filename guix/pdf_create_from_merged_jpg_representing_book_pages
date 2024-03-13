@@ -49,7 +49,7 @@ done
 # Exit with error if one or more photos are missing
 if [ "$FLAG_NO_ERROR" = "false" ]
 then
-    STDERR_afficher_message "\nERROR : one or more photo(s) are missing. \nPlease check above output...\n"
+    STDERR_show_message "\nERROR : one or more photo(s) are missing. \nPlease check above output...\n"
     exit 1
 fi
 
@@ -65,7 +65,7 @@ do
     echo -e "Conversion of ${COUNTER}.jpg to pdf..."
     img2pdf --output "${JPGS_DIR}/${COUNTER}.pdf" "${JPGS_DIR}/${COUNTER}.jpg" ||
     # Exit with error message if cannot merge PDFs
-    { STDERR_afficher_message "\nERROR : could not convert '$COUNTER.jpg' to pdf. \nPlease do it manually or check the script...\n"
+    { STDERR_show_message "\nERROR : could not convert '$COUNTER.jpg' to pdf. \nPlease do it manually or check the script...\n"
       exit 1
     }
     # Mv to pdf to pdfs dir
@@ -104,7 +104,7 @@ do
     echo "Merging page $COUNTER..."
     gs -dNOPAUSE -sDEVICE=pdfwrite -sOUTPUTFILE="$PDF_CURRENT_OUTPUT" -dBATCH "$PDF_TO_MERGE_FIRST" "$PDF_TO_MERGE_SECOND" >/dev/null 2>&1 ||
 	# Exit with error message if cannot merge PDFs
-	{ STDERR_afficher_message "\nERROR : could not merge the pdfs '$PDF_TO_MERGE_FIRST' and '$PDF_TO_MERGE_SECOND'. \nPlease do it manually or check the script.\nREMINDER : a silent STDERR is activated with the 'gs' command...\n"
+	{ STDERR_show_message "\nERROR : could not merge the pdfs '$PDF_TO_MERGE_FIRST' and '$PDF_TO_MERGE_SECOND'. \nPlease do it manually or check the script.\nREMINDER : a silent STDERR is activated with the 'gs' command...\n"
 	  exit 1
 	}
     # Removing precedent output and pdfs already merged to keep dir cleaned

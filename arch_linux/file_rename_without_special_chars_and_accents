@@ -17,8 +17,8 @@ TEMP=$(getopt --options 'f:' -q -- "$@")
 # Test if the syntax is correct (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERROR : syntax error..."
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "ERROR : syntax error..."
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -43,8 +43,8 @@ while true; do
       	    ;;
         * )
 	    # Managing all other errors
-            STDERR_afficher_message "ERROR : internal error.\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "ERROR : internal error.\n"
+            STDERR_show_message "$SYNTAXE"
             exit 2
             ;;
 	esac
@@ -56,15 +56,15 @@ then
     # Test if other arguments = in excess (=test if $1 is defined)
     if [ ! -z "$1" ]
     then
-        STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
-        STDERR_afficher_message "$SYNTAXE"
+        STDERR_show_message "\nERROR : argument(s) in excess : \"$*\".\n"
+        STDERR_show_message "$SYNTAXE"
         exit 3
     else
         :
     fi
 else
-    STDERR_afficher_message "\nERROR : You must provide all required arguments.\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : You must provide all required arguments.\n"
+    STDERR_show_message "$SYNTAXE"
     exit 4
 fi
 
@@ -76,7 +76,7 @@ then
     FILE_BASENAME="${FILE_TO_RENAME##*/}"
     DIR_NAME="${FILE_TO_RENAME%$FILE_BASENAME}"   
 else
-    STDERR_afficher_message "\nERROR : the file :\n\"$FILE_TO_RENAME\"\nis not existing or the path is wrong.\nPlease check it.\n"
+    STDERR_show_message "\nERROR : the file :\n\"$FILE_TO_RENAME\"\nis not existing or the path is wrong.\nPlease check it.\n"
     exit 5
 fi
 
@@ -95,6 +95,6 @@ fi
 # Rename the file
 { mv "$FILE_TO_RENAME" "$NEW_FILE_NAME" &&
   echo -e "\nThe file was renamed as : \n\"$NEW_FILE_NAME\".\n"
-} || STDERR_afficher_message "\nERROR : the file :\n\"$FILE_TO_RENAME\"\ncould not be renamed\n\"$NEW_FILE_NAME\".\nPlease do it manually or debug.\n"
+} || STDERR_show_message "\nERROR : the file :\n\"$FILE_TO_RENAME\"\ncould not be renamed\n\"$NEW_FILE_NAME\".\nPlease do it manually or debug.\n"
 
     

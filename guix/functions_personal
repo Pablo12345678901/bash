@@ -100,15 +100,15 @@ function app_ouvrir_avec_nom {
             echo -e "$NOM_APP..."
             } ||
             # Bloc si échec
-            {   STDERR_afficher_message "\nERREUR : \"$APP_A_OUVRIR\" n'est pas une app ou n'a pas pu être ouverte." &&
-                STDERR_afficher_message "$SYNTAXE" &&
+            {   STDERR_show_message "\nERREUR : \"$APP_A_OUVRIR\" n'est pas une app ou n'a pas pu être ouverte." &&
+                STDERR_show_message "$SYNTAXE" &&
                 exit 1
             } >&2
         done
         echo "" # retour à la ligne esthétique final
     else
-        STDERR_afficher_message "\nERREUR : aucun argument transmis."
-        STDERR_afficher_message "$SYNTAXE"
+        STDERR_show_message "\nERREUR : aucun argument transmis."
+        STDERR_show_message "$SYNTAXE"
         exit 2
     fi
 }
@@ -632,18 +632,18 @@ function statut_retourne {
     fi
 }
 
-function STDERR_afficher_message {
-    # Syntaxe :
-    # $1 : MSG_A_AFFICHER (valeur)
+function STDERR_show_message {
+    # Syntax :
+    # $1 : MESSAGE_TO_BE_SENT_TO_STDERR (value)
 
-    # Affiche message que s'il y en a un
+    # Print message only if there is one.
     if [ ! -z "$*" ]
     then
         printf "%b\n" "$*"
     else
         :
     fi
-} >&2 # envoi sur STDERR de tout l'output de cette fonction
+} >&2 # Send to STDERR all output from this function
 
 function syntaxe_afficher_si_erreur {
     # Syntaxe :

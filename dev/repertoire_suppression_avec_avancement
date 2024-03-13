@@ -16,8 +16,8 @@ TEMP=$(getopt -o 'r:' -q -- "$@")
 # Test si la syntaxe a été correcte (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERREUR de syntaxe..."
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "ERREUR de syntaxe..."
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -39,8 +39,8 @@ while true; do
             then
                 :
             else
-                STDERR_afficher_message "\nERREUR : Le path \"$REPERTOIRE_OU_FICHIER_A_SUPPRIMER\" n'est pas un répertoire/fichier.\n"
-                STDERR_afficher_message "$SYNTAXE"
+                STDERR_show_message "\nERREUR : Le path \"$REPERTOIRE_OU_FICHIER_A_SUPPRIMER\" n'est pas un répertoire/fichier.\n"
+                STDERR_show_message "$SYNTAXE"
                 exit 2
             fi
             continue
@@ -51,8 +51,8 @@ while true; do
 		    ;;
         # Gestion des erreurs pour tout autre bug.
         * )
-            STDERR_afficher_message "ERREUR interne\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "ERREUR interne\n"
+            STDERR_show_message "$SYNTAXE"
             exit 3
             ;;
 	esac
@@ -64,15 +64,15 @@ then
     # Test si d'autres darguments = en trop (=test si $1 défini)
     if [ ! -z "$1" ]
     then
-        STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
-        STDERR_afficher_message "$SYNTAXE"
+        STDERR_show_message "\nERREUR : argument(s) en trop : \"$*\".\n"
+        STDERR_show_message "$SYNTAXE"
         exit 4
     else
         :
     fi
 else
-    STDERR_afficher_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
+    STDERR_show_message "$SYNTAXE"
     exit 5
 fi
 
@@ -96,8 +96,8 @@ then
     # Test si suppression correctement effectuée (si le fichier existe toujours = échec)
     if [ -d "$REPERTOIRE_OU_FICHIER_A_SUPPRIMER" ] || [ -f "$REPERTOIRE_OU_FICHIER_A_SUPPRIMER" ]
     then
-        STDERR_afficher_message "\nERREUR : la suppression de \"$REPERTOIRE_OU_FICHIER_A_SUPPRIMER\" n'a pas fonctionné.\n"
-        STDERR_afficher_message "\nVeuillez contrôler les résultat manuellement.\n"
+        STDERR_show_message "\nERREUR : la suppression de \"$REPERTOIRE_OU_FICHIER_A_SUPPRIMER\" n'a pas fonctionné.\n"
+        STDERR_show_message "\nVeuillez contrôler les résultat manuellement.\n"
         open "$REPERTOIRE_OU_FICHIER_A_SUPPRIMER"
         exit 6
     else

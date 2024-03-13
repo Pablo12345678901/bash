@@ -41,8 +41,8 @@ TEMP=$(getopt --options 'd:l:r:s' -q -- "$@")
 # Test whether syntax was correct (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERROR: syntax..."
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "ERROR: syntax..."
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -60,8 +60,8 @@ while true; do
 	-d )
 	    if [ ! -z "$FLAG_OPTION_L" ]
 	    then
-		STDERR_afficher_message "\nERROR :  options '-d' and '-l' are mutually exclusive.\n"
-                STDERR_afficher_message "$SYNTAXE"
+		STDERR_show_message "\nERROR :  options '-d' and '-l' are mutually exclusive.\n"
+                STDERR_show_message "$SYNTAXE"
                 exit 1
 	    fi
 	    FLAG_OPTION_D=1
@@ -85,8 +85,8 @@ while true; do
                     TABLEAU_FICHIERS+=("$FILE_PROVIDED")
                 fi
             else
-                STDERR_afficher_message "\nERROR : the provided argument to '-d' = \"$FILE_PROVIDED\" is neither a file nor a directory.\n"
-                STDERR_afficher_message "$SYNTAXE"
+                STDERR_show_message "\nERROR : the provided argument to '-d' = \"$FILE_PROVIDED\" is neither a file nor a directory.\n"
+                STDERR_show_message "$SYNTAXE"
                 exit 1 
             fi
 
@@ -95,8 +95,8 @@ while true; do
 	-l )
 	    if [ ! -z "$FLAG_OPTION_D" ]
 	    then
-		STDERR_afficher_message "\nERROR :  options '-l' and '-d' are mutually exclusive.\n"
-                STDERR_afficher_message "$SYNTAXE"
+		STDERR_show_message "\nERROR :  options '-l' and '-d' are mutually exclusive.\n"
+                STDERR_show_message "$SYNTAXE"
                 exit 1
 	    fi
 	    FLAG_OPTION_L=1
@@ -121,8 +121,8 @@ while true; do
       	    ;;
         * )
 	    # Error management for all other bugs
-            STDERR_afficher_message "ERROR: internal error...\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "ERROR: internal error...\n"
+            STDERR_show_message "$SYNTAXE"
             exit 2
             ;;
 	esac
@@ -131,16 +131,16 @@ done
 # Test whether other arguments were provided = in excess (=test if $1 is defined)
 if [ ! -z "$1" ]
 then
-    STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_show_message "$SYNTAXE"
     exit 3
 fi
 
 # Test if the requested option(s) were provided
 if [ -z "$FLAG_OPTION_R" ]
 then
-    STDERR_afficher_message "\nERROR : Please provide all requested argument(s).\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : Please provide all requested argument(s).\n"
+    STDERR_show_message "$SYNTAXE"
     exit 3
 fi
 

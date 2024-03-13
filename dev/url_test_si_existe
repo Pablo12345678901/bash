@@ -17,13 +17,13 @@ do
                 URL="$OPTARG"
                 ;;
         # Argument manquant
-        \: )    STDERR_afficher_message "\nERREUR : Argument manquant pour l'option -$OPTARG.\n" # les ':'' signifie que la valeur de l'argument n'a pas été trouvée = argument manquant
-                STDERR_afficher_message "$SYNTAXE"
+        \: )    STDERR_show_message "\nERREUR : Argument manquant pour l'option -$OPTARG.\n" # les ':'' signifie que la valeur de l'argument n'a pas été trouvée = argument manquant
+                STDERR_show_message "$SYNTAXE"
                 exit 2
                 ;;
         # Option inconnue
-        \? )    STDERR_afficher_message "ERREUR : Option inconnue : -$OPTARG\n"
-                STDERR_afficher_message "$SYNTAXE"
+        \? )    STDERR_show_message "ERREUR : Option inconnue : -$OPTARG\n"
+                STDERR_show_message "$SYNTAXE"
                 exit 3
                 ;;
     esac
@@ -36,15 +36,15 @@ then
     # Test si d'autres darguments = en trop (=test si $1 défini)
     if [ ! -z "$1" ]
     then
-        STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
-        STDERR_afficher_message "$SYNTAXE"
+        STDERR_show_message "\nERREUR : argument(s) en trop : \"$*\".\n"
+        STDERR_show_message "$SYNTAXE"
         exit 4 
     else
         :
     fi
 else
-    STDERR_afficher_message "\nERREUR : Vous devez fournir l'option -u avec son argument.\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERREUR : Vous devez fournir l'option -u avec son argument.\n"
+    STDERR_show_message "$SYNTAXE"
     exit 5 
 fi
 

@@ -17,7 +17,7 @@ question_oui_non RESPONSE_UTILISATEUR "$QUESTION_POSEE"
 
 if [ "$RESPONSE_UTILISATEUR" = 'n' ]
 then
-    STDERR_afficher_message "Veuillez configurer correctement les variables d'environnement précitées avant de relancer le script
+    STDERR_show_message "Veuillez configurer correctement les variables d'environnement précitées avant de relancer le script
 
 Attention : ce script peut effacer plusieurs fichiers critiques si elles ne sont pas correctement configurées."
 fi
@@ -34,7 +34,7 @@ else
     { find ${CORBEILLE_PATH}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune -exec rm -ri -- '{}' \; &&
     echo -e "\nCorbeille située \"$CORBEILLE_PATH\" vidée !\n"
 } ||
-    { STDERR_afficher_message "\nERREUR : la corbeille située \"$CORBEILLE_PATH\" n'a pas pu être vidée\n" &&
+    { STDERR_show_message "\nERREUR : la corbeille située \"$CORBEILLE_PATH\" n'a pas pu être vidée\n" &&
       exit 1
     }
 fi
@@ -49,7 +49,7 @@ else
     { find ${CORBEILLE_DISQUE_DUR_PATH}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune -exec rm -ri -- '{}' \; &&
     echo -e "\nCorbeille située \"$CORBEILLE_DISQUE_DUR_PATH\" vidée !\n"
     } ||
-    { STDERR_afficher_message "\nERREUR : la corbeille située \"$CORBEILLE_DISQUE_DUR_PATH\" n'a pas pu être vidée\n" &&
+    { STDERR_show_message "\nERREUR : la corbeille située \"$CORBEILLE_DISQUE_DUR_PATH\" n'a pas pu être vidée\n" &&
       exit 1
     }
 fi

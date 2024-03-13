@@ -21,8 +21,8 @@ TEMP=$(getopt --options 'd:' -q -- "$@")
 # Test whether syntax was correct (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERROR: syntax..."
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "ERROR: syntax..."
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -47,8 +47,8 @@ while true; do
       	    ;;
         * )
 	    # Error management for all other bugs
-            STDERR_afficher_message "ERROR: internal error...\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "ERROR: internal error...\n"
+            STDERR_show_message "$SYNTAXE"
             exit 2
             ;;
 	esac
@@ -60,8 +60,8 @@ then
     # Test whether other arguments were provided = in excess (=test if $1 is defined)
     if [ ! -z "$1" ]
     then
-        STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
-        STDERR_afficher_message "$SYNTAXE"
+        STDERR_show_message "\nERROR : argument(s) in excess : \"$*\".\n"
+        STDERR_show_message "$SYNTAXE"
         exit 3
     else
         :
@@ -73,7 +73,7 @@ else
     DEVICE_MAC_ADRESS="$BLUETOOTH_MOUSE_MAC_ADRESS"
     if [ -z "$BLUETOOTH_MOUSE_MAC_ADRESS" ]
     then
-	STDERR_afficher_message "\nERROR : the env var \"BLUETOOTH_MOUSE_MAC_ADRESS\" is not set.\nPlease set it and re-run the script.\n"
+	STDERR_show_message "\nERROR : the env var \"BLUETOOTH_MOUSE_MAC_ADRESS\" is not set.\nPlease set it and re-run the script.\n"
 	exit 4
     fi
 fi
@@ -87,7 +87,7 @@ if (($?))
 then
     echo -e "\nInstallation of the packages required for bluetooth : \"$PACKAGE_LIST_TO_BE_INSTALLED_IF_NOT_AVAILABLE\"..."
     sudo pacman -S "$PACKAGE_LIST_TO_BE_INSTALLED_IF_NOT_AVAILABLE" ||
-    { STDERR_afficher_message "\nERROR : the installation of the packages required failed.\nPlease check the above output...\n"
+    { STDERR_show_message "\nERROR : the installation of the packages required failed.\nPlease check the above output...\n"
     exit 5
   }
 fi
@@ -100,14 +100,14 @@ BLUETOOTH_ACTIVE="$(echo "$STATUS_BLUETOOTH" | awk -v REGEX="$REGEX_ACTIVE_STATE
 if [ ! "$BLUETOOTH_ACTIVE" = "true" ]
 then
     sudo systemctl start "$SERVICE" ||
-    {   STDERR_afficher_message "\nERROR : The bluetooth service could be activated.\n"
+    {   STDERR_show_message "\nERROR : The bluetooth service could be activated.\n"
         exit 6
     }
 fi
 
 # Turn on the Bluetooth
 bluetoothctl power on >/dev/null 2>&1 ||
-{   STDERR_afficher_message "\nERROR : The bluetooth could not be turned on.\n" &&
+{   STDERR_show_message "\nERROR : The bluetooth could not be turned on.\n" &&
     exit 7
 }
 
@@ -116,7 +116,7 @@ bluetoothctl power on >/dev/null 2>&1 ||
     echo -e "\nThe device with MAC address $DEVICE_MAC_ADRESS was connected through bluetooth.\n" &&
     exit 0
 } ||
-{   STDERR_afficher_message "\nERROR : The device with MAC address $DEVICE_MAC_ADRESS could not be connected or was not available.\n" &&
+{   STDERR_show_message "\nERROR : The device with MAC address $DEVICE_MAC_ADRESS could not be connected or was not available.\n" &&
     exit 8
 }
 

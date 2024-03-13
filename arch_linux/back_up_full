@@ -78,7 +78,7 @@ then
 	ARRAY_CURRENT_STEP_INDEX=1
 	;;
     *)
-        STDERR_afficher_message "\nERROR : The step choosed is not in script.\n"
+        STDERR_show_message "\nERROR : The step choosed is not in script.\n"
         exit 1
         ;;
     esac

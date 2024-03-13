@@ -18,8 +18,8 @@ TEMP=$(getopt --options 'd:f:' --longoptions 'sudo' -q -- "$@")
 # Test whether syntax was correct (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERROR: syntax..."
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "ERROR: syntax..."
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -42,8 +42,8 @@ while true; do
 	    # Test if the directory exists - exit with error else
 	    if [ ! -d "$TARGET_DIRECTORY" ]
             then
-                STDERR_afficher_message "\nERROR : the provided argument to '-d' = \"$TARGET_DIRECTORY\" is not a directory or does not exist.\n"
-                STDERR_afficher_message "$SYNTAXE"
+                STDERR_show_message "\nERROR : the provided argument to '-d' = \"$TARGET_DIRECTORY\" is not a directory or does not exist.\n"
+                STDERR_show_message "$SYNTAXE"
                 exit 2 
             fi
 	    continue
@@ -63,8 +63,8 @@ while true; do
 		FILE_BASENAME="$(file_get_basename "$FILE_TO_BACK_UP")" # see personal functions
 		ARRAY_FILE_BASENAMES+=("$FILE_BASENAME")
 	    else
-		STDERR_afficher_message "\nERROR : the provided argument to '-f' = \"$FILE_TO_BACK_UP\" is not a file or does not exist.\n"
-                STDERR_afficher_message "$SYNTAXE"
+		STDERR_show_message "\nERROR : the provided argument to '-f' = \"$FILE_TO_BACK_UP\" is not a file or does not exist.\n"
+                STDERR_show_message "$SYNTAXE"
                 exit 3 
 	    fi
             continue
@@ -80,8 +80,8 @@ while true; do
       	    ;;
         * )
 	    # Error management for all other bugs
-            STDERR_afficher_message "ERROR: internal error...\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "ERROR: internal error...\n"
+            STDERR_show_message "$SYNTAXE"
             exit 4
             ;;
 	esac
@@ -90,16 +90,16 @@ done
 # Test whether other arguments were provided = in excess (=test if $1 is defined)
 if [ ! -z "$1" ]
 then
-    STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_show_message "$SYNTAXE"
     exit 5
 fi
 
 # Test if the requested option(s) were provided
 if [ -z "$FLAG_OPTION_D" ] || [ -z "$FLAG_OPTION_F" ]
 then
-    STDERR_afficher_message "\nERROR : Please provide all requested argument(s).\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : Please provide all requested argument(s).\n"
+    STDERR_show_message "$SYNTAXE"
     exit 6
 fi
 
@@ -112,7 +112,7 @@ do
     # With or without sudo depending on  arguments provided to script.
     { eval "$SUDO_COMMAND" cp "${ARRAY_FILES[i]}" "${TARGET_DIRECTORY}/$(timestamp_current)-${ARRAY_FILE_BASENAMES[i]}" && echo -e "Success : the file \"${ARRAY_FILE_BASENAMES[i]}\" located \"${ARRAY_FILES[i]}\" was backed-up into the directory \"${TARGET_DIRECTORY}\".\n" 
     } ||
-    { STDERR_afficher_message "\nERROR : the file \"${ARRAY_FILE_BASENAMES[i]}\" located \"${ARRAY_FILES[i]}\" could not be backed-up into the directory \"${TARGET_DIRECTORY}\". Please check output...\n"
+    { STDERR_show_message "\nERROR : the file \"${ARRAY_FILE_BASENAMES[i]}\" located \"${ARRAY_FILES[i]}\" could not be backed-up into the directory \"${TARGET_DIRECTORY}\". Please check output...\n"
       exit 7
     }
 done

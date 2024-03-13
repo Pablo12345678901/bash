@@ -24,8 +24,8 @@ TEMP=$(getopt --options 'x:y:' -q -- "$@")
 # Test whether syntax was correct (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERROR: syntax..."
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "ERROR: syntax..."
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -57,8 +57,8 @@ while true; do
       	    ;;
         * )
 	    # Error management for all other bugs
-            STDERR_afficher_message "ERROR: internal error...\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "ERROR: internal error...\n"
+            STDERR_show_message "$SYNTAXE"
             exit 2
             ;;
 	esac
@@ -67,8 +67,8 @@ done
 # Test whether other arguments were provided = in excess (=test if $1 is defined)
 if [ ! -z "$1" ]
 then
-    STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_show_message "$SYNTAXE"
     exit 3
 else
     :
@@ -97,8 +97,8 @@ for RESOLUTION in $RESOLUTION_Y $RESOLUTION_X
 do
     if [ ! $RESOLUTION -ge $VALUE_MIN ] || [ ! $RESOLUTION -le $VALUE_MAX ]
     then
-        {  STDERR_afficher_message "\nERROR : all the resolutions have to be lower or equal to $VALUE_MAX and greater or equal to $VALUE_MIN \nThose are the ones you provided and their conversion to int : \nY : value : \"$RESOLUTION_Y_STRING\" convert to int : $RESOLUTION_Y \nX : value : \"$RESOLUTION_X_STRING\" convert to int : $RESOLUTION_X \n"
-	   STDERR_afficher_message "$SYNTAXE"
+        {  STDERR_show_message "\nERROR : all the resolutions have to be lower or equal to $VALUE_MAX and greater or equal to $VALUE_MIN \nThose are the ones you provided and their conversion to int : \nY : value : \"$RESOLUTION_Y_STRING\" convert to int : $RESOLUTION_Y \nX : value : \"$RESOLUTION_X_STRING\" convert to int : $RESOLUTION_X \n"
+	   STDERR_show_message "$SYNTAXE"
 	   exit 4
 	   }
     fi
@@ -107,7 +107,7 @@ done
 # Check if x11 is the XDG_SESSION_TYPE - exit with error message else
 if [ ! "$XDG_SESSION_TYPE" = "x11" ]
 then
-    STDERR_afficher_message "\nERROR : the session type is not x11 but should be for this script to work. \nEnvironment variable \"XDG_SESSION_TYPE\" = $XDG_SESSION_TYPE\n"
+    STDERR_show_message "\nERROR : the session type is not x11 but should be for this script to work. \nEnvironment variable \"XDG_SESSION_TYPE\" = $XDG_SESSION_TYPE\n"
     exit 5
 fi 
 
@@ -131,7 +131,7 @@ done
 ARRAY_LENGHT="$(tableau_taille OUTPUTS_ARRAY)"
 if [ $((ARRAY_LENGHT)) -lt 2 ]
 then
-    STDERR_afficher_message "\nERROR : at least two outputs need to be connected in order to clone one to another. Check your connection(s) to output(s)...\n"
+    STDERR_show_message "\nERROR : at least two outputs need to be connected in order to clone one to another. Check your connection(s) to output(s)...\n"
     exit 6
 fi
 
@@ -190,7 +190,7 @@ if [ -z "$MODE_EXISTING" ]
 then
     COMMAND="xrandr --newmode $NEWMODE_MAIN_SCREEN"
     $COMMAND ||
-    { STDERR_afficher_message "\nERROR : the command '$COMMAND' could not be processed.\n"
+    { STDERR_show_message "\nERROR : the command '$COMMAND' could not be processed.\n"
       exit 9
     }
 fi
@@ -198,14 +198,14 @@ fi
 # Add it to the ouput
 COMMAND="xrandr --addmode $OUTPUT_MAIN_SCREEN $RESOLUTION_MAIN_SCREEN"
 $COMMAND ||
-{ STDERR_afficher_message "\nERROR : the command '$COMMAND' could not be processed.\n"
+{ STDERR_show_message "\nERROR : the command '$COMMAND' could not be processed.\n"
   exit 10
 }
 
 # Set it to the output
 COMMAND="xrandr --output $OUTPUT_MAIN_SCREEN --mode $RESOLUTION_MAIN_SCREEN"
 $COMMAND ||
-{ STDERR_afficher_message "\nERROR : the command '$COMMAND' could not be processed.\n"
+{ STDERR_show_message "\nERROR : the command '$COMMAND' could not be processed.\n"
   exit 11
 }
     
@@ -224,14 +224,14 @@ RESOLUTION_CLONED_SCREEN="$(echo $NEWMODE_CLONED_SCREEN | cut -d ' ' -f 1)"
 # Add it to the ouput
 COMMAND="xrandr --addmode $OUTPUT_CLONED_SCREEN $RESOLUTION_CLONED_SCREEN"
 $COMMAND ||
-{ STDERR_afficher_message "\nERROR : the command '$COMMAND' could not be processed.\n"
+{ STDERR_show_message "\nERROR : the command '$COMMAND' could not be processed.\n"
   exit 12
 }
 
 # Set it to the output
 COMMAND="xrandr --output $OUTPUT_CLONED_SCREEN --mode $RESOLUTION_CLONED_SCREEN"
 $COMMAND ||
-{ STDERR_afficher_message "\nERROR : the command '$COMMAND' could not be processed.\n"
+{ STDERR_show_message "\nERROR : the command '$COMMAND' could not be processed.\n"
   exit 13
 }
     
@@ -244,7 +244,7 @@ echo -e "\nResolution $RESOLUTION_CLONED_SCREEN was successfully added to output
   echo -e "\nThe screen \"$OUTPUT_CLONED_SCREEN\" was cloned on the screen \"$OUTPUT_MAIN_SCREEN\" with a resolution of :\nY = $RESOLUTION_Y\nX = $RESOLUTION_X\n" &&
   exit 0
 } ||
-{ STDERR_afficher_message "\nERROR : The screen \"$OUTPUT_CLONED_SCREEN\" could not be cloned on the screen \"$OUTPUT_MAIN_SCREEN\" with a resolution of \nY = $RESOLUTION_Y\nX = $RESOLUTION_X\n\nDo it manually or check the script.\n"
+{ STDERR_show_message "\nERROR : The screen \"$OUTPUT_CLONED_SCREEN\" could not be cloned on the screen \"$OUTPUT_MAIN_SCREEN\" with a resolution of \nY = $RESOLUTION_Y\nX = $RESOLUTION_X\n\nDo it manually or check the script.\n"
   exit 14
 }
 

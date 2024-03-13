@@ -25,8 +25,8 @@ TEMP=$(getopt --options 'r:' -q -- "$@")
 # Test whether syntax was correct (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERROR: syntax..."
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "ERROR: syntax..."
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -51,8 +51,8 @@ while true; do
       	    ;;
         * )
 	    # Error management for all other bugs
-            STDERR_afficher_message "ERROR: internal error...\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "ERROR: internal error...\n"
+            STDERR_show_message "$SYNTAXE"
             exit 2
             ;;
 	esac
@@ -61,8 +61,8 @@ done
 # Test whether other arguments were provided = in excess (=test if $1 is defined)
 if [ ! -z "$1" ]
 then
-    STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_show_message "$SYNTAXE"
     exit 3
 fi
 
@@ -85,8 +85,8 @@ else
 	    :
             ;;
 	*)
-	    STDERR_afficher_message "\nERROR : the option REQUEST_USER_AGREEMENT_TO_CONTINUE provided has to be set to 'always' or 'never' or 'sudo'.\nCurrently, it is set to : \"$REQUEST_USER_AGREEMENT_TO_CONTINUE\"\n"
-	    STDERR_afficher_message "$SYNTAXE"
+	    STDERR_show_message "\nERROR : the option REQUEST_USER_AGREEMENT_TO_CONTINUE provided has to be set to 'always' or 'never' or 'sudo'.\nCurrently, it is set to : \"$REQUEST_USER_AGREEMENT_TO_CONTINUE\"\n"
+	    STDERR_show_message "$SYNTAXE"
 	    exit 3
 	    ;;
     esac
@@ -187,7 +187,7 @@ do
 	  eval ${ARRAY_STEP_CHOICE[$i]} &&
 	  echo -e "\nThe step \"${ARRAY_STEP_CHOICE[$i]}\" was well performed.\n"
 	} ||
-	{ STDERR_afficher_message "\nERROR : The step \"${ARRAY_STEP_CHOICE[$i]}\" was not correctly performed.\nPlease check output...\n"
+	{ STDERR_show_message "\nERROR : The step \"${ARRAY_STEP_CHOICE[$i]}\" was not correctly performed.\nPlease check output...\n"
 	  exit 1
 	}
 
@@ -215,7 +215,7 @@ do
 		:
 		;;
 	    *)
-		STDERR_afficher_message "\nERROR : the var \"REQUEST_USER_AGREEMENT_TO_CONTINUE\" = \"$REQUEST_USER_AGREEMENT_TO_CONTINUE\" was not correctly set. \nPlease adapt it on the beginning of this script \"${0##*/}\" located \"$0\".\n"
+		STDERR_show_message "\nERROR : the var \"REQUEST_USER_AGREEMENT_TO_CONTINUE\" = \"$REQUEST_USER_AGREEMENT_TO_CONTINUE\" was not correctly set. \nPlease adapt it on the beginning of this script \"${0##*/}\" located \"$0\".\n"
 		exit 1
 		;;
 	    esac

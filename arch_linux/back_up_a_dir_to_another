@@ -14,8 +14,8 @@ TEMP=$(getopt -o 'd:s:'  --long 'silent' -q -- "$@")
 # Test si la syntaxe a été correcte (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERREUR de syntaxe..."
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "ERREUR de syntaxe..."
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -36,15 +36,15 @@ while true; do
             # Test si répertoire
             if [ ! -d "$DESTINATION_SANS_SLASH_FINAL" ]
             then
-                STDERR_afficher_message "\nERREUR : Le path \"$DESTINATION_SANS_SLASH_FINAL\" n'est pas un répertoire.\n"
-                STDERR_afficher_message "$SYNTAXE"
+                STDERR_show_message "\nERREUR : Le path \"$DESTINATION_SANS_SLASH_FINAL\" n'est pas un répertoire.\n"
+                STDERR_show_message "$SYNTAXE"
                 exit 2
             fi
             # Test si ne se termine pas par un slash
             if [ ! "${DESTINATION_SANS_SLASH_FINAL}" = "${DESTINATION_SANS_SLASH_FINAL%/}" ]
             then
                 echo "ERREUR :le path de destination \"$DESTINATION_SANS_SLASH_FINAL\" ne doit pas se terminer par un slash."
-                STDERR_afficher_message "$SYNTAXE"
+                STDERR_show_message "$SYNTAXE"
                 exit 3
             fi
             continue
@@ -56,15 +56,15 @@ while true; do
             # Test si répertoire
             if [ ! -d "$SOURCE_AVEC_SLASH_FINAL" ]
             then
-                STDERR_afficher_message "\nERREUR : Le path \"$SOURCE_AVEC_SLASH_FINAL\" n'est pas un répertoire.\n"
-                STDERR_afficher_message "$SYNTAXE"
+                STDERR_show_message "\nERREUR : Le path \"$SOURCE_AVEC_SLASH_FINAL\" n'est pas un répertoire.\n"
+                STDERR_show_message "$SYNTAXE"
                 exit 4
             fi
             # Test si se termine par un slash
             if [ ! "${SOURCE_AVEC_SLASH_FINAL}" != "${SOURCE_AVEC_SLASH_FINAL%/}" ]
             then
                 echo "ERREUR :le path source \"$SOURCE_AVEC_SLASH_FINAL\" doit se terminer par un slash."
-                STDERR_afficher_message "$SYNTAXE"
+                STDERR_show_message "$SYNTAXE"
                 exit 5
             fi
             continue
@@ -80,8 +80,8 @@ while true; do
 		    ;;
         # Gestion des erreurs pour tout autre bug.
         * )
-            STDERR_afficher_message "ERREUR interne\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "ERREUR interne\n"
+            STDERR_show_message "$SYNTAXE"
             exit 6
             ;;
 	esac
@@ -93,15 +93,15 @@ then
     # Test si d'autres darguments = en trop (=test si $1 défini)
     if [ ! -z "$1" ]
     then
-        STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
-        STDERR_afficher_message "$SYNTAXE"
+        STDERR_show_message "\nERREUR : argument(s) en trop : \"$*\".\n"
+        STDERR_show_message "$SYNTAXE"
         exit 7
     else
         :
     fi
 else
-    STDERR_afficher_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
+    STDERR_show_message "$SYNTAXE"
     exit 8
 fi
 

@@ -26,8 +26,8 @@ TEMP=$(getopt --options 'r:s:d:' -q -- "$@")
 # Test whether syntax was correct (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERROR: syntax..."
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "ERROR: syntax..."
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -64,8 +64,8 @@ while true; do
                     TABLEAU_FICHIERS+=("$FILE_PROVIDED")
                 fi
             else
-                STDERR_afficher_message "\nERROR : the provided argument to '-d' = \"$FILE_PROVIDED\" is neither a file nor a directory.\n"
-                STDERR_afficher_message "$SYNTAXE"
+                STDERR_show_message "\nERROR : the provided argument to '-d' = \"$FILE_PROVIDED\" is neither a file nor a directory.\n"
+                STDERR_show_message "$SYNTAXE"
                 exit 1 
             fi
 	    continue
@@ -88,8 +88,8 @@ while true; do
       	    ;;
         * )
 	    # Error management for all other bugs
-            STDERR_afficher_message "ERROR: internal error...\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "ERROR: internal error...\n"
+            STDERR_show_message "$SYNTAXE"
             exit 2
             ;;
 	esac
@@ -98,16 +98,16 @@ done
 # Test whether other arguments were provided = in excess (=test if $1 is defined)
 if [ ! -z "$1" ]
 then
-    STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_show_message "$SYNTAXE"
     exit 3
 fi
 
 # Test if the REQUEST_USER_AGREEMENT_TO_CONTINUE option was not provided
 if [ -z "$FLAG_OPTION_D" ] || [ -z "$FLAG_OPTION_R" ] || [ -z "$FLAG_OPTION_S" ]
 then
-    STDERR_afficher_message "\nERROR : Please provide all required argument(s).\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : Please provide all required argument(s).\n"
+    STDERR_show_message "$SYNTAXE"
     exit 3
 fi
 
@@ -381,7 +381,7 @@ else
                       # g : remplace tous les matchs pas juste le premier
 	          echo -e "\n$NUMERO_LIGNE_COURANTE : Line sucessfully remplaced in the file \"$FICHIER_COURANT\" located \"$PATH_COURANT\" !\n"
 		} ||
-		{ STDERR_afficher_message "\nERROR : the line $NUMERO_LIGNE_COURANTE in the file \"$FICHIER_COURANT\" located \"$PATH_COURANT\" could not be replaced. Please check output...\n"
+		{ STDERR_show_message "\nERROR : the line $NUMERO_LIGNE_COURANTE in the file \"$FICHIER_COURANT\" located \"$PATH_COURANT\" could not be replaced. Please check output...\n"
 			exit 1
 		}
             fi
@@ -464,7 +464,7 @@ else
 					    # g : remplace tous les matchs pas juste le premier
 					    echo -e "\n$LINE_NUMBER : Line sucessfully remplaced !\n"
 					    } ||
-					    { STDERR_afficher_message "\nERROR : the line $LINE_NUMBER could not be replaced. Please check output...\n"
+					    { STDERR_show_message "\nERROR : the line $LINE_NUMBER could not be replaced. Please check output...\n"
 						    exit 1
 					    }
 					done
@@ -490,7 +490,7 @@ else
 						# g : remplace tous les matchs pas juste le premier
 						  echo -e "\n$NUM_LIGNE_REMPLACEMENT : Line sucessfully remplaced !\n"
 						} ||
-						{ STDERR_afficher_message "\nERROR : the line $NUM_LIGNE_REMPLACEMENT could not be replaced. Please check output...\n"
+						{ STDERR_show_message "\nERROR : the line $NUM_LIGNE_REMPLACEMENT could not be replaced. Please check output...\n"
 							exit 1
 						}
 					     fi

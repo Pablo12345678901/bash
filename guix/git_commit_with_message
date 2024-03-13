@@ -17,8 +17,8 @@ TEMP=$(getopt --options 'r:m:' -q -- "$@")
 # Test whether syntax was correct (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERROR: syntax..."
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "ERROR: syntax..."
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -50,8 +50,8 @@ while true; do
       	    ;;
         * )
 	    # Error management for all other bugs
-            STDERR_afficher_message "ERROR: internal error...\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "ERROR: internal error...\n"
+            STDERR_show_message "$SYNTAXE"
             exit 2
             ;;
 	esac
@@ -60,8 +60,8 @@ done
 # Test whether other arguments were provided = in excess (=test if $1 is defined)
 if [ ! -z "$1" ]
 then
-    STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_show_message "$SYNTAXE"
     exit 3
 fi
     
@@ -80,8 +80,8 @@ then
 	if [ ! -d "${REPERTOIRE_DEVELOPPEMENT}/${CHOICE_GIT_REPO_TO_PUSH}" ]
 	then
 	    # Exit with error if the later is not a dir within the git repos dir
-	    STDERR_afficher_message "\nERROR : the argument provided for '-r' : \"$CHOICE_GIT_REPO_TO_PUSH\" is not a directory.\n"
-            STDERR_afficher_message "$SYNTAXE"
+	    STDERR_show_message "\nERROR : the argument provided for '-r' : \"$CHOICE_GIT_REPO_TO_PUSH\" is not a directory.\n"
+            STDERR_show_message "$SYNTAXE"
 	    exit 4
 	else
 	    # Else adapt the path
@@ -95,8 +95,8 @@ then
 	    :
 	else
 	    # Exit with error if the later is not a dir within the git repos dir
-	    STDERR_afficher_message "\nERROR : the argument provided for '-r' : \"$CHOICE_GIT_REPO_TO_PUSH\" is not a git directory located within the dir REPERTOIRE_DEVELOPPEMENT = \"$REPERTOIRE_DEVELOPPEMENT\".\n"
-	    STDERR_afficher_message "$SYNTAXE"
+	    STDERR_show_message "\nERROR : the argument provided for '-r' : \"$CHOICE_GIT_REPO_TO_PUSH\" is not a git directory located within the dir REPERTOIRE_DEVELOPPEMENT = \"$REPERTOIRE_DEVELOPPEMENT\".\n"
+	    STDERR_show_message "$SYNTAXE"
 	    exit 5
 	fi	
     fi
@@ -163,7 +163,7 @@ then
 	# -r : do not let the slashes '\' to behave like special char
 	if [ ${#MESSAGE_WITH_COMMIT} -eq 0 ]
 	then
-	    STDERR_afficher_message "\nERROR : At least one char have to be written for the 'git commit' message.\n"
+	    STDERR_show_message "\nERROR : At least one char have to be written for the 'git commit' message.\n"
 	fi
     done
 fi } &&
@@ -174,7 +174,7 @@ fi } &&
     cd "$OLDPWD" &&
     exit 0
 } ||
-{ STDERR_afficher_message "\nERROR : The commit of the git repo \"$CHOICE_GIT_REPO_TO_PUSH\" failed or there was nothing to push.\n"
+{ STDERR_show_message "\nERROR : The commit of the git repo \"$CHOICE_GIT_REPO_TO_PUSH\" failed or there was nothing to push.\n"
   cd "$OLDPWD"
   exit 6
 }

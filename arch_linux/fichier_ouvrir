@@ -16,8 +16,8 @@ TEMP=$(getopt -o 'f:' -q -- "$@")
 # Test si la syntaxe a été correcte (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERREUR de syntaxe..."
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "ERREUR de syntaxe..."
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -45,7 +45,7 @@ while true; do
 	    # Test si le fichier existe
             if [ ! -d "$PATH_FICHIER_A_OUVRIR" ] && [ ! -f "$PATH_FICHIER_A_OUVRIR" ] 
             then
-                STDERR_afficher_message "\nERREUR : Le fichier \"$PATH_FICHIER_A_OUVRIR\" n'existe pas.\n"
+                STDERR_show_message "\nERREUR : Le fichier \"$PATH_FICHIER_A_OUVRIR\" n'existe pas.\n"
                 exit 2
             fi
             continue
@@ -56,8 +56,8 @@ while true; do
 		    ;;
         # Gestion des erreurs pour tout autre bug.
         * )
-            STDERR_afficher_message "ERREUR interne\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "ERREUR interne\n"
+            STDERR_show_message "$SYNTAXE"
             exit 4
             ;;
 	esac
@@ -69,15 +69,15 @@ then
     # Test si d'autres darguments = en trop (=test si $1 défini)
     if [ ! -z "$1" ]
     then
-        STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
-        STDERR_afficher_message "$SYNTAXE"
+        STDERR_show_message "\nERREUR : argument(s) en trop : \"$*\".\n"
+        STDERR_show_message "$SYNTAXE"
         exit 5
     else
         :
     fi
 else
-    STDERR_afficher_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
+    STDERR_show_message "$SYNTAXE"
     exit 6
 fi
 
@@ -86,6 +86,6 @@ echo -e "\nOuverture du fichier \"$FICHIER_A_OUVRIR\"...\n"
 {   xdg-open "$PATH_FICHIER_A_OUVRIR" >/dev/null 2>&1 &&
     exit 0
 } ||
-{   STDERR_afficher_message "\nERREUR : le fichier \"$FICHIER_A_OUVRIR\" n'a pas pu être ouvert.\n" &&
+{   STDERR_show_message "\nERREUR : le fichier \"$FICHIER_A_OUVRIR\" n'a pas pu être ouvert.\n" &&
     exit 7
 } 

@@ -18,19 +18,19 @@ do
                 then
                     :
                 else
-                    STDERR_afficher_message "\nERROR : L'url \"$URL\" n'existe pas ou est déviée.\n"
-                    STDERR_afficher_message "$SYNTAXE"
+                    STDERR_show_message "\nERROR : L'url \"$URL\" n'existe pas ou est déviée.\n"
+                    STDERR_show_message "$SYNTAXE"
                     exit 1
                 fi
                 ;;
         # Argument manquant
-        \: )    STDERR_afficher_message "\nERROR : Argument manquant pour l'option -$OPTARG.\n" # les ':'' signifie que la valeur de l'argument n'a pas été trouvée = argument manquant
-                STDERR_afficher_message "$SYNTAXE"
+        \: )    STDERR_show_message "\nERROR : Argument manquant pour l'option -$OPTARG.\n" # les ':'' signifie que la valeur de l'argument n'a pas été trouvée = argument manquant
+                STDERR_show_message "$SYNTAXE"
                 exit 2
                 ;;
         # Option inconnue
-        \? )    STDERR_afficher_message "ERROR : Option inconnue : -$OPTARG\n"
-                STDERR_afficher_message "$SYNTAXE"
+        \? )    STDERR_show_message "ERROR : Option inconnue : -$OPTARG\n"
+                STDERR_show_message "$SYNTAXE"
                 exit 3
                 ;;
     esac
@@ -43,15 +43,15 @@ then
     # Test si d'autres darguments = en trop (=test si $1 défini)
     if [ ! -z "$1" ]
     then
-        STDERR_afficher_message "\nERROR : argument(s) en trop : \"$*\".\n"
-        STDERR_afficher_message "$SYNTAXE"
+        STDERR_show_message "\nERROR : argument(s) en trop : \"$*\".\n"
+        STDERR_show_message "$SYNTAXE"
         exit 4 
     else
         :
     fi
 else
-    STDERR_afficher_message "\nERROR : Vous devez fournir les arguments -u avec son argument.\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : Vous devez fournir les arguments -u avec son argument.\n"
+    STDERR_show_message "$SYNTAXE"
     exit 5 
 fi
 

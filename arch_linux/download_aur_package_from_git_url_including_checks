@@ -17,8 +17,8 @@ TEMP=$(getopt --options 'u:' -q -- "$@")
 # Test whether syntax was correct (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERROR: syntax..."
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "ERROR: syntax..."
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -43,8 +43,8 @@ while true; do
       	    ;;
         * )
 	    # Error management for all other bugs
-            STDERR_afficher_message "ERROR: internal error...\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "ERROR: internal error...\n"
+            STDERR_show_message "$SYNTAXE"
             exit 2
             ;;
 	esac
@@ -56,15 +56,15 @@ then
     # Test whether other arguments were provided = in excess (=test if $1 is defined)
     if [ ! -z "$1" ]
     then
-        STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
-        STDERR_afficher_message "$SYNTAXE"
+        STDERR_show_message "\nERROR : argument(s) in excess : \"$*\".\n"
+        STDERR_show_message "$SYNTAXE"
         exit 3
     else
         :
     fi
 else
-    STDERR_afficher_message "\nERROR : You must provide all required arguments.\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : You must provide all required arguments.\n"
+    STDERR_show_message "$SYNTAXE"
     exit 4
 fi
 
@@ -89,7 +89,7 @@ then
       NEW_REPO_PATH="${PWD}/${NEW_GIT_REPO}" &&
     echo -e "\nNew repo created : \"$NEW_GIT_REPO\" located \"$NEW_REPO_PATH\".\n"
     } ||
-    { STDERR_afficher_message "\nERROR : the git repo could not be created. Do it manually...\n"
+    { STDERR_show_message "\nERROR : the git repo could not be created. Do it manually...\n"
     cd "$LOCATION_AT_SCRIPT_BEGINNING"
     exit 1
     }
@@ -104,7 +104,7 @@ PATH_PKGBUILD="$(find -maxdepth 1 -mindepth 1 -name "PKGBUILD")"
 
 if [ -z "$PATH_PKGBUILD" ]
 then
-    STDERR_afficher_message "\nERROR : the git repo \"$NEW_GIT_REPO\" located \"$PWD\" has no 'PKGBUILD' file. Check it manually...\n"
+    STDERR_show_message "\nERROR : the git repo \"$NEW_GIT_REPO\" located \"$PWD\" has no 'PKGBUILD' file. Check it manually...\n"
     cd "$LOCATION_AT_SCRIPT_BEGINNING"
     exit 1
 fi
@@ -157,7 +157,7 @@ echo -e "\nBuild and installation...\n"
   makepkg -s -i -r -c && 
   git clean -dfx
 } ||
-{ STDERR_afficher_message "\nERROR : the package \"$PACKAGE_BASENAME\" located \"$NEW_REPO_PATH\" could not be built. Do it manually...\n"
+{ STDERR_show_message "\nERROR : the package \"$PACKAGE_BASENAME\" located \"$NEW_REPO_PATH\" could not be built. Do it manually...\n"
   cd "$LOCATION_AT_SCRIPT_BEGINNING"
   exit 1
 }

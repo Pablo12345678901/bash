@@ -16,8 +16,8 @@ TEMP=$(getopt -o 'f:' -q -- "$@")
 # Test if the syntax is correct (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "\nERROR : syntax error.\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : syntax error.\n"
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -49,7 +49,7 @@ while true; do
 	    { readlink --canonicalize "$FILE_TO_OPEN" >/dev/null 2>&1 &&
 	      PATH_FILE_TO_OPEN="$(readlink --canonicalize "$FILE_TO_OPEN")"
             }||
-	    { STDERR_afficher_message "\nERROR : the file \"$FILE_TO_OPEN\" (provided with your argument \"$ARGUMENT_PROVIDED\") does not exist.\n"
+	    { STDERR_show_message "\nERROR : the file \"$FILE_TO_OPEN\" (provided with your argument \"$ARGUMENT_PROVIDED\") does not exist.\n"
               exit 2
 	    }
             continue
@@ -60,8 +60,8 @@ while true; do
 	    ;;
         # Error showed for any other error
         * )
-            STDERR_afficher_message "\nERROR : internal error...\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "\nERROR : internal error...\n"
+            STDERR_show_message "$SYNTAXE"
             exit 3
             ;;
 	esac
@@ -70,16 +70,16 @@ done
 # Test if other arguments = in excess (=test if $1 is defined)
 if [ ! -z "$1" ]
 then
-    STDERR_afficher_message "\nERROR : argument(s) in excess : \"$*\".\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_show_message "$SYNTAXE"
     exit 4
 fi
 
 # Test if all required arguments were provided with the flags
 if [ -z "$FLAG_OPTION_F" ] 
 then
-    STDERR_afficher_message "\nERROR : Please provide all required argument(s).\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERROR : Please provide all required argument(s).\n"
+    STDERR_show_message "$SYNTAXE"
     exit 5
 fi
 
@@ -100,6 +100,6 @@ echo -e "\nOpening the $FILE_TYPE \"$FILE_BASENAME\" (called with your argument 
 {   xdg-open "$PATH_FILE_TO_OPEN" >/dev/null 2>&1 &&
     exit 0
 } ||
-{   STDERR_afficher_message "\nERROR : the $FILE_TYPE \"$FILE_BASENAME\" (called with your argument \"$ARGUMENT_PROVIDED\") located \"$PATH_FILE_TO_OPEN\"could not be opened.\n" &&
+{   STDERR_show_message "\nERROR : the $FILE_TYPE \"$FILE_BASENAME\" (called with your argument \"$ARGUMENT_PROVIDED\") located \"$PATH_FILE_TO_OPEN\"could not be opened.\n" &&
     exit 6
 } 

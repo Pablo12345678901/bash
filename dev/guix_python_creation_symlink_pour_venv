@@ -15,8 +15,8 @@ TEMP=$(getopt --options 'v:s:' -q -- "$@")
 # Test si la syntaxe a été correcte (options + arguments)
 if [ $? -ne 0 ]
 then
-    STDERR_afficher_message "ERREUR de syntaxe..."
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "ERREUR de syntaxe..."
+    STDERR_show_message "$SYNTAXE"
     exit 1
 fi
 
@@ -48,8 +48,8 @@ while true; do
       	    ;;
         * )
 	    # Gestion des erreurs pour tout autre bug
-            STDERR_afficher_message "ERREUR interne\n"
-            STDERR_afficher_message "$SYNTAXE"
+            STDERR_show_message "ERREUR interne\n"
+            STDERR_show_message "$SYNTAXE"
             exit 2
             ;;
 	esac
@@ -62,15 +62,15 @@ then
     # Test si d'autres darguments = en trop (=test si $1 défini)
     if [ ! -z "$1" ]
     then
-        STDERR_afficher_message "\nERREUR : argument(s) en trop : \"$*\".\n"
-        STDERR_afficher_message "$SYNTAXE"
+        STDERR_show_message "\nERREUR : argument(s) en trop : \"$*\".\n"
+        STDERR_show_message "$SYNTAXE"
         exit 3
     else
         :
     fi
 else
-    STDERR_afficher_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
-    STDERR_afficher_message "$SYNTAXE"
+    STDERR_show_message "\nERREUR : Vous devez fournir toutes les options requises.\n"
+    STDERR_show_message "$SYNTAXE"
     exit 4
 fi
 
@@ -79,14 +79,14 @@ fi
 # Contrôle si le répertoire venv existe - quitte sinon
 if [ ! -d "$REPERTOIRE_PAQUETS_VENV" ]
 then
-    STDERR_afficher_message "\nERREUR : le répertoire venv \$REPERTOIRE_PAQUETS_VENV :\n\"$REPERTOIRE_PAQUETS_VENV\"\nn'est pas existant, n'en est pas un ou le path est erroné.\nVeuillez le contrôler.\n"
+    STDERR_show_message "\nERREUR : le répertoire venv \$REPERTOIRE_PAQUETS_VENV :\n\"$REPERTOIRE_PAQUETS_VENV\"\nn'est pas existant, n'en est pas un ou le path est erroné.\nVeuillez le contrôler.\n"
     exit 5
 fi
 
 # Contrôle si répertoire paquets existe  - quitte sinon
 if [ ! -d "$REPERTOIRE_PAQUETS_SOURCE" ]
 then
-    STDERR_afficher_message "\nERREUR : le répertoire \$REPERTOIRE_PAQUETS_SOURCE :\n\"$REPERTOIRE_PAQUETS_SOURCE\"\nn'est pas existant, n'en est pas un ou le path est erroné.\nVeuillez le contrôler.\n"
+    STDERR_show_message "\nERREUR : le répertoire \$REPERTOIRE_PAQUETS_SOURCE :\n\"$REPERTOIRE_PAQUETS_SOURCE\"\nn'est pas existant, n'en est pas un ou le path est erroné.\nVeuillez le contrôler.\n"
     exit 5
 fi
 

@@ -16,7 +16,7 @@ then
     #sudo apt install "$APP_BLUETOOTH" || # debian
     # For Arch Linux
     sudo pacman -S "$APP_BLUETOOTH" ||
-    { STDERR_afficher_message "\nERROR : l'installation de \"$APP_BLUETOOTH\" a échouée.\n"
+    { STDERR_show_message "\nERROR : l'installation de \"$APP_BLUETOOTH\" a échouée.\n"
     exit 1
   }
 else
@@ -31,7 +31,7 @@ BLUETOOTH_ACTIF="$(echo "$STATUT_BLUETOOTH" | awk -v REGEX="$REGEX_ETAT_ACTIF" '
 if [ ! "$BLUETOOTH_ACTIF" = "true" ]
 then
     sudo systemctl start "$SERVICE" ||
-    {   STDERR_afficher_message "\nERROR : Le bluetooth n'a pas pu être allumé.\n"
+    {   STDERR_show_message "\nERROR : Le bluetooth n'a pas pu être allumé.\n"
         exit 2
     }
 fi
@@ -43,7 +43,7 @@ REGEX_APPAREIL="^.*$NOMSOURIS$"
 ADRESSE_MAC_APPAREIL="$(echo "$HARDWARE_BLUETOOTH" | awk -v REGEX="$REGEX_APPAREIL" ' { if ($0 ~ REGEX) { printf ("%s", $0)} }' | cut -d ' ' -f 2 )"
 if [ -z "$ADRESSE_MAC_APPAREIL" ]
 then
-    STDERR_afficher_message "\nERROR : l'appareil \"\" n'a pas été trouvé. Il est peut-être éteint ou indétectable.\n"
+    STDERR_show_message "\nERROR : l'appareil \"\" n'a pas été trouvé. Il est peut-être éteint ou indétectable.\n"
     exit 3
 else
     # Connexion à l'appareil
@@ -51,7 +51,7 @@ else
         echo -e "\nSouris adresse MAC $ADRESSE_MAC_APPAREIL connectée par bluetooth.\n"
         exit 0
     } ||
-    {   STDERR_afficher_message "\nERROR : La connexion avec la souris à l'adresse $ADRESSE_MAC_APPAREIL a échoué.\n"
+    {   STDERR_show_message "\nERROR : La connexion avec la souris à l'adresse $ADRESSE_MAC_APPAREIL a échoué.\n"
         exit 4
     }
 fi

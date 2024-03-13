@@ -31,7 +31,7 @@ do
   git clean -dfx  &&
   echo -e "\nThe package \"$PACKAGE_BASENAME\" located \"$REPERTOIRE\" was correctly updated\n"
   } ||
-  { STDERR_afficher_message "\nERROR : the package \"$PACKAGE_BASENAME\" located \"$REPERTOIRE\" could not be updated. Do it manually.\n" &&
+  { STDERR_show_message "\nERROR : the package \"$PACKAGE_BASENAME\" located \"$REPERTOIRE\" could not be updated. Do it manually.\n" &&
     ARRAY_BUILDS_ERROR+=("$PACKAGE_BASENAME")
   } # conservation of builds errors to show at the end 
  fi 
@@ -41,7 +41,7 @@ done
 # Showing the update results
 if [ "$(tableau_taille ARRAY_BUILDS_ERROR)" != "0" ]
 then
-    STDERR_afficher_message "\nERROR : issue with the build(s) below :\n\n$(tableau_contenu ARRAY_BUILDS_ERROR)\n\nCheck the above output...\n"
+    STDERR_show_message "\nERROR : issue with the build(s) below :\n\n$(tableau_contenu ARRAY_BUILDS_ERROR)\n\nCheck the above output...\n"
     exit 1
 else
     echo -e "\nAll builds were well performed!\n"

@@ -34,7 +34,7 @@ do
     if [ ! -d "${!ARRAY_DIR_LIST_FOR_BACK_UP[$i]}" ]
     then
         # Exit with error else
-	STDERR_afficher_message "\nERROR : the variable for the back-up directory \"${ARRAY_DIR_LIST_FOR_BACK_UP[$i]}\" is not correctly set. Currently, its value is \"${!ARRAY_DIR_LIST_FOR_BACK_UP[$i]}\" which is not a directory.\n"
+	STDERR_show_message "\nERROR : the variable for the back-up directory \"${ARRAY_DIR_LIST_FOR_BACK_UP[$i]}\" is not correctly set. Currently, its value is \"${!ARRAY_DIR_LIST_FOR_BACK_UP[$i]}\" which is not a directory.\n"
         exit 1
     fi
 done
@@ -46,7 +46,7 @@ do
     if [ ! -f "${!ARRAY_ENV_VAR_PROFILES_FILES[$i]}" ]
     then
 	# Exit with error else
-	STDERR_afficher_message "\nERROR : The environment variable \"${ARRAY_ENV_VAR_PROFILES_FILES[$i]}\" is not correctly set. Currently, its value is \"${!ARRAY_ENV_VAR_PROFILES_FILES[$i]}\" which is not a file.\n"
+	STDERR_show_message "\nERROR : The environment variable \"${ARRAY_ENV_VAR_PROFILES_FILES[$i]}\" is not correctly set. Currently, its value is \"${!ARRAY_ENV_VAR_PROFILES_FILES[$i]}\" which is not a file.\n"
 	  exit 1
     fi
 
@@ -61,7 +61,7 @@ done
 if [ ! -f "$GUIX_SYSTEM_CONF" ]
 then
     # Exit with error else
-    STDERR_afficher_message "\nERROR : The environment variable \"GUIX_SYSTEM_CONF\" is not correctly set. Currently, its value is \"$GUIX_SYSTEM_CONF\" which is not a file.\n"
+    STDERR_show_message "\nERROR : The environment variable \"GUIX_SYSTEM_CONF\" is not correctly set. Currently, its value is \"$GUIX_SYSTEM_CONF\" which is not a file.\n"
       exit 1
 else
 # Back-up with confirmation of success / error through another script
@@ -74,7 +74,7 @@ fi
 if [ ! -f "$GUIX_CHANNELS_CONF" ]
 then
     # Exit with error else
-    STDERR_afficher_message "\nERROR : The environment variable \"GUIX_CHANNELS_CONF\" is not correctly set. Currently, its value is \"$GUIX_CHANNELS_CONF\" which is not a file.\n"
+    STDERR_show_message "\nERROR : The environment variable \"GUIX_CHANNELS_CONF\" is not correctly set. Currently, its value is \"$GUIX_CHANNELS_CONF\" which is not a file.\n"
       exit 1
 else
 # Back-up with confirmation of success / error through another script
@@ -87,7 +87,7 @@ fi
 if [ ! -e "$GUIX_PACKAGES_INSTALLATION_PROFILE" ]
 then
     # Exit with error else
-    STDERR_afficher_message "\nERROR : The environment variable \"GUIX_PACKAGES_INSTALLATION_PROFILE\" is not correctly set. Currently, its value is \"$GUIX_PACKAGES_INSTALLATION_PROFILE\" which does not exist.\n"
+    STDERR_show_message "\nERROR : The environment variable \"GUIX_PACKAGES_INSTALLATION_PROFILE\" is not correctly set. Currently, its value is \"$GUIX_PACKAGES_INSTALLATION_PROFILE\" which does not exist.\n"
       exit 1
 else
     # Back-up with confirmation of success / error
@@ -96,7 +96,7 @@ else
 	guix package -p "$GUIX_PACKAGES_INSTALLATION_PROFILE" --export-manifest > "$BACK_UP_MANIFEST_PATH" &&
       echo -e "\nOK - The manifest of current packages was saved under the path \"$BACK_UP_MANIFEST_PATH\".\n"
     }||
-    { STDERR_afficher_message "\nERROR : The manifest of current packages could not be backed-up. Check script output and/or the back-up script.\n"
+    { STDERR_show_message "\nERROR : The manifest of current packages could not be backed-up. Check script output and/or the back-up script.\n"
       exit 1
     }
 fi
@@ -134,7 +134,7 @@ GITPARTINDEV
 { rbw purge &&
   echo -e "\nOK : The local Bitwarden database was sucessfully purged.\n"
 } ||
-{    STDERR_afficher_message "\nERROR : The local Bitwarden database could not be purged. Check script output and/or do it manually...\n"
+{    STDERR_show_message "\nERROR : The local Bitwarden database could not be purged. Check script output and/or do it manually...\n"
      exit 1
 }
 
