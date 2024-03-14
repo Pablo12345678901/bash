@@ -1,0 +1,314 @@
+#!/usr/bin/env bash
+
+# Theory reminder regarding the commands :
+# 'fork' :
+#     The Fork system call is used for creating a new process in Linux, and Unix systems, which is called the child process, which runs concurrently with the process that makes the fork() call (parent process). After a new child process is created, both processes will execute the next instruction following the fork() system call.
+# 'tty' :
+#    ‘tty’ prints the file name of the terminal connected to its standard input.  It prints ‘not a tty’ if standard input is not a terminal.
+
+source functions_personal
+
+# Syntax
+SYNTAX="$(syntaxe_afficher_si_erreur "$(basename $0)" "-d DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR" "[-s SLEEP_TIME_FOR_DAEMON]")"
+# -d DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR : the directory to write the daemon STDOUT and STDERR. It has to be a directory were the all users can write files - else the daemon will not have enough rights to do so.
+# Other options exists but should not be set by the user and therefore is not shown here :
+# -a ACTION_TO_PROCESS : will be provided by the script itself to itself
+# -t TTY_PROVIDED : will be provided by the script itself to itself
+
+##################################################################
+############### Default values that can be adapted ###############
+##################################################################
+
+# Default value to be used if no other is provided with the script options
+DEFAULT_VALUE_FOR_SLEEP_TIME_FOR_DAEMON=5
+DEFAULT_DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR="$HOME"
+# Set the below flag for useful printing to understand how the script works
+FLAG_DEBUG=true
+# if true, the daemon will run once and then be killed. But pretty output will be show.
+# else, the daemon will run as a real daemon within a loop.
+
+##################################################################
+############### BEGINNING OF OPTION MANAGEMENT ###################
+##################################################################
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'a:d:s:t:' -q -- "$@")
+# -q : quiet
+# -- : to explicitly show the options end
+
+# Test whether syntax was correct (options + arguments)
+if [ $? -ne 0 ]
+then
+    STDERR_show_message "ERROR: syntax..."
+    STDERR_show_message "$SYNTAX"
+    exit 1
+fi
+
+# Arguments check
+FLAG_OPTION_A=
+FLAG_OPTION_D=
+FLAG_OPTION_S=
+
+# Re-set options through positional parameters
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+    case "$1" in
+	-a )
+	    FLAG_OPTION_A=1
+            ACTION_TO_PROCESS="$2"
+            shift 2
+	    # Check that the provided action to process exists - else exit with error.
+	    case "$ACTION_TO_PROCESS" in
+		"refork")
+		    :
+		    ;;
+		"daemon")
+		    :
+		    ;;
+		*)
+		    STDERR_show_message "\nERROR : the provided argument to '-a' = \"$ACTION_TO_PROCESS\" is not a correct one. You should NOT provide such option.\n"
+		    STDERR_show_message "$SYNTAX"
+                    exit 1 
+	       ;;
+	    esac
+            continue
+            ;;
+	-d )  
+	    FLAG_OPTION_D=1
+            DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR="$2"
+            shift 2
+	    # Test that directory exists - exit with error else
+	    if [ -d "$DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR" ]
+	    then
+		# Get the path whether it is absolute or relative
+		DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR="$(readlink --canonicalize $DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR)"
+	    else
+		STDERR_show_message "\nERROR : the provided argument to '-d' = \"$DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR\" is not a directory.\n"
+		STDERR_show_message "$SYNTAX"
+                exit 1 
+	    fi
+	    continue
+            ;;
+	-s )
+	    FLAG_OPTION_S=1
+            SLEEP_TIME_FOR_DAEMON="$2"
+	    shift 2
+	    # Check that the argument provided is a positive int number.
+	    if [[ "$SLEEP_TIME_FOR_DAEMON" =~ ^[0-9]*$ ]]
+	    then
+		# Control that it is greater than 0.
+		if [ $((SLEEP_TIME_FOR_DAEMON)) -gt 0 ]
+		then
+		    # Set it to the int value (from string to int).
+		    SLEEP_TIME_FOR_DAEMON=$((SLEEP_TIME_FOR_DAEMON))
+		else
+		    STDERR_show_message "\nERROR : the provided argument to '-s' = \"$SLEEP_TIME_FOR_DAEMON\" should be greater or equal to 1.\n"
+		    STDERR_show_message "$SYNTAX"
+                    exit 1 
+		fi
+	    else
+		STDERR_show_message "\nERROR : the provided argument to '-s' = \"$SLEEP_TIME_FOR_DAEMON\" is not an positive int number.\n"
+		STDERR_show_message "$SYNTAX"
+		exit 1 
+	    fi
+            continue
+            ;;
+	-t )  
+            TTY_PROVIDED="$2"
+            shift 2
+            continue
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )
+	    # Error management for all other bugs
+            STDERR_show_message "ERROR: internal error...\n"
+            STDERR_show_message "$SYNTAX"
+            exit 2
+            ;;
+	esac
+done
+
+# Test whether other arguments were provided = in excess (=test if $1 is defined)
+if [ ! -z "$1" ]
+then
+    STDERR_show_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_show_message "$SYNTAX"
+    exit 3
+fi
+
+# Set the TTY depending on the action provided (or not)
+if [ -z "$FLAG_OPTION_A" ]
+then
+    # If action was provided, by default, use the current tty
+    TTY_TO_USE=$(tty)
+    # And set the action to process the beginning of the script
+    ACTION_TO_PROCESS="fork"
+else
+    # Else, the 'tty' was provided too (by the script itself).
+    TTY_TO_USE="$TTY_PROVIDED"
+fi
+
+# Set the directory to write file of STDOUT and STDERR to the default value (set on the top of the script) if it was not provided by the user.  
+if [ -z "$FLAG_OPTION_D" ]
+then
+    DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR="$DEFAULT_DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR"
+fi
+
+# Set the time to wait to the default value (set on the top of the script) if it was not provided by the user. 
+if [ -z "$FLAG_OPTION_S" ]
+then
+   SLEEP_TIME_FOR_DAEMON="$DEFAULT_VALUE_FOR_SLEEP_TIME_FOR_DAEMON"
+fi
+
+##################################################################
+############### MAIN SCRIPT CODE #################################
+##################################################################
+
+################### OPTIONAL FUNNY PART ###########################
+
+# Check which signal is SIGUSR1 by listing all signals with : 'trap -l'
+# And then, during the script runned with FLAG_DEBUG=false, execute the command : kill -SIGNAL_NUMBER_FOR_SIGUSR1 PID_OF_THE_DAEMON
+# It shows that the trap function is runned ONLY after the loop.
+# Therefore, the daemon is protected during it.
+
+# The command 'process_USR1 will be executed when 'SIGUSR1' signal is receive
+trap process_USR1 SIGUSR1
+
+process_USR1() {
+    echo 'Got signal USR1'
+    echo 'Did you notice that the signal was acted upon only after the sleep was done'
+    echo 'in the while loop? Interesting, yes? Yes.'
+    exit 0
+}
+
+################### END OF FUNNY PART ###########################
+
+# If the process is running from a real tty, print info about the current process and terminal to '$TTY_TO_USE'
+print_debug() {
+    whatiam="$1"; TTY_TO_USE="$2"
+    [[ "$TTY_TO_USE" != "not a tty" ]] &&
+	{   echo "" >$TTY_TO_USE
+        echo "$whatiam, PID $$" >$TTY_TO_USE # '$$' contains the PID
+        ps -o pid,sess,pgid -p $$ >$TTY_TO_USE # '-o FORMAT' = user defined format for output columns
+	# The tty will return 'no tty' as no tty is connected. Sent to the path of previous 'tty' STDOUT.
+        tty >$TTY_TO_USE
+    }
+}
+
+
+# Change to the directory parent of the script and conserve it into a variable
+SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # '${BASH_SOURCE[0]}' : contains the (potentially relative) path of the containing script
+
+# Get the name of the script
+SCRIPT_BASENAME=$(basename $0)
+
+# Change to root directory
+cd /
+
+##################################################################
+######### Forking from the script initial process ################
+##################################################################
+
+if [ "$ACTION_TO_PROCESS" = "fork" ]
+then    
+    # If the flag is set to true, print information about current process
+    $FLAG_DEBUG && print_debug "*** PARENT" "$TTY_TO_USE"
+    
+    # Execute the command in a new session
+    # Here : execute this script by passing some arguments in a background process
+    # setsid runs a program in a new session.
+    # The command calls 'fork' if already a process group leader.
+    # The argument "child" is used by the block code above
+    setsid $SCRIPT_DIRECTORY/$SCRIPT_BASENAME -a "refork" -d "$DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR" -s "$SLEEP_TIME_FOR_DAEMON" -t "$TTY_TO_USE" &
+    
+    # Print info only if flag set to true and the current process is running from a tty
+    $FLAG_DEBUG && [[ "$TTY_TO_USE" != "not a tty" ]] && echo "PARENT OUT" >$TTY_TO_USE
+    
+    # End this command (after having created a child above)
+    exit 0
+    
+##################################################################
+############### Reforking from a secondary process ###############
+##################################################################
+    
+elif [ "$ACTION_TO_PROCESS" = "refork" ]
+then    
+    # If the flag is set to true, print information about current process
+    $FLAG_DEBUG && print_debug "*** CHILD, NEW SESSION, NEW PGID" "$TTY_TO_USE"
+    
+    # Set the user file-creation mask 0 = no mask
+    umask 0
+
+    # The argument "reforking_the_daemon" is used by the block code below
+    # Recall this script and close STDIN + silent mode + background process
+    # Here : reforks
+    
+    $SCRIPT_DIRECTORY/$SCRIPT_BASENAME -a "daemon" -d "$DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR" -s "$SLEEP_TIME_FOR_DAEMON" -t "$TTY_TO_USE" </dev/null >/dev/null 2>/dev/null &
+
+    # Print info only if flag set to true and the current process is running from a tty  
+    $FLAG_DEBUG && [[ "$TTY_TO_USE" != "not a tty" ]] && echo "CHILD OUT" >$TTY_TO_USE
+    
+    # End this command (after forking : having recalled the script in a new process)    
+    exit 0
+
+##################################################################
+############### Daemon actions to run ############################
+##################################################################
+
+elif [ "$ACTION_TO_PROCESS" = "daemon" ]
+then
+    # Set the path of stdout and stderr files 
+    STDOUT_FILE_FOR_DAEMON="$DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR/daemon_stdout_file"
+    STDERR_FILE_FOR_DAEMON="$DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR/daemon_stderr_file"
+
+    # Set STDOUT, STDERR and close STDIN
+    # exec without arguments : If command is not specified, any redirections take effect in the current shell, and  the  return status  is 0.
+    exec >"$STDOUT_FILE_FOR_DAEMON"
+    exec 2>"$STDERR_FILE_FOR_DAEMON"
+    exec 0</dev/null
+    
+    # Empty the STDIN and STDOUT file at each run of the script
+    cp /dev/null "$STDOUT_FILE_FOR_DAEMON"
+    cp /dev/null "$STDERR_FILE_FOR_DAEMON"
+    
+    # Print useful information (only is the flag is 'true')
+    $FLAG_DEBUG && print_debug "*** DAEMON" "$TTY_TO_USE"
+    
+    # Counter to show the loop number if the flag is set to false
+    LOOP_COUNTER=0
+
+    # Test the flag and execute things
+    if [ "$FLAG_DEBUG" = "true" ]
+    then
+        # Show a message to announce the user that no loop will be processed.
+	# So the daemon will exit (-> exit 0 at the end of the script).
+	[[ "$TTY_TO_USE" != "not a tty" ]] &&
+	    echo "NOT A REAL DAEMON. NOT RUNNING WHILE LOOP." >$TTY_TO_USE
+	    echo "Kill the daemon after $SLEEP_TIME_FOR_DAEMON seconds..." >$TTY_TO_USE
+	    sleep $SLEEP_TIME_FOR_DAEMON &&
+	    echo "End of the daemon script" >$TTY_TO_USE
+    else
+	# Else infinite loop that process things and then sleep X seconds
+	{ while true
+	  do
+	      # Execute things whitin the daemon
+	      # Increase the loop number each time before execution of commands
+	      ((LOOP_COUNTER++))
+	      echo "LOOP NUMBER $LOOP_COUNTER" >>$STDOUT_FILE_FOR_DAEMON
+	      echo "Adapt this loop, this is what the daemon will run." >>$STDOUT_FILE_FOR_DAEMON
+	      echo "Sleeping $SLEEP_TIME_FOR_DAEMON seconds..." >>$STDOUT_FILE_FOR_DAEMON
+	      sleep $SLEEP_TIME_FOR_DAEMON
+	      echo "Waking up the daemon after the sleep..." >>$STDOUT_FILE_FOR_DAEMON
+	  done
+	}
+    fi
+fi
+
+exit 0
