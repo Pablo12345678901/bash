@@ -1,122 +1,71 @@
 #!/usr/bin/env bash
 
-# Syntaxe :
-# - : pas d'argument à fournir
+# Syntax :
+# - : no required arguments.
 
 source functions_personal
 
-REPONSE_UTILISATEUR=""
-QUESTION_POSEE="Êtes-vous d'accord de supprimer le contenu des répertoires suivants (variables d'environnement à configurer):
+# Declare here all trashes (directories) to empty by add the name of the environment variables into an array.
+declare -a TRASHES_ENV_VAR_ARRAY
+TRASHES_ENV_VAR_ARRAY+=("CORBEILLE_PATH")
+TRASHES_ENV_VAR_ARRAY+=("CORBEILLE_DISQUE_DUR_PATH")
 
-CORBEILLE_PATH : \"$CORBEILLE_PATH\"
-CORBEILLE_DISQUE_DUR_PATH \"$CORBEILLE_DISQUE_DUR_PATH\"
+# Use a loop to test that each variable is correctly set and if so, add its value to a string used later.
+for EACH_TRASH in "${TRASHES_ENV_VAR_ARRAY[@]}"
+do
+    # Check that all trashes correspond to an existing directory
+    if [ -d "${!EACH_TRASH}" ]
+    then
+	# If so, add the environment variable name and its value to a string that will be used later.
+        LIST_OF_TRASHES_WITH_VALUE="${LIST_OF_TRASHES_WITH_VALUE}${EACH_TRASH} : \"${!EACH_TRASH}\"
+"
+    else
+	# Else, print error message and exit.
+	STDERR_show_message "\nERROR : the trash defined in the environment variable \"$EACH_TRASH\" is not set to an existing directory. \nCurrently, its value is : \n$EACH_TRASH : \"${!EACH_TRASH}\" \n"
+	exit 1
+    fi
+done
+
+# Check user agreement to remove content of directories printing their paths.
+USER_ANSWER=""
+QUESTION_AGREEMENT_OF_DIRECTORIES_TO_EMPTY="Do you agree to remove the content of the following directories (environment variables to set) :
+
+$LIST_OF_TRASHES_WITH_VALUE
 
 ? (YyOo/Nn) "
 
-question_oui_non RESPONSE_UTILISATEUR "$QUESTION_POSEE"
+question_oui_non USER_ANSWER "$QUESTION_AGREEMENT_OF_DIRECTORIES_TO_EMPTY"
 
-if [ "$RESPONSE_UTILISATEUR" = 'n' ]
+if [ "$USER_ANSWER" = 'n' ]
 then
-    STDERR_show_message "Veuillez configurer correctement les variables d'environnement précitées avant de relancer le script
-
-Attention : ce script peut effacer plusieurs fichiers critiques si elles ne sont pas correctement configurées."
+    STDERR_show_message "\nPlease set correctly the environment variable listed above before to re-run this script \"$(basename $0)\" \n\nWarning : this script can remove critical files if they are not correctly set.\n"
 fi
 
-# Suppression du contenu des path des corbeilles
-echo -e "\nVidage des 2 corbeilles (normale + disque dur)"
+# Empty all trashes
+echo -e "\nEmptying trashes...\n"
 
-FICHIER_DANS_CORBEILLE_NORMALE="$(find ${CORBEILLE_PATH}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune 2>/dev/null)"
-if [ -z "$FICHIER_DANS_CORBEILLE_NORMALE" ]
-then
-     echo -e "\nCorbeille située \"$CORBEILLE_PATH\" déjà vide !\n"
-else
-    echo -e "\nVidage de la corbeille située \"$CORBEILLE_PATH\"...\n"
-    { find ${CORBEILLE_PATH}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune -exec rm -ri -- '{}' \; &&
-    echo -e "\nCorbeille située \"$CORBEILLE_PATH\" vidée !\n"
-} ||
-    { STDERR_show_message "\nERREUR : la corbeille située \"$CORBEILLE_PATH\" n'a pas pu être vidée\n" &&
-      exit 1
-    }
-fi
-
-FICHIER_DANS_CORBEILLE_DISQUE_DUR="$(find ${CORBEILLE_DISQUE_DUR_PATH}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune 2>/dev/null)"
-if [ -z "$FICHIER_DANS_CORBEILLE_DISQUE_DUR" ]
-then
-     echo -e "\nCorbeille située \"$CORBEILLE_DISQUE_DUR_PATH\" déjà vide !\n"
-else
-    # Ci-dessous pour vider la corbeille du disque dur
-    echo -e "\nVidage de la corbeille située \"$CORBEILLE_DISQUE_DUR_PATH\"...\n"
-    { find ${CORBEILLE_DISQUE_DUR_PATH}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune -exec rm -ri -- '{}' \; &&
-    echo -e "\nCorbeille située \"$CORBEILLE_DISQUE_DUR_PATH\" vidée !\n"
-    } ||
-    { STDERR_show_message "\nERREUR : la corbeille située \"$CORBEILLE_DISQUE_DUR_PATH\" n'a pas pu être vidée\n" &&
-      exit 1
-    }
-fi
-
-exit 0 # sortie sans erreur si suppression ok
-
-
-#######################################
-######## ANCIEN SCRIPT CI-DESSOUS #####
-exit 0
-####### JAMAIS EXECUTE CAR EXIT 0 #####
-#######################################
-declare -a TABLEAU_FICHIERS # pour l'affichage initial
-declare -a TABLEAU_PATH # pour la suppression
-declare -a TABLEAU_FICHIERS_RESTANTS # pour l'affichage final
-
-PATH_CORBEILLE=$HOME/.Trash/*
-
-# Obtention de la liste des fichiers initiaux
-while read OUTPUT
+# Loop on each trash
+for TRASH in "${TRASHES_ENV_VAR_ARRAY[@]}"
 do
-  TABLEAU_PATH=( "${TABLEAU_PATH[@]}" "$OUTPUT" ) # ajoute la nouvelle valeur à la suite des valeurs actuelles
-done < <(find $PATH_CORBEILLE -print 2>/dev/null | xargs -0 )
-
-# Exit si tableau vide
-if [ ${#TABLEAU_PATH[@]} -eq 0 ] 
-then
-    echo -e "\nLa corbeille est déjà vide...\n"
-    exit 0
-else
-    # Récupération noms de fichiers et affichage
-    echo -e "\nListe des fichiers dans la corbeille :"
-    while read OUTPUT
-    do
-        echo "$OUTPUT"
-        TABLEAU_FICHIERS=( "${TABLEAU_FICHIERS[@]}" "$OUTPUT" ) # ajoute la nouvelle valeur à la suite des valeurs actuelles
-    done < <(find $PATH_CORBEILLE -print0 2>/dev/null | xargs -0 basename )
-fi
-
-# Vidage corbeille
-echo -e "\nVidage de la corbeille..."
-for file in "${TABLEAU_PATH[@]}"
-do
-    filename="${file##*/}"
-    # Tentative de suppression
-    rm -fr "$file" ||
-    { echo -e "\nERREUR : le fichier \"$filename\" n'a pas pu être supprimé.\n" && continue ; }
-    # Affichage du fichier que si supprimé
-    echo "$filename"
+    # Get the list of files within the directory.
+    FILES_WITHIN_TRASH="$(find ${!TRASH}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune 2>/dev/null)"
+    
+    # Test if no file were found (=directory already empty)
+    if [ -z "$FILES_WITHIN_TRASH" ]
+    then
+	 echo -e "\nThe trash located \"${!TRASH}\" was already empty !\n"
+    else
+	# If at least one file was present, remove it.
+	echo -e "\nEmptying the trash located \"${!TRASH}\"...\n"
+	{ find "${!TRASH}/" -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune -exec rm -ri -- '{}' \; &&
+	  # Printing confirmation message
+	  echo -e "\nThe trash located \"${!TRASH}\" was emptied !\n"
+	} ||
+	# If error occurs, print error message and exit with error code
+	{ STDERR_show_message "\nERROR : the trash located ${!TRASH} could not be emptied. \nPlease check script output and/or script content...\n" &&
+	  exit 1
+	}
+    fi
 done
 
-# Obtention de la liste des fichiers finaux
-while read OUTPUT; do
-  TABLEAU_FICHIERS_RESTANTS=( "${TABLEAU_FICHIERS_RESTANTS[@]}" "$OUTPUT" ) # ajoute la nouvelle valeur à la suite des valeurs actuelles
-done < <(find $PATH_CORBEILLE -print0 2>/dev/null | xargs -0 basename )
-
-if [ ${#TABLEAU_FICHIERS_RESTANTS[@]} -eq 0 ]
-then
-    echo -e "\nLa corbeille a été vidée.\n"
-    exit 0
-else
-    echo -e "\nERREUR : La corbeille n'a pas pu être vidée.\n"
-    echo -e "Voici la liste des fichiers à supprimer manuellement (ou contrôler le script) :"
-    for element in "${TABLEAU_FICHIERS_RESTANTS[@]}"
-    do
-        echo "\"$element\""
-    done
-    echo ""
-    exit 1
-fi
+exit 0
