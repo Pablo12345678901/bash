@@ -43,12 +43,14 @@ while true; do
 	    then
 		FILE_TO_OPEN="${FILE_TO_OPEN@P}"
 	    fi
-            # Manage absolute and relative paths with 'readlink --canonicalize'
-	    # Test if the path exists, if so set path of the file to open
-	    # Else exit with error
+            # Manage absolute and relative paths with 'readlink --canonicalize'	    
 	    { readlink --canonicalize "$FILE_TO_OPEN" >/dev/null 2>&1 &&
-	      PATH_FILE_TO_OPEN="$(readlink --canonicalize "$FILE_TO_OPEN")"
+	      # Set path of the file to open
+	      PATH_FILE_TO_OPEN="$(readlink --canonicalize "$FILE_TO_OPEN")" &&
+	      # Check that the file exists
+	      test -e "$PATH_FILE_TO_OPEN"
             }||
+	    # If error occurs, print message and exit with error code.
 	    { STDERR_show_message "\nERROR : the file \"$FILE_TO_OPEN\" (provided with your argument \"$ARGUMENT_PROVIDED\") does not exist.\n"
               exit 2
 	    }
