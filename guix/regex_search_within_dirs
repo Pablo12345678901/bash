@@ -68,28 +68,26 @@ while true; do
 	    # Add to dir array
 	    FILE_PROVIDED="$2"
 	    shift 2
+	    # Get the path whether it is absolute or relative
+	    # 'readlink --canonicalize' : follow all the symlink and therefore support relative path as well as absolute ones
+	    FILE_PROVIDED_ABSOLUTE_PATH="$(readlink --canonicalize "${FILE_PROVIDED}")"
 	    # Test if the file provided is really a file or a directory - exit with error else
-	    if [ -d "$FILE_PROVIDED" ] || [ -f "$FILE_PROVIDED" ]
+	    if [ -d "$FILE_PROVIDED_ABSOLUTE_PATH" ] || [ -f "$FILE_PROVIDED_ABSOLUTE_PATH" ]
             then
 		# Test if it is a directory
-                if [ -d "$FILE_PROVIDED" ]
+                if [ -d "$FILE_PROVIDED_ABSOLUTE_PATH" ]
                 then
-		    # Get the path whether it is absolute or relative
-		    FILE_PROVIDED="$(readlink --canonicalize $FILE_PROVIDED)"
 		    # Fill array with all files contained in the directory
-                    repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FILE_PROVIDED"
+                    repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FILE_PROVIDED_ABSOLUTE_PATH"
                 else
 		    # Else, it is a file so add it to the array.
-		    # 'readlink --canonicalize' : follow all the symlink and therefore support relative path as well as absolute ones
-		    FILE_PROVIDED="$(readlink --canonicalize "${FILE_PROVIDED}")"
-                    TABLEAU_FICHIERS+=("$FILE_PROVIDED")
+                    TABLEAU_FICHIERS+=("$FILE_PROVIDED_ABSOLUTE_PATH")
                 fi
             else
-                STDERR_show_message "\nERROR : the provided argument to '-d' = \"$FILE_PROVIDED\" is neither a file nor a directory.\n"
+                STDERR_show_message "\nERROR : the provided argument to '-d' = \"$FILE_PROVIDED\" (with absolute path : \"$FILE_PROVIDED_ABSOLUTE_PATH\") is neither a file nor a directory.\n"
                 STDERR_show_message "$SYNTAXE"
                 exit 1 
             fi
-
 	    continue
             ;;
 	-l )
