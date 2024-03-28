@@ -5,7 +5,6 @@ source functions_personal
 # Syntaxe
 SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-r REGEX_RECHERCHE" "-s STRING_REMPLACEMENT" "-d FICHIER_OU_REPERTOIRE" "[...]")"
 
-
 # Set the file which will contain the output of some commands of the script
 # That enables it to stock and recover data from it for further use.
 NOM_FICHIER_OUTPUT_CORBEILLE="$(basename $0)_output.txt"
@@ -42,29 +41,20 @@ unset TEMP
 
 while true; do
     case "$1" in
-	-d )  
+	-d )
 	    FLAG_OPTION_D=1
-            FILE_PROVIDED="$2"
-            shift 2
-            # Add to dir array
-	    # Test if the file provided is really a file or a directory - exit with error else
-	    if [ -d "$FILE_PROVIDED" ] || [ -f "$FILE_PROVIDED" ]
+	    FILE_PROVIDED="$2"
+	    shift 2
+	    # Add the file provided to a string that will be used later when calling another script for the regex search.
+	    OPTION_LIST_OF_FILE_ARGUMENTS_PROVIDED="$OPTION_LIST_OF_FILE_ARGUMENTS_PROVIDED-d $FILE_PROVIDED " 
+	    # Get the path whether it is absolute or relative
+	    # 'readlink --canonicalize' : follow all the symlink and therefore support relative path as well as absolute ones
+	    FILE_PROVIDED_ABSOLUTE_PATH="$(readlink --canonicalize "${FILE_PROVIDED}")"
+	    # Test if the file provided is neither a file nor a directory
+	    # if so, exit with error.
+	    if [ ! -d "$FILE_PROVIDED_ABSOLUTE_PATH" ] && [ ! -f "$FILE_PROVIDED_ABSOLUTE_PATH" ]
             then
-		# Test if it is a directory
-                if [ -d "$FILE_PROVIDED" ]
-                then
-		    # Get the path whether it is absolute or relative
-		    FILE_PROVIDED="$(readlink --canonicalize $FILE_PROVIDED)"
-		    # Fill array with all files contained in the directory
-                    repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find TABLEAU_FICHIERS "$FILE_PROVIDED"
-                else
-		    # Else, it is a file so add it to the array.
-		    # 'readlink --canonicalize' : follow all the symlink and therefore support relative path as well as absolute ones
-		    FILE_PROVIDED="$(readlink --canonicalize "${FILE_PROVIDED}")"
-                    TABLEAU_FICHIERS+=("$FILE_PROVIDED")
-                fi
-            else
-                STDERR_show_message "\nERROR : the provided argument to '-d' = \"$FILE_PROVIDED\" is neither a file nor a directory.\n"
+                STDERR_show_message "\nERROR : the provided argument to '-d' = \"$FILE_PROVIDED\" (with absolute path : \"$FILE_PROVIDED_ABSOLUTE_PATH\") is neither a file nor a directory.\n"
                 STDERR_show_message "$SYNTAXE"
                 exit 1 
             fi
@@ -111,13 +101,10 @@ then
     exit 3
 fi
 
-########## END OF OPTION MANAGEMENT ####################
+# Remove the trailing space
+OPTION_LIST_OF_FILE_ARGUMENTS_PROVIDED="${OPTION_LIST_OF_FILE_ARGUMENTS_PROVIDED% }"
 
-# Get all matches in a string separating each of them with ':'
-for FICHIER_UN_PAR_UN in "${TABLEAU_FICHIERS[@]}"
-do
-    LISTE_FICHIERS+="$(echo -n ":$FICHIER_UN_PAR_UN")"
-done
+########## END OF OPTION MANAGEMENT ####################
 
 # Conservation des lignes qui :
 #   - ne sont pas uniquement composéees de commentaires
@@ -292,7 +279,7 @@ done < <( while read -r LIGNE
             # The below script shows the results of regex matches within the list of file
 	    # But this list also contains a list of matches within comments.
 	    # Those lines will be removed from the list later. 
-	done < <( regex_search_within_dirs -r "$REGEX_RECHERCHE" -l "$LISTE_FICHIERS" -s |
+	done < <( eval regex_search_within_dirs -r "$REGEX_RECHERCHE" "$OPTION_LIST_OF_FILE_ARGUMENTS_PROVIDED" -s |
     # '-s' pour silencieux : sans les messages
     # Affichage BRUT des répertoires,
     #   TAB fichiers
