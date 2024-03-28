@@ -8,7 +8,11 @@ source functions_personal
 # Declare here all trashes (directories) to empty by add the name of the environment variables into an array.
 declare -a TRASHES_ENV_VAR_ARRAY
 TRASHES_ENV_VAR_ARRAY+=("CORBEILLE_PATH")
-TRASHES_ENV_VAR_ARRAY+=("CORBEILLE_DISQUE_DUR_PATH")
+# Add the usb external drive trash only if the external drive is connected (if itd directory exists. 
+if [ -d "$USB_CONNEXION_PATH" ]
+then
+    TRASHES_ENV_VAR_ARRAY+=("CORBEILLE_DISQUE_DUR_PATH")
+fi
 
 # Use a loop to test that each variable is correctly set and if so, add its value to a string used later.
 for EACH_TRASH in "${TRASHES_ENV_VAR_ARRAY[@]}"
