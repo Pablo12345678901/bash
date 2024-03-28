@@ -7,7 +7,7 @@ source fonctions_personnelles
 
 REPONSE_UTILISATEUR=""
 QUESTION_POSEE="Êtes-vous d'accord de supprimer le contenu des répertoires suivants (variables d'environnement à configurer):
-CORBEILLE_PATH : \"$CORBEILLE_PATH\"
+TRASH_MAIN : \"$TRASH_MAIN\"
 ? "
 # CORBEILLE_DISQUE_DUR_PATH \"$CORBEILLE_DISQUE_DUR_PATH\" # Pour le disque dur
 question_oui_non RESPONSE_UTILISATEUR "$QUESTION_POSEE"
@@ -25,20 +25,20 @@ exit 0
 # Suppression du contenu des path des corbeilles
 echo -e "\nVidage de la corbeille"
 
-{   rm -rf $CORBEILLE_PATH/* &&
-    echo -e "\nCorbeille située \"$CORBEILLE_PATH\" vidée !\n"
+{   rm -rf $TRASH_MAIN/* &&
+    echo -e "\nCorbeille située \"$TRASH_MAIN\" vidée !\n"
 } ||
-    { STDERR_show_message "\nERREUR : la corbeille située \"$CORBEILLE_PATH\" n'a pas pu être vidée\n" &&
+    { STDERR_show_message "\nERREUR : la corbeille située \"$TRASH_MAIN\" n'a pas pu être vidée\n" &&
       exit 1
     }
 
 # Ci-dessous pour vider la corbeille du disque dur
 : <<"TEMPORAIRE"
 
-{   rm -rf $CORBEILLE_DISQUE_DUR_PATH/* &&
-    echo -e "\nCorbeille située \"$CORBEILLE_DISQUE_DUR_PATH\" vidée !\n"
+{   rm -rf $TRASH_MAIN_EXTERNAL_DRIVE/* &&
+    echo -e "\nCorbeille située \"$TRASH_MAIN_EXTERNAL_DRIVE\" vidée !\n"
 } ||
-    { STDERR_show_message "\nERREUR : la corbeille située \"$CORBEILLE_DISQUE_DUR_PATH\" n'a pas pu être vidée\n" &&
+    { STDERR_show_message "\nERREUR : la corbeille située \"$TRASH_MAIN_EXTERNAL_DRIVE\" n'a pas pu être vidée\n" &&
       exit 1
     }
 

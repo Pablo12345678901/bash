@@ -8,7 +8,7 @@ SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-r REGEX_RECHERCHE" "-s 
 # Set the file which will contain the output of some commands of the script
 # That enables it to stock and recover data from it for further use.
 NOM_FICHIER_OUTPUT_CORBEILLE="$(basename $0)_output.txt"
-PATH_FICHIER_OUTPUT_CORBEILLE="${CORBEILLE_PATH}/${NOM_FICHIER_OUTPUT_CORBEILLE}"
+PATH_FICHIER_OUTPUT_CORBEILLE="${TRASH_MAIN}/${NOM_FICHIER_OUTPUT_CORBEILLE}"
 
 # Declare files array here because will be needed after
 declare -a TABLEAU_FICHIERS

@@ -8,8 +8,8 @@ source fonctions_personnelles
 REPONSE_UTILISATEUR=""
 QUESTION_POSEE="Êtes-vous d'accord de supprimer le contenu des répertoires suivants (variables d'environnement à configurer):
 
-CORBEILLE_PATH : \"$CORBEILLE_PATH\"
-CORBEILLE_DISQUE_DUR_PATH \"$CORBEILLE_DISQUE_DUR_PATH\"
+TRASH_MAIN : \"$TRASH_MAIN\"
+TRASH_MAIN_EXTERNAL_DRIVE \"$TRASH_MAIN_EXTERNAL_DRIVE\"
 
 ? (YyOo/Nn) "
 
@@ -25,31 +25,31 @@ fi
 # Suppression du contenu des path des corbeilles
 echo -e "\nVidage des 2 corbeilles (normale + disque dur)"
 
-FICHIER_DANS_CORBEILLE_NORMALE="$(find ${CORBEILLE_PATH}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune 2>/dev/null)"
+FICHIER_DANS_CORBEILLE_NORMALE="$(find ${TRASH_MAIN}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune 2>/dev/null)"
 if [ -z "$FICHIER_DANS_CORBEILLE_NORMALE" ]
 then
-     echo -e "\nCorbeille située \"$CORBEILLE_PATH\" déjà vide !\n"
+     echo -e "\nCorbeille située \"$TRASH_MAIN\" déjà vide !\n"
 else
-    echo -e "\nVidage de la corbeille située \"$CORBEILLE_PATH\"...\n"
-    { find ${CORBEILLE_PATH}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune -exec rm -ri -- '{}' \; &&
-    echo -e "\nCorbeille située \"$CORBEILLE_PATH\" vidée !\n"
+    echo -e "\nVidage de la corbeille située \"$TRASH_MAIN\"...\n"
+    { find ${TRASH_MAIN}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune -exec rm -ri -- '{}' \; &&
+    echo -e "\nCorbeille située \"$TRASH_MAIN\" vidée !\n"
 } ||
-    { STDERR_show_message "\nERREUR : la corbeille située \"$CORBEILLE_PATH\" n'a pas pu être vidée\n" &&
+    { STDERR_show_message "\nERREUR : la corbeille située \"$TRASH_MAIN\" n'a pas pu être vidée\n" &&
       exit 1
     }
 fi
 
-FICHIER_DANS_CORBEILLE_DISQUE_DUR="$(find ${CORBEILLE_DISQUE_DUR_PATH}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune 2>/dev/null)"
+FICHIER_DANS_CORBEILLE_DISQUE_DUR="$(find ${TRASH_MAIN_EXTERNAL_DRIVE}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune 2>/dev/null)"
 if [ -z "$FICHIER_DANS_CORBEILLE_DISQUE_DUR" ]
 then
-     echo -e "\nCorbeille située \"$CORBEILLE_DISQUE_DUR_PATH\" déjà vide !\n"
+     echo -e "\nCorbeille située \"$TRASH_MAIN_EXTERNAL_DRIVE\" déjà vide !\n"
 else
     # Ci-dessous pour vider la corbeille du disque dur
-    echo -e "\nVidage de la corbeille située \"$CORBEILLE_DISQUE_DUR_PATH\"...\n"
-    { find ${CORBEILLE_DISQUE_DUR_PATH}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune -exec rm -ri -- '{}' \; &&
-    echo -e "\nCorbeille située \"$CORBEILLE_DISQUE_DUR_PATH\" vidée !\n"
+    echo -e "\nVidage de la corbeille située \"$TRASH_MAIN_EXTERNAL_DRIVE\"...\n"
+    { find ${TRASH_MAIN_EXTERNAL_DRIVE}/ -maxdepth 1 -mindepth 1 -name . -o -prune -name .. -o -prune -exec rm -ri -- '{}' \; &&
+    echo -e "\nCorbeille située \"$TRASH_MAIN_EXTERNAL_DRIVE\" vidée !\n"
     } ||
-    { STDERR_show_message "\nERREUR : la corbeille située \"$CORBEILLE_DISQUE_DUR_PATH\" n'a pas pu être vidée\n" &&
+    { STDERR_show_message "\nERREUR : la corbeille située \"$TRASH_MAIN_EXTERNAL_DRIVE\" n'a pas pu être vidée\n" &&
       exit 1
     }
 fi

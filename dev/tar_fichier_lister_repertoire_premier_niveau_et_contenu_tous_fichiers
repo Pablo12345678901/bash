@@ -6,7 +6,7 @@
 source fonctions_personnelles
 
 NOM_DU_FICHIER_OUTPUT="$(basename $0)_output.txt"
-PATH_OUTPUT="$CORBEILLE_PATH/$NOM_DU_FICHIER_OUTPUT"
+PATH_OUTPUT="$TRASH_MAIN/$NOM_DU_FICHIER_OUTPUT"
 
 # Contrôle des argument
 SYNTAXE=""
