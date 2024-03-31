@@ -1,35 +1,59 @@
 #!/usr/bin/env bash
 
-FLAG_REPERTOIRE_A_PUSH="false"
-COMPTEUR=0
-MESSAGE_INDIQUANT_QUE_RIEN_A_PUSH="nothing to commit, working tree clean"
-while read REPERTOIRE_DEV_CONCERNE
+source functions_personal
+
+COUNTER=0
+MESSAGE_SHOWING_NOTHING_TO_COMMIT="nothing to commit, working tree clean"
+MESSAGE_SHOWING_NOTHING_TO_PUSH="Your branch is up to date with"
+declare -a DIRECTORY_TO_COMMIT_LIST
+declare -a DIRECTORY_TO_PUSH_LIST
+
+while read DEVELOPMENT_DIRECTORY
 do
 
 	OLDPWD="$PWD"
-	cd "$REPERTOIRE_DEV_CONCERNE"
-	# Test si le répertoire est à push ou non - si oui grep ne retourne pas 0 donc déclenche le 'if' ci-dessous 
-        git status | grep "$MESSAGE_INDIQUANT_QUE_RIEN_A_PUSH" >/dev/null 2>&1
+	cd "$DEVELOPMENT_DIRECTORY"
+	# Test if the directory has to be commit. If so, grep does not return an exit code of 0.
+        git status | grep "$MESSAGE_SHOWING_NOTHING_TO_COMMIT" >/dev/null 2>&1
 	if (($?))
 	then
-		# Affichage esthétique avant la première fois
-		if [ "$FLAG_REPERTOIRE_A_PUSH" = "false" ]
-		then
-			echo -e "\nList of Git dirs to 'git push' :\n"
-		fi
-		((COMPTEUR++))
-		# Affichage du répertoire à push
-		echo "$COMPTEUR - ${REPERTOIRE_DEV_CONCERNE##*/}"
-		FLAG_REPERTOIRE_A_PUSH="true"	
+	    DIRECTORY_TO_COMMIT_LIST+=("$DEVELOPMENT_DIRECTORY")
+        else
+	    git status | grep "$MESSAGE_SHOWING_NOTHING_TO_PUSH" >/dev/null 2>&1
+	    if (($?))
+	    then
+		DIRECTORY_TO_PUSH_LIST+=("$DEVELOPMENT_DIRECTORY")
+	    fi
 	fi
 	cd "$OLDPWD"	
 done < <(find "$REPERTOIRE_DEVELOPPEMENT" -mindepth 1 -maxdepth 1)
 
-# Retour à la ligne esthétique final
-if [ "$FLAG_REPERTOIRE_A_PUSH" = "true" ]
+# Get the number of directories of each category
+NUMBER_OF_DIRECTORY_TO_COMMIT=$(tableau_taille DIRECTORY_TO_COMMIT_LIST)
+NUMBER_OF_DIRECTORY_TO_PUSH=$(tableau_taille DIRECTORY_TO_PUSH_LIST)
+
+# Check if there is at least one directory in one category with an action to do.
+if [[ $((NUMBER_OF_DIRECTORY_TO_COMMIT)) -gt 0 || $((NUMBER_OF_DIRECTORY_TO_PUSH)) -gt 0 ]]
 then
-    echo ""
+    # If so, show message.
+    echo -e "\nList of Git dirs: \n"
+    # Directories to be committed
+    for EACH_DIRECTORY in "${DIRECTORY_TO_COMMIT_LIST[@]}"
+    do
+	((COUNTER++))
+        echo -e "$COUNTER - ${EACH_DIRECTORY##*/} - to be committed"
+    done
+    # Directories to be pushed
+    for EACH_DIRECTORY in "${DIRECTORY_TO_PUSH_LIST[@]}"
+    do
+	((COUNTER++))
+        echo -e "$COUNTER - ${EACH_DIRECTORY##*/} - to be pushed"
+    done
+    echo "" # Esthetic
+
 else
+    # Else, there is neither commits, nor pushes to do.
+    # So show confirmation message.
     echo -e "\nAll Git dirs are up-to-date.\n"
 fi
 
