@@ -109,7 +109,6 @@ then
     # Check if the file provided is a directory and if it is a git repo
     CHOICE_GIT_REPO_TO_UPDATE="$GIT_REPO_TO_UPDATE"
 
-    
     # Manage the case where the current directory is the git repos directory - it corrects a bug explained below.
     # If this 'if' was not here a bug could happened because in the next if, the directory (relative without this 'if') would exists and therefore, no change in the path would apply which would cause a bug after.
     # Source of the bug : the path would not contain the '$REPERTOIRE_DEVELOPPEMENT' prefix and therefore the regex check would fail.
