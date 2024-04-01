@@ -114,13 +114,13 @@ then
 	# Check if it is the basename of a dir within the git repos dir
 	if [ ! -d "${REPERTOIRE_DEVELOPPEMENT}/${CHOICE_GIT_REPO_TO_UPDATE}" ]
 	then
-	    # Exit with error if the later is not a dir within the git repos dir
+	    # Exit with error if the later is not a dir within the git repos dir	    
 	    STDERR_show_message "\nERROR : the argument provided for '-r' : \"$CHOICE_GIT_REPO_TO_UPDATE\" is not a directory.\n"
             STDERR_show_message "$SYNTAXE"
 	    exit 4
 	else
 	    # Else adapt the path
-	    CHOICE_GIT_REPO_TO_UPDATE="${REPERTOIRE_DEVELOPPEMENT}/${CHOICE_GIT_REPO_TO_UPDATE}"
+	    CHOICE_GIT_REPO_TO_UPDATE="${REPERTOIRE_DEVELOPPEMENT}/${CHOICE_GIT_REPO_TO_UPDATE}"	    
 	fi
     else
 	# Else, check that it is a dir within the git repo dir
