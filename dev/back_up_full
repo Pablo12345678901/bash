@@ -2,7 +2,7 @@
 
 : <<"TODO"
 
-# Add a check to deactivate proxy to ensure a quick connection out of Tor else the git clone will fail.
+# Resolve the issue of git failing to clone repos.
 # Add message before and after each step to announce it
 # Add the optional choice to perform or not the steps.
 # Add a choice to choose on which step to start the script.
@@ -58,6 +58,8 @@ do
         exit 1
     fi
 done
+
+#: <<"OFFWHILEINDEV"
 
 #######################################################################
 ################### BACK UP OF MAIN FILES #############################
@@ -301,6 +303,17 @@ cd "$OLDPWD"
 {    STDERR_show_message "\nERROR : The local Bitwarden database could not be purged. Check script output and/or do it manually...\n"
      exit 15
 }
+
+#OFFWHILEINDEV
+: <<"TEST"
+echo "\nDEBUG ONLY WHILE IN DEV DURING TEST REMOVE THIS PART AFTER\n"
+MESSAGE_FOR_NEW_GIT_PERSONAL_TOKEN="TO DO :
+1. Copy/paste the new token below.
+
+NEW TOKEN : "
+read -p "$MESSAGE_FOR_NEW_GIT_PERSONAL_TOKEN" NEW_GIT_PERSONAL_TOKEN
+echo "\nDEBUG ONLY WHILE IN DEV DURING TEST REMOVE THIS PART AFTER\n"
+TEST
 
 #######################################################################
 ############ BACK-UP OF GIT DIRS TO MAIN EXTERNAL DISK ################
