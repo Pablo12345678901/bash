@@ -32,17 +32,17 @@ do
     fi
     
     # Else propose to git push
-    QUESTION="Would you like to git push ? (Oo/Nn) "
+    QUESTION="Would you like to update git repo(s) ? (Oo/Nn) "
     REPONSE=''
     question_oui_non REPONSE "$QUESTION"
     
     # Check user answer and commit if wished (through a separate script)
     if [ $REPONSE == 'o' ]
     then
-        git_commit_with_message || exit 1
+        git_update_repo || exit 1
     else
-	# If user choosed not to push more repo then exit
-	echo -e "\nYou have choosen to continue without git push any other dir.\n"
+	# If user choosed not to update more repo then exit
+	echo -e "\nYou have choosen to continue without update any other dir.\n"
         exit 0 
     fi
 done

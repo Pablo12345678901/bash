@@ -68,8 +68,8 @@ fi
 # The below parameter is needed later for each 'if' cases so has to be set here.
 CHOICE_GIT_REPO_TO_UPDATE=""
 
-# Fill array with all names of git repos that require update
-# And precise what kind of update is required
+# Fill an array with all names of git repos that require update
+# as well as other array depending on the kind of update that is required (commit/push)
 declare -a ARRAY_OF_GIT_REPO_TO_COMMIT
 declare -a ARRAY_OF_GIT_REPO_TO_PUSH
 declare -a ARRAY_OF_ALL_GIT_REPO_NEEDING_UPDATE
