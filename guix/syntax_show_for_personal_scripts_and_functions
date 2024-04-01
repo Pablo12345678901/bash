@@ -59,7 +59,7 @@ function )          PATH_FICHIER_FONCTIONS_PERSONNELLES="$(which "$FICHIER_DES_F
                             # Récupération des 20 premières lignes de la fonction
                         done < <(grep -E -A $NB_LIGNE_CONTEXTE "$REGEX_FONCTION_DANS_FICHIER_FONCTION" "$PATH_FICHIER_FONCTIONS_PERSONNELLES" |
                         # Desquelles je récupère le paragraphe de la syntaxe
-                        awk -v REGEX=$REGEX_LIGNE_COMMENTAIRE_SYNTAXE '$0 ~ REGEX { if (paragraphe == 0) { indic=1 ; } ; paragraphe=1 ; } { if (indic == 1 && paragraphe == 1) { print $0} } /^$/ { indic=0 }' )
+                        awk -v REGEX=$REGEX_LIGNE_COMMENTAIRE_SYNTAXE '$0 ~ REGEX { if (paragraphe == 0) { indic=1 ; } ; paragraphe=1 ; } { if (indic == 1 && paragraphe == 1) { print $0} } /^[[:space:]]*$/ { indic=0 }' )
                         if [ $FLAG_SYNTAXE_TROUVEE = "true" ]
                         then
                             :
