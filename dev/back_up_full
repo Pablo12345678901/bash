@@ -2,6 +2,7 @@
 
 : <<"TODO"
 
+# Add a check to deactivate proxy to ensure a quick connection out of Tor else the git clone will fail.
 # Add message before and after each step to announce it
 # Add the optional choice to perform or not the steps.
 # Add a choice to choose on which step to start the script.
