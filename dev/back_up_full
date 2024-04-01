@@ -15,6 +15,10 @@ TODO
 
 source functions_personal
 
+#######################################################################
+################### SET-UP BEFORE BACK-UP #############################
+#######################################################################
+
 # Set the list of all used directories for the back-up through their environment variable name
 declare -a ARRAY_DIR_LIST_FOR_BACK_UP
 ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_PROFILES")
@@ -34,10 +38,14 @@ ARRAY_ENV_VAR_PROFILES_FILES+=("GIT_CONF")
 ARRAY_ENV_VAR_PROFILES_FILES+=("PROXYCHAINS_CONF")
 ARRAY_ENV_VAR_PROFILES_FILES+=("RBW_CONF")
 
-# Path for output file
+# Path for output file for back-up of external disks
 SCRIPT_OUTPUT_FILE="${REPERTOIRE_TEMPORAIRE}/output.txt"
 # Will enable the user to read the message before running a long command of back-up with external disk
 PAUSE_BEFORE_RUN=5 
+
+#######################################################################
+################ CHECK OF SET-UP BEFORE BACK-UP #######################
+#######################################################################
 
 # Check that all back-up directories exist
 for i in "${!ARRAY_DIR_LIST_FOR_BACK_UP[@]}"
@@ -294,7 +302,7 @@ cd "$OLDPWD"
 }
 
 #######################################################################
-################## BACK-UP OF EXTERNAL DISKS  #########################
+############ BACK-UP OF GIT DIRS TO MAIN EXTERNAL DISK ################
 #######################################################################
 
 # Check whether the main external disk is connected (if its variable is well defined
@@ -347,6 +355,10 @@ done
 
 # Return to previous directory
 cd "$OLDPWD"
+
+#######################################################################
+########## BACK-UP OF MAIN TO SECONDARY EXTERNAL DISKS ################
+#######################################################################
 
 # Ask the user to connect the external secondary disk 
 read -p "TO DO :
