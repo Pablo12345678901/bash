@@ -179,8 +179,6 @@ $STRING_OF_DIRECTORIES_TO_CHECK
 Please confirm when done by typing 'enter'.
 " 
 
-
-
 #######################################################################
 ############ BACK UP OF DEVELOPMENT GIT REPO ##########################
 #######################################################################
@@ -214,43 +212,63 @@ Please confirm when done by typing 'enter'.
 # And process the exit if any error occurs.
 git_force_update_all || exit 1
 
-echo -e "\nDEBUG EXIT 55\n"
-exit 55
+: <<"SETBELOWPARTASOPTIONAL"
 
-: <<"CURRENTLYINDEV"
+# Remove all git dirs locally.
+echo -e "\nWARNING : the next step consists in removing all personal git directories.\n"
+# Ask for confirmation with possibility to exit before continuing
+ask_user_if_agree_to_continue
+# Remove all here
+#rm -rf "$REPERTOIRE_DEVELOPPEMENT"/*
 
+SETBELOWPARTASOPTIONAL
 
-: <<"GITPARTINDEV"
+# Manage git personal token from git userspace
+read -p "TO DO :
+1. Remove current personal token from git userspace.
+2. Create personal token from git userspace.
+3. Note it into a file (or piece of paper) JUST IN CASE.
 
-# TO BE DONE LATER
+Please type 'enter' when done.
+" 
 
-# See the detailed list of steps in the back_up_checklist file (some were added).
+: <<"SETBELOWPARTASOPTIONAL2"
+SETBELOWPARTASOPTIONAL2
 
-4. Git dirs :
-    - Check on my git userspace (login) that all git push were well performed.
-    - Copy content of files/dir in .gitignore in a temporary directory (they will be losed else.
-    - Remove all git dirs locally.
-    - Remove the token to avoid security issue.
-    - Create a new token.
-    - Note it in order to use it.
-    - If stay on the same OS :
-        - reclone required Git repos.
-	- Add data ignored by .gitignore file into the repo new directory from my temporary dir.
-    - Clone my git repos into my external disk to save the content in case my GitHub is hacked.
+MESSAGE_FOR_NEW_GIT_PERSONAL_TOKEN="TO DO :
+1. Copy/paste the new token below.
 
-# Git
-# Ask if the development environment were saved
-# If yes, then push all directories
-# Ask the user to check git login space to check that the git push were well done.
-# Only after this all, remove all git directories
+NEW TOKEN : "
+read -p "$MESSAGE_FOR_NEW_GIT_PERSONAL_TOKEN" NEW_GIT_PERSONAL_TOKEN
 
-# Require to remove the token
+# Set here all git personal repo name to be re-cloned into the new env.
+declare -a ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("administratif")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("bash")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("c_training")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("guix-custom-channel")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("l2l")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("os_config")
 
-# List here the required git repository to clone in the development environment AND whether or not they are mine (to add the token)
-# Require for the news token
-# Clone the git dirs with urls provided and the token before if they are mine > can check it by greping the url to see if it contains my github name
+# Move into the personal git directory
+#cd "$REPERTOIRE_DEVELOPPEMENT"
+echo -e "\nDEBUG WHILE IN DEV : COPY DIRECTORY INTO TMP DIRECTORY\n"
 
-GITPARTINDEV
+# Clone all git directory
+for EACH_MAIN_GIT_REPO in "${ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED[@]}"
+do
+    URL_OF_ORIGIN_OF_REPO="https://${NEW_GIT_PERSONAL_TOKEN}@github.com/Pablo12345678901/${EACH_MAIN_GIT_REPO}.git"
+    { git clone "$URL_OF_ORIGIN_OF_REPO" &&
+      echo -e "\nOK : git repo \"$EACH_MAIN_GIT_REPO\" cloned !\n"
+    } ||
+    { STDERR_show_message "\nERROR : the git repo \"$EACH_MAIN_GIT_REPO\" could not be correctly cloned. Please do it manually or check the script.\n"
+      cd "$OLDPWD"
+      exit 1
+    }
+done
+
+# Return to previous directory
+cd "$OLDPWD"
 
 #######################################################################
 ################## PURGE OF RBW DATABASE ##############################
@@ -263,6 +281,21 @@ GITPARTINDEV
 {    STDERR_show_message "\nERROR : The local Bitwarden database could not be purged. Check script output and/or do it manually...\n"
      exit 1
 }
+
+echo "DEBUG EXIT 55 LINE 286"
+exit 55
+
+
+
+
+
+
+
+
+
+
+
+
 
 #######################################################################
 ################## BACK-UP OF EXTERNAL DISKS  #########################
@@ -318,3 +351,10 @@ echo -e "\n\n" >> "$SCRIPT_OUTPUT_FILE" # Esthetic
 # Showing the results
 echo -e "\nBack-up of external disks finished - Please check the results.\n"
 file_open -f "$SCRIPT_OUTPUT_FILE"
+
+: <<"TODEVSTILLINDEV"
+
+# Add the optional choice to perform or not the steps.
+# Add a dynamic list of repo.
+
+TODEVSTILLINDEV
