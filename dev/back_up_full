@@ -38,6 +38,10 @@ do
     fi
 done
 
+#######################################################################
+################### BACK UP OF MAIN FILES #############################
+#######################################################################
+
 # Back-up of profiles files
 for i in "${!ARRAY_ENV_VAR_PROFILES_FILES[@]}"
 do
@@ -100,8 +104,9 @@ else
     }
 fi
 
-
-
+#######################################################################
+############ BACK UP OF PARTITION AND FILESYSTEM ######################
+#######################################################################
 
 # Back-up of disk-partition, size and filesystem types
 
@@ -133,6 +138,10 @@ COMMAND_STRING_WITHOUT_SPACE="$(echo "$COMMAND_TO_RUN" | tr ' ' '_')"
 { STDERR_show_message "\nERROR : The partition shown with the command '$COMMAND_TO_RUN' could not be backed-up. Check script output and/or the back-up script.\n"
   exit 1
 }
+
+#######################################################################
+####### BACK UP OF CONTENT OF $HOME SUBDIRECTORIES ####################
+#######################################################################
 
 # Warning for user to check the content of the directories under $HOME to back-up if required.
 # Add main $HOME sub-directories within an array
@@ -170,8 +179,46 @@ $STRING_OF_DIRECTORIES_TO_CHECK
 Please confirm when done by typing 'enter'.
 " 
 
+
+
+#######################################################################
+############ BACK UP OF DEVELOPMENT GIT REPO ##########################
+#######################################################################
+
+# Get all my personal git directories within an array
+declare -a ARRAY_OF_GIT_DIRECTORIES
+ARRAY_OF_GIT_DIRECTORIES=($(find "$REPERTOIRE_DEVELOPPEMENT" -maxdepth 1 -mindepth 1))
+# Sort the directories
+declare -a SORTED_ARRAY_OF_GIT_DIRECTORIES
+tableau_trier_ordre_alphabetique_pas_numero ARRAY_OF_GIT_DIRECTORIES SORTED_ARRAY_OF_GIT_DIRECTORIES
+
+# Loop on them to create a pretty string for the next message
+for EACH_GIT_DIRECTORY in "${SORTED_ARRAY_OF_GIT_DIRECTORIES[@]}"
+do
+    EACH_GIT_DIRECTORY_BASENAME="${EACH_GIT_DIRECTORY##*/}"
+    STRING_OF_GIT_DIRECTORIES="${STRING_OF_GIT_DIRECTORIES}
+    - $EACH_GIT_DIRECTORY_BASENAME (located \"$EACH_GIT_DIRECTORY\")"
+done
+
+# Show the message for the user to require to save current development environment (if wished).
+read -p "TO DO :
+1. Save current development environment content of the git directories.
+
+List of those directories :
+$STRING_OF_GIT_DIRECTORIES
+
+Please confirm when done by typing 'enter'.
+" 
+
 echo -e "\nDEBUG EXIT 55\n"
 exit 55
+
+: <<"CURRENTLYINDEV"
+- Commit if required.
+- Push.
+- Check from each repo with 'git status' that all commits were well pushed.
+- Check on my git userspace (login) that all git push were well performed.
+CURRENTLYINDEV
 
 : <<"GITPARTINDEV"
 
@@ -180,7 +227,6 @@ exit 55
 # See the detailed list of steps in the back_up_checklist file (some were added).
 
 4. Git dirs :
-    - Save current development environment (if required).
     - Commit if required.
     - Push.
     - Check from each repo with 'git status' that all commits were well pushed.
@@ -209,6 +255,10 @@ exit 55
 
 GITPARTINDEV
 
+#######################################################################
+################## PURGE OF RBW DATABASE ##############################
+#######################################################################
+
 # Purge local Bitwarden database (tool 'rbw')
 { rbw purge &&
   echo -e "\nOK : The local Bitwarden database was sucessfully purged.\n"
@@ -216,6 +266,10 @@ GITPARTINDEV
 {    STDERR_show_message "\nERROR : The local Bitwarden database could not be purged. Check script output and/or do it manually...\n"
      exit 1
 }
+
+#######################################################################
+################## BACK-UP OF EXTERNAL DISKS  #########################
+#######################################################################
 
 # Ask HERE the user to connect both disk OR exit if wished
 # Check first if main external disk is connected - because some steps does not need secondary disk
@@ -245,26 +299,6 @@ echo -n "" > "$SCRIPT_OUTPUT_FILE"
 : <<"GITBACKUPINTOEXTERNALDISK"
 # Copy all my git repo to main external disk : back-up in case GitHub server crash.
 GITBACKUPINTOEXTERNALDISK
-
-# The below part will be set as optional
-: <<"OPTIONALHOMEBACKUPINDEV"
-
-# Optional back-up of home
-COMMAND="sudo back_up_a_dir_to_another -s $HOME -d ${USB_MAIN_EXTERNAL_DRIVE}/home "
-echo "$COMMAND"
-
-# Show the current step
-echo -e "\nBacking-up the \"home\" directory into the main external disk...\n" &&
-# Pause X seconds to let the user read the message
-sleep $PAUSE_BEFORE_RUN
-
-# Back-up
-{ $COMMAND &&
-      echo "OK - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
-} || echo "ERROR - COMMAND \"$COMMAND\"" >> "$SCRIPT_OUTPUT_FILE"
-echo -e "\n\n" >> "$SCRIPT_OUTPUT_FILE" # Esthetic
-
-OPTIONALHOMEBACKUPINDEV
 
 # The below part will be set as optional
 : <<"SETOPTIONALHEREINDEV"
