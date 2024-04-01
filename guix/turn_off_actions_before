@@ -4,7 +4,7 @@
 # - : pas d'argument à fournir
 
 # Calling a few custom scripts
-git_push_before_turn_off || exit 1
+git_update_before_turn_off || exit 1
 trashes_empty || exit 1
 usb_drive_unmount ||  exit 1
 
