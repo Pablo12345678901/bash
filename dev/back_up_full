@@ -210,15 +210,15 @@ $STRING_OF_GIT_DIRECTORIES
 Please confirm when done by typing 'enter'.
 " 
 
+# Force commit and/or push all personal git repo through another script
+# And process the exit if any error occurs.
+git_force_update_all || exit 1
+
 echo -e "\nDEBUG EXIT 55\n"
 exit 55
 
 : <<"CURRENTLYINDEV"
-- Commit if required.
-- Push.
-- Check from each repo with 'git status' that all commits were well pushed.
-- Check on my git userspace (login) that all git push were well performed.
-CURRENTLYINDEV
+
 
 : <<"GITPARTINDEV"
 
@@ -227,9 +227,6 @@ CURRENTLYINDEV
 # See the detailed list of steps in the back_up_checklist file (some were added).
 
 4. Git dirs :
-    - Commit if required.
-    - Push.
-    - Check from each repo with 'git status' that all commits were well pushed.
     - Check on my git userspace (login) that all git push were well performed.
     - Copy content of files/dir in .gitignore in a temporary directory (they will be losed else.
     - Remove all git dirs locally.
