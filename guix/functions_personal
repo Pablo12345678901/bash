@@ -113,6 +113,26 @@ function app_ouvrir_avec_nom {
     fi
 }
 
+function array_test_if_contains_value {
+    # Syntax :
+    # $1 : ARRAY_TO_SEARCH_WITHIN (variable)
+    # $2 : SEARCHED_VALUE (value)
+    # Return "true" or "false"
+
+    local -n ARRAY_TO_SEARCH_WITHIN=$1
+    local SEARCHED_VALUE="$2"
+    local FLAG_IS_IN_ARRAY="false"
+    for EACH_ARRAY_ELEMENT in "${ARRAY_TO_SEARCH_WITHIN[@]}"
+    do
+        if [ "$EACH_ARRAY_ELEMENT" = "$SEARCHED_VALUE" ]
+	then
+            FLAG_IS_IN_ARRAY="true"
+            break
+        fi
+    done
+    echo "$FLAG_IS_IN_ARRAY"
+}
+
 function argument_fournis_afficher_tous {
     # Syntaxe : 
     # $* : fournir tel quel les argument (avec '$*' (sans guillemets))
