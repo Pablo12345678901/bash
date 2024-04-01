@@ -11,6 +11,7 @@ ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_PROFILES")
 ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_SYSTEM_CONFIG")
 ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_CHANNELS")
 ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_MANIFESTS")
+ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_PARTITION")
 
 # Set the list of profile files to back-up through their environment variable name
 declare -a ARRAY_ENV_VAR_PROFILES_FILES
@@ -21,9 +22,7 @@ ARRAY_ENV_VAR_PROFILES_FILES+=("GIT_CONF")
 ARRAY_ENV_VAR_PROFILES_FILES+=("PROXYCHAINS_CONF")
 ARRAY_ENV_VAR_PROFILES_FILES+=("RBW_CONF")
 
-# Path for external disks and output file
-MAIN_EXTERNAL_DISK="${USB_CONNEXION_PATH}/Elements"
-BACK_UP_EXTERNAL_DISK="${USB_CONNEXION_PATH}/Double"
+# Path for output file
 SCRIPT_OUTPUT_FILE="${REPERTOIRE_TEMPORAIRE}/output.txt"
 # Will enable the user to read the message before running a long command of back-up with external disk
 PAUSE_BEFORE_RUN=5 
@@ -101,20 +100,100 @@ else
     }
 fi
 
-: <<"DISKPARTITIONINDEV"
+
+
+
 # Back-up of disk-partition, size and filesystem types
-#        - 'lsblk' to get the list of partitions as well as their sizes.
-#	- 'lsblk -f' to get the filesystem types of the partitions
-DISKPARTITIONINDEV
 
+# 'lsblk' to get the list of partitions as well as their sizes.
+COMMAND_TO_RUN="lsblk"
+# Get a string without space to be used within the back-up filename
+# Step useful if further evolution of the command
+COMMAND_STRING_WITHOUT_SPACE="$(echo "$COMMAND_TO_RUN" | tr ' ' '_')"
+# Back-up with confirmation of success / error
+{  BACK_UP_PATH="${DIR_BACK_UP_PARTITION}/$(timestamp_current)_$COMMAND_STRING_WITHOUT_SPACE" &&
+   # Write a new file with the partition.
+   $COMMAND_TO_RUN > "$BACK_UP_PATH" &&
+   echo -e "\nOK - The partition shown with the command '$COMMAND_TO_RUN' was saved under the path \"$BACK_UP_PATH\".\n"
+}||
+{ STDERR_show_message "\nERROR : The partition shown with the command '$COMMAND_TO_RUN' could not be backed-up. Check script output and/or the back-up script.\n"
+  exit 1
+}
 
+# 'lsblk -f' to get the filesystem types of the partitions    
+COMMAND_TO_RUN="lsblk -f"
+# Get a string without space to be used within the back-up filename
+COMMAND_STRING_WITHOUT_SPACE="$(echo "$COMMAND_TO_RUN" | tr ' ' '_')"
+# Back-up with confirmation of success / error
+{  BACK_UP_PATH="${DIR_BACK_UP_PARTITION}/$(timestamp_current)_$COMMAND_STRING_WITHOUT_SPACE" &&
+   # Write a new file with the partition.
+   $COMMAND_TO_RUN > "$BACK_UP_PATH" &&
+   echo -e "\nOK - The partition shown with the command '$COMMAND_TO_RUN' was saved under the path \"$BACK_UP_PATH\".\n"
+}||
+{ STDERR_show_message "\nERROR : The partition shown with the command '$COMMAND_TO_RUN' could not be backed-up. Check script output and/or the back-up script.\n"
+  exit 1
+}
 
+# Warning for user to check the content of the directories under $HOME to back-up if required.
+# Add main $HOME sub-directories within an array
+declare -a ARRAY_OF_BASENAME_OF_DIRECTORIES_UNDER_HOME
+ARRAY_OF_BASENAME_OF_DIRECTORIES_UNDER_HOME+=("Desktop")
+ARRAY_OF_BASENAME_OF_DIRECTORIES_UNDER_HOME+=("Documents")
+ARRAY_OF_BASENAME_OF_DIRECTORIES_UNDER_HOME+=("Downloads")
+ARRAY_OF_BASENAME_OF_DIRECTORIES_UNDER_HOME+=("Music")
+ARRAY_OF_BASENAME_OF_DIRECTORIES_UNDER_HOME+=("Pictures")
+ARRAY_OF_BASENAME_OF_DIRECTORIES_UNDER_HOME+=("Public")
+ARRAY_OF_BASENAME_OF_DIRECTORIES_UNDER_HOME+=("Templates")
+ARRAY_OF_BASENAME_OF_DIRECTORIES_UNDER_HOME+=("Videos")
+ARRAY_OF_BASENAME_OF_DIRECTORIES_UNDER_HOME+=("Wallpapers")
+
+# Loop on them
+for EACH_BASENAME in "${ARRAY_OF_BASENAME_OF_DIRECTORIES_UNDER_HOME[@]}"
+do
+    DIRECTORY_PATH="${HOME}/${EACH_BASENAME}"
+    # Test if they exists on current OS, if so, adapt the string that will be used in the message below
+    if [ -d "$DIRECTORY_PATH" ]
+    then
+	STRING_OF_DIRECTORIES_TO_CHECK="${STRING_OF_DIRECTORIES_TO_CHECK}
+    - $EACH_BASENAME (located \"$DIRECTORY_PATH\")"
+    fi
+done
+
+# Show the message for the user to require the manual back-up of those directories content
+read -p "TO DO :
+1. Control the content of the directories under \$HOME.
+2. Save all important files within the git directories.
+
+For example, a non-exaustive list of those directories :
+$STRING_OF_DIRECTORIES_TO_CHECK
+
+Please confirm when done by typing 'enter'.
+" 
+
+echo -e "\nDEBUG EXIT 55\n"
+exit 55
 
 : <<"GITPARTINDEV"
 
 # TO BE DONE LATER
 
 # See the detailed list of steps in the back_up_checklist file (some were added).
+
+4. Git dirs :
+    - Save current development environment (if required).
+    - Commit if required.
+    - Push.
+    - Check from each repo with 'git status' that all commits were well pushed.
+    - Check on my git userspace (login) that all git push were well performed.
+    - Copy content of files/dir in .gitignore in a temporary directory (they will be losed else.
+    - Remove all git dirs locally.
+    - Remove the token to avoid security issue.
+    - Create a new token.
+    - Note it in order to use it.
+    - If stay on the same OS :
+        - reclone required Git repos.
+	- Add data ignored by .gitignore file into the repo new directory from my temporary dir.
+    - Clone my git repos into my external disk to save the content in case my GitHub is hacked.
 
 # Git
 # Ask if the development environment were saved
@@ -144,11 +223,11 @@ GITPARTINDEV
 
 # Back-up of external disk
 # Check if env var are okay and if the external disks are connected - else exit with error
-if [[ ! -d "$MAIN_EXTERNAL_DISK" || ! -d "$BACK_UP_EXTERNAL_DISK" || ! -d "$REPERTOIRE_TEMPORAIRE" ]]
+if [[ ! -d "$USB_MAIN_EXTERNAL_DRIVE" || ! -d "$USB_SECONDARY_EXTERNAL_DRIVE" || ! -d "$REPERTOIRE_TEMPORAIRE" ]]
 then
     echo -e "\nERROR : one (or more) of those var below is not correctly defined."
-    echo -e "MAIN_EXTERNAL_DISK = \"$MAIN_EXTERNAL_DISK\""
-    echo -e "BACK_UP_EXTERNAL_DISK = \"$BACK_UP_EXTERNAL_DISK\""
+    echo -e "USB_MAIN_EXTERNAL_DRIVE = \"$USB_MAIN_EXTERNAL_DRIVE\""
+    echo -e "USB_SECONDARY_EXTERNAL_DRIVE = \"$USB_SECONDARY_EXTERNAL_DRIVE\""
     echo -e "SCRIPT_OUTPUT_FILE = \"$SCRIPT_OUTPUT_FILE\""
     
     echo -e "Its is maybe because of the env var below :"
@@ -171,7 +250,7 @@ GITBACKUPINTOEXTERNALDISK
 : <<"OPTIONALHOMEBACKUPINDEV"
 
 # Optional back-up of home
-COMMAND="sudo back_up_a_dir_to_another -s $HOME -d ${MAIN_EXTERNAL_DISK}/home "
+COMMAND="sudo back_up_a_dir_to_another -s $HOME -d ${USB_MAIN_EXTERNAL_DRIVE}/home "
 echo "$COMMAND"
 
 # Show the current step
@@ -192,7 +271,7 @@ OPTIONALHOMEBACKUPINDEV
 SETOPTIONALHEREINDEV
 
 # Back-up of main external disk to secondary one
-COMMAND="sudo back_up_a_dir_to_another -s ${MAIN_EXTERNAL_DISK}/ -d ${BACK_UP_EXTERNAL_DISK} "
+COMMAND="sudo back_up_a_dir_to_another -s ${USB_MAIN_EXTERNAL_DRIVE}/ -d ${USB_SECONDARY_EXTERNAL_DRIVE} "
 
 # Show the current step
 echo -e "\nBacking-up the main external disk to the secondary one...\n" &&
