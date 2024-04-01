@@ -3,7 +3,7 @@
 source functions_personal
 
 # Syntaxe :
-SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "[-r GIT_REPO_TO_PUSH]" "[-m MESSAGE_WITH_COMMIT]")"
+SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "[-r GIT_REPO_TO_UPDATE]" "[-m MESSAGE_WITH_COMMIT]")"
 
 ####### BEGINNING OF OPTION MANAGEMENT ##########
 
@@ -40,7 +40,7 @@ while true; do
             ;;
 	-r )  
 	    FLAG_OPTION_R=1
-            GIT_REPO_TO_PUSH="$2"
+            GIT_REPO_TO_UPDATE="$2"
             shift 2
             continue
             ;;
@@ -66,116 +66,179 @@ then
 fi
     
 # The below parameter is needed later for each 'if' cases so has to be set here.
-CHOICE_GIT_REPO_TO_PUSH=""
+CHOICE_GIT_REPO_TO_UPDATE=""
 
+# Fill array with all names of git repos that require update
+# And precise what kind of update is required
+declare -a ARRAY_OF_GIT_REPO_TO_COMMIT
+declare -a ARRAY_OF_GIT_REPO_TO_PUSH
+declare -a ARRAY_OF_ALL_GIT_REPO_NEEDING_UPDATE
+declare -a SORTED_ARRAY_OF_ALL_GIT_REPO_NEEDING_UPDATE
+while read GIT_REPO_NEEDING_UPDATE
+do
+    # Get the repo basename and status (commit / push)
+    REPO_BASENAME="$(echo "$GIT_REPO_NEEDING_UPDATE" | cut -d ' ' -f 3)"
+    REPO_STATUS="$(echo "$GIT_REPO_NEEDING_UPDATE" | cut -d ' ' -f 5-)"
+    # Add the repo to the specific list depending on the status as well as the general list.
+    if [ "$REPO_STATUS" = "to be committed" ]
+    then
+	ARRAY_OF_GIT_REPO_TO_COMMIT+=("$REPO_BASENAME")
+	ARRAY_OF_ALL_GIT_REPO_NEEDING_UPDATE+=("$REPO_BASENAME")
+    elif [ "$REPO_STATUS" = "to be pushed" ]
+    then
+	ARRAY_OF_GIT_REPO_TO_PUSH+=("$REPO_BASENAME")
+	ARRAY_OF_ALL_GIT_REPO_NEEDING_UPDATE+=("$REPO_BASENAME")
+    else
+	# Exit with error if the status is not recognized.
+	STDERR_show_message "\nERROR : the status \"$REPO_STATUS\" of the git repo \"$REPO_BASENAME\" is unknown. Please check this loop and the content of the variable GIT_REPO_NEEDING_UPDATE : \"$GIT_REPO_NEEDING_UPDATE\".\n"
+	exit 6
+    fi
+
+done < <( git_check_if_up_to_date |
+	    # Remove empty lines.
+	    grep -v -E '^$' |
+	    # Get lines with directory (beginning by a number).
+	    grep -E '^[0-9]+.*$')
+
+# Get all the git repo in a sorted array.
+tableau_trier_ordre_alphabetique_pas_numero ARRAY_OF_ALL_GIT_REPO_NEEDING_UPDATE SORTED_ARRAY_OF_ALL_GIT_REPO_NEEDING_UPDATE
+    
 # Test if git repo was provided as script argument
 if [ ! -z "$FLAG_OPTION_R" ]
 then
     # Check if the file provided is a directory and if it is a git repo
-    CHOICE_GIT_REPO_TO_PUSH="$GIT_REPO_TO_PUSH"
+    CHOICE_GIT_REPO_TO_UPDATE="$GIT_REPO_TO_UPDATE"
     # If the argument provided is not a dir
-    if [ ! -d "$CHOICE_GIT_REPO_TO_PUSH" ]
+    if [ ! -d "$CHOICE_GIT_REPO_TO_UPDATE" ]
     then
 	# Check if it is the basename of a dir within the git repos dir
-	if [ ! -d "${REPERTOIRE_DEVELOPPEMENT}/${CHOICE_GIT_REPO_TO_PUSH}" ]
+	if [ ! -d "${REPERTOIRE_DEVELOPPEMENT}/${CHOICE_GIT_REPO_TO_UPDATE}" ]
 	then
 	    # Exit with error if the later is not a dir within the git repos dir
-	    STDERR_show_message "\nERROR : the argument provided for '-r' : \"$CHOICE_GIT_REPO_TO_PUSH\" is not a directory.\n"
+	    STDERR_show_message "\nERROR : the argument provided for '-r' : \"$CHOICE_GIT_REPO_TO_UPDATE\" is not a directory.\n"
             STDERR_show_message "$SYNTAXE"
 	    exit 4
 	else
 	    # Else adapt the path
-	    CHOICE_GIT_REPO_TO_PUSH="${REPERTOIRE_DEVELOPPEMENT}/${CHOICE_GIT_REPO_TO_PUSH}"
+	    CHOICE_GIT_REPO_TO_UPDATE="${REPERTOIRE_DEVELOPPEMENT}/${CHOICE_GIT_REPO_TO_UPDATE}"
 	fi
     else
 	# Else, check that it is a dir within the git repo dir
 	# This avoids to control if it is a git dir because I only use this dir for this usage.
-	if [[ "$CHOICE_GIT_REPO_TO_PUSH" =~ ^"$REPERTOIRE_DEVELOPPEMENT".*$ ]]
+	if [[ "$CHOICE_GIT_REPO_TO_UPDATE" =~ ^"$REPERTOIRE_DEVELOPPEMENT".*$ ]]
 	then
 	    :
 	else
 	    # Exit with error if the later is not a dir within the git repos dir
-	    STDERR_show_message "\nERROR : the argument provided for '-r' : \"$CHOICE_GIT_REPO_TO_PUSH\" is not a git directory located within the dir REPERTOIRE_DEVELOPPEMENT = \"$REPERTOIRE_DEVELOPPEMENT\".\n"
+	    STDERR_show_message "\nERROR : the argument provided for '-r' : \"$CHOICE_GIT_REPO_TO_UPDATE\" is not a git directory located within the dir REPERTOIRE_DEVELOPPEMENT = \"$REPERTOIRE_DEVELOPPEMENT\".\n"
 	    STDERR_show_message "$SYNTAXE"
 	    exit 5
 	fi	
     fi
 else
-    # Else, ask for it.
-    # Fill an array with all names of git repos that require to push
-    declare -a ARRAY_OF_REPO_TO_GIT_PUSH
-    while read GIT_REPO_NEEDING_TO_BE_PUSHED
-    do
-	ARRAY_OF_REPO_TO_GIT_PUSH+=("$GIT_REPO_NEEDING_TO_BE_PUSHED")
-    done < <(echo $(git_check_if_up_to_date) |
-	sed -E "s/[[:space:]][0-9]*[[:space:]]*[-][[:space:]]/\\n/g" | tail -n +2)
-
-    # If array is empty, exit with sucess code
-    if [ ${#ARRAY_OF_REPO_TO_GIT_PUSH[@]} -eq 0 ]
+    # Else, ask for it.    
+    # If array is empty, neither commit nor push so exit with sucess code
+    if [ ${#SORTED_ARRAY_OF_ALL_GIT_REPO_NEEDING_UPDATE[@]} -eq 0 ]
     then
-	echo -e "\nThe script ${0##*/} cannot commit any repo because they are all already up-to-date.\n"
+	echo -e "\nThe script ${0##*/} cannot update any repo because they are all already up-to-date.\n"
 	exit 0
     fi
     
-    # Choose which repo to push
+    # Choose which repo to update
     OPTION_TO_STOP="Quit"
-    QUESTION_WHICH_REPO_TO_PUSH="Which git repo would you like to push ? "
-    select_parmi_liste ARRAY_OF_REPO_TO_GIT_PUSH CHOICE_GIT_REPO_TO_PUSH "$QUESTION_WHICH_REPO_TO_PUSH" "$OPTION_TO_STOP"
+    QUESTION_WHICH_REPO_TO_UPDATE="Which git repo would you like to update ? "
+    select_parmi_liste SORTED_ARRAY_OF_ALL_GIT_REPO_NEEDING_UPDATE CHOICE_GIT_REPO_TO_UPDATE "$QUESTION_WHICH_REPO_TO_UPDATE" "$OPTION_TO_STOP"
 
     # Show confirmation message of the action choosed
-    if [ "$CHOICE_GIT_REPO_TO_PUSH" != "$OPTION_TO_STOP" ]
+    if [ "$CHOICE_GIT_REPO_TO_UPDATE" != "$OPTION_TO_STOP" ]
     then
-	echo -e "\nYou choosed to git push the git repo : \"$CHOICE_GIT_REPO_TO_PUSH\".\n"
-	# Set the path of the git repo to be pushed
-	CHOICE_GIT_REPO_TO_PUSH="$REPERTOIRE_DEVELOPPEMENT/$CHOICE_GIT_REPO_TO_PUSH"
+	echo -e "\nYou choosed to update the git repo : \"$CHOICE_GIT_REPO_TO_UPDATE\".\n"
+	# Set the path of the git repo to be updated
+	CHOICE_GIT_REPO_TO_UPDATE="$REPERTOIRE_DEVELOPPEMENT/$CHOICE_GIT_REPO_TO_UPDATE"
     else
-	echo -e "\nYou choosed to cancel the git push.\n"
+	echo -e "\nYou choosed to cancel the update.\n"
 	exit 0
     fi
 fi
-
-
 
 ########## END OF OPTION MANAGEMENT ####################
 
 # Go into the git repo to push
-cd $CHOICE_GIT_REPO_TO_PUSH
+cd $CHOICE_GIT_REPO_TO_UPDATE
 
-# SPECIAL : only if the git repo to be pushed is bash
-if [ $PWD == "$REPERTOIRE_DEVELOPPEMENT/bash" ]
+CHOICE_BASENAME_GIT_REPO_TO_UPDATE="${CHOICE_GIT_REPO_TO_UPDATE##*/}"
+
+# Test in which array the repo belongs to (commit or push needed).
+FLAG_COMMIT_NEEDED="$(array_test_if_contains_value ARRAY_OF_GIT_REPO_TO_COMMIT "$CHOICE_BASENAME_GIT_REPO_TO_UPDATE")"
+FLAG_PUSH_NEEDED="$(array_test_if_contains_value ARRAY_OF_GIT_REPO_TO_PUSH "$CHOICE_BASENAME_GIT_REPO_TO_UPDATE")"
+
+# Control if it is neither commit-needed or push-needed repo and exit with error if so.
+if [[ "$FLAG_COMMIT_NEEDED" != "true" && "$FLAG_PUSH_NEEDED" != "true" ]]
 then
-    # Add this script too because if seems that git does not push it because it is currently runned.
-    git add "$0"
+    STDERR_show_message "\nERROR : the status of the git repo \"$CHOICE_BASENAME_GIT_REPO_TO_UPDATE\" located \"\" is unknown. There was an error within the script. Please check it...\n"
+    exit 7
 fi
 
-# Add all files to commit
-git add . &&
 
-# Show the files that will be pushed
-git status &&
-
-# If no message with the commit were provided as script argument, ask it.
-{ if [ -z "$FLAG_OPTION_M" ]
+# If commit needed
+if [ "$FLAG_COMMIT_NEEDED" = "true" ]
 then
-    while [ ${#MESSAGE_WITH_COMMIT} -eq 0 ]
-    do
-	read -rp "Which message to add with the git push ? " MESSAGE_WITH_COMMIT
-	# -r : do not let the slashes '\' to behave like special char
-	if [ ${#MESSAGE_WITH_COMMIT} -eq 0 ]
-	then
-	    STDERR_show_message "\nERROR : At least one char have to be written for the 'git commit' message.\n"
-	fi
-    done
-fi } &&
+    # SPECIAL : only if the git repo to be committed is bash
+    if [ $PWD == "$REPERTOIRE_DEVELOPPEMENT/bash" ]
+    then
+	# Add this script too because if seems that git does not commit it else because it is currently runned.
+	# Silent because else show non-useful warning.
+	git add "$0" 2>/dev/null
+    fi
 
-# Git commit and push with success/failure confirmation
-{   git commit -m "$MESSAGE_WITH_COMMIT" &&
-    git push  && echo -e "\nCommit of git repo \"$CHOICE_GIT_REPO_TO_PUSH\" = DONE\n" &&
-    cd "$OLDPWD" &&
-    exit 0
-} ||
-{ STDERR_show_message "\nERROR : The commit of the git repo \"$CHOICE_GIT_REPO_TO_PUSH\" failed or there was nothing to push.\n"
-  cd "$OLDPWD"
-  exit 6
-}
+    # Add all files to commit
+    git add . &&
+
+    # Show the files that will be pushed
+    git status &&
+
+    # If no message with the commit were provided as script argument, ask it.
+    { if [ -z "$FLAG_OPTION_M" ]
+    then
+	while [ ${#MESSAGE_WITH_COMMIT} -eq 0 ]
+	do
+	    read -rp "Which message to add to the commit ? " MESSAGE_WITH_COMMIT
+	    # -r : do not let the slashes '\' to behave like special char
+	    if [ ${#MESSAGE_WITH_COMMIT} -eq 0 ]
+	    then
+		STDERR_show_message "\nERROR : At least one char have to be written for the 'git commit' message.\n"
+	    fi
+	done
+    fi } &&
+
+    # Git commit with success/failure confirmation
+    {   git commit -m "$MESSAGE_WITH_COMMIT" &&
+	echo -e "\nOK : Commit of git repo \"$CHOICE_BASENAME_GIT_REPO_TO_UPDATE\" located \"$CHOICE_GIT_REPO_TO_UPDATE\".\n"
+    } ||
+    { STDERR_show_message "\nERROR : The commit of the git repo \"$CHOICE_BASENAME_GIT_REPO_TO_UPDATE\" located \"$CHOICE_GIT_REPO_TO_UPDATE\" failed or there was nothing to push.\n"
+      cd "$OLDPWD"
+      exit 8
+    }
+    
+    # Git push with success/failure confirmation
+    {   git push  && echo -e "\nOK : Push of git repo \"$CHOICE_BASENAME_GIT_REPO_TO_UPDATE\" located \"$CHOICE_GIT_REPO_TO_UPDATE\".\n" &&
+	cd "$OLDPWD" &&
+	exit 0
+    } ||
+    { STDERR_show_message "\nERROR : The push of the git repo \"$CHOICE_BASENAME_GIT_REPO_TO_UPDATE\" located \"$CHOICE_GIT_REPO_TO_UPDATE\" failed or there was nothing to push.\n"
+      cd "$OLDPWD"
+      exit 9
+    }
+else
+    # Else if push needed
+    # Git push with success/failure confirmation
+    {   git push  && echo -e "\nOK : Push of git repo \"$CHOICE_BASENAME_GIT_REPO_TO_UPDATE\" located \"$CHOICE_GIT_REPO_TO_UPDATE\".\n" &&
+	cd "$OLDPWD" &&
+	exit 0
+    } ||
+    { STDERR_show_message "\nERROR : The push of the git repo \"$CHOICE_BASENAME_GIT_REPO_TO_UPDATE\" located \"$CHOICE_GIT_REPO_TO_UPDATE\" failed or there was nothing to push.\n"
+      cd "$OLDPWD"
+      exit 10
+    }
+fi
 
