@@ -37,18 +37,35 @@ if [[ $((NUMBER_OF_DIRECTORY_TO_COMMIT)) -gt 0 || $((NUMBER_OF_DIRECTORY_TO_PUSH
 then
     # If so, show message.
     echo -e "\nList of Git dirs: \n"
-    # Directories to be committed
-    for EACH_DIRECTORY in "${DIRECTORY_TO_COMMIT_LIST[@]}"
-    do
-	((COUNTER++))
-        echo -e "$COUNTER - ${EACH_DIRECTORY##*/} - to be committed"
-    done
-    # Directories to be pushed
-    for EACH_DIRECTORY in "${DIRECTORY_TO_PUSH_LIST[@]}"
-    do
-	((COUNTER++))
-        echo -e "$COUNTER - ${EACH_DIRECTORY##*/} - to be pushed"
-    done
+    
+    # If at least one directory to be committed
+    if [ $((NUMBER_OF_DIRECTORY_TO_COMMIT)) -gt 0 ]
+    then
+	# Get a sorted list of directories
+        declare -a SORTED_DIRECTORY_TO_COMMIT_LIST
+	tableau_trier_ordre_alphabetique_pas_numero DIRECTORY_TO_COMMIT_LIST SORTED_DIRECTORY_TO_COMMIT_LIST
+        # And print them with their status
+	for EACH_DIRECTORY in "${SORTED_DIRECTORY_TO_COMMIT_LIST[@]}"
+	do
+	    ((COUNTER++))
+	    echo -e "$COUNTER - ${EACH_DIRECTORY##*/} - to be committed"
+	done
+    fi
+
+    # If at least one directory to be pushed
+    if [ $((NUMBER_OF_DIRECTORY_TO_PUSH)) -gt 0 ]
+    then
+	# Get a sorted list of directories
+        declare -a SORTED_DIRECTORY_TO_PUSH_LIST
+	tableau_trier_ordre_alphabetique_pas_numero DIRECTORY_TO_PUSH_LIST SORTED_DIRECTORY_TO_PUSH_LIST
+        # And print them with their status
+	for EACH_DIRECTORY in "${SORTED_DIRECTORY_TO_PUSH_LIST[@]}"
+	do
+	    ((COUNTER++))
+	    echo -e "$COUNTER - ${EACH_DIRECTORY##*/} - to be pushed"
+	done
+    fi
+
     echo "" # Esthetic
 
 else
