@@ -102,12 +102,22 @@ done < <( git_check_if_up_to_date |
 
 # Get all the git repo in a sorted array.
 tableau_trier_ordre_alphabetique_pas_numero ARRAY_OF_ALL_GIT_REPO_NEEDING_UPDATE SORTED_ARRAY_OF_ALL_GIT_REPO_NEEDING_UPDATE
-    
+
 # Test if git repo was provided as script argument
 if [ ! -z "$FLAG_OPTION_R" ]
 then
     # Check if the file provided is a directory and if it is a git repo
     CHOICE_GIT_REPO_TO_UPDATE="$GIT_REPO_TO_UPDATE"
+  
+    # Manage the case where the current directory is the git repos directory - it corrects a bug explained below.
+    # If this 'if' was not here a bug could happened because in the next if, the directory (relative without this 'if') would exists and therefore, no change in the path would apply which would cause a bug after.
+    # Source of the bug : the path would not contain the '$REPERTOIRE_DEVELOPPEMENT' prefix and therefore the regex check would fail.
+    if [ "$PWD" = "$REPERTOIRE_DEVELOPPEMENT" ]
+    then
+	# Only if the current directory is the development directory, replace the relative by an absolute path to avoid further failure in the next checks (failure due to : directory exists -> yes, but no '$REPERTOIRE_DEVELOPPEMENT' in the path so regex check -> fails.
+	CHOICE_GIT_REPO_TO_UPDATE="$(echo "$CHOICE_GIT_REPO_TO_UPDATE" | xargs -n 1 readlink --canonicalize)"
+    fi
+    
     # If the argument provided is not a dir
     if [ ! -d "$CHOICE_GIT_REPO_TO_UPDATE" ]
     then
