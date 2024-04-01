@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+# Syntax :
+# - : No required argument.
+
+source functions_personal
+
+declare -a ARRAY_OF_GIT_DIRECTORIES_NEEDING_UPDATE
+
+# While true
+while :
+do
+    # Showing if my git dev dirs are up-to-date or need to be pushed
+    RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE="$(git_check_if_up_to_date)"
+    echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE"
+
+    # Test if up-to-date then no push so exit
+    # Getting the status
+    WORDS_SHOWING_UP_TO_DATE="up-to-date"
+    REGEX_SHOWING_UP_TO_DATE=".*$WORDS_SHOWING_UP_TO_DATE.*"
+    STATUS_UP_OR_NOT_TO_DATE="$(echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE" |
+	awk -v WORDSUPTODATE="$WORDS_SHOWING_UP_TO_DATE" -v REGEXUPTODATE="$REGEX_SHOWING_UP_TO_DATE" '{
+		{ if ($0 ~ REGEXUPTODATE)
+		    { printf("%s", WORDSUPTODATE) }
+		}
+	     }'
+    )"
+    
+    # Checking the status and exit if no git repo needs to be pushed.
+    if [ "$STATUS_UP_OR_NOT_TO_DATE" = "$WORDS_SHOWING_UP_TO_DATE" ]
+    then
+	echo "" # Esthetic
+	exit 0
+    else
+	# Explain to the user that at least one git_directory has to be updated
+	echo -e "\nThere is at least one git directory needing to be updated...\n"
+	# Emptying the array at each loop
+	ARRAY_OF_GIT_DIRECTORIES_NEEDING_UPDATE=()
+	# Filling it with updated results
+	ARRAY_OF_GIT_DIRECTORIES_NEEDING_UPDATE=($(echo -e "$RESULT_FROM_GIT_CHECK_IF_UP_TO_DATE" | grep -E '^[0-9]+.*$' | cut -d ' ' -f 3))
+        # Loop on each value of the array to update the git repo
+	for EACH_GIT_DIRECTORY_BASENAME in "${ARRAY_OF_GIT_DIRECTORIES_NEEDING_UPDATE=[@]}"
+	do
+	    # Update the repo and forward error if any
+	    echo -e "\nUpdating the git repo : \"${EACH_GIT_DIRECTORY_BASENAME}\"\n"
+	    git_update_repo -r "$EACH_GIT_DIRECTORY_BASENAME" || exit 1
+	done
+    fi
+done
