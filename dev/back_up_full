@@ -1,17 +1,29 @@
 #!/usr/bin/env bash
 
+: <<"TODO"
+
+# Add message before and after each step to announce it
+# Add the optional choice to perform or not the steps.
+# Add a choice to choose on which step to start the script.
+# Add a dynamic list of git repo.
+# Adapt exit error code
+
+TODO
+
 # Syntax :
 # -
 
 source functions_personal
 
-# Set the list of target directories for the back-up through their environment variable name
+# Set the list of all used directories for the back-up through their environment variable name
 declare -a ARRAY_DIR_LIST_FOR_BACK_UP
 ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_PROFILES")
 ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_SYSTEM_CONFIG")
 ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_CHANNELS")
 ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_MANIFESTS")
 ARRAY_DIR_LIST_FOR_BACK_UP+=("DIR_BACK_UP_PARTITION")
+ARRAY_DIR_LIST_FOR_BACK_UP+=("REPERTOIRE_DEVELOPPEMENT")
+ARRAY_DIR_LIST_FOR_BACK_UP+=("REPERTOIRE_TEMPORAIRE")
 
 # Set the list of profile files to back-up through their environment variable name
 declare -a ARRAY_ENV_VAR_PROFILES_FILES
@@ -50,12 +62,12 @@ do
     then
 	# Exit with error else
 	STDERR_show_message "\nERROR : The environment variable \"${ARRAY_ENV_VAR_PROFILES_FILES[$i]}\" is not correctly set. Currently, its value is \"${!ARRAY_ENV_VAR_PROFILES_FILES[$i]}\" which is not a file.\n"
-	  exit 1
+	  exit 2
     fi
 
     # Back-up with confirmation of success / error through another script
     back_up_files_to_dir_with_timestamp -f  "${!ARRAY_ENV_VAR_PROFILES_FILES[$i]}" -d "$DIR_BACK_UP_PROFILES" ||
-	exit 1
+	exit 3
 
 done
 
@@ -65,11 +77,11 @@ if [ ! -f "$GUIX_SYSTEM_CONF" ]
 then
     # Exit with error else
     STDERR_show_message "\nERROR : The environment variable \"GUIX_SYSTEM_CONF\" is not correctly set. Currently, its value is \"$GUIX_SYSTEM_CONF\" which is not a file.\n"
-      exit 1
+      exit 4
 else
 # Back-up with confirmation of success / error through another script
 back_up_files_to_dir_with_timestamp -f  "$GUIX_SYSTEM_CONF" -d "$DIR_BACK_UP_SYSTEM_CONFIG" ||
-    exit 1
+    exit 5
 fi
 
 # Back-up of channels configuration
@@ -78,11 +90,11 @@ if [ ! -f "$GUIX_CHANNELS_CONF" ]
 then
     # Exit with error else
     STDERR_show_message "\nERROR : The environment variable \"GUIX_CHANNELS_CONF\" is not correctly set. Currently, its value is \"$GUIX_CHANNELS_CONF\" which is not a file.\n"
-      exit 1
+      exit 6
 else
 # Back-up with confirmation of success / error through another script
 back_up_files_to_dir_with_timestamp -f  "$GUIX_CHANNELS_CONF" -d "$DIR_BACK_UP_CHANNELS" ||
-    exit 1
+    exit 7
 fi
 
 # Back-up of current packages list
@@ -91,7 +103,7 @@ if [ ! -e "$GUIX_PACKAGES_INSTALLATION_PROFILE" ]
 then
     # Exit with error else
     STDERR_show_message "\nERROR : The environment variable \"GUIX_PACKAGES_INSTALLATION_PROFILE\" is not correctly set. Currently, its value is \"$GUIX_PACKAGES_INSTALLATION_PROFILE\" which does not exist.\n"
-      exit 1
+      exit 8
 else
     # Back-up with confirmation of success / error
     {  BACK_UP_MANIFEST_PATH="${DIR_BACK_UP_MANIFESTS}/$(timestamp_current)-manifest.scm" &&
@@ -100,7 +112,7 @@ else
       echo -e "\nOK - The manifest of current packages was saved under the path \"$BACK_UP_MANIFEST_PATH\".\n"
     }||
     { STDERR_show_message "\nERROR : The manifest of current packages could not be backed-up. Check script output and/or the back-up script.\n"
-      exit 1
+      exit 9
     }
 fi
 
@@ -122,7 +134,7 @@ COMMAND_STRING_WITHOUT_SPACE="$(echo "$COMMAND_TO_RUN" | tr ' ' '_')"
    echo -e "\nOK - The partition shown with the command '$COMMAND_TO_RUN' was saved under the path \"$BACK_UP_PATH\".\n"
 }||
 { STDERR_show_message "\nERROR : The partition shown with the command '$COMMAND_TO_RUN' could not be backed-up. Check script output and/or the back-up script.\n"
-  exit 1
+  exit 10
 }
 
 # 'lsblk -f' to get the filesystem types of the partitions    
@@ -136,7 +148,7 @@ COMMAND_STRING_WITHOUT_SPACE="$(echo "$COMMAND_TO_RUN" | tr ' ' '_')"
    echo -e "\nOK - The partition shown with the command '$COMMAND_TO_RUN' was saved under the path \"$BACK_UP_PATH\".\n"
 }||
 { STDERR_show_message "\nERROR : The partition shown with the command '$COMMAND_TO_RUN' could not be backed-up. Check script output and/or the back-up script.\n"
-  exit 1
+  exit 11
 }
 
 #######################################################################
@@ -210,18 +222,21 @@ Please confirm when done by typing 'enter'.
 
 # Force commit and/or push all personal git repo through another script
 # And process the exit if any error occurs.
-git_force_update_all || exit 1
-
-: <<"SETBELOWPARTASOPTIONAL"
+git_force_update_all || exit 12
 
 # Remove all git dirs locally.
+# Print warning message
 echo -e "\nWARNING : the next step consists in removing all personal git directories.\n"
 # Ask for confirmation with possibility to exit before continuing
 ask_user_if_agree_to_continue
-# Remove all here
-#rm -rf "$REPERTOIRE_DEVELOPPEMENT"/*
-
-SETBELOWPARTASOPTIONAL
+# Remove all git directory with error management.
+{ rm -rf "$REPERTOIRE_DEVELOPPEMENT"/* &&
+  echo -e "\nOK : the directory \"$REPERTOIRE_DEVELOPPEMENT\" was emptied !\n"
+} ||
+{ STDERR_show_message "\nERROR : the directory \"$REPERTOIRE_DEVELOPPEMENT\" could not be emptied. \nPlease do it manually or check the script.\n"
+  cd "$OLDPWD"
+  exit 13
+}
 
 # Manage git personal token from git userspace
 read -p "TO DO :
@@ -231,9 +246,6 @@ read -p "TO DO :
 
 Please type 'enter' when done.
 " 
-
-: <<"SETBELOWPARTASOPTIONAL2"
-SETBELOWPARTASOPTIONAL2
 
 MESSAGE_FOR_NEW_GIT_PERSONAL_TOKEN="TO DO :
 1. Copy/paste the new token below.
@@ -251,19 +263,18 @@ ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("l2l")
 ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("os_config")
 
 # Move into the personal git directory
-#cd "$REPERTOIRE_DEVELOPPEMENT"
-echo -e "\nDEBUG WHILE IN DEV : COPY DIRECTORY INTO TMP DIRECTORY\n"
+cd "$REPERTOIRE_DEVELOPPEMENT"
 
 # Clone all git directory
 for EACH_MAIN_GIT_REPO in "${ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED[@]}"
 do
     URL_OF_ORIGIN_OF_REPO="https://${NEW_GIT_PERSONAL_TOKEN}@github.com/Pablo12345678901/${EACH_MAIN_GIT_REPO}.git"
     { git clone "$URL_OF_ORIGIN_OF_REPO" &&
-      echo -e "\nOK : git repo \"$EACH_MAIN_GIT_REPO\" cloned !\n"
+      echo -e "\nOK : git repo \"$EACH_MAIN_GIT_REPO\" cloned within the directory \"$REPERTOIRE_DEVELOPPEMENT\" !\n"
     } ||
-    { STDERR_show_message "\nERROR : the git repo \"$EACH_MAIN_GIT_REPO\" could not be correctly cloned. Please do it manually or check the script.\n"
+    { STDERR_show_message "\nERROR : the git repo \"$EACH_MAIN_GIT_REPO\" could not be correctly cloned within the directory \"$REPERTOIRE_DEVELOPPEMENT\". \nPlease do it manually or check the script.\n"
       cd "$OLDPWD"
-      exit 1
+      exit 14
     }
 done
 
@@ -279,60 +290,78 @@ cd "$OLDPWD"
   echo -e "\nOK : The local Bitwarden database was sucessfully purged.\n"
 } ||
 {    STDERR_show_message "\nERROR : The local Bitwarden database could not be purged. Check script output and/or do it manually...\n"
-     exit 1
+     exit 15
 }
-
-echo "DEBUG EXIT 55 LINE 286"
-exit 55
-
-
-
-
-
-
-
-
-
-
-
-
 
 #######################################################################
 ################## BACK-UP OF EXTERNAL DISKS  #########################
 #######################################################################
 
-# Ask HERE the user to connect both disk OR exit if wished
-# Check first if main external disk is connected - because some steps does not need secondary disk
-# Then after, those, check if secondary disk is connected for the steps requiring it.
-
-# Back-up of external disk
-# Check if env var are okay and if the external disks are connected - else exit with error
-if [[ ! -d "$USB_MAIN_EXTERNAL_DRIVE" || ! -d "$USB_SECONDARY_EXTERNAL_DRIVE" || ! -d "$REPERTOIRE_TEMPORAIRE" ]]
+# Check whether the main external disk is connected (if its variable is well defined
+if  [ ! -d "$USB_MAIN_EXTERNAL_DRIVE" ]
 then
-    echo -e "\nERROR : one (or more) of those var below is not correctly defined."
-    echo -e "USB_MAIN_EXTERNAL_DRIVE = \"$USB_MAIN_EXTERNAL_DRIVE\""
-    echo -e "USB_SECONDARY_EXTERNAL_DRIVE = \"$USB_SECONDARY_EXTERNAL_DRIVE\""
-    echo -e "SCRIPT_OUTPUT_FILE = \"$SCRIPT_OUTPUT_FILE\""
-    
-    echo -e "Its is maybe because of the env var below :"
-    echo -e "USB_CONNEXION_PATH = \"$USB_CONNEXION_PATH\""
-    echo -e "REPERTOIRE_TEMPORAIRE = \"$REPERTOIRE_TEMPORAIRE\""
-    echo "" # Esthetic
-    exit 1
+    STDERR_show_message "\nERROR : the external usb disk defined within the environment variable \"USB_SECONDARY_EXTERNAL_DRIVE\" is not correctly defined or is not a directory (maybe it is not connected). \nCurrently, its value is \"$USB_SECONDARY_EXTERNAL_DRIVE\"\n"
+    exit 16
 fi
 
-# Remove content if file existing
-echo -n "" > "$SCRIPT_OUTPUT_FILE"
+# Check that the back-up directory for git repos exists within the external drive
+if [ ! -d "${BACK_UP_GIT_DIR_WITHIN_USB_MAIN_EXTERNAL_DRIVE}" ]
+then
+    STDERR_show_message "\nERROR : the environment variable \"BACK_UP_GIT_DIR_WITHIN_USB_MAIN_EXTERNAL_DRIVE\" is not correctly defined or is not a directory. \nCurrently, its value is \"$BACK_UP_GIT_DIR_WITHIN_USB_MAIN_EXTERNAL_DRIVE\"\n"
+    exit 17
+fi
 
-# The below part will be set as optional
+# Create a back-up directory with timestamp
+NEW_GIT_DIRECTORY_WITH_TIMESTAMP_FOR_BACK_UP="${BACK_UP_GIT_DIR_WITHIN_USB_MAIN_EXTERNAL_DRIVE}/$(timestamp_current)"
+{ mkdir "${NEW_GIT_DIRECTORY_WITH_TIMESTAMP_FOR_BACK_UP}" &&
+  echo -e "\nNew back-up directory for git repos was created within the main external disk at the path : \"$NEW_GIT_DIRECTORY_WITH_TIMESTAMP_FOR_BACK_UP\".\n"
+} ||
+{ STDERR_show_message "\nERROR : the back-up directory for git repos could not be created within the main external disk. \nPlease check script output and/or script...\n"
+  exit 18
+}
 
-: <<"GITBACKUPINTOEXTERNALDISK"
-# Copy all my git repo to main external disk : back-up in case GitHub server crash.
-GITBACKUPINTOEXTERNALDISK
+# Set here all git personal repo name to be re-cloned into the new env.
+declare -a ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_BACKED_UP
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_BACKED_UP+=("administratif")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_BACKED_UP+=("bash")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_BACKED_UP+=("c_training")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_BACKED_UP+=("guix-custom-channel")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_BACKED_UP+=("l2l")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_BACKED_UP+=("os_config")
 
-# The below part will be set as optional
-: <<"SETOPTIONALHEREINDEV"
-SETOPTIONALHEREINDEV
+# Move into the external disk back-up git directory
+cd "$NEW_GIT_DIRECTORY_WITH_TIMESTAMP_FOR_BACK_UP"
+
+# Clone all git directory
+for EACH_GIT_REPO_NEEDING_BACK_UP in "${ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_BACKED_UP[@]}"
+do
+    URL_OF_ORIGIN_OF_REPO="https://${NEW_GIT_PERSONAL_TOKEN}@github.com/Pablo12345678901/${EACH_GIT_REPO_NEEDING_BACK_UP}.git"
+    { git clone "$URL_OF_ORIGIN_OF_REPO" &&
+      echo -e "\nOK : git repo \"$EACH_GIT_REPO_NEEDING_BACK_UP\" backed-up within the directory \"$NEW_GIT_DIRECTORY_WITH_TIMESTAMP_FOR_BACK_UP\" !\n"
+    } ||
+    { STDERR_show_message "\nERROR : the git repo \"$EACH_GIT_REPO_NEEDING_BACK_UP\" could not be correctly backed-up within the directory \"$NEW_GIT_DIRECTORY_WITH_TIMESTAMP_FOR_BACK_UP\". \nPlease do it manually or check the script.\n"
+      cd "$OLDPWD"
+      exit 19
+    }
+done
+
+# Return to previous directory
+cd "$OLDPWD"
+
+# Ask the user to connect the external secondary disk 
+read -p "TO DO :
+1. Connect external secondary disk.
+2. Check with lsblk that it is well connected..
+
+Please type 'enter' when done.
+"
+
+# Check whether the secondary external disk is connected (if its variable is well defined
+if [ ! -d "$USB_SECONDARY_EXTERNAL_DRIVE" ]
+then
+    echo "ERROR : the external usb disk defined within the environment variable \"USB_SECONDARY_EXTERNAL_DRIVE\" is not correctly defined or is not a directory (maybe it is not connected). \nCurrently, its value is \"$USB_SECONDARY_EXTERNAL_DRIVE\"\n"
+    exit 20
+fi
 
 # Back-up of main external disk to secondary one
 COMMAND="sudo back_up_a_dir_to_another -s ${USB_MAIN_EXTERNAL_DRIVE}/ -d ${USB_SECONDARY_EXTERNAL_DRIVE} "
@@ -341,6 +370,9 @@ COMMAND="sudo back_up_a_dir_to_another -s ${USB_MAIN_EXTERNAL_DRIVE}/ -d ${USB_S
 echo -e "\nBacking-up the main external disk to the secondary one...\n" &&
 # Pause X seconds to let the user read the message
 sleep $PAUSE_BEFORE_RUN
+
+# Remove content if file existing
+echo -n "" > "$SCRIPT_OUTPUT_FILE"
 
 # Back-up
 { $COMMAND &&
@@ -352,9 +384,3 @@ echo -e "\n\n" >> "$SCRIPT_OUTPUT_FILE" # Esthetic
 echo -e "\nBack-up of external disks finished - Please check the results.\n"
 file_open -f "$SCRIPT_OUTPUT_FILE"
 
-: <<"TODEVSTILLINDEV"
-
-# Add the optional choice to perform or not the steps.
-# Add a dynamic list of repo.
-
-TODEVSTILLINDEV
