@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+
+source functions_personal
+
+REGEX_LIGNE_COMMENTAIRE_SYNTAXE='^[[:space:]]*\\(inputs.*$'
+declare -a LIST_OF_PACKAGE_NAME_TO_REPLACE_WITHIN_FILE
+declare -a LIST_OF_REPLACEMENT_STRING
+
+PATH_OF_FILE_TO_PROCESS="$REPERTOIRE_DEVELOPPEMENT/guix-custom-channel/dev/node-bitwarden-cli.scm"
+
+LIST_OF_PACKAGE_NAME_TO_REPLACE_WITHIN_FILE=($(cat "$PATH_OF_FILE_TO_PROCESS" |
+
+#awk -v REGEX=$REGEX_LIGNE_COMMENTAIRE_SYNTAXE '$0 ~ REGEX { if (paragraphe == 0) { indic=1 ; } ; paragraphe=1 ; } { if (indic == 1 && paragraphe == 1) { print $0} } /^[[:space:]]*$/ { indic=0 }' )
+
+#    awk -v REGEX=$REGEX_LIGNE_COMMENTAIRE_SYNTAXE '$0 ~ REGEX { if (paragraphe == 0) { indic=1 ; } ; paragraphe=1 ; } { if (indic == 1 && paragraphe == 1) { print $0} } /^[[:space:]]*$/ { indic=0 ; paragraphe=0 ; }'
+
+# Get only the block of 'inputs' by counting number of opening and closing parenthesis when there is the '(inputs' and stopping to print the output as soon as parenthesis reach '0' (=balanced).
+awk -v REGEX=$REGEX_LIGNE_COMMENTAIRE_SYNTAXE ' { if ($0 ~ REGEX) \
+{ print $0 ; \
+for (i = 1; i <= length($0); i++) \
+    { c = substr($0, i, 1); \
+      if (c == "(") num_prth++; \
+	 if (c == ")") num_prth--; \
+    } }
+else { if (num_prth > 0) \
+     { { print $0 } ;
+     for (i = 1; i <= length($0); i++) \
+     { c = substr($0, i, 1); \
+      if (c == "(") num_prth++; \
+	 if (c == ")") num_prth--; } }
+    } \
+}' |
+# Replace space by backline
+tr ' ' '\n' |
+# Remove the line containing the '(inputs' and '(list'
+grep -E -v '^[[:space:]]*[\(](inputs|list)$' |
+# Remove empty (or with space char only) lines
+grep -E -v '^[[:space:]]*$' |
+# Remove commented lines
+grep -E -v '^[[:space:]]*;.*$' |
+# Remove lines containing only parenthesis
+grep -E -v '^[[:space:]]*(\))+[[:space:]]*' |
+# Remove all end of line parenthesis
+tr -d ')' )) 
+
+# Fill an array containing for each package, its replacement string with format 'name SPACE version'
+for EACH_PACKAGE in "${LIST_OF_PACKAGE_NAME_TO_REPLACE_WITHIN_FILE[@]}"
+do
+    #echo "DEBUG $EACH_PACKAGE"
+    PACKAGE_VERSION="${EACH_PACKAGE##*-}"
+    #echo "DEBUG PACKAGE_VERSION : '$PACKAGE_VERSION'"
+    PACKAGE_NAME="${EACH_PACKAGE%-$PACKAGE_VERSION}"
+    #echo "DEBUG PACKAGE_NAME : '$PACKAGE_NAME'"
+    # Format : package_name ;(for comment)-VERSION BACKLINE-TO-ENSURE-THAT-TWO-PACKAGE-ARE-NOT-ON-THE-SAME-LINE
+    # The backline avoid the case where if several package are on the same line, after commenting the version of the first package, the next ones are within the commented line.
+    REPLACEMENT_STRING="$PACKAGE_NAME ;-$PACKAGE_VERSION\n"
+    #echo "DEBUG REPLACEMENT_STRING '$REPLACEMENT_STRING'"
+    LIST_OF_REPLACEMENT_STRING+=("$REPLACEMENT_STRING")
+done
+
+ARRAY_SIZE=$(tableau_taille LIST_OF_REPLACEMENT_STRING)
+
+for ((i=0; i<ARRAY_SIZE; i++))
+do
+    #echo -e "\nDEBUG the package '${LIST_OF_PACKAGE_NAME_TO_REPLACE_WITHIN_FILE[$i]}' will be replaced by the string '${LIST_OF_REPLACEMENT_STRING[$i]}'\n"
+    { sed -i "s/${LIST_OF_PACKAGE_NAME_TO_REPLACE_WITHIN_FILE[$i]}/${LIST_OF_REPLACEMENT_STRING[$i]}/g" "$PATH_OF_FILE_TO_PROCESS" &&
+      echo -e "\nOK : Replacement of '${LIST_OF_PACKAGE_NAME_TO_REPLACE_WITHIN_FILE[$i]}' by '${LIST_OF_REPLACEMENT_STRING[$i]}'.\n"
+    } ||
+    { echo -e "\nERROR : replacement of '${LIST_OF_PACKAGE_NAME_TO_REPLACE_WITHIN_FILE[$i]}' by '${LIST_OF_REPLACEMENT_STRING[$i]}' could not be done.\n"
+      exit 1
+    }
+done
+
+
