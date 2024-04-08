@@ -56,7 +56,6 @@ while true; do
     case "$1" in
 	-d )
 	    FLAG_OPTION_D=1
-	    # Add to dir array
 	    FILE_PROVIDED="$2"
 	    shift 2
 	    # Get the path whether it is absolute or relative
