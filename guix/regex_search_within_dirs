@@ -18,7 +18,6 @@ source functions_personal
 # Syntaxe
 SYNTAXE="$(syntaxe_afficher_si_erreur "$(basename $0)" "-r REGEX_RECHERCHE" "-d REPERTOIRE_DE_RECHERCHE [...]" "[-s]")"
 # -s : activate the silent mode
-# --separation-double-points : returns output separated with ':' in order to be reused in another script.
 
 # Set default behaviour with the below variables
 # Can be modified by providing arguments to script
