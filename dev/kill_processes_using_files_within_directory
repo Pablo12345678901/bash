@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+: <<"TODO"
+# Enhancements :
+# Add error messages + syntax
+# Add option management
+# Enable the files + directory + as much as wanted. Loop on all.
+# Adapt error message
+TODO
+
+# Syntax :
+# $1 : The directory for which processes using it have to be killed.
+
+DIRECTORY_TO_KILL_PROCESSES_USING_IT=$1
+
+if [ ! -d "$DIRECTORY_TO_KILL_PROCESSES_USING_IT" ]
+then
+	echo -e "\nERROR : \"$DIRECTORY_TO_KILL_PROCESSES_USING_IT\" is not a directory.\n"
+	exit 1
+fi
+
+# Print action
+echo -e "\nKilling all processes using the directory \"$DIRECTORY_TO_KILL_PROCESSES_USING_IT\".\n"
+
+# Get the list of process using the directory if any.
+# Silent STDERR.
+LIST_OF_PROCESSES="$(lsof 2>/dev/null | grep $DIRECTORY_TO_KILL_PROCESSES_USING_IT 2>/dev/null)"
+
+# Test whether there is any process using the directory
+if [ ! -z "$LIST_OF_PROCESSES" ]
+then
+    # If 
+    # List open files
+    { { lsof |
+    # Grep the lines containing the directory
+    grep $DIRECTORY_TO_KILL_PROCESSES_USING_IT |
+    # Get the process field
+    cut -d ' ' -f 2 |
+    # Sort them + remove duplicates
+    sort -u |
+    # Kill VIOLENTLY the processes
+    xargs -n 1 kill -9
+    } &&
+    echo -e "\nOK : all processes using the directory \"$DIRECTORY_TO_KILL_PROCESSES_USING_IT\" were killed.\n"
+    } ||
+    { echo -e "\nERROR : could not kill processes using the directory \"$DIRECTORY_TO_KILL_PROCESSES_USING_IT\".\n"
+    exit 2
+    }
+else
+    echo -e "\nNothing to do : no process is currently using the directory \"$DIRECTORY_TO_KILL_PROCESSES_USING_IT\".\n"
+    exit 0
+fi
