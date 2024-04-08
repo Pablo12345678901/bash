@@ -1,0 +1,136 @@
+#!/usr/bin/env bash
+
+source functions_personal
+
+# Syntaxe
+SYNTAX="$(syntaxe_afficher_si_erreur "$(basename $0)" "-d DIRECTORY_OR_FILE [...]")"
+
+# The below array is requested below so have to be declared here
+# It will contain the file list.
+declare -a ARRAY_FILES_LIST
+
+####### BEGINNING OF OPTION MANAGEMENT ##########
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'd:' -q -- "$@")
+# -q : quiet
+# -- : to explicitly show the options end
+
+# Test whether syntax was correct (options + arguments)
+if [ $? -ne 0 ]
+then
+    STDERR_show_message "ERROR: syntax..."
+    STDERR_show_message "$SYNTAX"
+    exit 1
+fi
+
+# Arguments check
+FLAG_OPTION_D=
+
+# Re-set options through positional parameters
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+    case "$1" in
+	-d )
+	    FLAG_OPTION_D=1
+	    FILE_PROVIDED="$2"
+	    shift 2
+	    # Get the path whether it is absolute or relative
+	    # 'readlink --canonicalize' : follow all the symlink and therefore support relative path as well as absolute ones
+	    FILE_PROVIDED_ABSOLUTE_PATH="$(readlink --canonicalize "${FILE_PROVIDED}")"
+	    # Test if the file provided is really a file or a directory - exit with error else
+	    if [ -d "$FILE_PROVIDED_ABSOLUTE_PATH" ] || [ -f "$FILE_PROVIDED_ABSOLUTE_PATH" ]
+            then
+		# Add it to the array.
+		ARRAY_FILES_LIST+=("$FILE_PROVIDED_ABSOLUTE_PATH")
+            else
+                STDERR_show_message "\nERROR : the provided argument to '-d' = \"$FILE_PROVIDED\" (with absolute path : \"$FILE_PROVIDED_ABSOLUTE_PATH\") is neither a file nor a directory.\n"
+                STDERR_show_message "$SYNTAX"
+                exit 1 
+            fi
+	    continue
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )
+	    # Error management for all other bugs
+            STDERR_show_message "ERROR: internal error...\n"
+            STDERR_show_message "$SYNTAX"
+            exit 2
+            ;;
+	esac
+done
+
+# Test whether other arguments were provided = in excess (=test if $1 is defined)
+if [ ! -z "$1" ]
+then
+    STDERR_show_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_show_message "$SYNTAX"
+    exit 3
+fi
+
+# Test if the requested option(s) were provided
+if [ -z "$FLAG_OPTION_D" ]
+then
+    STDERR_show_message "\nERROR : Please provide all requested argument(s).\n"
+    STDERR_show_message "$SYNTAX"
+    exit 3
+fi
+
+########## END OF OPTION MANAGEMENT ####################
+
+# Loop on each file of the array
+for EACH_FILE_OR_DIR in "${ARRAY_FILES_LIST[@]}"
+do
+    DIRECTORY_OR_FILE_TO_KILL_PROCESSES_USING_IT="$EACH_FILE_OR_DIR"
+
+    # Set the kind of file to be further used within printed message.
+    if [ -d "$DIRECTORY_OR_FILE_TO_KILL_PROCESSES_USING_IT" ]
+    then
+	KIND_OF_FILE_FOR_MESSAGE="directory"
+    else
+	KIND_OF_FILE_FOR_MESSAGE="file"
+    fi
+
+    # Print action
+    echo -e "\nKilling all processes using the $KIND_OF_FILE_FOR_MESSAGE \"$DIRECTORY_OR_FILE_TO_KILL_PROCESSES_USING_IT\".\n"
+
+    # Get the list of process using the directory/file if any.
+    # Silent STDERR.
+    LIST_OF_PROCESSES="$(lsof 2>/dev/null | grep $DIRECTORY_OR_FILE_TO_KILL_PROCESSES_USING_IT 2>/dev/null)"
+
+    # Test whether there is any process using the directory
+    if [ ! -z "$LIST_OF_PROCESSES" ]
+    then
+	# If 
+	# List open files
+	{ { lsof |
+		# Grep the lines containing the directory
+		grep $DIRECTORY_OR_FILE_TO_KILL_PROCESSES_USING_IT |
+		# Get the process field
+		cut -d ' ' -f 2 |
+		# Sort them + remove duplicates
+		sort -u |
+		# Kill VIOLENTLY (SIGKILL) the processes
+		xargs -n 1 kill -9
+	  } &&
+	      echo -e "\nOK : all processes using the $KIND_OF_FILE_FOR_MESSAGE \"$DIRECTORY_OR_FILE_TO_KILL_PROCESSES_USING_IT\" were killed.\n"
+	} ||
+	    { echo -e "\nERROR : could not kill processes using the $KIND_OF_FILE_FOR_MESSAGE \"$DIRECTORY_OR_FILE_TO_KILL_PROCESSES_USING_IT\".\n"
+	      exit 2
+	    }
+    else
+	echo -e "\nNothing to do : no process is currently using the $KIND_OF_FILE_FOR_MESSAGE \"$DIRECTORY_OR_FILE_TO_KILL_PROCESSES_USING_IT\".\n"
+    fi
+done
+
+# Confirmation message if success
+echo -e "\nOK : the killing of processes is finished.\n"
+
+exit 0
