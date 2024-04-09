@@ -1,0 +1,40 @@
+#! /usr/bin/env bash
+
+# Advanced features
+# Install everything on the beginning because of sudo (at it is a long command).
+sudo apt-get install build-essential libsqlite3-dev git libtool
+
+# Prepare
+libtoolize -c -f				# only for git copies
+glib-gettextize -f			# only for git copies
+intltoolize --force --copy --automake     # only for git copies
+aclocal -I m4				# only for git copies
+autoheader -I m4				# only for git copies
+automake --add-missing			# only for git copies
+autoconf
+
+# Set required flags
+CFLAGS="-I/usr/local/include -L/usr/local/lib"
+CPPFLAGS="-I/usr/local/include -L/usr/local/lib"
+./configure --prefix=/usr --enable-security
+
+# Make zone
+make
+pmake install
+make distclean
+
+mkdir -p ~/.config/gnokii
+cp Docs/sample/gnokiirc ~/.config/gnokii/config
+
+# No config at the moment - later
+#EDITOR="$(type -p emacs)"
+#$EDITOR ~/.config/gnokii/config
+
+read -p "WARNING :
+    password will be required...
+    Type enter when ready !
+"
+
+# Final advanced features
+sudo apt-get build-dep gnokii
+
