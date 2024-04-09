@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+: <<"ENHANCEMENTS"
+# Get dynamically the path for the file 'start-tor-browser.desktop'
+# Get string for the 'sed' paths dynamically from the path. (transformation of '/' in '\/', ...).
+ENHANCEMENTS
+
+# This script runs 'tor-browser' from the binary with :
+# wget URL
+# tar -xf FILE_TAR.XZ
+# Symlink from one of the $PATH directory from 'tor-brower'
+# But as each time it is runned, it adapts dynamically the path on the top of the script by replacing it by a relative (and not absolute one),
+# And as it is called by a symlink located in another directory,
+# this creates an issue for the next call of the same command.
+# So HERE :
+# run a daemon that will re-adapt the path from relative to absolute each time the file is modified.
+
+PATH_OF_FILE_TO_PROCESS="/home/path/Desktop/installed_apps/tor-browser/start-tor-browser.desktop"
+
+# Process to the first replacement
+
+# Header
+sed -i -E 's/^#!\/usr\/bin\/env.*$/#!\/usr\/bin\/env \/home\/path\/Desktop\/installed_apps\/tor-browser\/Browser\/execdesktop/g' "$PATH_OF_FILE_TO_PROCESS"
+
+# Within code
+sed -i -E 's/\.\/Browser\/start-tor-browser/\/home\/path\/Desktop\/installed_apps\/tor-browser\/Browser\/start-tor-browser/g' "$PATH_OF_FILE_TO_PROCESS"
+
+# Launch silently the browser through its file.
+$PATH_OF_FILE_TO_PROCESS &>/dev/null
+
+# Launch a daemon to process to replacement as soon as the file was modified.
+# This covers what does the above launch of the app.
+daemonize -c "inotifywait -r -e modify /home/path/Desktop/installed_apps/tor-browser/start-tor-browser.desktop | while read f; do { echo 'TEST' > /tmp/test.txt ; sleep 10 ; sed -i -E 's/^#!\/usr\/bin\/env.*$/#!\/usr\/bin\/env \/home\/path\/Desktop\/installed_apps\/tor-browser\/Browser\/execdesktop/g' '$PATH_OF_FILE_TO_PROCESS' ; sed -i -E 's/\.\/Browser\/start-tor-browser/\/home\/path\/Desktop\/installed_apps\/tor-browser\/Browser\/start-tor-browser/g' '$PATH_OF_FILE_TO_PROCESS' ; } ; done" -s 5 --silent
+
+
