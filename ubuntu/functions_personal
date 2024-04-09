@@ -1,0 +1,1024 @@
+#!/usr/bin/env bash
+
+# Syntaxe :
+# - : pas d'argument à fournir -> Ceci est le fichier contenant mes fonctions personnelles.
+# Remarques générales
+# Ranger par ordre alphabétique pour éviter doublons
+# Donner noms complexes pour éviter doublon avec fonction déjà dans bash
+# Chaque fonction doit être débutée par un paragraphe '# Syntaxe : ' qui se termine par une ligne vide.
+
+# A
+
+function app_fermer_normal {
+    # Syntaxe :
+    # $1 : AP_FERM (valeur)
+
+    if [ -z "$1" ]
+    then
+        echo "ERREUR : aucune app transmise en argument."
+        exit 1
+    else
+        local -n APP=$1
+        osascript -e "quit app \"$APP\"" && # osascript est spécial et pour Apple - besoin de protéger le nom de l'app entre guillemets
+        echo "$APP fermée..." ||
+        {   echo -e "\nERREUR : l'application $APP n'a pas pu être fermée.\n" ;
+            exit 1 ;
+        }
+    fi
+}
+
+
+function app_fermer_brutal {
+    # Syntaxe :
+    # $1 : AP_FERM (valeur)
+
+    if [ -z "$1" ]
+    then
+        echo "ERREUR : aucune app transmise en argument."
+        exit 1
+    else
+        local -n APP=$1
+        pkill -x "$APP" && echo "$APP fermée de manière forcée..." ||
+        {   echo -e "\nERREUR : l'application $APP n'a pas pu être fermée de manière forcée.\n" ;
+            exit 1 ;
+        }
+fi
+}
+
+function app_ouvertes_obtention_et_remplissage_tableau {
+    # Syntaxe :
+    # $1 : TAB_APP_OUV (variable)
+
+    # DEBUG
+    echo "\nFonction ${FUNCNAME[0]} en cours de développement - pas au point...\n"
+    exit 0
+
+    local -n TAB_APP_OUV=$1 # variable liée à la variable globale du tableau des app ouvertes
+
+    # Osacript fonctionne sur Mac uniquement (non portable)
+    LISTE_STRING_APP_OUVERTES=$(osascript -e 'set text item delimiters to ":"' -e 'tell application "System Events" to (name of every application process whose background only is false) as string' | sort )
+
+    # Séparation des éléments par des ":" pour futur split avec ":"
+    SPECIAL_CHAR_SEPARATOR=':'
+    LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Terminal/} # Tout fermer sauf Terminal - retiré Terminal de la liste des apps à fermer
+    # VS CODE, décommenter la ligne ci-dessous, sinon l'app se fermera.
+    #LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Electron/} # et Vs Code pour coder
+    # Microsoft Word, décommenter la ligne ci-dessous, sinon l'app se fermera.
+    #LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES/Microsoft\ Word/} # et Word pour prendre des notes
+    LISTE_STRING_APP_OUVERTES=${LISTE_STRING_APP_OUVERTES//$SPECIAL_CHAR_SEPARATOR$SPECIAL_CHAR_SEPARATOR/$SPECIAL_CHAR_SEPARATOR} # remplacement du délimiteur double par un simple suite à la suppression de l'app Terminal de la liste des apps à fermer
+
+    # Formatage du string à spliter : suppression des leading and trailing space, suppression des éventuels doubles points avant et après
+    LISTE_STRING_APP_OUVERTES=$(sed -e 's/[[:space:]]*$//' <<< $LISTE_STRING_APP_OUVERTES)
+    LISTE_STRING_APP_OUVERTES=$(sed -e 's/^[[:space:]]*//' <<< $LISTE_STRING_APP_OUVERTES)
+    LISTE_STRING_APP_OUVERTES=$(sed -e 's/^://' <<< $LISTE_STRING_APP_OUVERTES)
+
+    # Splitter le string en tableau selon un séparateur spécial
+    OLDIFS=$IFS # conservation de la valeur d'origine du séparateur IFS
+    IFS=: # le séparateur est désormais ":""
+    TAB_APP_OUV=($LISTE_STRING_APP_OUVERTES) # split du string en tableau selon le nouveau séparateur
+    IFS=$OLDIFS # remise de IFS à son ancienne valeur
+}
+
+function app_ouvrir_avec_nom {
+    # Syntaxe :
+    # $* : APP_A_OUVRIR (entre guillemets si nécessaire)
+
+    # Contrôle des arguments
+    SYNTAXE="$(syntaxe_afficher_si_erreur "${FUNCNAME[0]}" "[APP_A_OUVRIR ...]")"
+    if [ $# -gt 0 ]
+    then
+        # Ouverture des apps
+        echo -e "Ouverture des apps :\n"
+        while [ $# -gt 0 ]
+        do
+            APP_A_OUVRIR="$1"
+            NOM_APP_BRUT="$1"
+            NOM_APP_SANS_PATH="${NOM_APP_BRUT##*/}"
+            NOM_APP="${NOM_APP_SANS_PATH%.*}"
+            shift 1
+            { open -a "$APP_A_OUVRIR" &&
+            echo -e "$NOM_APP..."
+            } ||
+            # Bloc si échec
+            {   STDERR_show_message "\nERREUR : \"$APP_A_OUVRIR\" n'est pas une app ou n'a pas pu être ouverte." &&
+                STDERR_show_message "$SYNTAXE" &&
+                exit 1
+            } >&2
+        done
+        echo "" # retour à la ligne esthétique final
+    else
+        STDERR_show_message "\nERREUR : aucun argument transmis."
+        STDERR_show_message "$SYNTAXE"
+        exit 2
+    fi
+}
+
+function array_test_if_contains_value {
+    # Syntax :
+    # $1 : ARRAY_TO_SEARCH_WITHIN (variable)
+    # $2 : SEARCHED_VALUE (value)
+    # Return "true" or "false"
+
+    local -n ARRAY_TO_SEARCH_WITHIN=$1
+    local SEARCHED_VALUE="$2"
+    local FLAG_IS_IN_ARRAY="false"
+    for EACH_ARRAY_ELEMENT in "${ARRAY_TO_SEARCH_WITHIN[@]}"
+    do
+        if [ "$EACH_ARRAY_ELEMENT" = "$SEARCHED_VALUE" ]
+	then
+            FLAG_IS_IN_ARRAY="true"
+            break
+        fi
+    done
+    echo "$FLAG_IS_IN_ARRAY"
+}
+
+function argument_fournis_afficher_tous {
+    # Syntaxe : 
+    # $* : fournir tel quel les argument (avec '$*' (sans guillemets))
+
+    echo -e "Liste des arguments fourni :"
+    for ((i=0; i<=$#; i++))
+    do
+        # Affichage entre guillemets simples
+        echo -n "'${!i}' "
+    done
+    echo "" # retour à la ligne final esthétique
+}
+
+function ask_user_if_agree_to_continue {
+    # Syntaxe :
+    # -
+    # Exit with error code 0 if wished by the user
+
+    USER_ANSWER=""
+    QUESTION_YES_NO="Do you agree to continue the script
+(Yy/Nn) ? "
+    question_oui_non USER_ANSWER "$QUESTION_YES_NO"
+    if [ "$USER_ANSWER" = "n" ]
+    then
+	echo -e "\nYou choosed to stop the script.\n"
+	exit 0
+    fi
+}
+
+# B
+
+# C
+
+function calculatrice_appel_script {
+    # Syntaxe : 
+    # $* : fournir tel quel les argument (avec '$*' (sans guillemets))
+    # Voir aussi le script 'calculatrice_avec_ou_sans_affichage'
+
+    calculatrice_avec_ou_sans_affichage $*
+}
+
+# D
+
+function DEBUG_afficher_output_sur_fichier_bureau {
+    # Syntaxe :
+    # $1 : MSG_A_AFFICHER (valeur)
+
+    # Affiche message que s'il y en a un
+    if [ ! -z "$*" ]
+    then
+        printf "%b\n" "$*"
+    else
+        :
+    fi
+} >> ~/Desktop/${FUNCNAME[0]}.txt # Rédige l'output sur un fichier du bureau
+
+# E
+
+function espace_apres_supprimer {
+    # Syntaxe : 
+    # $1 : STR (variable)
+
+    local -n STR=$1
+    STR="$(echo "$STR" | sed -e 's/[[:space:]]*$//' )"
+    # sed remplace une fin de ligne composée d'un nombre quelconque d'espace(s) par rien (=suppression)
+}
+
+function espace_avant_supprimer {
+    # Syntaxe : 
+    # $1 : STR (variable)
+
+    local -n STR=$1
+    STR="$(echo "$STR" | sed -e 's/^[[:space:]]*//' )"
+    # sed remplace un début de ligne suivi par un nombre quelconque d'espace(s) par rien (=suppression)
+}
+
+# F
+
+function file_get_basename {
+    # Syntax : 
+    # $1 : FILE_PATH (value) (absolute or relative)
+
+    local FILE_PATH="$1"
+    local FILE_BASENAME
+
+    # Remove trailing '/' if any
+    FILE_PATH="${FILE_PATH%/}"
+    # Convert relative path to absolute
+    FILE_PATH="$(readlink --canonicalize "$FILE_PATH")"
+
+    # Remove all until the last '/' (before the basename)
+    FILE_BASENAME="${FILE_PATH##*/}"
+    printf "%s\n" "$FILE_BASENAME"
+}
+
+function find_exclure_repertoire_retourne_string_a_inserer_ds_find {
+    # Syntaxe : 
+    # $1 : TAB (variable) -> le tableau dans lequel sera stocké ce qu'il faut ajouter à find. Doit être vide où seulement rempli par cette fonction.
+    # $2 : REP (valeur) : le répertoire à ne pas inclure dans la recherche de find -> celui-ci peut être inclus mais pas son niveau 1, 2, ..., n
+    # ATTENTION PLUSIEURS REMARQUES IMPORTANTES (voir le fichier des fonctions pour le détail):
+    
+    # Remarques 1 :
+    # Syntaxe : find "$REPERTOIRE_RECHERCHE" ${TABLEAU_CONTENANT_EXCLUSION_REPERTOIRE[*]} -print
+    # Le tableau contenant l'exclusion contient des string qu'il faut splitter avec ${TABLEAU_CONTENANT_EXCLUSION_REPERTOIRE[*]}
+    # IMPORTANT : Split non entouré de guillemets
+    # Remarque 2 :
+    # Il est OBLIGATOIRE de place la commande find entre ces 2 blocs de gestion du IFS sinon elle ne fonctionnera pas
+    ######### BLOC DEBUT #############
+    # Nécessaire pour la commande find
+    # cf fonction 'find_exclure...'
+    #OLDIFS="$IFS" # NE PAS SUPPRIMERR # Décommenter cette ligne
+    #IFS=: # NE PAS SUPPRIMERR ET CHOISIR -> peut être autre que ':' # Décommenter cette ligne
+    ######### BLOC DEBUT #############
+    # Placer la commande 'find' ICI    # Placer la commande find sur cette ligne
+    ######### BLOC FIN ###############
+    # Nécessaire pour la commande find
+    # cf fonction 'find_exclure...'
+    #IFS="$OLDIFS" # NE PAS SUPPRIMERR # Décommenter cette ligne
+    ######### BLOC FIN ###############
+    local -n TAB=$1
+    local REP="$2"
+    #############################################################################################
+    # Format appliqué - avec exemple
+    # Format souhaité : ( -path $REPERTOIRE_A_EXCLURE -o -path ./dir2 -o -path ./dir3 ) -prune -o
+    # Processus d'agrandissement du tableau
+    # Premier ajout :
+    #                   ( -path $REPERTOIRE_A_EXCLURE ) -prune -o
+    #                   0    1          2             3   4     5
+    # Deuxième ajout :
+    #                   ( -path $REPERTOIRE_A_EXCLURE -o -path ./dir2 ) -prune -o
+    #                   0    1          2              3   4     5    6   7     8
+    # Troisième ajout :
+    #                   ( -path $REPERTOIRE_A_EXCLURE -o -path ./dir2 -o -path ./dir3 ) -prune -o
+    #                   0    1          2              3   4     5     6   7     8    9    10   11
+    ##############################################################################################
+    if [ -z "${TAB[2]}" ]
+    then
+        TAB[0]="("
+        TAB[1]="-path"
+        TAB[2]="$REP"
+        TAB[3]=")"
+        TAB[4]="-prune"
+        TAB[5]="-o"
+    else
+        TAILLE_TABLEAU="${#TAB[@]}"
+        MULTIPLE="$(( TAILLE_TABLEAU / 3 ))"
+        INDEX_CORRECTION="$(( (MULTIPLE - 1) * 3 ))" # voir le raisonnement ci-dessus
+        TAB[((INDEX_CORRECTION++))]="-o"
+        TAB[((INDEX_CORRECTION++))]="-path"
+        TAB[((INDEX_CORRECTION++))]="$REP"
+        TAB[((INDEX_CORRECTION++))]=")"
+        TAB[((INDEX_CORRECTION++))]="-prune"
+        TAB[((INDEX_CORRECTION++))]="-o"
+    fi
+}
+
+# G
+
+# H
+
+# I
+
+# J
+
+# K
+
+# L
+
+# M
+
+function man_fonction_recherche_commande_et_mot_clef {
+    # Syntaxe : 
+    # $1 : la commande recherché
+    # $2 : le mot clef recherché
+    # $3 : le type de recherche "man" / "help"
+    # $4 : le script de recherche additionnelle
+
+    # Variables du script
+    COMMANDE_RECHERCHEE="$1"
+    MOT_CLE_RECHERCHE="$2"
+    # Backslash des éventuels char spéciaux via case du mot clef pour un REGEX
+    # Liste char spéciaux REGEX : besoin d'être anti-slasher dans le REGEX -> (‘^$|[]()\.*+?’)'" (pas sûr que liste complète)
+    # Liste char spéciaux PATTERN : besoin d'être anti-slasher pour case ci-dessous afin d'être matché -> ?*+@!()[]|\'"+ (pas sûr que liste complète)
+    case "$MOT_CLE_RECHERCHE" in
+    # ajout d'un backslash si char spécial selon REGEX
+    ^ | \| | \[ | \] | \( | \) | \\ | . | \* | \+ | \? | \) | \' | \" ) MOT_CLE_RECHERCHE="\\$MOT_CLE_RECHERCHE";;
+    $ ) ;; # rien pour pouvoir rechercher 'TOUT' avec '$' car sinon j'annule ce type de recherche et elle est pratique.
+    * ) ;; # rien sinon
+    esac
+    REGEX_RECHERCHE="[[:space:]]*$MOT_CLE_RECHERCHE[[:space:]]*"
+    # Affichage pour pouvoir contrôler après coup si la recherche n'a rien donné.
+    echo -e "\nREGEX RECHERCHE \"$REGEX_RECHERCHE\"\n" # Ceci n'est pas du débug - c'est un affichage volontaire.
+    TYPE_RECHERCHE="$3"
+    SCRIPT_RECHERCHE_ADDITIONNELLE="$4"
+    # Silent search attempt
+    "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" >/dev/null 2>&1 && # s'il y a une page de manuel / help
+     # If a page was found, output it through pipeline
+     # STDERR has to be ignored because it lauches error about 'troff' used by man
+    "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" 2>/dev/null |
+    # Format for processing
+    col -bx |
+    # Get the first 6 line (among those are the title and section name)
+    head -n 6 | # récupère les 6 première lignes (dont le titre (help) ou section NAME (man))
+    # Test if it contains the name of the command
+    grep -c "$COMMANDE_RECHERCHEE" >/dev/null
+    # contrôle que la commande recherchée figure bien dans le titre de la page de manuel
+    # car parfois la page de manuel contient une autre commande (ex : man ? -> ne redirige pas vers '?' mais vers 'man test')
+    ##########################################################################
+    # La tentative de recherche retourne 0 si grep à compter au moins un match
+    # Et retourne 1 si aucun résultat ou si grep n'a pas trouvé la commande dans le titre de la page manuel.
+    if (($?))
+    then
+        # Si pas de page manuel dédiée alors recherche avec man -k
+        echo -e "\nAucune page de manuel dédiée existante pour le mot \"$COMMANDE_RECHERCHEE\" de type \"$(type -t "$COMMANDE_RECHERCHEE")\"."
+        # Demande si souhait recherche générale via autre script
+        REPONSE=""
+        QUESTION="Voudriez-vous rechercher \"$COMMANDE_RECHERCHEE\" avec le script \"$SCRIPT_RECHERCHE_ADDITIONNELLE\" ? (YyOo/Nn) "
+        question_oui_non REPONSE "$QUESTION"
+        if [ "$REPONSE" == "o" ]
+        then
+            "$SCRIPT_RECHERCHE_ADDITIONNELLE" "$COMMANDE_RECHERCHEE"
+        else
+            echo -e "\nVous choisissez de quitter sans recherche additionnelle.\n"
+            exit 0
+        fi
+    else
+	# Search the keyword (regex) within the man/help page
+	# STDERR has to be ignored because it lauches error about 'troff' used by man
+        "$TYPE_RECHERCHE" "$COMMANDE_RECHERCHEE" 2>/dev/null | less -I -p "$REGEX_RECHERCHE"
+        # less -I : insensitive à la casse
+        # less -p : demande à 'less' de débuter l'affichage à la première occurence du pattern.
+        # le REGEX du mot clef recherché est composé d'au moins un espace avant et 0 ou plusieurs espaces après.
+    fi
+}
+
+function module_controle_si_present_sinon_installe {
+    # Syntaxe : 
+    # $1 : module à installer par brew
+    # La fonction retourne une valeur qui faut contrôler :
+    # 0 : réussite de l'installation / déjà installé
+    # 1 : échec de l'installation.
+
+    MODULE_NECESSAIRE="$1"
+    which "$MODULE_NECESSAIRE" >/dev/null # non affichage du résultat de la recherche
+    if (($?))
+    then
+        echo -e "\nInstallation de '$MODULE_NECESSAIRE' (requis pour ce script).\n"
+         brew install "$MODULE_NECESSAIRE" &&
+        { echo -e "\nInstallation terminée.\n" && return 0 ; } ||
+        { echo -e "\nERREUR : installation échouée.\n" && return 1 ; }
+    else
+        return 0 # si déjà installé
+    fi
+}
+
+# N
+
+# O
+
+# P
+
+function processus_kill_ts_de_session_terminal {
+    # Syntaxe :
+    # $1 : (optionnel) le signal à envoyer (valeur) (numéro / nom / nom avec SIG devant)
+    # Remarques importantes :
+    # Le signal par défaut est 9 (KILL) (=brutal) - sinon celui transmis
+    # STDOUT et STDERR sont envoyés vers /dev/null pour éviter l'affichage de message d'erreur si tentative de killer un processus terminé.
+    # Pour débugguer, mettre en commentaire la redirection de STDOUT et STDERR '>/dev/null 2>&1'
+
+    SIGNAL=${1:-9}
+    while read PROCESSUS_ID
+    do
+        kill -9 "$PROCESSUS_ID"
+    done < <(jobs -p)
+} >/dev/null 2>&1 # STDOUT et STDERR sont envoyé vers /dev/null (=ignorés)
+
+function proxy_unset {
+    # Syntax :
+    # No required argument.
+    # Use : deactivate the environment variable about the proxy.
+    
+    unset http_proxy https_proxy HTTP_PROXY HTTPS_PROXY
+}
+
+# Q
+
+function question_oui_non {
+    # Syntaxe : 
+    # $1 : REP_UTILISATEUR (variable)
+    # $2 : QUE_POSEE (valeur)
+    # Type réponse retournée : 'o' ou 'n'
+
+    local -n REP_UTILISATEUR=$1
+    local QUE_POSEE="$2"
+    echo "" # esthétique
+    read -p "$QUE_POSEE" CHO
+    case "$CHO" in
+        [OoYy]  )   CHO='o';;
+        [Nn]    )   CHO='n';;
+        *       )   echo -e "\nERREUR : veuillez saisir une réponse parmi :\n\"OoYy\" pour \"Oui\"\n\"Nn\" pour \"Non\""
+                    question_oui_non $1 "$2" # appel récursif de la fonction tant que la réponse n'est pas oui ou non - similaire à une boucle
+        ;;
+    esac
+    REP_UTILISATEUR=$CHO
+} < /dev/tty
+
+# R
+
+function repertoire_remplissage_tableau_avec_fichier_sauf_certaines_exceptions_recherche_triee_avec_find {
+    # Syntaxe : 
+    # $1 : le tableau où seront stockés les fichiers (variable)
+    # $2 : le répertoire dans lequel effectuer la recherche (valeur)
+
+    local -n TAB_FICHIER=$1
+    local REP="$2"
+    while read NOM_FICHIER
+    do
+        TAB_FICHIER+=("$NOM_FICHIER")
+    done < <(find "$REP" -path *.git -prune -o -type f -print0 2>/dev/null |
+    # find -path *.git -prune -o : sans rentrer dans les répertoires .git
+    # find -type f : les fichiers uniquement
+    # 2>/dev/null : pas de message d'erreur
+    tr '\0' '\n' |
+    # tr : mise à la ligne forcée entre les fichiers car certains ont des espaces
+    sort )
+}
+
+function retourne_choix_si_nb_correct_selon_select {
+    # Syntaxe : 
+    # $1 : TAB (variable)
+    # $2 : ARG_FOURNI (valeur)
+    # $3 : CHX (variable)
+    # $4 : MESSAGE (valeur)
+    # $5 : OPT_QUITTER (valeur) (optionnel)
+
+    local -n TAB=$1
+    local ARG_FOURNI="$2"
+    local -n CHX=$3
+    local MSG="$4" # Message pour expliquer l'argument à fournir ("range des choix entre 1 et MAX")
+    # Argument optionnel $5 = option_quitter
+    TABLEAU_COPIE=("${TAB[@]}")             
+    # Ajout de l'option quitter à la liste si fourni
+    if [ -n "$5" ] 
+    then
+        local OPT_QUITTER="$5"
+        TABLEAU_COPIE+=("$OPT_QUITTER")
+    else
+        :
+    fi
+
+    NB_REGEX='^[0-9]+$' # Utile pour tester les index
+    if [[ "$ARG_FOURNI" =~ $NB_REGEX ]]
+    then
+        if [ "$ARG_FOURNI" -gt 0 -a "$ARG_FOURNI" -le ${#TABLEAU_COPIE[@]} ]
+        then
+            CHX="${TABLEAU_COPIE[(($ARG_FOURNI-1))]}" # décalage de l'index car les choix à select débutent à 1 et pas 0
+        else
+            echo -e "\nERREUR : le numéro fourni en argument \"$ARG_FOURNI\" ne fait pas partie de la liste des choix.\n"
+            exit 1
+        fi
+    else
+        echo -e "\nL'argument \"$ARG_FOURNI\" n'est pas valable."
+        echo -e "$MSG\n"
+        exit 1
+    fi
+}
+
+# S
+
+function sed_preparation_pr_variable_utilisee_dans_sed_avec_slash_remplacement_en_antislash_slash {
+    # Syntaxe :
+    # $1 : STR (variable)
+
+    local STR="$1"
+    echo "$STR" | sed -e 's/\//\\\//g'
+    # sed -> remplace un slash ('\/') par un antislash ('\\') + slash ('\/') pour que sed le considère comme un simple slash.
+    # sed...'g' : remplace toute les occurences pas que la première
+}
+
+function select_parmi_liste {
+    # Syntaxe :
+    # $1 : TAB_D_OPTIONS (variable)
+    # $2 : CH_UTILISATEUR (variable)
+    # $3 : MES_AFFICHE (valeur) -> avant d'afficher les choix
+    # $4 : OPT_POUR_ARRETER (optionnel) (valeur)
+
+    local -n TAB_D_OPTIONS=$1
+    local -n CH_UTILISATEUR=$2
+    local MES_AFFICHE="$3" # Message
+    MES_BOUCLE=""
+    if [ -z "$4" ] # si le 4ème paramètre est défini = si options pour arrêter a été fournie
+    then    
+        TAB_CHOIX=("${TAB_D_OPTIONS[@]}") # copie du tableau original (à conserver)    
+    else
+        local OPT_POUR_ARRETER="$4" # optionnel
+        TAB_CHOIX=("${TAB_D_OPTIONS[@]}") # copie du tableau original car je vais y ajouter l'option de sortie
+        TAB_CHOIX+=("$OPT_POUR_ARRETER") # ajout de l'option de sortie
+        DER_OPTION="${#TAB_CHOIX[@]}"
+        MES_SI_OPTION_QUITTER="Write \"$DER_OPTION\" to do \"$OPT_POUR_ARRETER\"
+        " # inclus un retour à la ligne
+    fi
+    CH_UTILISATEUR=""
+    until [ -n "$CH_UTILISATEUR" ] 
+    do
+        echo -e "\n$MES_AFFICHE\n$MES_SI_OPTION_QUITTER"
+        select CH_UTILISATEUR in "${TAB_CHOIX[@]}"
+        do
+            break 
+        done
+        if [ -n "$CH_UTILISATEUR" ] # si le choix est correct
+        then
+            :
+        else
+            echo -e "ERROR : your input is not in the choices list.\n$MES_SI_OPTION_QUITTER"
+        fi
+    done   </dev/tty
+
+}
+
+function signal_affiche_selon_code_sortie {
+    # Syntaxe
+    # $1 : le code d'exit du script fourni via '$?'
+
+    CODE_EXIT=$1
+    CODE_SIGNAL=$((CODE_EXIT-128))
+    REGEX_DU_SIGNAL="^$CODE_SIGNAL).*"
+    # Débute par un début de ligne puis le n° du signal puis la parenthèse
+    # C'est le format d'affichage de 'trap -l'
+    NOM_SIG_SIGNAL="$(trap -l |
+    tr '\t' ' ' | # remplace les tabs par des espaces
+    tr ' ' '\n' | # remplace les espaces par des newlines
+    grep -E -A 1 "$REGEX_DU_SIGNAL" | # récupère la ligne du numéro du signal + 1
+    tail -n 1 )" # récupère le nom du signal ave SIG
+    NOM_SIGNAL="${NOM_SIG_SIGNAL#SIG}" # Retrait du SIG
+    echo -e "\n\nLe signal attrapé a été : $CODE_SIGNAL) ${NOM_SIG_SIGNAL} (=$NOM_SIGNAL)\n"
+}
+
+function signaux_avec_numero_et_sig_affichage_brut_avec_retour_a_la_ligne {
+    # Syntaxe
+    # - : pas d'argument requis
+
+    trap -l | # récupération de tous les signaux
+    awk ' { for (i=1;i<=NF; i++) { if ( i%2 == 0 ) { printf ("%s\n", $i) } else { printf ("%s ", $i) } } } '
+    # awk : affichage des signaux avec leur numéro respectif et retour à la ligne à chacun
+}
+
+function signaux_avec_sig_dans_tableau {
+    # Syntaxe
+    # $1 : TAB_SIG (variable)
+
+    local -n TAB_SIG=$1
+    while read SIGNAL_SIGNAL
+    do
+        TAB_SIG+=("$SIGNAL_SIGNAL")
+    done < <(signaux_avec_numero_et_sig_affichage_brut_avec_retour_a_la_ligne |
+    awk ' {print $2} ' | # récupération du signal (suppression du numéro)
+    sort ) # tri alphabétique
+}
+
+function signaux_sans_sig_dans_tableau {
+    # Syntaxe
+    # $1 : TAB_SIG (variable)
+
+    local -n TAB_SIG=$1
+    while read SIGNAL_SIGNAL
+    do
+        SIGNAL_SANS_SIG="${SIGNAL_SIGNAL#SIG}"
+        TAB_SIG+=("$SIGNAL_SANS_SIG")
+    done < <(signaux_avec_numero_et_sig_affichage_brut_avec_retour_a_la_ligne |
+    awk ' {print $2} ' | # récupération du signal (suppression du numéro)
+    sort ) # tri alphabétique
+}
+
+
+function sleep_et_affiche_message {
+    # Syntaxe :
+    # $1 : TMP_ATTENTE_EN_SEC
+    # $2 : MSG
+    # Remarques : peut être remplacé par 2 lignes :
+    #   echo -e "$MESSAGE"
+    #   sleep $TMP_ATTENTE_EN_SEC
+    
+    local TMP_ATTENTE=$1
+    local MSG="$2"
+    REGEX_TMP_ATTENTE_EN_SEC="^[0-9]+$"
+    SYNTAXE=""
+    if [[ -z "$1" || -z "$2" ]]
+    then
+        echo -e "\nERREUR : aucun argument transmis.\n"
+        echo -e "$SYNTAXE"
+        exit 1
+    else
+        if [[ "$TMP_ATTENTE" =~ $REGEX_TMP_ATTENTE_EN_SEC ]]
+        then
+            echo -e "$MSG"
+            sleep $TMP_ATTENTE
+        else
+            echo -e "\nERREUR : le premier argument transmis n'est pas un nombre >=0 (sans le signe '+').\n"
+            echo -e "$SYNTAXE"
+            exit 1
+        fi
+    fi
+}
+
+function statut_retourne {
+    # Syntaxe :
+    # $1 : $? (Sans guillemets)
+    # $2 : COMMANDE
+    
+    local VALEUR_RETOUR=$1
+    local COMMANDE="$2"
+    if [ $VALEUR_RETOUR -eq 0 ]
+    then
+	echo "$COMMANDE - OK"
+    else
+	echo "$COMMANDE - ERREUR"
+    fi
+}
+
+function STDERR_show_message {
+    # Syntax :
+    # $1 : MESSAGE_TO_BE_SENT_TO_STDERR (value)
+
+    # Print message only if there is one.
+    if [ ! -z "$*" ]
+    then
+        printf "%b\n" "$*"
+    else
+        :
+    fi
+} >&2 # Send to STDERR all output from this function
+
+function syntaxe_afficher_si_erreur {
+    # Syntaxe :
+    # $1 : le nom de la fonction/script d'appel (valeur)
+    # $2, ... : les arguments (valeur)
+    # Remarques importante : doit être appelé avec printf / echo -e pr permettre
+    # les retours à la ligne adéquats.
+    
+    local SYN_MES="\nSyntaxe :\n\t"
+    # Ci-dessous, nb d'espace entre chaque argument
+    NB_ESPACES=4
+    STR_ESPACE=""
+    for ((i=0; i<$NB_ESPACES; i++))
+    do
+        STR_ESPACE="$STR_ESPACE "
+    done
+    NB_ARGUMENT_TOTAL=$#
+    for ((i=1; i<$#; i++))
+    do
+        # Ajout de l'argument + des espaces
+        SYN_MES="${SYN_MES}${!i}${STR_ESPACE}"
+    done
+    # Ajout du dernier argument sans espace et avec un retour à la ligne final
+    SYN_MES="${SYN_MES}${!NB_ARGUMENT_TOTAL}\n"
+    # Affichage de la syntaxe :
+    printf "%s" "$SYN_MES"
+}
+
+
+# T
+
+function tableau_affichage_contenu_avec_message {
+    # Syntaxe :
+    # $1 : TAB (variable)
+    # $2 : MES_AVANT_PREMIER_ELEMENT_TABLEAU (optionnel) (valeur)
+    # $3 : MES_AVANT_CHAQUE_ELEMENT_TABLEAU (optionnel) (valeur)
+
+    local -n TAB=$1
+    local MES_AVANT_PREMIER_ELEMENT_TABLEAU="${2:-""}"
+    local MES_AVANT_CHAQUE_ELEMENT_TABLEAU="${3:-""}"
+    if [ ${#MES_AVANT_PREMIER_ELEMENT_TABLEAU} -gt 0 ] # s'il y a un message avant le tableau (si longueur string > 0)
+    then
+        # affichage message avant le premier élément du tableau
+        echo -e "$MES_AVANT_PREMIER_ELEMENT_TABLEAU"
+    else
+        :  
+    fi
+
+    # Affichage du contenu tableau que s'il y a au moins un élément
+    echo "" # retour à la ligne esthétique
+    if [ 0 -lt ${#TAB[@]} ]
+    then
+        for ELEMENT in "${TAB[@]}"
+        do
+            echo -e "${MES_AVANT_CHAQUE_ELEMENT_TABLEAU}${ELEMENT}"
+        done
+    else
+        echo "Tableau vide"
+    fi
+    echo "" # retour à la ligne esthétique
+}
+
+
+
+function tableau_ajout_element_que_si_non_existant_avec_espaces {
+    # Syntaxe :
+    # $1 : TAB (variable)
+    # $2 : STR_ELEMENT_A_AJOUTER (valeur)
+
+    if [[ -z "$1" || -z "$2" ]]
+    then
+        echo "ERREUR : les arguments \$1 : nom_du_tableau_en_string et \$2 : élément à ajouter au tableau n'ont pas été fourni tous les 2."
+    else
+        local -n TAB=$1
+        local STR_ELEMENT_A_AJOUTER="$2"
+        # Contrôle si l'élément est déjà dans le tableau et ajout s'il n'y est pas.
+        ELEMENT_DEJA_DANS_TABLEAU="false"
+        # Comme les éléments peuvent contenir des espaces, besoin de boucler sur chacun
+        # Et de les comparer un par un au string fourni pour ajout.
+        for ELEMENT in "${TAB[@]}"
+        do
+            if [ "$ELEMENT" == "$STR_ELEMENT_A_AJOUTER" ]
+            then
+                # Si l'élément est dans le tableau, on change l'indicateur à 'true' et sort de la boucle.
+                ELEMENT_DEJA_DANS_TABLEAU="true"
+                break
+            else
+                :
+            fi
+        done
+        # Ajout de l'élément que si l'indicateur est à "non true" donc à "false".
+        if [ $ELEMENT_DEJA_DANS_TABLEAU == "true" ]
+        then
+            : # si l'élément est déjà dans le tableau on ne le rajoute pas
+        else
+            TAB+=("$2")
+        fi
+    fi
+}
+
+
+# ajout_element_tableau : argument 1 = tableau / argument 2 = élément à ajouter
+function tableau_ajout_element_que_si_non_existant_sans_espaces {
+    # Syntaxe :
+    # $1 : TAB (variable)
+    # $2 : STR_ELEMENT_A_AJOUTER (valeur)
+
+    if [[ -z "$1" || -z "$2" ]]
+    then
+        echo "ERREUR : les arguments \$1 : nom_du_tableau_en_string et \$2 : élément à ajouter au tableau n'ont pas été fourni tous les 2."
+    else
+        local -n TAB=$1
+        local STR_ELEMENT_A_AJOUTER="$2"
+        # Contrôle si l'élément est déjà dans le tableau et ajout s'il n'y est pas.
+        if [[ " ${TAB[*]} " =~ " ${STR_ELEMENT_A_AJOUTER} " ]]
+        # Les éléments sont séparés par des espaces.
+        # Sauf en début et fin.
+        # Donc pour contrôler le REGEX, ajout d'espace avant et après.
+        then
+            : # si l'élément est déjà dans le tableau on ne le rajoute pas
+        else
+            TAB+=("$STR_ELEMENT_A_AJOUTER")
+        fi
+    fi
+}
+
+function tableau_contenu {
+    # Syntaxe :
+    # $1 : TAB (variable)
+
+    local -n TAB=$1
+    # Affichage du contenu tableau que s'il y a au moins un élément
+    if [ 0 -lt ${#TAB[@]} ]
+    then
+        for ELEMENT in "${TAB[@]}"
+        do
+            echo "$ELEMENT"
+        done
+    else
+        echo "Tableau vide"
+    fi
+}
+
+function tableau_depuis_string_spliter_selon_char_special_et_trier_ordre_alphabetique_pas_numero {
+    # Syntaxe :
+    # $1 : STR (valeur)
+    # $2 : TAB_VIDE (variable)
+    # $3 : CHA_SPECIAL (valeur) -> 1 seul char
+
+    local STR=$1
+    local -n TAB_VIDE=$2
+    local CHA_SPECIAL=$3
+    while read ELEMENT_TRIE
+    do
+        TAB_VIDE+=("$ELEMENT_TRIE")
+    done < <(   sort -f < <(    OLDIFS="$IFS" # récupération de la valeur de IFS
+                                IFS=$CHA_SPECIAL # Modification du char séparateur de base
+                # sort -f : ignore la casse
+                                for ELEMENT in $STR # split automatiquement le string via IFS donc via le char spécial
+                                do
+                                    echo "$ELEMENT"
+                                done
+                                IFS="$OLDIFS" # Remise de IFS à son ancienne valeur
+                            )) # double car d'abord j'affiche puis je trie -> et ensuite je remets dans le tableau
+}
+
+function tableau_suppression_doublon_et_tri_obligatoire_peut_contenir_string_sans_espace {
+    # Syntaxe :
+    # $1 : ANC_TAB (variable)
+    # $2 : NVO_TAB (variable)
+    # $3 : CHA_SEP_NE_DOIT_JMS_ETRE_DS_STR_DU_TAB (valeur)
+    # Remarque IMPORTANTE :
+    # Il est nécessaire que l'utilisateur définisse le char spécial comme un char qui ne se verra
+    # jamais dans les strings du tableau.
+    # Cela ne peut pas être le char nul '\0' ni le retour à la ligne '\n'
+
+    local -n ANC_TAB=$1
+    local -n NVO_TAB=$2
+    local CHA_SEP_NE_DOIT_JMS_ETRE_DS_STR_DU_TAB="$3"
+    # Gestion d'IFS nécessaire pr séparer les morceaux séparés par le char spécial
+    OLDIFS="$IFS"
+    IFS=$CHA_SEP_NE_DOIT_JMS_ETRE_DS_STR_DU_TAB
+    while read ELEMENT_TRIE
+    do
+        NVO_TAB+=("$ELEMENT_TRIE")
+        #echo "'$ELEMENT_TRIE'"
+    done < <(echo "${ANC_TAB[*]}" | tr "$CHA_SEP_NE_DOIT_JMS_ETRE_DS_STR_DU_TAB" '\n' | sort -u )
+    # Gestion d'IFS nécessaire pr séparer les morceaux
+    IFS="$OLDIFS"
+}
+
+function tableau_suppression_doublon_et_tri_obligatoire_seulement_si_nb {
+    # Syntaxe :
+    # $1 : ANC_TAB (variable)
+    # $2 : NVO_TAB (variable)
+
+    local -n ANC_TAB=$1
+    local -n NVO_TAB=$2
+    NVO_TAB=($(echo "${ANC_TAB[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+}
+
+function tableau_suppression_doublon_et_tri_obligatoire_seulement_si_string_sans_espace {
+    # Syntaxe :
+    # $1 : ANC_TAB (variable)
+    # $2 : NVO_TAB (variable)
+
+    local -n ANC_TAB=$1
+    local -n NVO_TAB=$2
+    NVO_TAB=($(echo "${ANC_TAB[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
+}
+
+function tableau_supprimer_tous_les_occurences_d_un_element {
+    # Syntaxe :
+    # $1 : TAB (variable)
+    # $2 : ELE_A_SUP (valeur) : l'élément à supprimer entre guillemets si nécessaire
+
+    local -n TAB=$1
+    local ELE_A_SUP="$2" # element à supprimer
+    for ELEMENT in "${TAB[@]}"
+    do
+        for INDEX in "${!TAB[@]}" # besoin de l'index pour unset la variable
+        # ${!TAB[@]} = la liste des keys = des index
+        do
+            if [[ "${TAB[$INDEX]}" = "$ELE_A_SUP" ]]
+            then
+                unset -v TAB[$INDEX]
+            fi
+        done
+    done
+}
+
+function tableau_taille {
+    # Syntaxe :
+    # $1 : TAB_A_TESTER (variable)
+
+    local -n TAB_A_TESTER=$1
+    echo "${#TAB_A_TESTER[@]}"
+}
+
+function tableau_trier_ordre_alphabetique_pas_numero {
+    # Syntaxe :
+    # $1 : ANC_TABLEAU (variable)
+    # $2 : NOU_TABLEAU (variable)
+
+    local -n ANC_TABLEAU=$1
+    local -n NOU_TABLEAU=$2
+    while read ELEMENT_TRIE
+    do
+        NOU_TABLEAU+=("$ELEMENT_TRIE")
+    done < <(   sort -f < <(
+                # sort -f : ignore la casse
+                for ELEMENT in "${ANC_TABLEAU[@]}" 
+                do
+                    echo "$ELEMENT"
+                done
+                )) # double car d'abord j'affiche puis je trie -> et ensuite je remets dans le tableau
+}
+
+function tableau_trier_numeros_pas_ordre_alphabetique {
+    # Syntaxe :
+    # $1 : ANC_TABLEAU (variable)
+    # $2 : NOU_TABLEAU (variable)
+
+    local -n ANC_TABLEAU=$1
+    local -n NOU_TABLEAU=$2
+    NOU_TABLEAU=( $( printf "%s\n" "${ANC_TABLEAU[@]}" | sort -n ) )
+    # sort -n
+}
+
+function texte_aligner_blocs {
+    # Syntaxe :
+    # $1 : STR_FINAL (variable)
+    # $2 : STR1 (valeur)
+    # $3, $4 : N_CHAR_ALIGN_STR2, STR2 (valeur x2) -> N_CHAR_ALIGN_STR2 est le numéro de colonne du char où STR2 devrait débuter.
+    # $n, $n+1 : par paire, STRN et N_CHAR_ALIGN_STRN
+    # Remarques : suppression des espaces sur STR1 pour un meilleur design
+    # Si le numéro du char calculé est plus petit que la fin du précédent string alors il sera égal à sa fin +1.
+
+    local -n STR_FINAL=$1
+    local STR1="$2"
+    local STR_PROVISOIRE=""
+    SYNTAXE="$(syntaxe_afficher_si_erreur "${FUNCNAME[0]}" "STR_FINAL" "STR1" "[STR_N" "N_CHAR_ALIGN_STR_N" "[...]]")" 
+    # Si impair = ok
+    if [ $(($#/2)) -ne 0 ]
+    then
+        STR_PROVISOIRE=""
+        ARG_EST_UN_NB="false"
+        NUM_COLONNE_PROCHAIN_BLOC=${#STR_PROVISOIRE}
+        STR_ESPACE=""
+        REGEX_NB_POSITIF='^[1-9]+[0-9]*$'
+        # On débute avec $2 / on va jusqu'à $#-1 car le premier argument est $0
+        for ((i=2; i<=$(($#)); i++))
+        do
+            #echo "Boucle ${i}/$# argument ${!i}"
+            # Obtention du numéro selon le string actuel
+            NUM_COLONNE_ACTUELLE=${#STR_PROVISOIRE}
+            if [ $ARG_EST_UN_NB = "true" ]
+            then
+                # Test si bien un nombre
+                if [[ "${!i}" =~ $REGEX_NB_POSITIF ]]
+                then
+                    NUM_COLONNE_PROCHAIN_BLOC=${!i}
+                    if [ $NUM_COLONNE_PROCHAIN_BLOC -le $NUM_COLONNE_ACTUELLE ]
+                    then
+                        NUM_COLONNE_PROCHAIN_BLOC=$((NUM_COLONNE_ACTUELLE+1))
+                    else
+                        :
+                    fi
+                    NB_ESPACE_REQUIS=$((NUM_COLONNE_PROCHAIN_BLOC-NUM_COLONNE_ACTUELLE))
+                    # Remise à vide du nombre d'espace
+                    STR_ESPACE=""
+                    # Adaptation du nb d'espace
+                    for ((j=0; j<$NB_ESPACE_REQUIS; j++))
+                    do
+                        # Ajout d'un espace à chaque boucle
+                        STR_ESPACE="$STR_ESPACE "
+                    done
+                else
+                    echo -e "\nERREUR : l'argument n°$i fourni \"${!i}\" devrait être un nombre > 0."
+                    argument_fournis_afficher_tous $*
+                    echo -e "$SYNTAXE" 
+                    exit 1
+                fi
+                ARG_EST_UN_NB="false"
+            else
+                STR_PROVISOIRE="${STR_PROVISOIRE}${STR_ESPACE}${!i}"
+                ARG_EST_UN_NB="true"
+            fi
+        done
+    else
+        echo -e "\nERREUR : le nombre d'arguments fourni est pair."
+        argument_fournis_afficher_tous $*
+        echo -e "$SYNTAXE" 
+        exit 1
+    fi
+    STR_FINAL="$STR_PROVISOIRE"
+}
+
+function timestamp_current {
+    # Syntax :
+    # No argument needed.
+    # Usage : return the current timestamp. Useful when backing up files.
+    
+    CURRENT_DATE_AND_HOUR="$(date +%F%R | tr -d ':' | tr -d '-')"
+printf "%s\n" "$CURRENT_DATE_AND_HOUR"
+}
+
+# U
+
+# V
+
+# W
+
+# X
+
+# Y
+
+# Z

@@ -1,0 +1,299 @@
+#!/usr/bin/env bash
+
+# Theory reminder regarding the commands :
+# 'fork' :
+#     The Fork system call is used for creating a new process in Linux, and Unix systems, which is called the child process, which runs concurrently with the process that makes the fork() call (parent process). After a new child process is created, both processes will execute the next instruction following the fork() system call.
+# 'tty' :
+#    ‘tty’ prints the file name of the terminal connected to its standard input.  It prints ‘not a tty’ if standard input is not a terminal.
+
+source functions_personal
+
+# Syntax
+SYNTAX="$(syntaxe_afficher_si_erreur "$(basename $0)" "-c COMMAND_TO_DAEMONIZE" "[-d DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR]" "[-s SLEEP_TIME_FOR_DAEMON]" "[--silent]")"
+# -c COMMAND_TO_DAEMONIZE : if it contains several arguments, the whole command has to be within single quotes.
+# -d DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR : the directory to write the daemon STDOUT and STDERR. It has to be a directory were the all users can write files - else the daemon will not have enough rights to do so.
+# -s SLEEP_TIME_FOR_DAEMON : the sleep time between each daemon loop to wait before executing a recurrent command. If not provided, the command will be executed only once.
+# --silent : send STDOUT and STDERR to /dev/null.
+#
+# Other options exists but should not be set by the user and therefore is not shown here :
+# -a ACTION_TO_PROCESS : will be provided by the script itself to itself
+# -t TTY_PROVIDED : will be provided by the script itself to itself
+
+##################################################################
+############### Default values that can be adapted ###############
+##################################################################
+
+# Default value to be used if no other is provided with the script options
+DEFAULT_DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR="/tmp"
+DEFAULT_STDOUT_FILE_BASENAME="$(basename $0)_stdout"
+DEFAULT_STDERR_FILE_BASENAME="$(basename $0)_stderr"
+
+##################################################################
+############### BEGINNING OF OPTION MANAGEMENT ###################
+##################################################################
+
+# Note that we use "$@" to let each command-line parameter expand to a
+# separate word. The quotes around "$@" are essential!
+# We need TEMP as the 'eval set --' would nuke the return value of getopt.
+TEMP=$(getopt --options 'a:c:d:s:t:' --longoptions 'silent' -q -- "$@")
+# -q : quiet
+# -- : to explicitly show the options end
+
+# Test whether syntax was correct (options + arguments)
+if [ $? -ne 0 ]
+then
+    STDERR_show_message "ERROR: syntax..."
+    STDERR_show_message "$SYNTAX"
+    exit 1
+fi
+
+# Arguments check
+FLAG_OPTION_A=
+FLAG_OPTION_C=
+FLAG_OPTION_D=
+FLAG_OPTION_S=
+FLAG_OPTION_SILENT=
+
+# Re-set options through positional parameters
+eval set -- "$TEMP"
+unset TEMP
+
+while true; do
+    case "$1" in
+	-a )
+	    FLAG_OPTION_A=1
+            ACTION_TO_PROCESS="$2"
+            shift 2
+	    # Check that the provided action to process exists - else exit with error.
+	    case "$ACTION_TO_PROCESS" in
+		"refork")
+		    :
+		    ;;
+		"daemon")
+		    :
+		    ;;
+		*)
+		    STDERR_show_message "\nERROR : the provided argument to '-a' = \"$ACTION_TO_PROCESS\" is not a correct one. You should NOT provide such option.\n"
+		    STDERR_show_message "$SYNTAX"
+                    exit 2 
+	       ;;
+	    esac
+            continue
+            ;;
+	-c )  
+	    FLAG_OPTION_C=1
+            COMMAND_TO_DAEMONIZE="$2"
+            shift 2
+	    continue
+            ;;
+	-d )  
+	    FLAG_OPTION_D=1
+            DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR="$2"
+            shift 2
+	    # Test that directory exists - exit with error else
+	    if [ -d "$DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR" ]
+	    then
+		# Get the path whether it is absolute or relative
+		DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR="$(readlink --canonicalize $DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR)"
+	    else
+		STDERR_show_message "\nERROR : the provided argument to '-d' = \"$DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR\" is not a directory.\n"
+		STDERR_show_message "$SYNTAX"
+                exit 3 
+	    fi
+	    continue
+            ;;
+	-s )
+	    FLAG_OPTION_S=1
+            SLEEP_TIME_FOR_DAEMON="$2"
+	    shift 2
+	    # Check that the argument provided is a positive int number.
+	    if [[ "$SLEEP_TIME_FOR_DAEMON" =~ ^[0-9]*$ ]]
+	    then
+		# Control that it is greater than 0.
+		if [ $((SLEEP_TIME_FOR_DAEMON)) -gt 0 ]
+		then
+		    # Set it to the int value (from string to int).
+		    SLEEP_TIME_FOR_DAEMON=$((SLEEP_TIME_FOR_DAEMON))
+		    # Set the option to be passed to future 'eval' commands
+		    OPTION_SLEEP_TIME="-s $SLEEP_TIME_FOR_DAEMON"
+		else
+		    STDERR_show_message "\nERROR : the provided argument to '-s' = \"$SLEEP_TIME_FOR_DAEMON\" should be greater or equal to 1.\n"
+		    STDERR_show_message "$SYNTAX"
+                    exit 4 
+		fi
+	    else
+		STDERR_show_message "\nERROR : the provided argument to '-s' = \"$SLEEP_TIME_FOR_DAEMON\" is not an positive int number.\n"
+		STDERR_show_message "$SYNTAX"
+		exit 5 
+	    fi
+            continue
+            ;;
+	--silent )
+	    FLAG_OPTION_SILENT=1
+	    shift
+	    # Set the option to be passed to future 'eval' commands
+            OPTION_SILENT="--silent"
+            continue
+            ;;
+	-t )  
+            TTY_PROVIDED="$2"
+            shift 2
+            continue
+            ;;
+       	'--')
+	    shift
+	    break
+      	    ;;
+        * )	    
+	    # Error management for all other bugs
+            STDERR_show_message "ERROR: internal error...\n"
+            STDERR_show_message "$SYNTAX"
+            exit 6
+            ;;
+	esac
+done
+
+# Test whether other arguments were provided = in excess (=test if $1 is defined)
+if [ ! -z "$1" ]
+then
+    STDERR_show_message "\nERROR : argument(s) in excess : \"$*\".\n"
+    STDERR_show_message "$SYNTAX"
+    exit 7
+fi
+
+# Test if the requested option(s) were provided
+if [ -z "$FLAG_OPTION_C" ]
+then
+    STDERR_show_message "\nERROR : Please provide all requested argument(s).\n"
+    STDERR_show_message "$SYNTAX"
+    exit 8
+fi
+
+
+# Set the TTY depending on the action provided (or not)
+if [ -z "$FLAG_OPTION_A" ]
+then
+    # If action was provided, by default, use the current tty
+    TTY_TO_USE=$(tty)
+    # And set the action to process the beginning of the script
+    ACTION_TO_PROCESS="fork"
+else
+    # Else, the 'tty' was provided too (by the script itself).
+    TTY_TO_USE="$TTY_PROVIDED"
+fi
+
+# Set the directory to write file of STDOUT and STDERR to the default value (set on the top of the script) if it was not provided by the user.  
+if [ -z "$FLAG_OPTION_D" ]
+then
+    DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR="$DEFAULT_DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR"
+fi
+
+# If silent flag was provided, send STDOUT and STDERR to /dev/null
+if [ ! -z "$FLAG_OPTION_SILENT" ]
+then
+    DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR="/dev"
+    STDOUT_FILE_BASENAME="null"
+    STDERR_FILE_BASENAME="null"
+else
+    # Else, set the default file name for STDOUT and STDERR (see top of the script)
+    STDOUT_FILE_BASENAME="$DEFAULT_STDOUT_FILE_BASENAME"
+    STDERR_FILE_BASENAME="$DEFAULT_STDERR_FILE_BASENAME"
+fi
+
+##################################################################
+############### MAIN SCRIPT CODE #################################
+##################################################################
+
+# Change to the directory parent of the script and conserve it into a variable
+SCRIPT_DIRECTORY="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" # '${BASH_SOURCE[0]}' : contains the (potentially relative) path of the containing script
+
+# Get the name of the script
+SCRIPT_BASENAME=$(basename $0)
+
+# Change to root directory
+cd /
+
+##################################################################
+######### Forking from the script initial process ################
+##################################################################
+
+if [ "$ACTION_TO_PROCESS" = "fork" ]
+then 
+    # Execute the command in a new session
+    # Here : execute this script by passing some arguments in a background process
+    # setsid runs a program in a new session.
+    # The command calls 'fork' if already a process group leader.
+    # The argument "child" is used by the block code above
+    # The 'eval' command is required because of some options provided in two parts but within one variable.
+    # Example the sleep time can be forwarded from the first call to the fork through a variable '-s SLEEP_TIME_FOR_DAEMON' containing two elements.
+    eval setsid "${SCRIPT_DIRECTORY}/${SCRIPT_BASENAME}" -a "refork" -c "${COMMAND_TO_DAEMONIZE@Q}" -d "$DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR" -t "$TTY_TO_USE" "$OPTION_SLEEP_TIME" "$OPTION_SILENT" &
+    # End this command (after having created a child above)
+    exit 0
+    
+##################################################################
+############### Reforking from a secondary process ###############
+##################################################################
+    
+elif [ "$ACTION_TO_PROCESS" = "refork" ]
+then        
+    # Set the user file-creation mask 0 = no mask
+    umask 0
+
+    # The argument "reforking_the_daemon" is used by the block code below
+    # Recall this script and close STDIN + silent mode + background process
+    # Here : reforks
+    # The 'eval' command is required because of some options provided in two parts but within one variable.
+    # Example the sleep time can be forwarded from the first call to the fork through a variable '-s SLEEP_TIME_FOR_DAEMON' containing two elements.
+    eval "${SCRIPT_DIRECTORY}/${SCRIPT_BASENAME}" -a "daemon"  -c "${COMMAND_TO_DAEMONIZE@Q}" -d "$DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR" -t "$TTY_TO_USE" "$OPTION_SLEEP_TIME" "$OPTION_SILENT" </dev/null >/dev/null 2>/dev/null &
+ 
+    # End this command (after forking : having recalled the script in a new process)    
+    exit 0
+
+##################################################################
+############### Daemon actions to run ############################
+##################################################################
+
+elif [ "$ACTION_TO_PROCESS" = "daemon" ]
+then
+    # Set the path of stdout and stderr files
+    STDOUT_FILE_FOR_DAEMON="${DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR}/${STDOUT_FILE_BASENAME}"
+    STDERR_FILE_FOR_DAEMON="${DIRECTORY_FOR_DAEMON_STDOUT_AND_STDERR}/${STDERR_FILE_BASENAME}"
+    
+    # Set STDOUT, STDERR and close STDIN
+    # exec without arguments : If command is not specified, any redirections take effect in the current shell, and  the  return status  is 0.
+    exec >"$STDOUT_FILE_FOR_DAEMON"
+    exec 2>"$STDERR_FILE_FOR_DAEMON"
+    exec 0</dev/null
+    
+    # Empty the STDIN and STDOUT file at each run of the script (at each daemon launching)
+    cp /dev/null "$STDOUT_FILE_FOR_DAEMON"
+    cp /dev/null "$STDERR_FILE_FOR_DAEMON"
+    
+    # Test if a sleep time was provided
+    if [ ! -z "$FLAG_OPTION_S" ]
+    then
+	# If so, infinite loop that execute the command and then sleeps X seconds
+	while true
+	do	    
+            { eval $COMMAND_TO_DAEMONIZE &&
+		  sleep $SLEEP_TIME_FOR_DAEMON
+	    } ||
+	    # If error occurs, error message to STDERR + exit with error.
+	    { echo -e "\nERROR : the command '$COMMAND_TO_DAEMONIZE' exited with error code $?.\n"
+		exit 9
+	    } >&2
+	done
+    else
+    	# Else, execute the command once - with error check
+        { eval $COMMAND_TO_DAEMONIZE &&
+	  exit 0
+	} ||
+	# If error occurs, error message to STDERR + exit with error.
+	{ echo -e "\nERROR : the command '$COMMAND_TO_DAEMONIZE' exited with error code $?.\n"
+	  exit 10
+	} >&2
+    fi
+fi
+
+exit 0
+
