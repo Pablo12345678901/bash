@@ -929,8 +929,7 @@ function tableau_trier_numeros_pas_ordre_alphabetique {
 
     local -n ANC_TABLEAU=$1
     local -n NOU_TABLEAU=$2
-    NOU_TABLEAU=( $( printf "%s\n" "${ANC_TABLEAU[@]}" | sort -n ) )
-    # sort -n
+    NOU_TABLEAU=( $( printf "%s\n" "${ANC_TABLEAU[@]}" | sort -g ) )
 }
 
 function texte_aligner_blocs {
