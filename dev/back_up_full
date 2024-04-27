@@ -387,7 +387,7 @@ Please type 'enter' when done.
 # Check whether the secondary external disk is connected (if its variable is well defined
 if [ ! -d "$USB_SECONDARY_EXTERNAL_DRIVE" ]
 then
-    echo "ERROR : the external usb disk defined within the environment variable \"USB_SECONDARY_EXTERNAL_DRIVE\" is not correctly defined or is not a directory (maybe it is not connected). \nCurrently, its value is \"$USB_SECONDARY_EXTERNAL_DRIVE\"\n"
+    STDERR_show_message "\nERROR : the external usb disk defined within the environment variable \"USB_SECONDARY_EXTERNAL_DRIVE\" is not correctly defined or is not a directory (maybe it is not connected). \nCurrently, its value is \"$USB_SECONDARY_EXTERNAL_DRIVE\"\n"
     exit 20
 fi
 
