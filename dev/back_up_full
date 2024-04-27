@@ -309,10 +309,19 @@ cd "$OLDPWD"
 ############ BACK-UP OF GIT DIRS TO MAIN EXTERNAL DISK ################
 #######################################################################
 
+# Ask the user to connect the external main disk 
+read -p "TO DO :
+WARNING : Do not remove the internet connection for this step.
+1. Connect external main disk.
+2. Check with lsblk that it is well connected..
+
+Please type 'enter' when done.
+"
+
 # Check whether the main external disk is connected (if its variable is well defined
 if  [ ! -d "$USB_MAIN_EXTERNAL_DRIVE" ]
 then
-    STDERR_show_message "\nERROR : the external usb disk defined within the environment variable \"USB_SECONDARY_EXTERNAL_DRIVE\" is not correctly defined or is not a directory (maybe it is not connected). \nCurrently, its value is \"$USB_SECONDARY_EXTERNAL_DRIVE\"\n"
+    STDERR_show_message "\nERROR : the external usb disk defined within the environment variable \"USB_MAIN_EXTERNAL_DRIVE\" is not correctly defined or is not a directory (maybe it is not connected). \nCurrently, its value is \"$USB_MAIN_EXTERNAL_DRIVE\"\n"
     exit 16
 fi
 
@@ -368,6 +377,7 @@ cd "$OLDPWD"
 
 # Ask the user to connect the external secondary disk 
 read -p "TO DO :
+WARNING : You can remove the internet connection for this step.
 1. Connect external secondary disk.
 2. Check with lsblk that it is well connected..
 
