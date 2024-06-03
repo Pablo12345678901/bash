@@ -70,6 +70,7 @@ fi
 echo "$STRING_AVEC_CHAR_SPECIAUX" |
 # Replace the below special char - not equivalent to '-', else bug.
 tr '–' '_' |
+tr '’' '_' |
 tr 'à' 'a' |
 tr 'À' 'A' |
 tr 'â' 'a' |
