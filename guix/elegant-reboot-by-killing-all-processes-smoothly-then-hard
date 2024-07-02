@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# WARNING : when killing the processes, data will be lost if they do not answer to signal 15 (SIGTERM) because of signal 9 (SIGKILL) sent after.
+
+# Getting sudo access
+sudo echo "This a dummy sudo that will ask the password in order to enable further 'sudo's to be runned without anoying user with asking password." >/dev/null 2>&1
+
+# Search for the main process pid (daemon call shepherd, 'herd' when used from command line.
+pid=$(ps -eo pid,comm | grep -E "^\s*1\s+(herd|shepherd)" | awk '{print $1}')
+if [ -z "$pid" ]; then
+    echo "Error: Main herd or shepherd process not found" >&2
+    exit 1
+fi
+
+# Kill it.
+sudo kill -9 $pid
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to kill main process (PID: $pid)" >&2
+    exit 2
+fi
+
+# Wait
+sleep 2
+
+# Kill (pkill -SIGNAL "PATTERN") will send first signal 15 (SIGTERM)
+sudo pkill -15 ".*"
+if [ $? -ne 0 ]; then
+    echo "Warning: SIGTERM might not have been sent to all processes" >&2
+fi
+
+# Wait
+sleep 1
+
+# and then 9 (SIGKILL) if to all processes (option '-1' after the signal) if they do not cooperate after 1 second (SIGTERM, wait 1 second, SIGKILL).
+sudo pkill -9 ".*"
+if [ $? -ne 0 ]; then
+    echo "Warning: SIGKILL might not have been sent to all processes" >&2
+fi
+
+# 'sync' (synchronize) memory in cache with actual one.
+sync
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to sync filesystems" >&2
+    exit 3
+fi
+
+# Write 'b' to the process file 'sysrq-trigger' (in /proc dir) in order the reboot to process.
+echo b > /proc/sysrq-trigger
+if [ $? -ne 0 ]; then
+    echo "Error: Failed to trigger reboot" >&2
+    exit 4
+fi
+
+# This part will never be reached.
+# This was left for convention.
+exit 0
