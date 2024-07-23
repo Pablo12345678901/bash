@@ -44,6 +44,18 @@ SCRIPT_OUTPUT_FILE="${REPERTOIRE_TEMPORAIRE}/output.txt"
 # Will enable the user to read the message before running a long command of back-up with external disk
 PAUSE_BEFORE_RUN=5 
 
+# Set here all git personal repo name to be re-cloned into the new env.
+declare -a ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED
+#ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("administratif")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("bash")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("c_training")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("deep_learning")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("guix-custom-channel")
+#ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("l2l")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("os_config")
+ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("pentesting")
+#ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("sql_training")
+
 #######################################################################
 ################ CHECK OF SET-UP BEFORE BACK-UP #######################
 #######################################################################
@@ -262,17 +274,6 @@ MESSAGE_FOR_NEW_GIT_PERSONAL_TOKEN="TO DO :
 
 NEW TOKEN : "
 read -p "$MESSAGE_FOR_NEW_GIT_PERSONAL_TOKEN" NEW_GIT_PERSONAL_TOKEN
-
-# Set here all git personal repo name to be re-cloned into the new env.
-declare -a ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED
-#ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("administratif")
-ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("bash")
-ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("c_training")
-ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("guix-custom-channel")
-ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("l2l")
-ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("os_config")
-ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("pentesting")
-ARRAY_LIST_OF_GIT_MAIN_DIRECTORIES_TO_BE_RECLONED+=("sql_training")
 
 # Move into the personal git directory
 cd "$REPERTOIRE_DEVELOPPEMENT"
