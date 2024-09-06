@@ -104,12 +104,16 @@ do
     fi
 done
 
+echo -e "\nResolution choosed : RESOLUTION_Y : $RESOLUTION_Y / RESOLUTION_X : $RESOLUTION_X - both are within the range VALUE_MIN-VALUE_MAX = $VALUE_MIN-$VALUE_MAX\n"
+
 # Check if x11 is the XDG_SESSION_TYPE - exit with error message else
 if [ ! "$XDG_SESSION_TYPE" = "x11" ]
 then
     STDERR_show_message "\nERROR : the session type is not x11 but should be for this script to work. \nEnvironment variable \"XDG_SESSION_TYPE\" = $XDG_SESSION_TYPE\n"
     exit 5
 fi 
+
+echo -e "\nThe session type is XDG_SESSION_TYPE = '$XDG_SESSION_TYPE'.\n" 
 
 # Get the output connected available - do not list the disconnected ones
 OUTPUTS_AVAILABLE="$(xrandr |
@@ -135,9 +139,11 @@ then
     exit 6
 fi
 
+echo -e "\nConfirmation : at least two outputs are available.\n"
+
 # Choose the main screen
 OUTPUT_MAIN_SCREEN=""
-MESSAGE_FOR_CHOOSING_MAIN_OUTPUT="Which output should be the main one ? "
+MESSAGE_FOR_CHOOSING_MAIN_OUTPUT="Which output should be the main one (where the other will be cloned) ? "
 OPTION_FOR_LEAVING_SCRIPT="Quit"
 select_parmi_liste OUTPUTS_ARRAY OUTPUT_MAIN_SCREEN "$MESSAGE_FOR_CHOOSING_MAIN_OUTPUT" "$OPTION_FOR_LEAVING_SCRIPT"
 
@@ -147,6 +153,8 @@ then
     echo -e "\nYou choosed to leave this script without further action.\n"
     exit 7
 fi
+
+echo -e "\nYou choosed the main output screen (=where the other screen is cloned) as OUTPUT_MAIN_SCREEN = 'OUTPUT_MAIN_SCREEN'.\n"
 
 # Removing the main screen from the array 
 tableau_supprimer_tous_les_occurences_d_un_element OUTPUTS_ARRAY "$OUTPUT_MAIN_SCREEN"
@@ -172,70 +180,112 @@ else
     fi
 fi
 
+echo -e "\nYou choosed the cloned output screen (the screen cloned, that is not the main one) as OUTPUT_CLONED_SCREEN = '$OUTPUT_CLONED_SCREEN'.\n"
+
 # Printing which set up will be applied by the script
 echo -e "\nYou choosed to clone the screen \"$OUTPUT_CLONED_SCREEN\" on the screen \"$OUTPUT_MAIN_SCREEN\" with a resolution of :\nY = $RESOLUTION_Y\nX = $RESOLUTION_X\n"
 
 ############# MAIN SCREEN ####################
+echo -e "\nBEGINNING OF MAIN SCREEN MANAGEMENT\n"
+
 # Get the newmode from cvt
 NEWMODE_MAIN_SCREEN="$(cvt $RESOLUTION_Y $RESOLUTION_X |
             grep 'Modeline' |
             cut -d ' ' -f 2-)"
 
+echo -e "\nThe newmode obtained from 'cvt' is NEWMODE_MAIN_SCREEN = '$NEWMODE_MAIN_SCREEN'\n"
+
 # Get the resolution 
 RESOLUTION_MAIN_SCREEN="$(echo $NEWMODE_MAIN_SCREEN | cut -d ' ' -f 1)"
 
-# Create the newmode once only if not existing 
-MODE_EXISTING="$(xrandr | grep -m 1 -o "$RESOLUTION_MAIN_SCREEN")"
-if [ -z "$MODE_EXISTING" ]
-then
-    COMMAND="xrandr --newmode $NEWMODE_MAIN_SCREEN"
-    $COMMAND ||
+echo -e "\nThe resolution is RESOLUTION_MAIN_SCREEN = '$RESOLUTION_MAIN_SCREEN'\n"
+
+# Show all resolutions available - useful for debugging
+COMMAND="xrandr"
+echo -e "\nShowing all resolutions available with the command : '$COMMAND'\n"
+$COMMAND ||
     { STDERR_show_message "\nERROR : the command '$COMMAND' could not be processed.\n"
       exit 9
     }
+echo -e "\n\n" # For esthetic as the output of the command can be huge.
+
+# Create the newmode once only if not existing 
+MODE_EXISTING="$(xrandr | grep -m 1 -o "$RESOLUTION_MAIN_SCREEN")"
+
+echo -e "\nGrep on existing modes to check whether such resolution already exists :\nMODE_EXISTING = '$MODE_EXISTING'\n"
+
+if [ -z "$MODE_EXISTING" ]
+then
+    COMMAND="xrandr --newmode $NEWMODE_MAIN_SCREEN"
+    echo -e "\nCreating the newmode with the command : '$COMMAND'\n"
+    $COMMAND ||
+    { STDERR_show_message "\nERROR : the command '$COMMAND' could not be processed.\n"
+      exit 10
+    }
+else
+    echo -e "\nThe resolution RESOLUTION_MAIN_SCREEN = '$RESOLUTION_MAIN_SCREEN' already exists.\n"
 fi
 
 # Add it to the ouput
 COMMAND="xrandr --addmode $OUTPUT_MAIN_SCREEN $RESOLUTION_MAIN_SCREEN"
-$COMMAND ||
-{ STDERR_show_message "\nERROR : the command '$COMMAND' could not be processed.\n"
-  exit 10
-}
-
-# Set it to the output
-COMMAND="xrandr --output $OUTPUT_MAIN_SCREEN --mode $RESOLUTION_MAIN_SCREEN"
+echo -e "\nAdd the newmode to the output with the command : '$COMMAND'\n"
 $COMMAND ||
 { STDERR_show_message "\nERROR : the command '$COMMAND' could not be processed.\n"
   exit 11
 }
-    
-echo -e "\nResolution $RESOLUTION_MAIN_SCREEN was successfully added to output \"$OUTPUT_MAIN_SCREEN\"\n"
-############# END MAIN SCREEN ##################
 
-############# CLONED SCREEN ####################
-# Same for the other output
-# Get the newmode from cvt
-NEWMODE_CLONED_SCREEN="$(cvt $RESOLUTION_Y $RESOLUTION_X |
-            grep 'Modeline' |
-            cut -d ' ' -f 2-)"
-# Get the resolution 
-RESOLUTION_CLONED_SCREEN="$(echo $NEWMODE_CLONED_SCREEN | cut -d ' ' -f 1)"
+echo -e "\nThe new mode RESOLUTION_MAIN_SCREEN = '$RESOLUTION_MAIN_SCREEN' was added to the output main screen OUTPUT_MAIN_SCREEN = '$OUTPUT_MAIN_SCREEN'.\n"
 
-# Add it to the ouput
-COMMAND="xrandr --addmode $OUTPUT_CLONED_SCREEN $RESOLUTION_CLONED_SCREEN"
+# Set it to the output
+COMMAND="xrandr --output $OUTPUT_MAIN_SCREEN --mode $RESOLUTION_MAIN_SCREEN"
+echo -e "\nSet such mode to the output main screen with the command : '$COMMAND'\n"
 $COMMAND ||
 { STDERR_show_message "\nERROR : the command '$COMMAND' could not be processed.\n"
   exit 12
 }
 
-# Set it to the output
-COMMAND="xrandr --output $OUTPUT_CLONED_SCREEN --mode $RESOLUTION_CLONED_SCREEN"
+echo -e "\nResolution (=mode) RESOLUTION_MAIN_SCREEN = '$RESOLUTION_MAIN_SCREEN' was successfully added to output OUTPUT_MAIN_SCREEN = '$OUTPUT_MAIN_SCREEN'\n"
+
+echo -e "\nEND OF MAIN SCREEN MANAGEMENT\n"
+############# END MAIN SCREEN ##################
+
+############# CLONED SCREEN ####################
+echo -e "\nBEGINNING OF CLONED SCREEN MANAGEMENT\n"
+
+# Same for the other output
+# Get the newmode from cvt
+NEWMODE_CLONED_SCREEN="$(cvt $RESOLUTION_Y $RESOLUTION_X |
+            grep 'Modeline' |
+            cut -d ' ' -f 2-)"
+
+echo -e "\nThe newmode obtained from 'cvt' is NEWMODE_CLONED_SCREEN = '$NEWMODE_CLONED_SCREEN'\n"
+
+# Get the resolution 
+RESOLUTION_CLONED_SCREEN="$(echo $NEWMODE_CLONED_SCREEN | cut -d ' ' -f 1)"
+
+echo -e "\nThe resolution for the cloned screen is RESOLUTION_CLONED_SCREEN = '$RESOLUTION_CLONED_SCREEN'.\n"
+
+# Add it to the ouput
+COMMAND="xrandr --addmode $OUTPUT_CLONED_SCREEN $RESOLUTION_CLONED_SCREEN"
+echo -e "\nAdd the newmode to the output with the command : '$COMMAND'\n"
 $COMMAND ||
 { STDERR_show_message "\nERROR : the command '$COMMAND' could not be processed.\n"
   exit 13
 }
-    
-echo -e "\nResolution $RESOLUTION_CLONED_SCREEN was successfully added to output \"$OUTPUT_CLONED_SCREEN\"\n"
+
+echo -e "\nThe new mode RESOLUTION_CLONED_SCREEN = '$RESOLUTION_CLONED_SCREEN' was added to the output main screen OUTPUT_CLONED_SCREEN = '$OUTPUT_CLONED_SCREEN'.\n"
+
+# Set it to the output
+COMMAND="xrandr --output $OUTPUT_CLONED_SCREEN --mode $RESOLUTION_CLONED_SCREEN"
+echo -e "\nSet such mode to the output cloned screen with the command : '$COMMAND'\n"
+$COMMAND ||
+{ STDERR_show_message "\nERROR : the command '$COMMAND' could not be processed.\n"
+  exit 14
+}
+
+echo -e "\nResolution (=mode) RESOLUTION_CLONED_SCREEN = '$RESOLUTION_CLONED_SCREEN' was successfully added to output OUTPUT_CLONED_SCREEN='$OUTPUT_CLONED_SCREEN'\n"
+
+echo -e "\nEND OF CLONED SCREEN MANAGEMENT\n"
 
 ############# END CLONED SCREEN ################
 
@@ -245,6 +295,6 @@ echo -e "\nResolution $RESOLUTION_CLONED_SCREEN was successfully added to output
   exit 0
 } ||
 { STDERR_show_message "\nERROR : The screen \"$OUTPUT_CLONED_SCREEN\" could not be cloned on the screen \"$OUTPUT_MAIN_SCREEN\" with a resolution of \nY = $RESOLUTION_Y\nX = $RESOLUTION_X\n\nDo it manually or check the script.\n"
-  exit 14
+  exit 15
 }
 
